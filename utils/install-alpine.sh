@@ -16,7 +16,6 @@ apk add make cmake clang gcc
 apk add bash dash mksh loksh zsh yash
 apk add nodejs npm
 apk add python3
-# python3-dev py3-setuptools
 apk add composer
 apk add shellcheck shfmt
 apk add libxml2-utils
