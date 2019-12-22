@@ -1,5 +1,5 @@
 #!/bin/sh
 set -euf
-cd /mount
+cd "${WORKDIR}"
 
-eclint check $(git ls-files)
+git ls-files -z | xargs -0 eclint check

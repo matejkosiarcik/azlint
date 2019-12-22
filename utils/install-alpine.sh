@@ -2,9 +2,7 @@
 set -euf
 
 # some packages are only available in edge
-echo http://dl-cdn.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories
-echo http://dl-cdn.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories
-echo http://dl-cdn.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories
+printf '%s\n%s\n%s\n' 'http://dl-cdn.alpinelinux.org/alpine/edge/main' 'http://dl-cdn.alpinelinux.org/alpine/edge/community' 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >>'/etc/apk/repositories'
 
 # update apk
 apk update

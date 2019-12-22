@@ -1,7 +1,10 @@
 #!/bin/sh
 set -euf
-project_path=$(cd "$(dirname "${0}")/.." && pwd)
+WORKDIR="$(cd "${WORKDIR:-.}" && printf '%s\n' "${PWD}")"
+export WORKDIR
+cd "$(dirname "${0}")/.."
 
-npm --prefix "${project_path}/components/npm" run lint
-sh "${project_path}/components/system/lint.sh"
-composer --working-dir ""${project_path}"/components/composer" run-script lint
+sh 'components/system/lint.sh'
+npm --prefix 'components/npm' run lint
+sh 'components/pip/lint.sh'
+composer --working-dir='components/composer' run-script lint

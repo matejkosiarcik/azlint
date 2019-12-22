@@ -14,4 +14,4 @@ RUN mkdir -p /mount
 WORKDIR /mount
 
 # ENTRYPOINT []
-CMD sh /azlint/utils/lint.sh
+CMD WORKDIR='/mount' sh /azlint/utils/lint.sh

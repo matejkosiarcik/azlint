@@ -1,5 +1,5 @@
 #!/bin/sh
 set -euf
-cd /mount
+cd "${WORKDIR}"
 
-shellcheck $(git ls-files "*.sh" "*.bash" "*.zsh" "*.ksh" "*.bats")
+git ls-files -z '*.sh' '*.bash' '*.zsh' '*.ksh' '*.bats' | xargs -0 shellcheck
