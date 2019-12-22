@@ -1,0 +1,8 @@
+language: generic
+sudo: false
+
+install:
+  - "true"
+
+script:
+  - "true"
