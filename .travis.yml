@@ -1,11 +1,23 @@
 language: generic
 sudo: false
 
+os:
+  - macos
+  - linux
+
+addons:
+  apt:
+    update: true
+  homebrew:
+    update: true
+    brewfile: true
+
 before_install:
   - uname -a
+  - if [ "$(uname -s)" = 'Darwin' ]; then sw_vers; fi
 
 install:
-  - "true"
+  - sh 'utils/install-components.sh'
 
 script:
-  - "true"
+  - sh 'utils/lint.sh'
