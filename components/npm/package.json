@@ -1,0 +1,9 @@
+{
+    "private": true,
+    "dependencies": {
+        "eclint": "^2.8.1"
+    },
+    "scripts": {
+        "lint": "sh lint.sh"
+    }
+}
