@@ -1,6 +1,9 @@
 language: generic
 sudo: false
 
+before_install:
+  - uname -a
+
 install:
   - "true"
 
