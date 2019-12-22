@@ -2,9 +2,9 @@ tap "homebrew/cask"
 
 # prepare generic tools
 # brew "make"
-brew "cmake"
-brew "clang"
-brew "gcc"
+# brew "cmake"
+# brew "clang"
+# brew "gcc"
 
 # main languages
 brew "composer"
