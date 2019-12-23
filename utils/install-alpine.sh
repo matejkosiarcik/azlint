@@ -9,11 +9,9 @@ apk update
 apk upgrade
 
 # install system dependencies
-apk add git
-apk add make cmake clang gcc
+apk add alpine-sdk cmake
 apk add bash dash mksh loksh zsh yash
 apk add nodejs npm
-apk add python3
+apk add python3 python3-dev py3-setuptools py3-virtualenv
 apk add composer
-apk add shellcheck shfmt
-apk add libxml2-utils
+apk add shellcheck shfmt libxml2-utils
