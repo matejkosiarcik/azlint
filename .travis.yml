@@ -17,7 +17,10 @@ before_install:
   - if [ "$(uname -s)" = 'Darwin' ]; then sw_vers; fi
 
 install:
-  - if command -v apt-get >/dev/null 2>&1; then sudo sh 'utils/install-debian.sh'; fi
+  - |
+    if command -v apt-get >/dev/null 2>&1; then
+      sudo sh 'utils/install-debian.sh'
+    fi
   - sh 'utils/install-components.sh'
 
 script:

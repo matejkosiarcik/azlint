@@ -1,5 +1,4 @@
 #!/bin/sh
-# shellcheck source=venv/bin/activate
 set -euf
 cd "${WORKDIR}"
 

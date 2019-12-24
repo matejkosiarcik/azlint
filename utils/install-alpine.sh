@@ -6,7 +6,7 @@ printf '%s\n%s\n%s\n' 'http://dl-cdn.alpinelinux.org/alpine/edge/main' 'http://d
 
 # update apk
 apk update
-apk upgrade
+# apk upgrade
 
 # install system dependencies
 apk add alpine-sdk cmake
