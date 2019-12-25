@@ -17,5 +17,4 @@ brew "yash"
 
 # other system packages
 brew "shellcheck"
-brew "shfmt"
 brew "libxml2"

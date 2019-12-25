@@ -13,3 +13,7 @@ pip3 install --upgrade pip setuptools
 pip3 install --requirement 'components/pip/requirements.txt'
 
 composer --working-dir='components/composer' install
+
+printf '\n'
+go version
+GOPATH="${PWD}/components/go" GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt

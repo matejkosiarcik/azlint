@@ -1,16 +1,23 @@
 #!/bin/sh
 set -euf
 
+# prepare 3rd party repos
+# apt-get update
+# apt-get install -y software-properties-common
+# add-apt-repository -y ppa:longsleep/golang-backports
+
 # update apt
-apt update -y
-# apt upgrade -y
+apt-get update
 
 # install system dependencies
-apt install -y git build-essential
-apt install -y bash dash ksh mksh zsh yash
-apt install -y nodejs npm
-apt install -y python3 python3-pip python3-venv python3-setuptools
-apt install -y composer
-apt install -y cabal-install shellcheck
-apt install -y golang
-apt install -y libxml2-utils
+apt-get install -y git build-essential
+apt-get install -y bash dash ksh mksh zsh yash
+apt-get install -y nodejs npm
+apt-get install -y python3 python3-pip python3-venv python3-setuptools
+apt-get install -y composer
+apt-get install -y libxml2-utils
+
+# install other packages
+apt-get install -y snapd
+snap install --classic go
+snap install shellcheck

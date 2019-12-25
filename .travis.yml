@@ -4,6 +4,7 @@ sudo: false
 os:
   - macos
   - linux
+dist: bionic
 
 addons:
   apt:
