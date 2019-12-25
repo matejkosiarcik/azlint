@@ -1,15 +1,11 @@
 tap "homebrew/cask"
 
-# prepare generic tools
-# brew "make"
-# brew "cmake"
-# brew "clang"
-# brew "gcc"
-
 # main languages
-brew "composer"
 brew "node"
 brew "python3"
+brew "composer"
+brew "cabal-install"
+brew "go"
 
 # shells
 # brew "bash"
