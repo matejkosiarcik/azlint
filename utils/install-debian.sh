@@ -5,6 +5,8 @@ set -euf
 # apt-get update
 # apt-get install -y software-properties-common
 # add-apt-repository -y ppa:longsleep/golang-backports
+# apt-get update
+# apt-get install -y golang-go
 
 # update apt
 apt-get update
@@ -19,5 +21,5 @@ apt-get install -y libxml2-utils
 
 # install other packages
 apt-get install -y snapd
-snap install --classic go
-snap install shellcheck
+# snap install --classic go
+# snap install shellcheck

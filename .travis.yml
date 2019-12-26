@@ -1,14 +1,13 @@
-language: generic
-sudo: false
+language: minimal
 
 os:
   - macos
   - linux
-dist: bionic
 
 addons:
   apt:
     update: true
+  snap:
   homebrew:
     update: true
     brewfile: true
@@ -22,6 +21,7 @@ install:
     if command -v apt-get >/dev/null 2>&1; then
       sudo sh 'utils/install-debian.sh'
     fi
+  - eval "$(gimme stable)" # otherwise travis has go-v1.11
   - sh 'utils/install-components.sh'
 
 script:
