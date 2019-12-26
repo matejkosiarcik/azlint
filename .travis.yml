@@ -20,7 +20,8 @@ install:
     if command -v apt-get >/dev/null 2>&1; then
       sudo sh 'utils/install-debian.sh'
     fi
-  - eval "$(gimme stable)" # otherwise travis has go-v1.11
+  - nvm install node  # otherwise node is not available
+  - eval "$(gimme stable)"  # otherwise go-v1.11 is present
   - sh 'utils/install-components.sh'
 
 script:

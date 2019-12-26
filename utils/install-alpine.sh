@@ -14,4 +14,4 @@ apk add nodejs npm
 apk add python3 python3-dev py3-setuptools py3-virtualenv
 apk add composer
 apk add go
-apk add shellcheck libxml2-utils
+apk add libxml2-utils

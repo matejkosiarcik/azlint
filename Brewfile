@@ -4,7 +4,6 @@ tap "homebrew/cask"
 brew "node"
 brew "python3"
 brew "composer"
-brew "cabal-install"
 brew "go"
 
 # shells
@@ -16,5 +15,4 @@ brew "dash"
 brew "yash"
 
 # other system packages
-brew "shellcheck"
 brew "libxml2"
