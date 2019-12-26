@@ -7,7 +7,6 @@ os:
 addons:
   apt:
     update: true
-  snap:
   homebrew:
     update: true
     brewfile: true

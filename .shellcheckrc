@@ -1,2 +1,2 @@
-disable=SC1091 # source unreadable
 disable=SC1090 # dynamic source
+disable=SC1091 # source unreadable
