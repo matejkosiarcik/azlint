@@ -7,5 +7,5 @@ git ls-files -z '*.sh' '*.bash' '*.zsh' '*.ksh' '*.mksh' '*.bats' | xargs -0 she
 git ls-files -z 'package.json' '*/package.json' | xargs -0 -n1 pjv --filename
 git ls-files -z '*.gitlab-ci.yml' | xargs -0 -n1 gitlab-ci-lint
 git ls-files -z '*.gitlab-ci.yml' | xargs -0 -n1 gitlab-ci-validate validate
-git ls-files -z '*.md' '*.markdown' | xargs -0 markdownlint
+git ls-files -z '*.md' '*.markdown' '*.mdown' '*.mdwn' '*.mdx' '*.mkd' '*.mkdn' '*.mkdown' '*.ronn' '*.workbook' 'contents.lr' '*/contents.lr' | xargs -0 markdownlint
 git ls-files -z '*.json' 'composer.lock' '*/composer.lock' | xargs -0 jsonlint --quiet
