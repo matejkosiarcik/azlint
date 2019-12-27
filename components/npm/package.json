@@ -6,6 +6,7 @@
         "eclint": "^2.8.1",
         "gitlab-ci-lint": "^1.0.2",
         "gitlab-ci-validate": "^0.3.0",
+        "jsonlint": "^1.6.3",
         "markdownlint-cli": "^0.20.0",
         "package-json-validator": "^0.6.3"
     },
