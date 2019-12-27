@@ -2,7 +2,5 @@
 set -euf
 cd "${WORKDIR}"
 
-sh <<EOF
-    "${0}/../venv/bin/activate"
-    git ls-files -z '*.yml' '*.yaml' | xargs -0 yamllint
-EOF
+set +u && . "$(dirname "${0}")/venv/bin/activate" && set -u
+git ls-files -z '*.yml' '*.yaml' | xargs -0 yamllint --strict

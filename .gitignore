@@ -1,9 +1,14 @@
 # Custom
 
+# go local packages
+**/go/bin/
+**/go/pkg/
+
+# composer only ignores root "/vendor/"
 vendor/
 
-# Created by https://www.gitignore.io/api/node,python,composer,venv,macos,linux,windows
-# Edit at https://www.gitignore.io/?templates=node,python,composer,venv,macos,linux,windows
+# Created by https://www.gitignore.io/api/node,python,composer,haskell,go,venv,macos,linux,windows
+# Edit at https://www.gitignore.io/?templates=node,python,composer,haskell,go,venv,macos,linux,windows
 
 ### Composer ###
 composer.phar
@@ -12,6 +17,50 @@ composer.phar
 # Commit your application's lock file https://getcomposer.org/doc/01-basic-usage.md#commit-your-composer-lock-file-to-version-control
 # You may choose to ignore a library lock file http://getcomposer.org/doc/02-libraries.md#lock-file
 # composer.lock
+
+### Go ###
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+### Go Patch ###
+/Godeps/
+
+### Haskell ###
+dist
+dist-*
+cabal-dev
+*.o
+*.hi
+*.chi
+*.chs.h
+*.dyn_o
+*.dyn_hi
+.hpc
+.hsenv
+.cabal-sandbox/
+cabal.sandbox.config
+*.prof
+*.aux
+*.hp
+*.eventlog
+.stack-work/
+cabal.project.local
+cabal.project.local~
+.HTF/
+.ghc.environment.*
 
 ### Linux ###
 *~
@@ -156,7 +205,6 @@ __pycache__/
 *$py.class
 
 # C extensions
-*.so
 
 # Distribution / packaging
 .Python
@@ -297,4 +345,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.gitignore.io/api/node,python,composer,venv,macos,linux,windows
+# End of https://www.gitignore.io/api/node,python,composer,haskell,go,venv,macos,linux,windows

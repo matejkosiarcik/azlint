@@ -3,6 +3,9 @@
     "dependencies": {
         "eclint": "^2.8.1"
     },
+    "optionalDependencies": {
+        "shellcheck": "^0.4.1"
+    },
     "scripts": {
         "lint": "sh lint.sh"
     }
