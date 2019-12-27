@@ -1,6 +1,7 @@
 {
     "name": "azlint-npm",
     "version": "0.1.0",
+    "description": "Lint everything From A to Z",
     "private": true,
     "dependencies": {
         "eclint": "^2.8.1",
