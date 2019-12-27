@@ -1,7 +1,12 @@
 {
+    "name": "azlint-npm",
+    "version": "0.1.0",
     "private": true,
     "dependencies": {
-        "eclint": "^2.8.1"
+        "eclint": "^2.8.1",
+        "gitlab-ci-lint": "^1.0.2",
+        "gitlab-ci-validate": "^0.3.0",
+        "package-json-validator": "^0.6.3"
     },
     "optionalDependencies": {
         "shellcheck": "^0.4.1"
