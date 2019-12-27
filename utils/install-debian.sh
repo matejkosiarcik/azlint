@@ -9,7 +9,9 @@ set -euf
 # apt-get install -y golang-go
 
 # update apt
+apt-key update
 apt-get update
+apt-get dist-upgrade
 
 # install system dependencies
 apt-get install -y git build-essential
