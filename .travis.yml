@@ -49,8 +49,7 @@ install:
       eval "$(gimme stable)"  # otherwise go-v1.11 is present
     fi
   - |
-    if [ "$(uname -s)" = Darwin ] && [ ! command -v python3 ]; then
-      printf 'Overwriting python3\n'
+    if [ "$(uname -s)" = Darwin ]; then
       brew link --overwrite --force python3
     fi
   - sh 'utils/install-components.sh'
