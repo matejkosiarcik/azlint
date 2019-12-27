@@ -14,10 +14,10 @@ addons:
 jobs:
   include:
     # other Ubuntu versions
-    - {if: branch = master, os: linux, dist: bionic}
-    - {if: branch = master, os: linux, dist: xenial}
-    - {if: branch = master, os: linux, dist: trusty}
-    - {if: branch = master, os: linux, dist: precise}
+    - { if: branch = master, os: linux, dist: bionic }
+    - { if: branch = master, os: linux, dist: xenial }
+    - { if: branch = master, os: linux, dist: trusty }
+    - { if: branch = master, os: linux, dist: precise }
 
     # other macOS versions
     - { if: branch = master AND type != pull_request, os: osx, osx_image: xcode11.3 }
