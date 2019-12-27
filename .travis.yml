@@ -47,7 +47,10 @@ install:
       sudo sh 'utils/install-debian.sh'
       nvm install node  # otherwise node is not available
       eval "$(gimme stable)"  # otherwise go-v1.11 is present
-    elif [ "$(uname -s)" = Darwin ]; then
+    fi
+  - |
+    if [ "$(uname -s)" = Darwin ] && [ ! command -v python3 ]; then
+      printf 'Overwriting python3\n'
       brew link --overwrite --force python3
     fi
   - sh 'utils/install-components.sh'
