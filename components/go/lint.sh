@@ -12,4 +12,4 @@ elif (printf '\n' | xargs -r >/dev/null 2>&1); then
     xargs_r='-r'
 fi
 
-git ls-files -z '*.sh' '*.bash' '*.zsh' '*.ksh' '*.bats' | xargs -0 ${xargs_r} shfmt -l -d
+git ls-files -z '*.sh' '*.ksh' '*.bash' '*.zsh' '*.bats' | xargs -0 ${xargs_r} shfmt -l -d

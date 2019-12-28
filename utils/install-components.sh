@@ -5,6 +5,7 @@ cd "$(dirname "${0}")/.."
 npm --prefix 'components/npm' install
 
 command -v pip3 >/dev/null 2>&1 || python3 -m ensurepip
+rm -rf 'components/pip/venv'
 python3 -m venv 'components/pip/venv' || python3 -m virtualenv 'components/pip/venv' || virtualenv -p python3 'components/pip/venv'
 set +u && . 'components/pip/venv/bin/activate' && set -u
 pip3 install --upgrade pip setuptools
