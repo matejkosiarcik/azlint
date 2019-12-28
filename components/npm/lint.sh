@@ -15,7 +15,7 @@ git ls-files -z | xargs -0 ${xargs_r} eclint check
 git ls-files -z '*.md' '*.markdown' '*.mdown' '*.mdwn' '*.mdx' '*.mkd' '*.mkdn' '*.mkdown' '*.ronn' '*.workbook' 'contents.lr' '*/contents.lr' | xargs -0 ${xargs_r} markdownlint
 git ls-files -z '*.json' '*.geojson' '*.htmlhintrc' '*.babelrc' '*.jsonl' '*.eslintrc.json' '*.jscsrc' '*.jshintrc' '*.jshintrc' 'composer.lock' '*/composer.lock' | xargs -0 ${xargs_r} jsonlint --quiet --comments
 git ls-files -z '*.sh' '*.ksh' '*.bash' '*.zsh' '*.bats' | xargs -0 ${xargs_r} shellcheck -x
-git ls-files -z '*.bats' | xargs -0 -J% ${xargs_r} bats --count % >/dev/null
+git ls-files -z '*.bats' | xargs -0 -I% ${xargs_r} bats --count % >/dev/null
 git ls-files -z 'package.json' '*/package.json' | xargs -0 -n1 ${xargs_r} pjv --quiet --filename
 git ls-files -z '*.gitlab-ci.yml' | xargs -0 -n1 ${xargs_r} gitlab-ci-lint
 git ls-files -z '*.gitlab-ci.yml' | xargs -0 -n1 ${xargs_r} gitlab-ci-validate validate
