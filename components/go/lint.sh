@@ -1,7 +1,7 @@
 #!/bin/sh
 set -euf
+PATH="${PWD}/$(dirname "${0}")/bin:${PATH}"
 cd "${WORKDIR}"
-PATH="$(dirname "${0}")/bin:${PATH}"
 
 # Default in GNU xargs is to execute always
 # But not all xargs have this flag
