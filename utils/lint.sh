@@ -1,6 +1,6 @@
 #!/bin/sh
 set -euf
-WORKDIR="$(cd "${WORKDIR:-.}" && printf '%s\n' "${PWD}")"
+WORKDIR="$(cd "${1:-.}" && printf '%s\n' "${PWD}")"
 export WORKDIR
 cd "$(dirname "${0}")/.."
 
