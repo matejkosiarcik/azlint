@@ -10,8 +10,8 @@ brew "go"
 # brew "bash"
 # brew "zsh"
 # brew "ksh"
-brew "mksh"
 brew "dash"
+brew "mksh"
 brew "yash"
 
 # other system packages
