@@ -13,3 +13,4 @@ fi
 
 set +u && . "$(dirname "${0}")/venv/bin/activate" && set -u
 git ls-files -z '*.yml' '*.yaml' | xargs -0 ${xargs_r} yamllint --strict
+git ls-files -z '*.sh' '*.bash' '*.zsh' '*.ksh' '*.mksh' '*.bats' | xargs -0 ${xargs_r} bashate --ignore E006,E003

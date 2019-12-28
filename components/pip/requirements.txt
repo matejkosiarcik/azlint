@@ -2,4 +2,4 @@
 yamllint
 
 # shells
-bash8
+bashate
