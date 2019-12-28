@@ -1,4 +1,6 @@
 {
+    "name": "matejkosiarcik/azlint-composer",
+    "description": "Lint everything From A to Z",
     "type": "metapackage",
     "require": {
         "php": "^7",

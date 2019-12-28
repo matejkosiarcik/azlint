@@ -1,3 +1,3 @@
 # AZLint
 
-Lint everything From A to Z
+> Lint everything From A to Z
