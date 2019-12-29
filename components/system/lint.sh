@@ -32,3 +32,8 @@ if command -v yash >/dev/null 2>&1; then
     git ls-files -z '*.sh' | xargs -0 -n1 ${xargs_r} yash --posix -n
     git ls-files -z '*.sh' | xargs -0 -n1 ${xargs_r} yash -o posixly-correct -n
 fi
+
+# TODO: enable always, after installing LinuxBrew everywhere
+if command -v brew >/dev/null 2>&1; then
+    git ls-files -z '*Brewfile' | xargs -0 -n1 -I% ${xargs_r} brew bundle list --all --file=% >/dev/null
+fi
