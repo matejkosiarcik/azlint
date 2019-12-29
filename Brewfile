@@ -1,5 +1,3 @@
-tap "homebrew/cask"
-
 # main languages
 brew "node"
 brew "python3"
