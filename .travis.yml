@@ -9,7 +9,6 @@ addons:
     update: true
   homebrew:
     update: true
-    brewfile: true
 
 jobs:
   include:
@@ -57,7 +56,8 @@ install:
     fi
   - |
     if [ "$(uname -s)" = Darwin ]; then
-      brew link --overwrite --force python3
+      brew uninstall --force --ignore-dependencies python2
+      sh 'utils/install-macos.sh'
     fi
   - sh 'utils/install-components.sh'
 
