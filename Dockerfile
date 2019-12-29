@@ -5,10 +5,12 @@ WORKDIR /azlint
 
 COPY . ./
 
-RUN sh 'utils/install-alpine.sh' && sh 'utils/install-components.sh'
+RUN sh 'utils/install-alpine.sh' && \
+    sh 'utils/install-components.sh' && \
+    printf '#!/bin/sh\nsh /azlint/utils/lint.sh\n' >'/bin/azlint' && \
+    chmod +x '/bin/azlint'
 
 RUN mkdir -p /mount
 WORKDIR /mount
 
-ENTRYPOINT ["sh", "/azlint/utils/lint.sh"]
-CMD []
+CMD azlint
