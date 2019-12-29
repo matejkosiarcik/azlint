@@ -5,8 +5,7 @@ WORKDIR /azlint
 
 COPY . ./
 
-RUN sh 'utils/install-alpine.sh' && \
-    sh 'utils/install-components.sh' && \
+RUN sh 'utils/install.sh' && \
     printf '#!/bin/sh\nsh /azlint/utils/lint.sh\n' >'/bin/azlint' && \
     chmod +x '/bin/azlint'
 

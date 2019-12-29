@@ -5,9 +5,9 @@ cd "${WORKDIR}"
 # Default in GNU xargs is to execute always
 # But not all xargs have this flag
 xargs_r=''
-if (printf '\n' | xargs --no-run-if-empty >/dev/null 2>&1); then
+if (xargs --no-run-if-empty <'/dev/null' >'/dev/null' 2>&1); then
     xargs_r='--no-run-if-empty'
-elif (printf '\n' | xargs -r >/dev/null 2>&1); then
+elif (xargs -r <'/dev/null' >'/dev/null' 2>&1); then
     xargs_r='-r'
 fi
 
@@ -16,9 +16,6 @@ git ls-files -z '*.sh' '*.ksh' | xargs -0 -n1 ${xargs_r} ksh -n
 git ls-files -z '*.sh' '*.ksh' | xargs -0 -n1 ${xargs_r} mksh -n
 if command -v loksh >/dev/null 2>&1; then
     git ls-files -z '*.sh' '*.ksh' | xargs -0 -n1 ${xargs_r} loksh -n
-fi
-if command -v pdksh >/dev/null 2>&1; then
-    git ls-files -z '*.sh' '*.ksh' | xargs -0 -n1 ${xargs_r} pdksh -n
 fi
 
 # bash/zsh/yash
@@ -34,4 +31,9 @@ if command -v yash >/dev/null 2>&1; then
     git ls-files -z '*.sh' | xargs -0 -n1 ${xargs_r} yash -n
     git ls-files -z '*.sh' | xargs -0 -n1 ${xargs_r} yash --posix -n
     git ls-files -z '*.sh' | xargs -0 -n1 ${xargs_r} yash -o posixly-correct -n
+fi
+
+# TODO: enable always, after installing LinuxBrew everywhere
+if command -v brew >/dev/null 2>&1; then
+    git ls-files -z '*Brewfile' | xargs -0 -n1 -I% ${xargs_r} brew bundle list --all --file=% >/dev/null
 fi

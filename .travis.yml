@@ -9,7 +9,6 @@ addons:
     update: true
   homebrew:
     update: true
-    brewfile: true
 
 jobs:
   include:
@@ -51,15 +50,14 @@ before_install:
 install:
   - |
     if command -v apt-get >/dev/null 2>&1; then
-      sudo sh 'utils/install-debian.sh'
-      nvm install node  # otherwise node is not available
-      eval "$(gimme stable)"  # otherwise go-v1.11 is present
+      nvm install node # otherwise node is not available
+      eval "$(gimme stable)" # otherwise go-v1.11 is present
     fi
   - |
     if [ "$(uname -s)" = Darwin ]; then
-      brew link --overwrite --force python3
+      brew uninstall --force --ignore-dependencies python2 # otherwise python3 errors linking
     fi
-  - sh 'utils/install-components.sh'
+  - sh 'utils/install.sh'
 
 script:
   - sh 'utils/lint.sh'

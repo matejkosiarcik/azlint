@@ -11,4 +11,4 @@ build:
 
 .PHONY: run
 run:
-	docker run -it --rm --volume $(PROJECT_DIR):/mount azlint:dev
+	docker run --interactive --tty --rm --volume $(PROJECT_DIR):/mount azlint:dev

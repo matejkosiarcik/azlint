@@ -1,10 +1,9 @@
 #!/bin/sh
 set -euf
-cd "$(dirname "${0}")"
+cd "$(dirname "${0}")/.."
 
 # update
-brew update
-# brew upgrade
+brew update >'/dev/null'
 
 # install system dependencies
 brew bundle
