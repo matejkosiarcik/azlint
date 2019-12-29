@@ -21,3 +21,6 @@ apt-get install -y nodejs npm
 apt-get install -y python3 python3-pip python3-venv python3-setuptools
 apt-get install -y composer
 apt-get install -y libxml2-utils
+apt-get install -y linuxbrew-wrapper
+
+brew --help <'/dev/null' >'/dev/null' # run post-install linuxbrew scripts
