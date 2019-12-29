@@ -1,5 +1,6 @@
 #!/bin/sh
 set -euf
+cd "$(dirname "${0}")/.."
 
 # some packages are only available in edge
 printf '%s\n%s\n%s\n' 'http://dl-cdn.alpinelinux.org/alpine/edge/main' 'http://dl-cdn.alpinelinux.org/alpine/edge/community' 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >>'/etc/apk/repositories'

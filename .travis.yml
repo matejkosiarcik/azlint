@@ -50,9 +50,9 @@ before_install:
 install:
   - |
     if command -v apt-get >/dev/null 2>&1; then
-      sudo sh 'utils/install-debian.sh'
       nvm install node  # otherwise node is not available
       eval "$(gimme stable)"  # otherwise go-v1.11 is present
+      sudo sh 'utils/install-debian.sh'
     fi
   - |
     if [ "$(uname -s)" = Darwin ]; then

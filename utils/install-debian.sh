@@ -1,5 +1,6 @@
 #!/bin/sh
 set -euf
+cd "$(dirname "${0}")/.."
 
 # prepare 3rd party repos
 # apt-get update
