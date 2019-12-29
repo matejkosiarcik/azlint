@@ -17,9 +17,6 @@ git ls-files -z '*.sh' '*.ksh' | xargs -0 -n1 ${xargs_r} mksh -n
 if command -v loksh >/dev/null 2>&1; then
     git ls-files -z '*.sh' '*.ksh' | xargs -0 -n1 ${xargs_r} loksh -n
 fi
-if command -v pdksh >/dev/null 2>&1; then
-    git ls-files -z '*.sh' '*.ksh' | xargs -0 -n1 ${xargs_r} pdksh -n
-fi
 
 # bash/zsh/yash
 git ls-files -z '*.sh' '*.ksh' '*.bash' | xargs -0 -n1 ${xargs_r} bash -n
