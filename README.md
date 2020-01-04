@@ -48,7 +48,7 @@ docker).
 This mode is meant mostly for development, with further instructions coming
 soon.
 
-## Linters
+## Included linters
 
 More info coming soon.
 
