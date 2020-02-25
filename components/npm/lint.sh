@@ -11,7 +11,7 @@ elif (xargs -r <'/dev/null' >'/dev/null' 2>&1); then
     xargs_r='-r'
 fi
 
-git ls-files -z | xargs -0 ${xargs_r} eclint check
+git ls-files | grep -viE '\.html$' | tr '\n' '\0' | xargs -0 ${xargs_r} eclint check
 git ls-files -z '*.md' '*.markdown' '*.mdown' '*.mdwn' '*.mdx' '*.mkd' '*.mkdn' '*.mkdown' '*.ronn' '*.workbook' 'contents.lr' '*/contents.lr' | xargs -0 ${xargs_r} markdownlint
 git ls-files -z '*.json' '*.geojson' '*.htmlhintrc' '*.babelrc' '*.jsonl' '*.eslintrc.json' '*.jscsrc' '*.jshintrc' '*.jshintrc' 'composer.lock' '*/composer.lock' | xargs -0 ${xargs_r} jsonlint --quiet --comments
 git ls-files -z '*.sh' '*.ksh' '*.bash' '*.zsh' '*.bats' | xargs -0 ${xargs_r} shellcheck -x
