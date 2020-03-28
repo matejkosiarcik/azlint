@@ -12,7 +12,7 @@ apk update
 apk add alpine-sdk build-base
 apk add bash dash mksh loksh zsh yash
 apk add nodejs npm
-apk add python3 python3-dev py3-setuptools py3-virtualenv
+apk add python3 python3-dev py3-virtualenv
 apk add composer
 apk add go
 apk add libxml2-utils
