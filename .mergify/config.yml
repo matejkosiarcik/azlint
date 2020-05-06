@@ -2,12 +2,14 @@ pull_request_rules:
   - name: Automatic Merge (for Owner)
     conditions:
       - author=matejkosiarcik
+      - assignee=matejkosiarcik
       - base=master
       - label!=work-in-progress
-      - status-success=continuous-integration/travis-ci/pr
-      - status-success=continuous-integration/travis-ci/push
+      - -title~=^.*((wip)|(WIP)|(Wip)).*$
       - -conflict
       - -merged
+      - -locked
+      - head~=^(develop|feature-.+)$
     actions:
       merge:
         method: merge
@@ -17,16 +19,17 @@ pull_request_rules:
   - name: Remove merged branches (for Owner)
     conditions:
       - author=matejkosiarcik
-      - merged
       - base=master
+      - merged
       - head~=^(develop|feature-.+)$
     actions:
       delete_head_branch: {}
 
-  - name: Add WIP label
+  - name: Automatic merge for dependabot
     conditions:
-      - title~=^(wip|WIP).*
+      - author=dependabot[bot]
+      - base=master
     actions:
-      label:
-        add:
-          - work-in-progress
+      merge:
+        method: rebase
+        strict: true
