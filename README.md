@@ -56,3 +56,7 @@ More info coming soon.
 
 This project is licensed under the MIT License, see [LICENSE.txt](LICENSE.txt)
 file for full license details.
+
+## TODOs
+
+- TODO: make it work without git
