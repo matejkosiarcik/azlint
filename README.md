@@ -38,8 +38,8 @@ job-azlint:
     - run: azlint
 ```
 
-> It is recommended to use proper tagged version (such as `:1.0.0`) instead of
-`:latest`, although released tagged versions are not available yet.
+> Currently only `:latest` is available, I plan to release version-tagged
+versions (such as `:1.0.0`) as well.
 
 ### Alternative installation
 
