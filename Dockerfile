@@ -1,15 +1,12 @@
-FROM alpine:3.11
+FROM docker:19.03.9
 
-RUN mkdir -p /azlint
-WORKDIR /azlint
+COPY ./runner/ /azlint
+WORKDIR /project
+ENV AZLINT_VERSION=dev
 
-COPY . ./
-
-RUN sh 'utils/install.sh' && \
-    printf '#!/bin/sh\nsh /azlint/utils/lint.sh\n' >'/bin/azlint' && \
+RUN apk add --no-cache nodejs npm git && \
+    npm install --prefix /azlint && \
+    printf '#!/bin/sh\n%s\n' 'node /azlint/main.js' >'/bin/azlint' && \
     chmod +x '/bin/azlint'
-
-RUN mkdir -p /mount
-WORKDIR /mount
 
 CMD azlint
