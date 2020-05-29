@@ -67,7 +67,8 @@ function writeProjectFileList(files) {
 (async () => {
     const files = await getProjectFileList()
     const listPath = writeProjectFileList(files)
-    const someArgs = ['run', '--rm'].concat(dockerVolumeArgumets(listPath))
+    const someArgs = ['run', '--rm', '--tty'].concat(dockerVolumeArgumets(listPath))
     const dockerTagPrefix = `matejkosiarcik/azlint:${process.env['AZLINT_VERSION']}`
     await execa('docker', someArgs.concat([`${dockerTagPrefix}-shellcheck`]), { stdout: process.stdout, stderr: process.stderr })
+    await execa('docker', someArgs.concat([`${dockerTagPrefix}-python`]), { stdout: process.stdout, stderr: process.stderr })
 })()
