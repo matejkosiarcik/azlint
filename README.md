@@ -57,6 +57,13 @@ More info coming soon.
 This project is licensed under the MIT License, see [LICENSE.txt](LICENSE.txt)
 file for full license details.
 
-## TODOs
+## Future plans
 
-- TODO: make it work without git
+- TODO: linuxbrew
+- TODO: proselint
+- TODO: rust
+- TODO: ruby (mdlint)
+- TODO: clangformat lint? (when config files present)
+- TODO: sass-lint, scss-lint, css-lint? (only when config file available)
+- TODO: htmlhint, htmllint? (when config file present)
+- TODO: jshint, jslint, google-closure-linter? (when config files present)

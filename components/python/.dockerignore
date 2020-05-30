@@ -2,3 +2,4 @@
 Dockerfile
 venv/
 .venv/
+.DS_Store
