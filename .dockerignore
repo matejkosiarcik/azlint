@@ -1,4 +1,5 @@
 .git/
+**/Dockerfile
 # Custom
 
 # go local packages
