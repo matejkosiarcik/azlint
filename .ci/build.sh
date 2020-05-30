@@ -9,3 +9,4 @@ fi
 docker build '.' -t "matejkosiarcik/azlint:${AZLINT_VERSION}-all"
 docker build './components/shellcheck' -t "matejkosiarcik/azlint:${AZLINT_VERSION}-shellcheck"
 docker build './components/python' -t "matejkosiarcik/azlint:${AZLINT_VERSION}-python"
+docker build './components/composer' -t "matejkosiarcik/azlint:${AZLINT_VERSION}-composer"

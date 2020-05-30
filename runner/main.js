@@ -71,4 +71,5 @@ function writeProjectFileList(files) {
     const dockerTagPrefix = `matejkosiarcik/azlint:${process.env['AZLINT_VERSION']}`
     await execa('docker', someArgs.concat([`${dockerTagPrefix}-shellcheck`]), { stdout: process.stdout, stderr: process.stderr })
     await execa('docker', someArgs.concat([`${dockerTagPrefix}-python`]), { stdout: process.stdout, stderr: process.stderr })
+    await execa('docker', someArgs.concat([`${dockerTagPrefix}-composer`]), { stdout: process.stdout, stderr: process.stderr })
 })()
