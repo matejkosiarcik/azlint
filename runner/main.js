@@ -77,4 +77,6 @@ function writeProjectFileList(files) {
     await execa('docker', someArgs.concat([`${dockerTagPrefix}-composer`]), { stdout: process.stdout, stderr: process.stderr })
     console.log('--- Go ---')
     await execa('docker', someArgs.concat([`${dockerTagPrefix}-go`]), { stdout: process.stdout, stderr: process.stderr })
+    console.log('--- Node ---')
+    await execa('docker', someArgs.concat([`${dockerTagPrefix}-node`]), { stdout: process.stdout, stderr: process.stderr })
 })()

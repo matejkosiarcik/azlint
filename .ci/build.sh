@@ -11,3 +11,4 @@ docker build './components/shellcheck' -t "matejkosiarcik/azlint:${AZLINT_VERSIO
 docker build './components/python' -t "matejkosiarcik/azlint:${AZLINT_VERSION}-python"
 docker build './components/composer' -t "matejkosiarcik/azlint:${AZLINT_VERSION}-composer"
 docker build './components/go' -t "matejkosiarcik/azlint:${AZLINT_VERSION}-go"
+docker build './components/node' -t "matejkosiarcik/azlint:${AZLINT_VERSION}-node"
