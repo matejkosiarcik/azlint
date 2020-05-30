@@ -12,4 +12,4 @@ elif (xargs -r <'/dev/null' >'/dev/null' 2>&1); then
     xargs_r='-r'
 fi
 
-git ls-files -z '*.sh' '*.ksh' '*.bash' '*.zsh' '*.bats' | xargs -0 ${xargs_r} shfmt -l -d
+grep -iE '\.(sh|ksh|dash|bash|zsh|bats)$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} shfmt -l -d
