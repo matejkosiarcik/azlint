@@ -38,18 +38,19 @@ async function getProjectFileList() {
     const repo = git('.')
     let allFiles = glob.sync('**/*', { nodir: true, dot: true, ignore: '.git/**/*' })
 
+    // TODO: consider other VCS
     if (await repo.checkIsRepo()) {
-        console.log('Is repo')
-        files = allFiles;
-        let newAllFiles = [];
+        console.log('Project is a git repository')
+        files = allFiles
+        let newAllFiles = []
         while (files.length > 0) {
-            const currentFiles = files.splice(0, 1000);
-            const currentIgnoredFiles = await repo.checkIgnore(currentFiles);
-            newAllFiles = newAllFiles.concat(currentFiles.filter(file => !currentIgnoredFiles.includes(file)));
+            const currentFiles = files.splice(0, 1000)
+            const currentIgnoredFiles = await repo.checkIgnore(currentFiles)
+            newAllFiles = newAllFiles.concat(currentFiles.filter(file => !currentIgnoredFiles.includes(file)))
         }
-        allFiles = newAllFiles;
+        allFiles = newAllFiles
     } else {
-        console.log('Not repo')
+        console.log('Project is bare directory')
     }
 
     return allFiles
