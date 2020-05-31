@@ -12,13 +12,14 @@ So... don't depend on it yet (or not solely 😉).
 
 ## Usage
 
-Run in shell:
+Run locally (not recommended, this is unoptimized and takes way more time than
+other ways):
 
 ```sh
-docker run -v "${PWD}":/mount matejkosiarcik/azlint:latest
+docker run -v "${PWD}:/project" -v "/var/run/docker.sock:/var/run/docker.sock" matejkosiarcik/azlint:dev
 ```
 
-Run in gitlab-ci:
+Run in gitlab-ci (must support docker-in-docker):
 
 ```yaml
 job-azlint:
@@ -35,18 +36,12 @@ job-azlint:
     - image: matejkosiarcik/azlint:latest
   steps:
     - checkout
+    - setup_remote_docker
     - run: azlint
 ```
 
-> Currently only `:latest` is available, I plan to release version-tagged
-versions (such as `:1.0.0`) as well.
-
-### Alternative installation
-
-AZLint can be alternatively installed right on your operating system (without
-docker).
-This mode is meant mostly for development, with further instructions coming
-soon.
+> Go to [hub.docker.com](https://hub.docker.com/r/matejkosiarcik/azlint) to see
+all available tags beside `:latest`.
 
 ## Included linters
 
