@@ -1,6 +1,9 @@
 #!/bin/sh
 set -euf
-cd "${WORKDIR}"
+
+if [ -n "${WORKDIR+x}" ]; then
+    cd "${WORKDIR}"
+fi
 
 # Default in GNU xargs is to execute always
 # But not all xargs have this flag
@@ -12,6 +15,4 @@ elif (xargs -r <'/dev/null' >'/dev/null' 2>&1); then
 fi
 
 # TODO: enable always, after installing LinuxBrew everywhere
-if command -v brew >/dev/null 2>&1; then
-    git ls-files -z '*Brewfile' | xargs -0 -n1 -I% ${xargs_r} brew bundle list --all --file=% >/dev/null
-fi
+grep -iEe '\.(Brewfile|brew)$' -e '(^|/)Brewfile$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 -I% ${xargs_r} brew bundle list --all --file=% >/dev/null

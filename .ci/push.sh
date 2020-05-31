@@ -12,6 +12,7 @@ if [ "${AZLINT_VERSION}" != 'dev' ]; then
     docker tag 'matejkosiarcik/azlint:internal-dev-composer' "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-composer"
     docker tag 'matejkosiarcik/azlint:internal-dev-go' "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-go"
     docker tag 'matejkosiarcik/azlint:internal-dev-shellcheck' "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-shellcheck"
+    docker tag 'matejkosiarcik/azlint:internal-dev-brew' "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-brew"
 fi
 
 docker push "matejkosiarcik/azlint:${AZLINT_VERSION}"
@@ -22,3 +23,4 @@ docker push "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-node"
 docker push "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-composer"
 docker push "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-go"
 docker push "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-shellcheck"
+docker push "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-brew"
