@@ -3,4 +3,4 @@ COPY . /src
 WORKDIR /src
 
 RUN npm install
-CMD WORKDIR=/project npm run lint
+CMD WORKDIR=/project npm run --silent lint

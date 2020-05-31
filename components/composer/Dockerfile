@@ -3,4 +3,4 @@ COPY . /src
 WORKDIR /src
 
 RUN composer install
-CMD WORKDIR=/project composer run-script lint
+CMD WORKDIR=/project composer run-script --quiet lint
