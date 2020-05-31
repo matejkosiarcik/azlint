@@ -69,7 +69,7 @@ function writeProjectFileList(files) {
     const files = await getProjectFileList()
     const listPath = writeProjectFileList(files)
     const someArgs = ['run', '--rm', '--tty'].concat(dockerVolumeArgumets(listPath))
-    const dockerTagPrefix = `matejkosiarcik/azlint:${process.env['AZLINT_VERSION']}`
+    const dockerTagPrefix = `matejkosiarcik/azlint:internal-${process.env['AZLINT_VERSION']}`
 
     console.log('--- Alpine ---')
     await execa('docker', someArgs.concat([`${dockerTagPrefix}-alpine`]), { stdout: process.stdout, stderr: process.stderr })
