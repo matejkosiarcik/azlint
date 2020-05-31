@@ -1,7 +1,7 @@
 #!/bin/sh
 set -euf
 
-docker login || ( printf '%s\n' "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin )
+docker login || (printf '%s\n' "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin)
 
 if [ "${AZLINT_VERSION}" != 'dev' ]; then
     docker tag 'matejkosiarcik/azlint:dev' "matejkosiarcik/azlint:${AZLINT_VERSION}"
