@@ -73,6 +73,8 @@ function writeProjectFileList(files) {
 
     console.log('--- Alpine ---')
     await execa('docker', someArgs.concat([`${dockerTagPrefix}-alpine`]), { stdout: process.stdout, stderr: process.stderr })
+    console.log('--- Debian ---')
+    await execa('docker', someArgs.concat([`${dockerTagPrefix}-debian`]), { stdout: process.stdout, stderr: process.stderr })
     console.log('--- Node ---')
     await execa('docker', someArgs.concat([`${dockerTagPrefix}-node`]), { stdout: process.stdout, stderr: process.stderr })
     console.log('--- Python ---')

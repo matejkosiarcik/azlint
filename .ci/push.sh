@@ -6,6 +6,7 @@ docker login || (printf '%s\n' "${DOCKER_PASSWORD}" | docker login --username "$
 if [ "${AZLINT_VERSION}" != 'dev' ]; then
     docker tag 'matejkosiarcik/azlint:dev' "matejkosiarcik/azlint:${AZLINT_VERSION}"
     docker tag 'matejkosiarcik/azlint:internal-dev-alpine' "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-alpine"
+    docker tag 'matejkosiarcik/azlint:internal-dev-debian' "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-debian"
     docker tag 'matejkosiarcik/azlint:internal-dev-python' "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-python"
     docker tag 'matejkosiarcik/azlint:internal-dev-node' "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-node"
     docker tag 'matejkosiarcik/azlint:internal-dev-composer' "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-composer"
@@ -15,6 +16,7 @@ fi
 
 docker push "matejkosiarcik/azlint:${AZLINT_VERSION}"
 docker push "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-alpine"
+docker push "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-debian"
 docker push "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-python"
 docker push "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-node"
 docker push "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-composer"

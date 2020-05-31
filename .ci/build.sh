@@ -8,6 +8,7 @@ fi
 
 docker build --no-cache --pull '.' -t "matejkosiarcik/azlint:${AZLINT_VERSION}"
 docker build --no-cache --pull './components/alpine' -t "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-alpine"
+docker build --no-cache --pull './components/alpine' -t "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-debian"
 docker build --no-cache --pull './components/node' -t "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-node"
 docker build --no-cache --pull './components/python' -t "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-python"
 docker build --no-cache --pull './components/composer' -t "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-composer"
