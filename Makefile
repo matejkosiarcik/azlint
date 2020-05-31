@@ -4,6 +4,14 @@ MAKEFLAGS += --warn-undefined-variables
 PROJECT_DIR := $(dir $(abspath $(MAKEFILE_LIST)))
 AZLINT_VERSION ?= dev
 
+.DEFAULT: all
+.PHONY: all
+all: bootstrap build run
+
+.PHONY: bootstrap
+bootstrap:
+	npm install --prefix runner
+
 .PHONY: build
 build:
 	sh .ci/build.sh
