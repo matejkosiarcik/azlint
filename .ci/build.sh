@@ -6,7 +6,7 @@ if [ -z "${AZLINT_VERSION+x}" ]; then
     AZLINT_VERSION='dev'
 fi
 
-docker build --no-cache --pull '.' -t "matejkosiarcik/azlint:${AZLINT_VERSION}"
+docker build --no-cache --pull './runner/' -t "matejkosiarcik/azlint:${AZLINT_VERSION}"
 docker build --no-cache --pull './components/alpine' -t "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-alpine"
 docker build --no-cache --pull './components/alpine' -t "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-debian"
 docker build --no-cache --pull './components/node' -t "matejkosiarcik/azlint:internal-${AZLINT_VERSION}-node"
