@@ -34,7 +34,7 @@ function dockerVolumeArgumets(filelistPath) {
         // if we are inside container, we can't (generally?) mount volume directly
         // so we **copy** it into intermediary container and mount that instead
         console.error('Using intermediary container for volumes')
-        let volume_container = execa.sync('docker', ['create', '-v', '/project', '-v', '/projectlist', 'alpine', '/bin/true']).stdout
+        let volume_container = execa.sync('docker', ['create', '--volume', '/project', '--volume', '/projectlist', 'alpine', '/bin/true']).stdout
         process.on('exit', () => execa.sync('docker', ['rm', '--force', volume_container]))
         execa.sync('docker', ['cp', `${process.cwd()}/.`, `${volume_container}:/project`])
         execa.sync('docker', ['cp', path.resolve(filelistPath), `${volume_container}:/projectlist/projectlist.txt`])
@@ -42,7 +42,7 @@ function dockerVolumeArgumets(filelistPath) {
     } else {
         // If we are not in a container, it is more efficient(slightly) to mount volume directly
         console.error('Mounting volumes directly')
-        return ['--volume', `${process.cwd()}:/project`, '--volume', `${path.resolve(filelistPath)}:/projectlist/projectlist.txt`]
+        return ['--volume', `${process.cwd()}:/project:ro`, '--volume', `${path.resolve(filelistPath)}:/projectlist/projectlist.txt:ro`]
     }
 }
 
