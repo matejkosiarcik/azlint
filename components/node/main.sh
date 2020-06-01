@@ -24,6 +24,12 @@ tr '\n' '\0' <'/projectlist/projectlist.txt' | xargs -0 ${xargs_r} eclint check 
 grep -iEe '\.(md|markdown|mdown|mdwn|mdx|mkd|mkdn|mkdown|ronn|workbook)$' -e '(^|/)contents\.lr$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} markdownlint
 grep -iEe '\.(json|geojson|htmlhintrc|htmllintrc|babelrc|jsonl|jscsrc|jshintrc|jslintrc)$' -e '(^|/)composer\.lock$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} jsonlint --quiet --comments
 grep -iE '\.bats$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -I% ${xargs_r} bats --count % >/dev/null
-# grep -iE '(^|/)package\.json$' <'/projectlist/projectlist.txt' | xargs -0 -n1 ${xargs_r} pjv --quiet --filename # TODO: enable for non-private packages
 grep -iE '\.gitlab-ci.yml$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 ${xargs_r} gitlab-ci-lint
 grep -iE '\.gitlab-ci.yml$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 ${xargs_r} gitlab-ci-validate validate
+
+grep -iE '(^|/)package.json$' <'/projectlist/projectlist.txt' | while read -r file; do
+    # only run pjv on non-private packages
+    if [ "$(jq .private <"${file}")" != 'true' ]; then
+        pjv --quiet --filename "${file}"
+    fi
+done

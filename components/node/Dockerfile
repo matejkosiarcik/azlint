@@ -2,5 +2,5 @@ FROM node:14.3.0-alpine
 COPY . /src
 WORKDIR /src
 
-RUN npm install
+RUN apk add --no-cache jq && npm install
 CMD WORKDIR=/project npm run --silent lint
