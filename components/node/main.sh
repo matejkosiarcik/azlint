@@ -27,9 +27,10 @@ grep -iE '\.bats$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -I%
 grep -iE '\.gitlab-ci.yml$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 ${xargs_r} gitlab-ci-lint
 grep -iE '\.gitlab-ci.yml$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 ${xargs_r} gitlab-ci-validate validate
 
-grep -iE '(^|/)package.json$' <'/projectlist/projectlist.txt' | while read -r file; do
-    # only run pjv on non-private packages
-    if [ "$(jq .private <"${file}")" != 'true' ]; then
-        pjv --quiet --filename "${file}"
-    fi
-done
+# TODO: enable after team-project is submitted
+# grep -iE '(^|/)package.json$' <'/projectlist/projectlist.txt' | while read -r file; do
+#     # only run pjv on non-private packages
+#     if [ "$(jq .private <"${file}")" != 'true' ]; then
+#         pjv --quiet --filename "${file}"
+#     fi
+# done
