@@ -8,6 +8,8 @@ const path = require('path')
 
 // just bail on error
 process.on('unhandledRejection', error => {
+    console.error(`${error.name}: ${error.text}`)
+    console.error(error)
     process.exit(1)
 })
 
@@ -21,11 +23,11 @@ if (isDocker) {
 } else {
     if (!('AZLINT_VERSION' in process.env)) {
         // when installed as package, use that specific installed version
-        process.env['AZLINT_VERSION'] = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json')))["version"]
+        process.env['AZLINT_VERSION'] = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json')))['version'] || 'dev'
     }
 }
 
-console.error(`Running azlint version ${process.env['AZLINT_VERSION']}`)
+console.error(`Run azlint version ${process.env['AZLINT_VERSION']}`)
 
 // TODO: argument parsing (help, version)
 
@@ -69,7 +71,7 @@ async function getProjectFileList() {
 }
 
 function writeProjectFileList(files) {
-    const tmpDir = fs.mkdtempSync('azlint-tmp')
+    const tmpDir = fs.mkdtempSync('.azlint-tmp')
     const fileString = files.reduce((sum, el) => `${sum}${el}\n`, '')
     const filePath = path.join(tmpDir, 'projectlist.txt')
     fs.writeFileSync(filePath, fileString)

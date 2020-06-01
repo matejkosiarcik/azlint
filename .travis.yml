@@ -21,4 +21,4 @@ install:
   - make bootstrap build
 
 script:
-  - make run run-docker
+  - make run
