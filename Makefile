@@ -14,7 +14,7 @@ bootstrap:
 
 .PHONY: build
 build:
-	sh .ci/build.sh
+	sh utils/build.sh
 
 .PHONY: run
 run:
