@@ -1,0 +1,29 @@
+version: 2.1
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - azlint: { matrix: { parameters: { tag: [ latest ] }}}
+      - build
+
+jobs:
+  azlint:
+    parameters:
+      tag:
+        type: string
+    docker:
+      - image: "matejkosiarcik/azlint:<< parameters.tag >>"
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: azlint || true
+
+  build:
+    docker:
+      - image: docker:latest
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: apk add make git nodejs npm
+      - run: make bootstrap build run

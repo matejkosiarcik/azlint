@@ -1,7 +1,9 @@
 #!/bin/sh
 set -euf
-PATH="${PWD}/$(dirname "${0}")/bin:${PATH}"
-cd "${WORKDIR}"
+
+if [ -n "${WORKDIR+x}" ]; then
+    cd "${WORKDIR}"
+fi
 
 # Default in GNU xargs is to execute always
 # But not all xargs have this flag
@@ -12,4 +14,4 @@ elif (xargs -r <'/dev/null' >'/dev/null' 2>&1); then
     xargs_r='-r'
 fi
 
-git ls-files -z '*.sh' '*.ksh' '*.bash' '*.zsh' '*.bats' | xargs -0 ${xargs_r} shfmt -l -d
+grep -iE '\.(sh|ksh|bash|zsh|bats)$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} shellcheck -x

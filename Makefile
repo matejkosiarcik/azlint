@@ -2,13 +2,24 @@
 
 MAKEFLAGS += --warn-undefined-variables
 PROJECT_DIR := $(dir $(abspath $(MAKEFILE_LIST)))
+AZLINT_VERSION ?= dev
 
-# TODO: add "list" target
+.DEFAULT: all
+.PHONY: all
+all: bootstrap build run
+
+.PHONY: bootstrap
+bootstrap:
+	npm install --prefix runner
 
 .PHONY: build
 build:
-	docker build . --tag azlint:dev
+	sh utils/build.sh
 
 .PHONY: run
 run:
-	docker run --interactive --tty --rm --volume $(PROJECT_DIR):/mount azlint:dev
+	AZLINT_VERSION=$(AZLINT_VERSION) node runner/main.js
+
+.PHONY: run-docker
+run-docker:
+	docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project:ro" --volume '/var/run/docker.sock:/var/run/docker.sock' "matejkosiarcik/azlint:$(AZLINT_VERSION)"

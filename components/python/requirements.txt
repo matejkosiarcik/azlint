@@ -1,0 +1,9 @@
+# config files
+yamllint==1.23.0
+requirements-validator==2019.4.13
+
+# shells
+bashate==2.0.0
+
+# CI
+travislint==1.1

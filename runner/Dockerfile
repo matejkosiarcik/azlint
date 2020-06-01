@@ -1,0 +1,13 @@
+FROM docker:19.03.9
+
+COPY . /azlint
+WORKDIR /project
+ARG AZLINT_VERSION=dev
+ENV AZLINT_VERSION=$AZLINT_VERSION
+
+RUN apk add --no-cache git nodejs npm && \
+    npm install --prefix /azlint && \
+    printf '#!/bin/sh\n%s\n' 'node /azlint/main.js' >'/bin/azlint' && \
+    chmod +x '/bin/azlint'
+
+CMD azlint

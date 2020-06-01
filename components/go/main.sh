@@ -1,6 +1,10 @@
 #!/bin/sh
 set -euf
-cd "${WORKDIR}"
+PATH="${PWD}/$(dirname "${0}")/bin:${PATH}"
+
+if [ -n "${WORKDIR+x}" ]; then
+    cd "${WORKDIR}"
+fi
 
 # Default in GNU xargs is to execute always
 # But not all xargs have this flag
@@ -11,5 +15,4 @@ elif (xargs -r <'/dev/null' >'/dev/null' 2>&1); then
     xargs_r='-r'
 fi
 
-git ls-files -z '*.json' 'composer.lock' '*/composer.lock' | xargs -0 ${xargs_r} jsonlint --quiet
-git ls-files -z 'composer.json' '*/composer.json' | xargs -0 ${xargs_r} composer validate --no-check-publish
+grep -iE '\.(sh|ksh|bash|zsh|bats)$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} shfmt -l -d
