@@ -4,7 +4,7 @@
         "lint": "sh main.sh"
     },
     "dependencies": {
-        "@prantlf/jsonlint": "^10.1.1",
+        "@prantlf/jsonlint": "^10.2.0",
         "bats": "^1.1.0",
         "eclint": "^2.8.1",
         "gitlab-ci-lint": "^1.0.2",
