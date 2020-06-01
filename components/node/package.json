@@ -4,12 +4,12 @@
         "lint": "sh main.sh"
     },
     "dependencies": {
-        "@prantlf/jsonlint": "^10.1.1",
+        "@prantlf/jsonlint": "^10.2.0",
         "bats": "^1.1.0",
         "eclint": "^2.8.1",
         "gitlab-ci-lint": "^1.0.2",
         "gitlab-ci-validate": "^0.3.0",
-        "markdownlint-cli": "^0.20.0",
+        "markdownlint-cli": "^0.23.1",
         "package-json-validator": "^0.6.3"
     }
 }
