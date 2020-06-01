@@ -16,11 +16,9 @@ fi
 
 # TODO: check if sh files not have bash or other non-posix shebang when checking if posix compatible
 
-# ksh
+# ksh, bash, zsh
 grep -iE '\.(sh|ksh)$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 ${xargs_r} ksh -n
 grep -iE '\.(sh|ksh)$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 ${xargs_r} mksh -n
-
-# bash/zsh
 grep -iE '\.(sh|bash)$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 ${xargs_r} bash -n
 grep -iE '\.(sh|zsh)$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 ${xargs_r} zsh -n
 
