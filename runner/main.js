@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const process = require('process')
 const fs = require('fs')
 const execa = require('execa')
@@ -10,9 +11,18 @@ process.on('unhandledRejection', error => {
     process.exit(1)
 })
 
-// default version for development
-if (!('AZLINT_VERSION' in process.env)) {
-    process.env['AZLINT_VERSION'] = 'dev'
+const isDocker = fs.existsSync('/.dockerenv') || fs.existsSync('/.dockerinit')
+
+if (isDocker) {
+    if (!('AZLINT_VERSION' in process.env)) {
+        // default version for development
+        process.env['AZLINT_VERSION'] = 'dev'
+    }
+} else {
+    if (!('AZLINT_VERSION' in process.env)) {
+        // when installed as package, use that specific installed version
+        process.env['AZLINT_VERSION'] = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json')))["version"]
+    }
 }
 
 console.error(`Running azlint version ${process.env['AZLINT_VERSION']}`)
@@ -20,7 +30,7 @@ console.error(`Running azlint version ${process.env['AZLINT_VERSION']}`)
 // TODO: argument parsing (help, version)
 
 function dockerVolumeArgumets(filelistPath) {
-    if (fs.existsSync('/.dockerenv') || fs.existsSync('/.dockerinit')) {
+    if (isDocker) {
         // if we are inside container, we can't (generally?) mount volume directly
         // so we **copy** it into intermediary container and mount that instead
         console.error('Using intermediary container for volumes')

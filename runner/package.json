@@ -1,7 +1,9 @@
 {
-    "name": "azlint-lister",
+    "name": "azlint",
     "private": true,
+    "version": "0.1.0",
     "main": "main.js",
+    "bin": "main.js",
     "scripts": {
         "start": "node main.js"
     },
