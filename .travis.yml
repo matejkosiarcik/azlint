@@ -1,8 +1,5 @@
 language: minimal
 
-os:
-  - linux
-
 services:
   - docker
 
@@ -15,18 +12,13 @@ addons:
 
 jobs:
   include:
-    - { if: branch = master, os: linux, dist: bionic }
-    - { if: branch = master, os: linux, dist: xenial }
-
-    - os: linux
-      services: docker
-      install:
-        - docker build --tag azlint:dev .
-      script:
-        - docker run --interactive --tty --rm --volume "${PWD}:/project" --volume "/var/run/docker.sock:/var/run/docker.sock" azlint:dev
+    - { os: linux, dist: bionic }
+    - { os: linux, dist: xenial }
+    - { os: linux, dist: trusty }
 
 install:
+  - nvm install node  # otherwise node is not available
   - make bootstrap build
 
 script:
-  - make run
+  - make run run-docker
