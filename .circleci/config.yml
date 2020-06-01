@@ -1,0 +1,19 @@
+version: 2.1
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - azlint: { matrix: { parameters: { tag: [ latest, dev ] }}}
+
+jobs:
+  azlint:
+    parameters:
+      tag:
+        type: string
+    docker:
+      - image: "azlint:<< parameters.tag >>"
+    steps:
+      - checkout
+      - setup_remote_docker
+      - make bootstrap build run

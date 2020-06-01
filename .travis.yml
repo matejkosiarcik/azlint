@@ -1,14 +1,17 @@
 language: minimal
 
 os:
-  - osx
   - linux
+
+services:
+  - docker
 
 addons:
   apt:
     update: true
   homebrew:
     update: true
+    brewfile: true
 
 jobs:
   include:
@@ -20,23 +23,10 @@ jobs:
       install:
         - docker build --tag azlint:dev .
       script:
-        - docker run --interactive --tty --rm --volume "${PWD}:/mount" azlint:dev
-
-before_install:
-  - uname -a
-  - if [ "$(uname -s)" = 'Darwin' ]; then sw_vers; fi
+        - docker run --interactive --tty --rm --volume "${PWD}:/project" --volume "/var/run/docker.sock:/var/run/docker.sock" azlint:dev
 
 install:
-  - |
-    if command -v apt-get >/dev/null 2>&1; then
-      nvm install node # otherwise node is not available
-      eval "$(gimme stable)" # otherwise go-v1.11 is present
-    fi
-  - |
-    if [ "$(uname -s)" = Darwin ] && brew list python2 >/dev/null 2>&1; then
-      brew unlink python2;
-    fi
-  - sh 'utils/install.sh'
+  - make bootstrap build
 
 script:
-  - sh 'utils/lint.sh'
+  - make run
