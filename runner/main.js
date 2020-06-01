@@ -15,6 +15,8 @@ if (!('AZLINT_VERSION' in process.env)) {
     process.env['AZLINT_VERSION'] = 'dev'
 }
 
+console.error(`Running azlint version ${process.env['AZLINT_VERSION']}`)
+
 // TODO: argument parsing (help, version)
 
 function dockerVolumeArgumets(filelistPath) {
