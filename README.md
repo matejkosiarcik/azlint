@@ -42,7 +42,7 @@ Run locally (not recommended, this is unoptimized and takes way more time than
 other ways):
 
 ```sh
-docker run -v "${PWD}:/project" -v "/var/run/docker.sock:/var/run/docker.sock" matejkosiarcik/azlint:dev
+docker run -v "${PWD}:/project" -v "/var/run/docker.sock:/var/run/docker.sock" matejkosiarcik/azlint:latest
 ```
 
 Run in gitlab-ci (must support docker-in-docker):
