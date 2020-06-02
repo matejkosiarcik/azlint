@@ -1,0 +1,3 @@
+#!/bin/sh
+# must override build command to append version as build argument
+docker build --build-arg "AZLINT_VERSION=${IMAGE_NAME}" --file "${DOCKERFILE_PATH}" --tag "${IMAGE_NAME}" .
