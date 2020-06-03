@@ -3,5 +3,5 @@ COPY . /src
 WORKDIR /src
 
 # sh dash bash - already available
-RUN apt-get install --yes ash ksh mksh yash zsh
+RUN apt-get update --yes && apt-get install --yes ash ksh mksh yash zsh && rm -rf /var/lib/apt/lists/*
 CMD WORKDIR=/project sh main.sh
