@@ -4,6 +4,18 @@
 
 <!-- toc -->
 
+- [About](#about)
+  - [Included linters](#included-linters)
+- [Usage](#usage)
+  - [gitlab-ci](#gitlab-ci)
+  - [circle-ci](#circle-ci)
+  - [Local install](#local-install)
+  - [Local docker](#local-docker)
+- [License](#license)
+- [Future plans](#future-plans)
+
+<!-- tocstop -->
+
 ## About
 
 This project aims to bundle as many linters as possible in a single package
