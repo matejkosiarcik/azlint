@@ -1,0 +1,166 @@
+version: 2
+
+updates:
+  # Runner
+  - package-ecosystem: npm
+    directory: "/runner"
+    versioning-strategy: increase
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+  - package-ecosystem: docker
+    directory: "/runner"
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+
+  # Alpine
+  - package-ecosystem: docker
+    directory: "/components/alpine"
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+
+  # Brew
+  - package-ecosystem: docker
+    directory: "/components/brew"
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+
+  # Composer
+  - package-ecosystem: docker
+    directory: "/components/composer"
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+  - package-ecosystem: composer
+    directory: "/components/composer"
+    versioning-strategy: increase
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+
+  # Debian
+  - package-ecosystem: docker
+    directory: "/components/debian"
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+
+  # Go
+  - package-ecosystem: docker
+    directory: "/components/go"
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+
+  # Node
+  - package-ecosystem: docker
+    directory: "/components/node"
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+  - package-ecosystem: npm
+    directory: "/components/node"
+    versioning-strategy: increase
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+
+  # Python
+  - package-ecosystem: docker
+    directory: "/components/python"
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+  - package-ecosystem: pip
+    directory: "/components/python"
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+
+  # Shellcheck
+  - package-ecosystem: docker
+    directory: "/components/shellcheck"
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik

@@ -1,5 +1,0 @@
-# config files
-yamllint
-
-# shells
-bashate
