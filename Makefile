@@ -5,6 +5,8 @@ PROJECT_DIR := $(dir $(abspath $(MAKEFILE_LIST)))
 AZLINT_VERSION ?= dev
 DESTDIR ?= $${HOME}/bin
 
+.POSIX:
+
 .DEFAULT: all
 .PHONY: all
 all: bootstrap build run
