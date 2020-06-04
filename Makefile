@@ -3,6 +3,7 @@
 MAKEFLAGS += --warn-undefined-variables
 PROJECT_DIR := $(dir $(abspath $(MAKEFILE_LIST)))
 AZLINT_VERSION ?= dev
+DESTDIR ?= $${HOME}/bin
 
 .DEFAULT: all
 .PHONY: all
@@ -23,3 +24,9 @@ run:
 .PHONY: run-docker
 run-docker:
 	docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project:ro" --volume '/var/run/docker.sock:/var/run/docker.sock' "matejkosiarcik/azlint:$(AZLINT_VERSION)"
+
+.PHONY: install
+install:
+	@[ -d "$(DESTDIR)" ] || (printf 'Error: install directory "%s" not existent\n' "$(DESTDIR)" >&2 && exit 1)
+	printf '#!/bin/sh\nnode "%s/runner/main.js"\n' '$(PWD)' >"$(DESTDIR)/azlint"
+	chmod +x "$(DESTDIR)/azlint"
