@@ -1,0 +1,13 @@
+{
+    "code-block-style": "fenced",
+    "no-duplicate-heading": {
+        "siblings_only": true
+    },
+    "ul-style": "sublist",
+    "no-inline-html": {
+        "allowed_elements": [
+            "details",
+            "summary"
+        ]
+    }
+}
