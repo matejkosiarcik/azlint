@@ -16,15 +16,6 @@ pull_request_rules:
         strict: smart
         strict_method: rebase
 
-  - name: Remove merged branches (for Owner)
-    conditions:
-      - author=matejkosiarcik
-      - base=master
-      - merged
-      - head~=^(develop|feature-.+)$
-    actions:
-      delete_head_branch: {}
-
   - name: Automatic merge for dependabot
     conditions:
       - author=dependabot[bot]
