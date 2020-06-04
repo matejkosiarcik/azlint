@@ -1,4 +1,4 @@
-FROM docker:19.03.9
+FROM docker:19.03.11
 
 COPY . /azlint
 WORKDIR /project
