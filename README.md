@@ -39,32 +39,46 @@ So... don't depend on it yet (or not solely 😉).
 
 ## Usage
 
-Run locally (not recommended, this is unoptimized and takes way more time than
-other ways):
+### gitlab-ci
 
-```sh
-docker run -v "${PWD}:/project" -v "/var/run/docker.sock:/var/run/docker.sock" matejkosiarcik/azlint:latest
-```
-
-Run in gitlab-ci (must support docker-in-docker):
+Note: must support docker-in-docker, more at [docs.gitlab.com](https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#use-docker-in-docker-workflow-with-docker-executor).
 
 ```yaml
 job-azlint:
-  image: matejkosiarcik/azlint:latest
+  image: matejkosiarcik/azlint
   script:
     - azlint
 ```
 
-Run in circle-ci:
+### circle-ci
 
 ```yaml
 job-azlint:
   docker:
-    - image: matejkosiarcik/azlint:latest
+    - image: matejkosiarcik/azlint
   steps:
     - checkout
     - setup_remote_docker
     - run: azlint
+```
+
+### Local install
+
+Note: Depends on NodeJS (subject to change)
+
+```sh
+git clone git@github.com:matejkosiarcik/azlint.git # or https://github.com/matejkosiarcik/azlint.git
+cd azlint
+DESTDIR=<directory in your $PATH> make install
+azlint # runs azlint in current directory
+```
+
+### Local docker
+
+Note: not recommended, this takes way longer than previous methods
+
+```sh
+docker run -v "${PWD}:/project" -v "/var/run/docker.sock:/var/run/docker.sock" matejkosiarcik/azlint
 ```
 
 > Go to [hub.docker.com](https://hub.docker.com/r/matejkosiarcik/azlint) to see
@@ -77,9 +91,9 @@ file for full license details.
 
 ## Future plans
 
+- TODO: rust component
+- TODO: ruby component (mdlint, travis)
 - TODO: proselint
-- TODO: rust
-- TODO: ruby (mdlint, travis)
 - TODO: clangformat lint? (when config files present)
 - TODO: sass-lint, scss-lint, css-lint? (only when config file available)
 - TODO: htmlhint, htmllint? (when config file present)

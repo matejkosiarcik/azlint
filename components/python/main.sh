@@ -14,6 +14,6 @@ elif (xargs -r <'/dev/null' >'/dev/null' 2>&1); then
 fi
 
 grep -iE '\.(yml|yaml)$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} yamllint --strict
-grep -iE '\.(sh|ksh|bash|zsh|bats)$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} bashate --ignore E001,E002,E003,E004,E005,E006 # ignore all whitespace/basic errors
+grep -iE '\.(sh|ksh|bash|zsh)$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} bashate --ignore E001,E002,E003,E004,E005,E006 # ignore all whitespace/basic errors
 grep -iE '(^|/)requirements(-.+)?\.txt$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} -n1 requirements-validator
 grep -iE '(^|/)\.travis\.yml$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} -n1 travislint
