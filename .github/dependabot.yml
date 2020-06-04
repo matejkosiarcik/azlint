@@ -1,73 +1,166 @@
 version: 2
 
-shared-settings: &shared-settings
-  schedule:
-    interval: daily
-    time: "13:00"
-    timezone: "Europe/Bratislava"
-  open-pull-requests-limit: 10
-  reviewers:
-    - matejkosiarcik
-  assignees:
-    - matejkosiarcik
-
 updates:
   # Runner
   - package-ecosystem: npm
     directory: "/runner"
     versioning-strategy: increase
-    <<: *shared-settings
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
   - package-ecosystem: docker
     directory: "/runner"
-    <<: *shared-settings
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
 
   # Alpine
   - package-ecosystem: docker
     directory: "/components/alpine"
-    <<: *shared-settings
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
 
   # Brew
   - package-ecosystem: docker
     directory: "/components/brew"
-    <<: *shared-settings
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
 
   # Composer
   - package-ecosystem: docker
     directory: "/components/composer"
-    <<: *shared-settings
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
   - package-ecosystem: composer
     directory: "/components/composer"
     versioning-strategy: increase
-    <<: *shared-settings
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
 
   # Debian
   - package-ecosystem: docker
     directory: "/components/debian"
-    <<: *shared-settings
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
 
   # Go
   - package-ecosystem: docker
     directory: "/components/go"
-    <<: *shared-settings
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
 
   # Node
   - package-ecosystem: docker
     directory: "/components/node"
-    <<: *shared-settings
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
   - package-ecosystem: npm
     directory: "/components/node"
     versioning-strategy: increase
-    <<: *shared-settings
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
 
   # Python
   - package-ecosystem: docker
     directory: "/components/python"
-    <<: *shared-settings
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
   - package-ecosystem: pip
     directory: "/components/python"
-    <<: *shared-settings
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
 
   # Shellcheck
   - package-ecosystem: docker
     directory: "/components/shellcheck"
-    <<: *shared-settings
+    schedule:
+      interval: daily
+      time: "13:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
