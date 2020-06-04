@@ -3,7 +3,7 @@
     "type": "metapackage",
     "require": {
         "php": "^7",
-        "seld/jsonlint": "^1.7"
+        "seld/jsonlint": "^1.8"
     },
     "scripts": {
         "lint": "sh main.sh"
