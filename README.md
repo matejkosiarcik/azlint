@@ -35,6 +35,7 @@ So... don't depend on it yet (or not solely 😉).
   - [shellcheck](https://github.com/koalaman/shellcheck)
   - Shell dry run (in debian and alpine)
     - sh, ash, dash, bash, yash, zsh, ksh (mksh, loksh)
+  - xmllint
 
 ## Usage
 
