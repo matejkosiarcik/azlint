@@ -1,4 +1,4 @@
-FROM composer:1.10.6
+FROM composer:1.10.7
 COPY . /src
 WORKDIR /src
 
