@@ -2,6 +2,10 @@
 
 > Lint everything From A to Z
 
+<!-- toc -->
+
+<!-- tocstop -->
+
 ## About
 
 This project aims to bundle as many linters as possible in a single package
