@@ -2,20 +2,6 @@
 
 > Lint everything From A to Z
 
-<!-- toc -->
-
-- [About](#about)
-  * [Included linters](#included-linters)
-- [Usage](#usage)
-  * [gitlab-ci](#gitlab-ci)
-  * [circle-ci](#circle-ci)
-  * [Local install](#local-install)
-  * [Local docker](#local-docker)
-- [License](#license)
-- [Future plans](#future-plans)
-
-<!-- tocstop -->
-
 ## About
 
 This project aims to bundle as many linters as possible in a single package
@@ -25,31 +11,6 @@ Project is in early development stage, anything can break at any moment.
 So... don't depend on it yet (or not solely 😉).
 
 ### Included linters
-
-- NodeJS
-  - [eclint](https://github.com/jedmao/eclint)
-  - [jsonlint](https://github.com/prantlf/jsonlint)
-  - [bats-core](https://github.com/bats-core/bats-core)
-  - [markdownlint](https://github.com/igorshubovych/markdownlint-cli)
-  - [package-json-validator](https://github.com/gorillamania/package.json-validator)
-  - [gitlab-ci-validate](https://github.com/pradel/gitlab-ci-validate)
-  - [gitlab-ci-lint](https://github.com/BuBuaBu/gitlab-ci-lint)
-- Python
-  - [yamllint](https://github.com/adrienverge/yamllint)
-  - [bashate](https://github.com/openstack/bashate)
-  - [requirements-validator](https://github.com/looking-for-a-job/requirements-validator.py)
-  - [travislint](https://pypi.org/project/travislint/)
-- Golang
-  - [shfmt](https://github.com/mvdan/sh)
-- Composer
-  - [jsonlint](https://github.com/Seldaek/jsonlint)
-  - [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)
-- Other
-  - [brew-bundle](https://github.com/Homebrew/homebrew-bundle) via [linuxbrew/brew](https://hub.docker.com/r/linuxbrew/brew)
-  - [shellcheck](https://github.com/koalaman/shellcheck)
-  - Shell dry run (in debian and alpine)
-    - sh, ash, dash, bash, yash, zsh, ksh (mksh, loksh)
-  - xmllint
 
 ## Usage
 
