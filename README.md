@@ -111,6 +111,7 @@ very python oriented.
 
 ## Future plans
 
+- TODO: haskell component? (shellcheck, hadolint)
 - TODO: rust component
 - TODO: ruby component (mdlint, travis)
 - TODO: proselint
