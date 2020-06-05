@@ -20,7 +20,8 @@
 ## About
 
 This project's goal is to bundle as many linters as possible in a docker container.
-This makes it really easy to adopt for your project on a CI server (or even locally during development).
+This makes it really easy to adopt for your project on a CI server
+(or even locally during development).
 
 Project is in early development stage, though versioned releases are already available.
 
