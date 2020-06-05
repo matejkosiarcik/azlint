@@ -18,11 +18,10 @@
 
 ## About
 
-This project aims to bundle as many linters as possible in a single package
-(mostly as a docker container) ready to be pulled and run with single command.
+This project's goal is to bundle as many linters as possible in a docker container.
+This makes it really easy to adopt for your project on a CI server (or even locally during development).
 
-Project is in early development stage, anything can break at any moment.
-So... don't depend on it yet (or not solely 😉).
+Project is in early development stage, though versioned releases are already available.
 
 ### Included linters
 
@@ -103,6 +102,11 @@ all available tags beside `:latest`.
 
 This project is licensed under the MIT License, see [LICENSE.txt](LICENSE.txt)
 file for full license details.
+
+## Alternatives
+
+Similar project I found is [git-lint](https://github.com/sk-/git-lint), but
+very python oriented.
 
 ## Future plans
 
