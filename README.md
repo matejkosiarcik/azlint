@@ -12,6 +12,7 @@
   - [Local install](#local-install)
   - [Local docker](#local-docker)
 - [License](#license)
+- [Alternatives](#alternatives)
 - [Future plans](#future-plans)
 
 <!-- tocstop -->
