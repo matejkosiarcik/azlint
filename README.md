@@ -44,6 +44,7 @@ So... don't depend on it yet (or not solely 😉).
 - Composer
   - [jsonlint](https://github.com/Seldaek/jsonlint)
   - [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)
+  - [composer-normalize](https://github.com/ergebnis/composer-normalize)
 - Other
   - [brew-bundle](https://github.com/Homebrew/homebrew-bundle) via [linuxbrew/brew](https://hub.docker.com/r/linuxbrew/brew)
   - [shellcheck](https://github.com/koalaman/shellcheck)
