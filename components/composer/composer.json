@@ -1,5 +1,4 @@
 {
-  "name": "matejkosiarcik/azlint-composer",
   "type": "metapackage",
   "require": {
     "php": "^7",
