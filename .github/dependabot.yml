@@ -7,7 +7,7 @@ updates:
     versioning-strategy: increase
     schedule:
       interval: daily
-      time: "13:00"
+      time: "03:00"
       timezone: "Europe/Bratislava"
     open-pull-requests-limit: 10
     reviewers:
@@ -18,7 +18,7 @@ updates:
     directory: "/runner"
     schedule:
       interval: daily
-      time: "13:00"
+      time: "03:00"
       timezone: "Europe/Bratislava"
     open-pull-requests-limit: 10
     reviewers:
@@ -31,7 +31,7 @@ updates:
     directory: "/components/alpine"
     schedule:
       interval: daily
-      time: "13:00"
+      time: "03:00"
       timezone: "Europe/Bratislava"
     open-pull-requests-limit: 10
     reviewers:
@@ -44,7 +44,7 @@ updates:
     directory: "/components/brew"
     schedule:
       interval: daily
-      time: "13:00"
+      time: "03:00"
       timezone: "Europe/Bratislava"
     open-pull-requests-limit: 10
     reviewers:
@@ -57,7 +57,7 @@ updates:
     directory: "/components/composer"
     schedule:
       interval: daily
-      time: "13:00"
+      time: "03:00"
       timezone: "Europe/Bratislava"
     open-pull-requests-limit: 10
     reviewers:
@@ -69,7 +69,7 @@ updates:
     versioning-strategy: increase
     schedule:
       interval: daily
-      time: "13:00"
+      time: "03:00"
       timezone: "Europe/Bratislava"
     open-pull-requests-limit: 10
     reviewers:
@@ -82,7 +82,7 @@ updates:
     directory: "/components/debian"
     schedule:
       interval: daily
-      time: "13:00"
+      time: "03:00"
       timezone: "Europe/Bratislava"
     open-pull-requests-limit: 10
     reviewers:
@@ -95,7 +95,7 @@ updates:
     directory: "/components/go"
     schedule:
       interval: daily
-      time: "13:00"
+      time: "03:00"
       timezone: "Europe/Bratislava"
     open-pull-requests-limit: 10
     reviewers:
@@ -108,7 +108,7 @@ updates:
     directory: "/components/node"
     schedule:
       interval: daily
-      time: "13:00"
+      time: "03:00"
       timezone: "Europe/Bratislava"
     open-pull-requests-limit: 10
     reviewers:
@@ -120,7 +120,7 @@ updates:
     versioning-strategy: increase
     schedule:
       interval: daily
-      time: "13:00"
+      time: "03:00"
       timezone: "Europe/Bratislava"
     open-pull-requests-limit: 10
     reviewers:
@@ -133,7 +133,7 @@ updates:
     directory: "/components/python"
     schedule:
       interval: daily
-      time: "13:00"
+      time: "03:00"
       timezone: "Europe/Bratislava"
     open-pull-requests-limit: 10
     reviewers:
@@ -144,7 +144,7 @@ updates:
     directory: "/components/python"
     schedule:
       interval: daily
-      time: "13:00"
+      time: "03:00"
       timezone: "Europe/Bratislava"
     open-pull-requests-limit: 10
     reviewers:
@@ -157,7 +157,7 @@ updates:
     directory: "/components/shellcheck"
     schedule:
       interval: daily
-      time: "13:00"
+      time: "03:00"
       timezone: "Europe/Bratislava"
     open-pull-requests-limit: 10
     reviewers:

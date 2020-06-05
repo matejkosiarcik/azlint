@@ -1,5 +1,8 @@
 root = true
 
+### UNIVERSAL RULES ###
+
+# General default settings
 [*]
 charset = utf-8
 end_of_line = lf
@@ -7,14 +10,61 @@ indent_size = 4
 indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = true
+# max_line_length - probably better to leave to language specific tools
 
-[*.{yml,md}]
-indent_size = 2
-indent_style = space
+# Ignore binaries
+# TODO: maybe this is not necessary, check if eclint ignores binaries by default
+[{*.{so,pdb,dylib,dll,cache,a},*.{zip,7z,gz,xz},*.{jpg,jpeg,png,gif}}]
+charset = unset
+end_of_line = unset
+indent_size = unset
+indent_style = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
 
-[Makefile]
-indent_size = 4
+# files to keep directories in version systems, usually empty
+[*.{,git,hg}{keep,empty}]
+insert_final_newline = false
+
+# Makefiles must be indented using tabs
+[{*{,GNU,BSD}{makefile,Makefile},*.make,*{,Root}Makeppfile}]
 indent_style = tab
 
-[.keep]
-insert_final_newline = none
+# Trailing whitespace is generally permitted in markdown
+# But it is rarely used by me, and I prefer trimming such whitespace regardless
+# [*.md]
+# trim_trailing_whitespace = false
+
+# Most documentation formats prefer 2 spaces per indent level
+[{*.{yml,yaml},*.{xml,html,htm,svg,xlf},*.{md,mdown,markdown},*.{css,scss,sass,less}}]
+indent_size = 2
+
+# All jsons
+[{*.{json,json5},*.{remark,htmllint,htmlhint,eslint,babel}rc}]
+indent_size = 2
+
+# C-style languages multiline comments
+[{*.{c,h}{,pp,xx,++},*.{m,cc,hh,mm,C,H,M},*.swift,*.{js,ts}{,x},*.php{,4,5,7},*.{java,scala,sc,kt,ktm,kts},*.{cs,fs}{,x}}]
+block_comment = *
+block_comment_end = */
+block_comment_start = /*
+
+### Ruby ecosystem ###
+
+# Indent Gemfile using 2 spaces
+# TODO: check if bug (3 spaces indent at end of Gemfile.lock) is fixed
+[*{Gemfile,Gemfile.lock}]
+indent_size = 2
+
+### .NET ecosystem ###
+
+# Encoding exception for VisualStudio project files
+[*.{cs,csx,vb,vbx,csproj,njsproj,sln}]
+charset = utf-8-bom
+
+# config files indent diffrently
+[*.{csproj,njsproj,Config,config,targets}]
+indent_size = 2
+
+[*.sln]
+indent_style = tab
