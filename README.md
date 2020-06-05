@@ -54,6 +54,9 @@ Project is in early development stage, though versioned releases are already ava
 
 ## Usage
 
+> Go to [hub.docker.com](https://hub.docker.com/r/matejkosiarcik/azlint) to see
+all available tags beside `:latest`.
+
 ### gitlab-ci
 
 Note: must support docker-in-docker, more at [docs.gitlab.com](https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#use-docker-in-docker-workflow-with-docker-executor).
@@ -95,9 +98,6 @@ Note: not recommended, this takes way longer than previous methods
 ```sh
 docker run -v "${PWD}:/project" -v "/var/run/docker.sock:/var/run/docker.sock" matejkosiarcik/azlint
 ```
-
-> Go to [hub.docker.com](https://hub.docker.com/r/matejkosiarcik/azlint) to see
-all available tags beside `:latest`.
 
 ## License
 
