@@ -39,6 +39,10 @@ indent_style = tab
 [{*.{yml,yaml},*.{xml,html,svg,xlf},*.{md,mdown,markdown},*.{css,scss,sass,less}}]
 indent_size = 2
 
+# All jsons
+[*.{json,json5,remarkrc,htmllintrc,htmlhintrc,eslintrc,babelrc}]
+indent_size = 2
+
 # C-style languages multiline comments
 [{*.{c,h,m,cpp,hpp,cc,hh,mm,C,H,M,cxx,hxx,c++,h++},*.swift,*.{js,jsx,ts,tsx},*.{php,php5,php7},*.{java,scala,sc,kt,ktm,kts},*.{cs,csx,fs,fsx}}]
 block_comment = *
