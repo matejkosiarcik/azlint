@@ -94,7 +94,7 @@ azlint # runs azlint in current directory
 
 ### Local docker
 
-Note: not recommended, this takes way longer than previous methods
+Note: not recommended, currently this takes way longer than previous methods
 
 ```sh
 docker run -v "${PWD}:/project" -v "/var/run/docker.sock:/var/run/docker.sock" matejkosiarcik/azlint
