@@ -3,4 +3,7 @@ COPY . /src
 WORKDIR /src
 
 RUN composer install
-CMD WORKDIR=/project composer run-script lint
+
+
+ENV WORKDIR=/project
+CMD [ "composer", "run-script", "lint" ]

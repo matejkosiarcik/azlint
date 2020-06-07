@@ -3,4 +3,6 @@ COPY . /src
 WORKDIR /src
 
 RUN brew bundle --help >/dev/null
-CMD WORKDIR=/project sh main.sh
+
+ENV WORKDIR=/project
+CMD [ "sh", "main.sh" ]

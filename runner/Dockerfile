@@ -11,4 +11,4 @@ RUN apk add --no-cache git nodejs npm && \
     printf '#!/bin/sh\nnode /azlint/main.js\n' >'/bin/azlint' && \
     chmod +x '/bin/azlint'
 
-CMD azlint
+CMD [ "azlint" ]
