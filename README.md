@@ -49,6 +49,7 @@ Project is in early development stage, though versioned releases are already ava
 - Other
   - [brew-bundle](https://github.com/Homebrew/homebrew-bundle) via [linuxbrew/brew](https://hub.docker.com/r/linuxbrew/brew)
   - [shellcheck](https://github.com/koalaman/shellcheck)
+  - [hadolint](https://github.com/hadolint/hadolint)
   - Shell dry run (in debian and alpine)
     - sh, ash, dash, bash, yash, zsh, ksh (mksh, loksh)
   - xmllint
