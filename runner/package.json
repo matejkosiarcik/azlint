@@ -1,9 +1,11 @@
 {
-  "name": "azlint",
+  "name": "@matejkosiarcik/azlint",
   "private": true,
   "version": "0.1.1",
   "main": "main.js",
-  "bin": "main.js",
+  "bin": {
+    "azlint": "main.js"
+  },
   "scripts": {
     "start": "node main.js"
   },

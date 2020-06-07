@@ -43,12 +43,13 @@ Project is in early development stage, though versioned releases are already ava
 - Golang
   - [shfmt](https://github.com/mvdan/sh)
 - Composer
-  - [jsonlint](https://github.com/Seldaek/jsonlint)
   - [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)
   - [composer-normalize](https://github.com/ergebnis/composer-normalize)
+  - [jsonlint](https://github.com/Seldaek/jsonlint)
 - Other
   - [brew-bundle](https://github.com/Homebrew/homebrew-bundle) via [linuxbrew/brew](https://hub.docker.com/r/linuxbrew/brew)
   - [shellcheck](https://github.com/koalaman/shellcheck)
+  - [hadolint](https://github.com/hadolint/hadolint)
   - Shell dry run (in debian and alpine)
     - sh, ash, dash, bash, yash, zsh, ksh (mksh, loksh)
   - xmllint
@@ -94,7 +95,7 @@ azlint # runs azlint in current directory
 
 ### Local docker
 
-Note: not recommended, this takes way longer than previous methods
+Note: not recommended, currently this takes way longer than previous methods
 
 ```sh
 docker run -v "${PWD}:/project" -v "/var/run/docker.sock:/var/run/docker.sock" matejkosiarcik/azlint

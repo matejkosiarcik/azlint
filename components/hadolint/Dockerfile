@@ -1,8 +1,6 @@
-FROM linuxbrew/brew:2.3.0
+FROM hadolint/hadolint:v1.18.0-alpine
 COPY . /src
 WORKDIR /src
-
-RUN brew bundle --help >/dev/null
 
 ENV WORKDIR=/project
 CMD [ "sh", "main.sh" ]

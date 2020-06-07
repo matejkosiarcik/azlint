@@ -100,6 +100,8 @@ function writeProjectFileList(files) {
         await execa('docker', someArgs.concat([`${dockerTagPrefix}-go`]), { stdout: process.stdout, stderr: process.stderr })
         console.log('--- Shellcheck ---')
         await execa('docker', someArgs.concat([`${dockerTagPrefix}-shellcheck`]), { stdout: process.stdout, stderr: process.stderr })
+        console.log('--- Hadolint ---')
+        await execa('docker', someArgs.concat([`${dockerTagPrefix}-hadolint`]), { stdout: process.stdout, stderr: process.stderr })
         console.log('--- Brew ---')
         await execa('docker', someArgs.concat([`${dockerTagPrefix}-brew`]), { stdout: process.stdout, stderr: process.stderr })
     } catch (error) {

@@ -3,4 +3,7 @@ COPY . /src
 WORKDIR /src
 
 RUN GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt
-CMD WORKDIR=/project sh main.sh
+
+
+ENV WORKDIR=/project
+CMD [ "sh", "main.sh" ]
