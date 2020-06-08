@@ -14,7 +14,7 @@
   "dependencies": {
     "execa": "^4.0.2",
     "glob": "^7.1.6",
-    "simple-git": "^2.5.0"
+    "simple-git": "^2.6.0"
   },
   "files": [
     "main.js"
