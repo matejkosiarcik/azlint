@@ -10,5 +10,4 @@ COPY main.sh .
 COPY --from=build /usr/lib/libsourcekitdInProc.so /usr/lib/libsourcekitdInProc.so
 COPY --from=build /usr/local/bin/swiftlint /usr/bin/swiftlint
 
-ENV WORKDIR=/project
 CMD [ "sh", "main.sh" ]

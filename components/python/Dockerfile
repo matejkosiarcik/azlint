@@ -7,5 +7,4 @@ WORKDIR /src
 RUN apk add --no-cache bash curl && \
     pip install --requirement requirements.txt
 
-ENV WORKDIR=/project
 CMD [ "sh", "main.sh" ]

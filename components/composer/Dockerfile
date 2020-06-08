@@ -4,6 +4,4 @@ WORKDIR /src
 
 RUN composer install
 
-
-ENV WORKDIR=/project
 CMD [ "composer", "run-script", "lint" ]

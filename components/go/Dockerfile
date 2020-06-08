@@ -7,5 +7,4 @@ WORKDIR /src
 COPY --from=build /src/bin/shfmt /usr/bin/shfmt
 COPY main.sh .
 
-ENV WORKDIR=/project
 CMD [ "sh", "main.sh" ]

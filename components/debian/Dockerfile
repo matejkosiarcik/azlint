@@ -7,5 +7,4 @@ RUN apt-get update --yes && \
     apt-get install --yes --no-install-recommends ash ksh mksh yash zsh && \
     rm -rf /var/lib/apt/lists/*
 
-ENV WORKDIR=/project
 CMD [ "sh", "main.sh" ]

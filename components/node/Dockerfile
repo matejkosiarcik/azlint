@@ -7,5 +7,4 @@ WORKDIR /src
 RUN apk add --no-cache jq bash && \
     npm install
 
-ENV WORKDIR=/project
 CMD [ "npm", "run", "--silent", "lint" ]
