@@ -103,6 +103,17 @@ Note: not recommended, currently this takes way longer than previous methods
 docker run -v "${PWD}:/project" -v "/var/run/docker.sock:/var/run/docker.sock" matejkosiarcik/azlint
 ```
 
+## Development
+
+Typical workflow is as follows:
+
+```sh
+make bootstrap # install dependencies
+## change source here ##
+make build # build runner and components
+make run # lint current project
+```
+
 ## License
 
 This project is licensed under the MIT License, see [LICENSE.txt](LICENSE.txt)
@@ -115,8 +126,8 @@ very python oriented.
 
 ## Future plans
 
-- TODO: move runner from `simple-git` package to `git ls-files`
-- TODO: move runner from node to rust
+- TODO: improve runner to not use `simple-git` but call `git ls-files` directly
+- TODO: rewrite runner from node to rust
 - TODO: haskell component? (shellcheck, hadolint)
 - TODO: rust component
 - TODO: ruby component (mdlint, travis)
