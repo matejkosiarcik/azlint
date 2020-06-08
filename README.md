@@ -55,6 +55,8 @@ Project is in early development stage, though versioned releases are already ava
   - [brew-bundle](https://github.com/Homebrew/homebrew-bundle) via [linuxbrew/brew](https://hub.docker.com/r/linuxbrew/brew)
   - [shellcheck](https://github.com/koalaman/shellcheck)
   - [hadolint](https://github.com/hadolint/hadolint)
+  - bash
+  - zsh
 
 ## Usage
 
