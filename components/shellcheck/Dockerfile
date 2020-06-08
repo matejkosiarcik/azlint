@@ -1,6 +1,4 @@
 FROM koalaman/shellcheck-alpine:v0.7.1
-COPY . /src
 WORKDIR /src
-
-ENV WORKDIR=/project
+COPY main.sh .
 CMD [ "sh", "main.sh" ]

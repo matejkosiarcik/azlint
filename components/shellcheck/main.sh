@@ -1,9 +1,6 @@
 #!/bin/sh
 set -euf
-
-if [ -n "${WORKDIR+x}" ]; then
-    cd "${WORKDIR}"
-fi
+cd '/project'
 
 # Default in GNU xargs is to execute always
 # But not all xargs have this flag

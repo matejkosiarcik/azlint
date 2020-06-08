@@ -50,24 +50,24 @@ function dockerVolumeArgumets(filelistPath) {
 
 async function getProjectFileList() {
     const repo = git('.')
-    let allFiles = glob.sync('**/*', { nodir: true, dot: true, ignore: '.git/**/*' })
 
     // TODO: consider other VCS
     if (await repo.checkIsRepo()) {
         console.log('Project is a git repository')
-        files = allFiles
-        let newAllFiles = []
-        while (files.length > 0) {
-            const currentFiles = files.splice(0, 1000)
-            const currentIgnoredFiles = await repo.checkIgnore(currentFiles)
-            newAllFiles = newAllFiles.concat(currentFiles.filter(file => !currentIgnoredFiles.includes(file)))
-        }
-        allFiles = newAllFiles
+        const trackedFilesList = execa.sync('git', ['ls-files', '-z']).stdout
+            .split('\0')
+            .filter(file => file.length > 0)
+        const deletedFilesList = execa.sync('git', ['ls-files', '-z', '--deleted']).stdout
+            .split('\0')
+            .filter(file => file.length > 0)
+        const untrackedFilesList = execa.sync('git', ['ls-files', '-z', '--others', '--exclude-standard']).stdout
+            .split('\0')
+            .filter(file => file.length > 0)
+        return trackedFilesList.filter(file => !deletedFilesList.includes(file)).concat(untrackedFilesList).sort()
     } else {
         console.log('Project is bare directory')
+        return glob.sync('**/*', { nodir: true, dot: true, ignore: ['.git/**/*', '.hg/**/*'] }).sort()
     }
-
-    return allFiles
 }
 
 function writeProjectFileList(files) {
@@ -79,31 +79,32 @@ function writeProjectFileList(files) {
     return filePath
 }
 
+async function runComponent(componentName, dockerArgs) {
+    console.log(`--- ${componentName} ---`)
+    // console.time(componentName)
+    await execa(dockerArgs[0], dockerArgs.splice(1), { stdout: process.stdout, stderr: process.stderr })
+    // console.timeEnd(componentName)
+}
+
 (async () => {
     const files = await getProjectFileList()
     const listPath = writeProjectFileList(files)
-    const someArgs = ['run', '--rm', '--tty'].concat(dockerVolumeArgumets(listPath))
+    const dockerArgs = ['docker', 'run', '--rm', '--tty'].concat(dockerVolumeArgumets(listPath))
     const dockerTagPrefix = `matejkosiarcik/azlint-internal:${process.env['AZLINT_VERSION']}`
 
     try {
-        console.log('--- Alpine ---')
-        await execa('docker', someArgs.concat([`${dockerTagPrefix}-alpine`]), { stdout: process.stdout, stderr: process.stderr })
-        console.log('--- Debian ---')
-        await execa('docker', someArgs.concat([`${dockerTagPrefix}-debian`]), { stdout: process.stdout, stderr: process.stderr })
-        console.log('--- Node ---')
-        await execa('docker', someArgs.concat([`${dockerTagPrefix}-node`]), { stdout: process.stdout, stderr: process.stderr })
-        console.log('--- Python ---')
-        await execa('docker', someArgs.concat([`${dockerTagPrefix}-python`]), { stdout: process.stdout, stderr: process.stderr })
-        console.log('--- Composer ---')
-        await execa('docker', someArgs.concat([`${dockerTagPrefix}-composer`]), { stdout: process.stdout, stderr: process.stderr })
-        console.log('--- Go ---')
-        await execa('docker', someArgs.concat([`${dockerTagPrefix}-go`]), { stdout: process.stdout, stderr: process.stderr })
-        console.log('--- Shellcheck ---')
-        await execa('docker', someArgs.concat([`${dockerTagPrefix}-shellcheck`]), { stdout: process.stdout, stderr: process.stderr })
-        console.log('--- Hadolint ---')
-        await execa('docker', someArgs.concat([`${dockerTagPrefix}-hadolint`]), { stdout: process.stdout, stderr: process.stderr })
-        console.log('--- Brew ---')
-        await execa('docker', someArgs.concat([`${dockerTagPrefix}-brew`]), { stdout: process.stdout, stderr: process.stderr })
+        await runComponent('Alpine', dockerArgs.concat(`${dockerTagPrefix}-alpine`))
+        await runComponent('Bash', dockerArgs.concat(`${dockerTagPrefix}-bash`))
+        await runComponent('Brew', dockerArgs.concat(`${dockerTagPrefix}-brew`))
+        await runComponent('Composer', dockerArgs.concat(`${dockerTagPrefix}-composer`))
+        await runComponent('Debian', dockerArgs.concat(`${dockerTagPrefix}-debian`))
+        await runComponent('Go', dockerArgs.concat(`${dockerTagPrefix}-go`))
+        await runComponent('Hadolint', dockerArgs.concat(`${dockerTagPrefix}-hadolint`))
+        await runComponent('Node', dockerArgs.concat(`${dockerTagPrefix}-node`))
+        await runComponent('Python', dockerArgs.concat(`${dockerTagPrefix}-python`))
+        await runComponent('Shellcheck', dockerArgs.concat(`${dockerTagPrefix}-shellcheck`))
+        await runComponent('Swift', dockerArgs.concat(`${dockerTagPrefix}-swift`))
+        await runComponent('Zsh', dockerArgs.concat(`${dockerTagPrefix}-zsh`))
     } catch (error) {
         process.exit(1)
     }

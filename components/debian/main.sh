@@ -1,9 +1,6 @@
 #!/bin/sh
 set -euf
-
-if [ -n "${WORKDIR+x}" ]; then
-    cd "${WORKDIR}"
-fi
+cd '/project'
 
 # Default in GNU xargs is to execute always
 # But not all xargs have this flag
@@ -31,3 +28,6 @@ grep -iE '\.sh$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 $
 grep -iE '\.sh$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 ${xargs_r} yash -n
 grep -iE '\.sh$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 ${xargs_r} yash --posix -n
 grep -iE '\.sh$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 ${xargs_r} yash -o posixly-correct -n
+
+# other
+grep -iE '\.xml$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} xmllint --noout

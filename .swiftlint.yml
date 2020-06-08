@@ -1,0 +1,40 @@
+# excluded folders
+excluded:
+  - .build
+  - .git
+  - .hg
+  - build
+  - Carthage
+  - Pods
+  - Tests/**/XCTestManifests.swift
+  - Tests/LinuxMain.swift
+
+# TODO: validate rules on swift project
+
+# rule on/off switching
+disabled_rules:
+  - todo
+opt_in_rules:
+  - attributes
+  - closure_end_indentation
+  - closure_spacing
+  - empty_count
+  - explicit_init
+  - fatal_error_message
+  - first_where
+  - force_unwrapping
+  - implicit_return
+  - implicitly_unwrapped_optional
+  - nimble_operator
+  - no_extension_access_modifier
+  - number_separator
+  - operator_usage_whitespace
+  - overridden_super_call
+  - private_outlet
+  - prohibited_super_call
+  - redundant_nil_coalescing
+  - sorted_imports
+
+# rule customizations
+trailing_comma:
+  mandatory_comma: true

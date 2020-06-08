@@ -11,6 +11,7 @@
   - [circle-ci](#circle-ci)
   - [Local install](#local-install)
   - [Local docker](#local-docker)
+- [Development](#development)
 - [License](#license)
 - [Alternatives](#alternatives)
 - [Future plans](#future-plans)
@@ -20,7 +21,7 @@
 ## About
 
 This project's goal is to bundle as many linters as possible in a docker container.
-This makes it really easy to adopt for your project on a CI server
+This makes it really easy to adopt for your project on a CI/CD server
 (or even locally during development).
 
 Project is in early development stage, though versioned releases are already available.
@@ -40,19 +41,23 @@ Project is in early development stage, though versioned releases are already ava
   - [bashate](https://github.com/openstack/bashate)
   - [requirements-validator](https://github.com/looking-for-a-job/requirements-validator.py)
   - [travislint](https://pypi.org/project/travislint/)
-- Golang
-  - [shfmt](https://github.com/mvdan/sh)
 - Composer
   - [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)
   - [composer-normalize](https://github.com/ergebnis/composer-normalize)
   - [jsonlint](https://github.com/Seldaek/jsonlint)
+- Golang
+  - [shfmt](https://github.com/mvdan/sh)
+- Swift
+  - [swiftlint](https://github.com/realm/SwiftLint)
+- System (Alpine & Debian)
+  - sh, ash, dash, bash, yash, zsh, ksh (mksh, loksh)
+  - xmllint
 - Other
   - [brew-bundle](https://github.com/Homebrew/homebrew-bundle) via [linuxbrew/brew](https://hub.docker.com/r/linuxbrew/brew)
   - [shellcheck](https://github.com/koalaman/shellcheck)
   - [hadolint](https://github.com/hadolint/hadolint)
-  - Shell dry run (in debian and alpine)
-    - sh, ash, dash, bash, yash, zsh, ksh (mksh, loksh)
-  - xmllint
+  - bash
+  - zsh
 
 ## Usage
 
@@ -101,6 +106,17 @@ Note: not recommended, currently this takes way longer than previous methods
 docker run -v "${PWD}:/project" -v "/var/run/docker.sock:/var/run/docker.sock" matejkosiarcik/azlint
 ```
 
+## Development
+
+Typical workflow is as follows:
+
+```sh
+make bootstrap # install dependencies
+## change source here ##
+make build # build runner and components
+make run # lint current project
+```
+
 ## License
 
 This project is licensed under the MIT License, see [LICENSE.txt](LICENSE.txt)
@@ -113,6 +129,8 @@ very python oriented.
 
 ## Future plans
 
+- TODO: improve runner to not use `simple-git` but call `git ls-files` directly
+- TODO: rewrite runner from node to rust
 - TODO: haskell component? (shellcheck, hadolint)
 - TODO: rust component
 - TODO: ruby component (mdlint, travis)

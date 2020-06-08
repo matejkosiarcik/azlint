@@ -11,5 +11,4 @@ elif (xargs -r <'/dev/null' >'/dev/null' 2>&1); then
     xargs_r='-r'
 fi
 
-# TODO: enable always, after installing LinuxBrew everywhere
-grep -iEe '\.(Brewfile|brew)$' -e '(^|/)Brewfile$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 -I% ${xargs_r} brew bundle list --all --file=% >/dev/null
+grep -iE '\.(sh|zsh)$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 ${xargs_r} zsh -n
