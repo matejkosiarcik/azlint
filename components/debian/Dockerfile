@@ -1,6 +1,6 @@
 FROM debian:10.4-slim
-COPY . /src
 WORKDIR /src
+COPY main.sh .
 
 # sh dash bash - already available
 RUN apt-get update --yes && \

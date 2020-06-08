@@ -1,6 +1,6 @@
 FROM python:3.8.3-alpine
-COPY . /src
 WORKDIR /src
+COPY . .
 
 # bash - for bashate
 # curl - travis

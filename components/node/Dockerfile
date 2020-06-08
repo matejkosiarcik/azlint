@@ -1,6 +1,6 @@
 FROM node:14.4.0-alpine
-COPY . /src
 WORKDIR /src
+COPY . .
 
 # jq - check package.json content
 # bash - for bats
