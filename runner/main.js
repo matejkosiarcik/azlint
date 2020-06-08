@@ -81,9 +81,9 @@ function writeProjectFileList(files) {
 
 async function runComponent(componentName, dockerArgs) {
     console.log(`--- ${componentName} ---`)
-    console.time(componentName)
+    // console.time(componentName)
     await execa(dockerArgs[0], dockerArgs.splice(1), { stdout: process.stdout, stderr: process.stderr })
-    console.timeEnd(componentName)
+    // console.timeEnd(componentName)
 }
 
 (async () => {
