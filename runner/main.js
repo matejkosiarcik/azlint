@@ -98,6 +98,8 @@ function writeProjectFileList(files) {
         await execa('docker', someArgs.concat([`${dockerTagPrefix}-composer`]), { stdout: process.stdout, stderr: process.stderr })
         console.log('--- Go ---')
         await execa('docker', someArgs.concat([`${dockerTagPrefix}-go`]), { stdout: process.stdout, stderr: process.stderr })
+        console.log('--- Swift ---')
+        await execa('docker', someArgs.concat([`${dockerTagPrefix}-swift`]), { stdout: process.stdout, stderr: process.stderr })
         console.log('--- Shellcheck ---')
         await execa('docker', someArgs.concat([`${dockerTagPrefix}-shellcheck`]), { stdout: process.stdout, stderr: process.stderr })
         console.log('--- Hadolint ---')

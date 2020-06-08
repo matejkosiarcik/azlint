@@ -13,6 +13,7 @@ docker build --no-cache --pull './components/node' -t "matejkosiarcik/azlint-int
 docker build --no-cache --pull './components/python' -t "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-python"
 docker build --no-cache --pull './components/composer' -t "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-composer"
 docker build --no-cache --pull './components/go' -t "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-go"
+docker build --no-cache --pull './components/swift' -t "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-swift"
 docker build --no-cache --pull './components/shellcheck' -t "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-shellcheck"
 docker build --no-cache --pull './components/hadolint' -t "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-hadolint"
 docker build --no-cache --pull './components/brew' -t "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-brew"

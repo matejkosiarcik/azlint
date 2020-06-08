@@ -46,6 +46,8 @@ Project is in early development stage, though versioned releases are already ava
   - [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)
   - [composer-normalize](https://github.com/ergebnis/composer-normalize)
   - [jsonlint](https://github.com/Seldaek/jsonlint)
+- Swift
+  - [swiftlint](https://github.com/realm/SwiftLint)
 - System (Alpine/Debian)
   - sh, ash, dash, bash, yash, zsh, ksh (mksh, loksh)
   - xmllint
