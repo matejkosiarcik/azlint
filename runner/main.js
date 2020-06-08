@@ -89,22 +89,22 @@ async function runComponent(componentName, dockerArgs) {
 (async () => {
     const files = await getProjectFileList()
     const listPath = writeProjectFileList(files)
-    const someArgs = ['run', '--rm', '--tty'].concat(dockerVolumeArgumets(listPath))
+    const dockerArgs = ['docker', 'run', '--rm', '--tty'].concat(dockerVolumeArgumets(listPath))
     const dockerTagPrefix = `matejkosiarcik/azlint-internal:${process.env['AZLINT_VERSION']}`
 
     try {
-        await runComponent('Alpine', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-alpine`))
-        await runComponent('Bash', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-bash`))
-        await runComponent('Brew', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-brew`))
-        await runComponent('Composer', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-composer`))
-        await runComponent('Debian', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-debian`))
-        await runComponent('Go', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-go`))
-        await runComponent('Hadolint', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-hadolint`))
-        await runComponent('Node', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-node`))
-        await runComponent('Python', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-python`))
-        await runComponent('Shellcheck', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-shellcheck`))
-        await runComponent('Swift', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-swift`))
-        await runComponent('Zsh', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-zsh`))
+        await runComponent('Alpine', dockerArgs.concat(`${dockerTagPrefix}-alpine`))
+        await runComponent('Bash', dockerArgs.concat(`${dockerTagPrefix}-bash`))
+        await runComponent('Brew', dockerArgs.concat(`${dockerTagPrefix}-brew`))
+        await runComponent('Composer', dockerArgs.concat(`${dockerTagPrefix}-composer`))
+        await runComponent('Debian', dockerArgs.concat(`${dockerTagPrefix}-debian`))
+        await runComponent('Go', dockerArgs.concat(`${dockerTagPrefix}-go`))
+        await runComponent('Hadolint', dockerArgs.concat(`${dockerTagPrefix}-hadolint`))
+        await runComponent('Node', dockerArgs.concat(`${dockerTagPrefix}-node`))
+        await runComponent('Python', dockerArgs.concat(`${dockerTagPrefix}-python`))
+        await runComponent('Shellcheck', dockerArgs.concat(`${dockerTagPrefix}-shellcheck`))
+        await runComponent('Swift', dockerArgs.concat(`${dockerTagPrefix}-swift`))
+        await runComponent('Zsh', dockerArgs.concat(`${dockerTagPrefix}-zsh`))
     } catch (error) {
         process.exit(1)
     }
