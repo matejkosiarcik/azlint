@@ -28,3 +28,6 @@ grep -iE '\.sh$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 $
 grep -iE '\.sh$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 ${xargs_r} yash -n
 grep -iE '\.sh$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 ${xargs_r} yash --posix -n
 grep -iE '\.sh$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 ${xargs_r} yash -o posixly-correct -n
+
+# other
+grep -iE '\.xml$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} xmllint --noout
