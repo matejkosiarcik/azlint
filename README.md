@@ -11,6 +11,7 @@
   - [circle-ci](#circle-ci)
   - [Local install](#local-install)
   - [Local docker](#local-docker)
+- [Development](#development)
 - [License](#license)
 - [Alternatives](#alternatives)
 - [Future plans](#future-plans)
