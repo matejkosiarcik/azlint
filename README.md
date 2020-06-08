@@ -40,15 +40,15 @@ Project is in early development stage, though versioned releases are already ava
   - [bashate](https://github.com/openstack/bashate)
   - [requirements-validator](https://github.com/looking-for-a-job/requirements-validator.py)
   - [travislint](https://pypi.org/project/travislint/)
-- Golang
-  - [shfmt](https://github.com/mvdan/sh)
 - Composer
   - [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)
   - [composer-normalize](https://github.com/ergebnis/composer-normalize)
   - [jsonlint](https://github.com/Seldaek/jsonlint)
+- Golang
+  - [shfmt](https://github.com/mvdan/sh)
 - Swift
   - [swiftlint](https://github.com/realm/SwiftLint)
-- System (Alpine/Debian)
+- System (Alpine & Debian)
   - sh, ash, dash, bash, yash, zsh, ksh (mksh, loksh)
   - xmllint
 - Other
