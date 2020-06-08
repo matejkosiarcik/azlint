@@ -79,6 +79,13 @@ function writeProjectFileList(files) {
     return filePath
 }
 
+async function runComponent(componentName, dockerArgs) {
+    console.log(`--- ${componentName} ---`)
+    console.time(componentName)
+    await execa(dockerArgs[0], dockerArgs.splice(1), { stdout: process.stdout, stderr: process.stderr })
+    console.timeEnd(componentName)
+}
+
 (async () => {
     const files = await getProjectFileList()
     const listPath = writeProjectFileList(files)
@@ -86,30 +93,18 @@ function writeProjectFileList(files) {
     const dockerTagPrefix = `matejkosiarcik/azlint-internal:${process.env['AZLINT_VERSION']}`
 
     try {
-        console.log('--- Alpine ---')
-        await execa('docker', someArgs.concat([`${dockerTagPrefix}-alpine`]), { stdout: process.stdout, stderr: process.stderr })
-        console.log('--- Debian ---')
-        await execa('docker', someArgs.concat([`${dockerTagPrefix}-debian`]), { stdout: process.stdout, stderr: process.stderr })
-        console.log('--- Node ---')
-        await execa('docker', someArgs.concat([`${dockerTagPrefix}-node`]), { stdout: process.stdout, stderr: process.stderr })
-        console.log('--- Python ---')
-        await execa('docker', someArgs.concat([`${dockerTagPrefix}-python`]), { stdout: process.stdout, stderr: process.stderr })
-        console.log('--- Composer ---')
-        await execa('docker', someArgs.concat([`${dockerTagPrefix}-composer`]), { stdout: process.stdout, stderr: process.stderr })
-        console.log('--- Go ---')
-        await execa('docker', someArgs.concat([`${dockerTagPrefix}-go`]), { stdout: process.stdout, stderr: process.stderr })
-        console.log('--- Swift ---')
-        await execa('docker', someArgs.concat([`${dockerTagPrefix}-swift`]), { stdout: process.stdout, stderr: process.stderr })
-        console.log('--- Bash ---')
-        await execa('docker', someArgs.concat([`${dockerTagPrefix}-bash`]), { stdout: process.stdout, stderr: process.stderr })
-        console.log('--- Zsh ---')
-        await execa('docker', someArgs.concat([`${dockerTagPrefix}-zsh`]), { stdout: process.stdout, stderr: process.stderr })
-        console.log('--- Shellcheck ---')
-        await execa('docker', someArgs.concat([`${dockerTagPrefix}-shellcheck`]), { stdout: process.stdout, stderr: process.stderr })
-        console.log('--- Hadolint ---')
-        await execa('docker', someArgs.concat([`${dockerTagPrefix}-hadolint`]), { stdout: process.stdout, stderr: process.stderr })
-        console.log('--- Brew ---')
-        await execa('docker', someArgs.concat([`${dockerTagPrefix}-brew`]), { stdout: process.stdout, stderr: process.stderr })
+        await runComponent('Alpine', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-alpine`))
+        await runComponent('Bash', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-bash`))
+        await runComponent('Brew', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-brew`))
+        await runComponent('Composer', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-composer`))
+        await runComponent('Debian', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-debian`))
+        await runComponent('Go', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-go`))
+        await runComponent('Hadolint', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-hadolint`))
+        await runComponent('Node', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-node`))
+        await runComponent('Python', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-python`))
+        await runComponent('Shellcheck', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-shellcheck`))
+        await runComponent('Swift', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-swift`))
+        await runComponent('Zsh', ['docker'].concat(someArgs).concat(`${dockerTagPrefix}-zsh`))
     } catch (error) {
         process.exit(1)
     }
