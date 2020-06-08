@@ -50,24 +50,24 @@ function dockerVolumeArgumets(filelistPath) {
 
 async function getProjectFileList() {
     const repo = git('.')
-    let allFiles = glob.sync('**/*', { nodir: true, dot: true, ignore: '.git/**/*' })
 
     // TODO: consider other VCS
     if (await repo.checkIsRepo()) {
         console.log('Project is a git repository')
-        files = allFiles
-        let newAllFiles = []
-        while (files.length > 0) {
-            const currentFiles = files.splice(0, 1000)
-            const currentIgnoredFiles = await repo.checkIgnore(currentFiles)
-            newAllFiles = newAllFiles.concat(currentFiles.filter(file => !currentIgnoredFiles.includes(file)))
-        }
-        allFiles = newAllFiles
+        const trackedFilesList = execa.sync('git', ['ls-files', '-z']).stdout
+            .split('\0')
+            .filter(file => file.length > 0)
+        const deletedFilesList = execa.sync('git', ['ls-files', '-z', '--deleted']).stdout
+            .split('\0')
+            .filter(file => file.length > 0)
+        const untrackedFilesList = execa.sync('git', ['ls-files', '-z', '--others', '--exclude-standard']).stdout
+            .split('\0')
+            .filter(file => file.length > 0)
+        return trackedFilesList.filter(file => !deletedFilesList.includes(file)).concat(untrackedFilesList).sort()
     } else {
         console.log('Project is bare directory')
+        return glob.sync('**/*', { nodir: true, dot: true, ignore: ['.git/**/*', '.hg/**/*'] }).sort()
     }
-
-    return allFiles
 }
 
 function writeProjectFileList(files) {
