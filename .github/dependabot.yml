@@ -193,16 +193,16 @@ updates:
 
   # Swift
   - package-ecosystem: docker
-  directory: "/components/swift"
-  schedule:
-    interval: daily
-    time: "03:00"
-    timezone: "Europe/Bratislava"
-  open-pull-requests-limit: 10
-  reviewers:
-    - matejkosiarcik
-  assignees:
-    - matejkosiarcik
+    directory: "/components/swift"
+    schedule:
+      interval: daily
+      time: "03:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
 
   # Zsh
   - package-ecosystem: docker
