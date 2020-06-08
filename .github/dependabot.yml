@@ -39,6 +39,19 @@ updates:
     assignees:
       - matejkosiarcik
 
+  # Bash
+  - package-ecosystem: docker
+    directory: "/components/bash"
+    schedule:
+      interval: daily
+      time: "03:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+
   # Brew
   - package-ecosystem: docker
     directory: "/components/brew"
@@ -103,6 +116,19 @@ updates:
     assignees:
       - matejkosiarcik
 
+  # Hadolint
+  - package-ecosystem: docker
+    directory: "/components/hadolint"
+    schedule:
+      interval: daily
+      time: "03:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+
   # Node
   - package-ecosystem: docker
     directory: "/components/node"
@@ -155,6 +181,32 @@ updates:
   # Shellcheck
   - package-ecosystem: docker
     directory: "/components/shellcheck"
+    schedule:
+      interval: daily
+      time: "03:00"
+      timezone: "Europe/Bratislava"
+    open-pull-requests-limit: 10
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+
+  # Swift
+  - package-ecosystem: docker
+  directory: "/components/swift"
+  schedule:
+    interval: daily
+    time: "03:00"
+    timezone: "Europe/Bratislava"
+  open-pull-requests-limit: 10
+  reviewers:
+    - matejkosiarcik
+  assignees:
+    - matejkosiarcik
+
+  # Zsh
+  - package-ecosystem: docker
+    directory: "/components/zsh"
     schedule:
       interval: daily
       time: "03:00"
