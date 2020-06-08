@@ -1,5 +1,7 @@
 # Custom
 
+/.azlint-*/
+
 # golang local packages
 components/go/bin/
 components/go/pkg/
