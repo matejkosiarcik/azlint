@@ -115,6 +115,8 @@ very python oriented.
 
 ## Future plans
 
+- TODO: move runner from `simple-git` package to `git ls-files`
+- TODO: move runner from node to rust
 - TODO: haskell component? (shellcheck, hadolint)
 - TODO: rust component
 - TODO: ruby component (mdlint, travis)
