@@ -1,6 +1,8 @@
 FROM golang:1.14.4-alpine AS build
 WORKDIR /src
-RUN GOPATH="${PWD}" GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt
+RUN apk add --no-cache upx && \
+    GOPATH="${PWD}" GO111MODULE=on go get -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt' && \
+    upx --ultra-brute bin/shfmt
 
 FROM alpine:3.12.0
 WORKDIR /src
