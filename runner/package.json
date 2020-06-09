@@ -3,20 +3,24 @@
   "private": true,
   "version": "0.1.1",
   "main": "main.js",
+  "author": "Matej Košiarčik",
+  "license": "MIT",
   "bin": {
     "azlint": "main.js"
   },
+  "files": [
+    "main.js"
+  ],
   "scripts": {
+    "create-executable": "pkg main.js --output azlint",
     "start": "node main.js"
   },
-  "author": "Matej Košiarčik",
-  "license": "MIT",
   "dependencies": {
     "execa": "^4.0.2",
     "glob": "^7.1.6",
     "simple-git": "^2.6.0"
   },
-  "files": [
-    "main.js"
-  ]
+  "devDependencies": {
+    "pkg": "^4.4.8"
+  }
 }
