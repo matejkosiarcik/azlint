@@ -129,8 +129,7 @@ very python oriented.
 
 ## Future plans
 
-- TODO: improve runner to not use `simple-git` but call `git ls-files` directly
-- TODO: rewrite runner from node to rust
+- TODO: rewrite runner in rust
 - TODO: haskell component? (shellcheck, hadolint)
 - TODO: rust component
 - TODO: ruby component (mdlint, travis)
