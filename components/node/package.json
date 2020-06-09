@@ -1,6 +1,7 @@
 {
   "private": true,
   "scripts": {
+    "postinstall": "node-prune",
     "lint": "sh main.sh"
   },
   "dependencies": {
@@ -11,5 +12,8 @@
     "gitlab-ci-validate": "^0.3.0",
     "markdownlint-cli": "^0.23.1",
     "package-json-validator": "^0.6.3"
+  },
+  "devDependencies": {
+    "node-prune": "^1.0.2"
   }
 }

@@ -1,5 +1,6 @@
 #!/bin/sh
 set -euf
+export PATH="${PWD}/node_modules/.bin:${PATH}"
 cd '/project'
 
 # Default in GNU xargs is to execute always
