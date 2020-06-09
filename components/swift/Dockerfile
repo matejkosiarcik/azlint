@@ -1,9 +1,10 @@
 FROM swift:5.2.4 AS build
 WORKDIR /src
-# must copy everything, docker won't copy folder when named explicitely (Sources/)
+# must copy everything, docker won't copy folder when listed explicitely (e.g. Sources/)
 COPY . .
 RUN swift build --configuration release && \
-    swift run --configuration release mint bootstrap --link
+    swift run --configuration release mint bootstrap --link && \
+    strip --strip-unneeded --strip-all --remove-section=.comment --remove-section=.note "$(readlink /usr/local/bin/swiftlint)"
 
 FROM swift:5.2.4-slim
 WORKDIR /src
