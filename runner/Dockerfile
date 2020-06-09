@@ -8,7 +8,7 @@ RUN apk add --no-cache upx binutils bash && \
     npm install && \
     npm run create-executable && \
     strip --strip-unneeded --strip-all --remove-section=.comment --remove-section=.note azlint && \
-    upx --best azlint
+    upx -9 azlint
 
 FROM docker:19.03.11-git
 WORKDIR /project
