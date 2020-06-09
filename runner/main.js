@@ -66,7 +66,7 @@ async function getProjectFileList() {
         return trackedFilesList.filter(file => !deletedFilesList.includes(file)).concat(untrackedFilesList).sort()
     } else {
         console.log('Project is bare directory')
-        return glob.sync('**/*', { nodir: true, dot: true, ignore: ['.git/**/*', '.hg/**/*'] }).sort()
+        return glob.sync('**/*', { nodir: true, dot: true, ignore: ['.git/**/*', '.hg/**/*', '.svn/**/*'] }).sort()
     }
 }
 
