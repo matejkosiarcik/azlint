@@ -1,24 +1,19 @@
 FROM node:14.4.0-alpine AS build
-# TODO: replace node with rust and use builder image pattern
-WORKDIR /azlint
-COPY . .
+# TODO: replace builder with rust
+WORKDIR /src
+COPY main.js package.json package-lock.json ./
 
-RUN apk add --no-cache bash && \
+# bash - for node-prune
+RUN apk add --no-cache upx binutils bash && \
     npm install && \
-    npm install --global node-prune && \
-    node-prune && \
-    npm prune --production && \
-    rm -rf 'node_modules/.cache'
+    npm run create-executable && \
+    strip --strip-unneeded --strip-all --remove-section=.comment --remove-section=.note azlint && \
+    upx -9 azlint
 
-FROM docker:19.03.11
+FROM docker:19.03.11-git
 WORKDIR /project
-COPY --from=build /azlint/main.js /azlint/main.js
-COPY --from=build /azlint/node_modules /azlint/node_modules
+COPY --from=build /src/azlint /usr/bin/azlint
 ARG AZLINT_VERSION=dev
 ENV AZLINT_VERSION=$AZLINT_VERSION
-
-RUN apk add --no-cache git nodejs && \
-    chmod +x '/azlint/main.js' && \
-    ln -s '/azlint/main.js' '/usr/bin/azlint'
 
 CMD [ "azlint" ]
