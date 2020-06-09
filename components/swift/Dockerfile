@@ -1,7 +1,8 @@
 FROM swift:5.2.4 AS build
 WORKDIR /src
-COPY Package.swift Package.resolved Mintfile Sources main.sh ./
-RUN swift build --configuration release --static-swift-stdlib && \
+# must copy everything, docker won't copy folder when named explicitely (Sources/)
+COPY . .
+RUN swift build --configuration release && \
     swift run --configuration release mint bootstrap --link
 
 FROM swift:5.2.4-slim
