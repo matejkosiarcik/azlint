@@ -1,6 +1,6 @@
 FROM composer:1.10.7
 WORKDIR /src
-COPY . .
+COPY composer.json composer.lock main.sh ./
 
 RUN composer install
 

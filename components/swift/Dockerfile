@@ -1,6 +1,6 @@
 FROM swift:5.2.4 AS build
 WORKDIR /src
-COPY . .
+COPY Package.swift Package.resolved Mintfile Sources main.sh ./
 RUN swift build --configuration release --static-swift-stdlib && \
     swift run --configuration release mint bootstrap --link
 
