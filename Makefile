@@ -27,7 +27,7 @@ run:
 
 .PHONY: run-docker
 run-docker:
-	docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project:ro" --volume '/var/run/docker.sock:/var/run/docker.sock' "matejkosiarcik/azlint:$(AZLINT_VERSION)"
+	docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project" --volume '/var/run/docker.sock:/var/run/docker.sock' "matejkosiarcik/azlint:$(AZLINT_VERSION)"
 
 .PHONY: install
 install:
