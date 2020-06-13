@@ -7,6 +7,7 @@ COPY main.js package.json package-lock.json ./
 RUN apk add --no-cache bash && \
     npm install --unsafe-perm && \
     npm prune --production && \
+    rm -rf node_modules/.bin && \
     chmod +x main.js
 
 FROM docker:19.03.11-git
