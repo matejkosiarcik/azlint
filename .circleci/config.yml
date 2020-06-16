@@ -4,7 +4,7 @@ workflows:
   version: 2
   test:
     jobs:
-      - azlint: { matrix: { parameters: { tag: [ latest ] }}}
+      - azlint: { matrix: { parameters: { tag: [ latest, "0.1.1" ] }}}
       - build
 
 jobs:
@@ -17,7 +17,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - run: azlint || true
+      - run: azlint
 
   build:
     docker:
