@@ -138,3 +138,4 @@ very python oriented.
 - TODO: sass-lint, scss-lint, css-lint? (only when config file available)
 - TODO: htmlhint, htmllint? (when config file present)
 - TODO: jshint, jslint, google-closure-linter? (when config files present)
+- TODO: dotenv linter
