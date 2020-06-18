@@ -50,7 +50,7 @@ Project is in early development stage, though versioned releases are already ava
 - Swift
   - [swiftlint](https://github.com/realm/SwiftLint)
 - System (Alpine & Debian)
-  - sh, ash, dash, bash, yash, zsh, ksh (mksh, loksh)
+  - sh, ash, dash, bash, yash, ksh (mksh, loksh), zsh
   - xmllint
 - Other
   - [brew-bundle](https://github.com/Homebrew/homebrew-bundle) via [linuxbrew/brew](https://hub.docker.com/r/linuxbrew/brew)
