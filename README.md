@@ -139,3 +139,4 @@ very python oriented.
 - TODO: htmlhint, htmllint? (when config file present)
 - TODO: jshint, jslint, google-closure-linter? (when config files present)
 - TODO: dotenv linter
+- TODO: use go dep or go.mod files (+ apply dependabot)
