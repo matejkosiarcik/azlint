@@ -124,8 +124,12 @@ file for full license details.
 
 ## Alternatives
 
-Similar project I found is [git-lint](https://github.com/sk-/git-lint), but
-very python oriented.
+Obvious alternative is
+[github super-linter](https://github.com/github/super-linter).
+However it is tied to github and you can't use it locally.
+
+Smaller project I found is [git-lint](https://github.com/sk-/git-lint).
+It is very python oriented.
 
 ## Future plans
 
