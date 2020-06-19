@@ -50,7 +50,7 @@ Project is in early development stage, though versioned releases are already ava
 - Swift
   - [swiftlint](https://github.com/realm/SwiftLint)
 - System (Alpine & Debian)
-  - sh, ash, dash, bash, yash, zsh, ksh (mksh, loksh)
+  - sh, ash, dash, bash, yash, ksh (mksh, loksh), zsh
   - xmllint
 - Other
   - [brew-bundle](https://github.com/Homebrew/homebrew-bundle) via [linuxbrew/brew](https://hub.docker.com/r/linuxbrew/brew)
@@ -124,8 +124,12 @@ file for full license details.
 
 ## Alternatives
 
-Similar project I found is [git-lint](https://github.com/sk-/git-lint), but
-very python oriented.
+Obvious alternative is
+[github super-linter](https://github.com/github/super-linter).
+However it is tied to github and you can't use it locally.
+
+Smaller project I found is [git-lint](https://github.com/sk-/git-lint).
+It is very python oriented.
 
 ## Future plans
 
@@ -139,3 +143,4 @@ very python oriented.
 - TODO: htmlhint, htmllint? (when config file present)
 - TODO: jshint, jslint, google-closure-linter? (when config files present)
 - TODO: dotenv linter
+- TODO: use go dep or go.mod files (+ apply dependabot)
