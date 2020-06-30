@@ -39,7 +39,6 @@ Project is in early development stage, though versioned releases are already ava
 - Python
   - [yamllint](https://github.com/adrienverge/yamllint)
   - [bashate](https://github.com/openstack/bashate)
-  - [requirements-validator](https://github.com/looking-for-a-job/requirements-validator.py)
   - [travislint](https://pypi.org/project/travislint/)
 - Composer
   - [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)
