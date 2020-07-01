@@ -10,7 +10,7 @@
     "eclint": "^2.8.1",
     "gitlab-ci-lint": "^1.0.2",
     "gitlab-ci-validate": "^0.3.0",
-    "markdownlint-cli": "^0.23.1",
+    "markdownlint-cli": "^0.23.2",
     "package-json-validator": "^0.6.3"
   },
   "devDependencies": {
