@@ -1,4 +1,4 @@
-FROM node:14.4.0-alpine AS build
+FROM node:14.5.0-alpine AS build
 # TODO: replace builder with rust
 WORKDIR /src
 COPY main.js package.json package-lock.json ./
