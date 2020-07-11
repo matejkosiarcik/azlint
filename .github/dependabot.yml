@@ -116,9 +116,9 @@ updates:
     assignees:
       - matejkosiarcik
 
-  # Hadolint
+  # Haskell
   - package-ecosystem: docker
-    directory: "/components/hadolint"
+    directory: "/components/haskell"
     schedule:
       interval: daily
       time: "03:00"
@@ -168,19 +168,6 @@ updates:
       - matejkosiarcik
   - package-ecosystem: pip
     directory: "/components/python"
-    schedule:
-      interval: daily
-      time: "03:00"
-      timezone: "Europe/Bratislava"
-    open-pull-requests-limit: 10
-    reviewers:
-      - matejkosiarcik
-    assignees:
-      - matejkosiarcik
-
-  # Shellcheck
-  - package-ecosystem: docker
-    directory: "/components/shellcheck"
     schedule:
       interval: daily
       time: "03:00"
