@@ -5,15 +5,25 @@ WORKDIR /src
 COPY . ./
 
 RUN stack setup && \
-    stack build && \
+    stack build --ghc-options -O2 && \
     mkdir binaries && \
     find / -name 'shellcheck' -path '*/bin/shellcheck' -exec cp {} /src/binaries/ \; && \
     find / -name 'hadolint' -path '*/bin/hadolint' -exec cp {} /src/binaries/ \;
 
+FROM debian:10.4-slim AS build2
+WORKDIR /src
+COPY --from=build /src/binaries/shellcheck /usr/bin/
+COPY --from=build /src/binaries/hadolint /usr/bin/
+RUN apt-get update && \
+    apt-get install --yes --no-install-recommends upx-ucl && \
+    rm -rf /var/lib/apt/lists/* && \
+    upx --ultra-brute /usr/bin/shellcheck &&  \
+    upx --ultra-brute /usr/bin/hadolint
+
 FROM debian:10.4-slim
 WORKDIR /src
-COPY --from=build /src/binaries/shellcheck /usr/bin/shellcheck
-COPY --from=build /src/binaries/hadolint /usr/bin/hadolint
+COPY --from=build2 /usr/bin/shellcheck /usr/bin/
+COPY --from=build2 /usr/bin/hadolint /usr/bin/
 COPY main.sh .
 
 CMD [ "sh", "main.sh" ]
