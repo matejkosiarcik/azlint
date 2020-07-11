@@ -19,3 +19,4 @@ docker build --no-cache --pull './components/python' -t "matejkosiarcik/azlint-i
 docker build --no-cache --pull './components/shellcheck' -t "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-shellcheck"
 docker build --no-cache --pull './components/swift' -t "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-swift"
 docker build --no-cache --pull './components/zsh' -t "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-zsh"
+docker build --no-cache --pull './components/haskell' -t "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-haskell"

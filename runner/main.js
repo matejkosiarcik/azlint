@@ -105,6 +105,7 @@ async function runComponent(componentName, dockerArgs) {
         await runComponent('Shellcheck', dockerArgs.concat(`${dockerTagPrefix}shellcheck`))
         await runComponent('Swift', dockerArgs.concat(`${dockerTagPrefix}swift`))
         await runComponent('Zsh', dockerArgs.concat(`${dockerTagPrefix}zsh`))
+        await runComponent('Haskell', dockerArgs.concat(`${dockerTagPrefix}haskell`))
     } catch (error) {
         process.exit(1)
     }

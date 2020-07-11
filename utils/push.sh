@@ -17,6 +17,7 @@ if [ "${AZLINT_VERSION}" != 'dev' ]; then
     docker tag 'matejkosiarcik/azlint-internal:dev-shellcheck' "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-shellcheck"
     docker tag 'matejkosiarcik/azlint-internal:dev-swift' "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-swift"
     docker tag 'matejkosiarcik/azlint-internal:dev-zsh' "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-zsh"
+    docker tag 'matejkosiarcik/azlint-internal:dev-haskell' "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-haskell"
 fi
 
 docker push "matejkosiarcik/azlint:${AZLINT_VERSION}"
@@ -32,3 +33,4 @@ docker push "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-python"
 docker push "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-shellcheck"
 docker push "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-swift"
 docker push "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-zsh"
+docker push "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-haskell"
