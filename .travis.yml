@@ -18,7 +18,8 @@ jobs:
 
 install:
   - nvm install node  # otherwise node is not available
-  - make bootstrap build
+  - make bootstrap
 
 script:
+  - make build
   - make run
