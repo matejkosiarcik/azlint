@@ -1,5 +1,5 @@
 # config files
-yamllint==1.22.1
+yamllint==1.23.0
 # requirements-validator==2019.4.13 # TODO: find alternative, seems to be gone
 
 # shells
