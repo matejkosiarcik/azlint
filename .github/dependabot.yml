@@ -7,7 +7,7 @@ updates:
     versioning-strategy: increase
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
     reviewers:
       - matejkosiarcik
@@ -17,7 +17,7 @@ updates:
     directory: "/runner"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
     reviewers:
       - matejkosiarcik
@@ -29,7 +29,7 @@ updates:
     directory: "/components/alpine"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
     reviewers:
       - matejkosiarcik
@@ -41,7 +41,7 @@ updates:
     directory: "/components/bash"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
     reviewers:
       - matejkosiarcik
@@ -53,7 +53,7 @@ updates:
     directory: "/components/brew"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
     reviewers:
       - matejkosiarcik
@@ -65,7 +65,7 @@ updates:
     directory: "/components/composer"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
     reviewers:
       - matejkosiarcik
@@ -76,7 +76,7 @@ updates:
     versioning-strategy: increase
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
     reviewers:
       - matejkosiarcik
@@ -88,7 +88,7 @@ updates:
     directory: "/components/debian"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
     reviewers:
       - matejkosiarcik
@@ -100,7 +100,7 @@ updates:
     directory: "/components/go"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
     reviewers:
       - matejkosiarcik
@@ -112,7 +112,7 @@ updates:
     directory: "/components/haskell"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
     reviewers:
       - matejkosiarcik
@@ -124,7 +124,7 @@ updates:
     directory: "/components/node"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
     reviewers:
       - matejkosiarcik
@@ -135,7 +135,7 @@ updates:
     versioning-strategy: increase
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
     reviewers:
       - matejkosiarcik
@@ -147,7 +147,7 @@ updates:
     directory: "/components/python"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
     reviewers:
       - matejkosiarcik
@@ -157,7 +157,7 @@ updates:
     directory: "/components/python"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
     reviewers:
       - matejkosiarcik
@@ -169,7 +169,7 @@ updates:
     directory: "/components/swift"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
     reviewers:
       - matejkosiarcik
@@ -181,7 +181,7 @@ updates:
     directory: "/components/zsh"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
     reviewers:
       - matejkosiarcik
