@@ -4,7 +4,7 @@ workflows:
   version: 2
   test:
     jobs:
-      - azlint: { matrix: { parameters: { tag: [ latest, "0.1.1" ] }}}
+      - azlint: { matrix: { parameters: { tag: [ latest, "0.1.2" ] }}}
       - build
 
 jobs:
