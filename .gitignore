@@ -10,6 +10,10 @@ components/go/pkg/
 # composer only ignores root "/vendor/"
 components/composer/vendor/
 
+# ignore generated cabal files
+components/haskell/*.cabal
+components/haskell/stack.yaml.lock
+
 # Created by https://www.toptal.com/developers/gitignore/api/node,python,rust,ruby,composer,haskell,go,swift,swiftpackagemanager,venv,virtualenv,jetbrains+all,visualstudiocode,sublimetext,emacs,vim,macos,linux,windows
 # Edit at https://www.toptal.com/developers/gitignore?templates=node,python,rust,ruby,composer,haskell,go,swift,swiftpackagemanager,venv,virtualenv,jetbrains+all,visualstudiocode,sublimetext,emacs,vim,macos,linux,windows
 

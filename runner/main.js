@@ -81,9 +81,7 @@ function writeProjectFileList(files) {
 
 async function runComponent(componentName, dockerArgs) {
     console.log(`--- ${componentName} ---`)
-    // console.time(componentName)
     await execa(dockerArgs[0], dockerArgs.splice(1), { stdout: process.stdout, stderr: process.stderr })
-    // console.timeEnd(componentName)
 }
 
 (async () => {
@@ -99,10 +97,9 @@ async function runComponent(componentName, dockerArgs) {
         await runComponent('Composer', dockerArgs.concat(`${dockerTagPrefix}composer`))
         await runComponent('Debian', dockerArgs.concat(`${dockerTagPrefix}debian`))
         await runComponent('Go', dockerArgs.concat(`${dockerTagPrefix}go`))
-        await runComponent('Hadolint', dockerArgs.concat(`${dockerTagPrefix}hadolint`))
+        await runComponent('Haskell', dockerArgs.concat(`${dockerTagPrefix}haskell`))
         await runComponent('Node', dockerArgs.concat(`${dockerTagPrefix}node`))
         await runComponent('Python', dockerArgs.concat(`${dockerTagPrefix}python`))
-        await runComponent('Shellcheck', dockerArgs.concat(`${dockerTagPrefix}shellcheck`))
         await runComponent('Swift', dockerArgs.concat(`${dockerTagPrefix}swift`))
         await runComponent('Zsh', dockerArgs.concat(`${dockerTagPrefix}zsh`))
     } catch (error) {

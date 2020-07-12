@@ -51,10 +51,11 @@ Project is in early development stage, though versioned releases are already ava
 - System (Alpine & Debian)
   - sh, ash, dash, bash, yash, ksh (mksh, loksh), zsh
   - xmllint
-- Other
-  - [brew-bundle](https://github.com/Homebrew/homebrew-bundle) via [linuxbrew/brew](https://hub.docker.com/r/linuxbrew/brew)
+- Haskell
   - [shellcheck](https://github.com/koalaman/shellcheck)
   - [hadolint](https://github.com/hadolint/hadolint)
+- Other
+  - [brew-bundle](https://github.com/Homebrew/homebrew-bundle) via [linuxbrew/brew](https://hub.docker.com/r/linuxbrew/brew)
   - bash
   - zsh
 
@@ -133,7 +134,6 @@ It is very python oriented.
 ## Future plans
 
 - TODO: rewrite runner in rust
-- TODO: haskell component? (shellcheck, hadolint)
 - TODO: rust component
 - TODO: ruby component (mdlint, travis)
 - TODO: proselint
