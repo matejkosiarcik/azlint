@@ -18,7 +18,8 @@ RUN apt-get update && \
     apt-get install --yes --no-install-recommends upx-ucl && \
     rm -rf /var/lib/apt/lists/* && \
     upx --ultra-brute /usr/bin/shellcheck &&  \
-    upx --ultra-brute /usr/bin/hadolint
+    upx --brute /usr/bin/hadolint
+# TODO: --ultra-brute hadolint
 
 FROM debian:10.4-slim
 WORKDIR /src
