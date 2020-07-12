@@ -7,9 +7,8 @@ updates:
     versioning-strategy: increase
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
-    open-pull-requests-limit: 10
     reviewers:
       - matejkosiarcik
     assignees:
@@ -18,9 +17,8 @@ updates:
     directory: "/runner"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
-    open-pull-requests-limit: 10
     reviewers:
       - matejkosiarcik
     assignees:
@@ -31,9 +29,8 @@ updates:
     directory: "/components/alpine"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
-    open-pull-requests-limit: 10
     reviewers:
       - matejkosiarcik
     assignees:
@@ -44,9 +41,8 @@ updates:
     directory: "/components/bash"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
-    open-pull-requests-limit: 10
     reviewers:
       - matejkosiarcik
     assignees:
@@ -57,9 +53,8 @@ updates:
     directory: "/components/brew"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
-    open-pull-requests-limit: 10
     reviewers:
       - matejkosiarcik
     assignees:
@@ -70,9 +65,8 @@ updates:
     directory: "/components/composer"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
-    open-pull-requests-limit: 10
     reviewers:
       - matejkosiarcik
     assignees:
@@ -82,9 +76,8 @@ updates:
     versioning-strategy: increase
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
-    open-pull-requests-limit: 10
     reviewers:
       - matejkosiarcik
     assignees:
@@ -95,9 +88,8 @@ updates:
     directory: "/components/debian"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
-    open-pull-requests-limit: 10
     reviewers:
       - matejkosiarcik
     assignees:
@@ -108,9 +100,8 @@ updates:
     directory: "/components/go"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
-    open-pull-requests-limit: 10
     reviewers:
       - matejkosiarcik
     assignees:
@@ -121,9 +112,8 @@ updates:
     directory: "/components/haskell"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
-    open-pull-requests-limit: 10
     reviewers:
       - matejkosiarcik
     assignees:
@@ -134,9 +124,8 @@ updates:
     directory: "/components/node"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
-    open-pull-requests-limit: 10
     reviewers:
       - matejkosiarcik
     assignees:
@@ -146,9 +135,8 @@ updates:
     versioning-strategy: increase
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
-    open-pull-requests-limit: 10
     reviewers:
       - matejkosiarcik
     assignees:
@@ -159,9 +147,8 @@ updates:
     directory: "/components/python"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
-    open-pull-requests-limit: 10
     reviewers:
       - matejkosiarcik
     assignees:
@@ -170,9 +157,8 @@ updates:
     directory: "/components/python"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
-    open-pull-requests-limit: 10
     reviewers:
       - matejkosiarcik
     assignees:
@@ -183,9 +169,8 @@ updates:
     directory: "/components/swift"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
-    open-pull-requests-limit: 10
     reviewers:
       - matejkosiarcik
     assignees:
@@ -196,9 +181,8 @@ updates:
     directory: "/components/zsh"
     schedule:
       interval: daily
-      time: "03:00"
+      time: "02:00"
       timezone: "Europe/Bratislava"
-    open-pull-requests-limit: 10
     reviewers:
       - matejkosiarcik
     assignees:
