@@ -6,9 +6,9 @@ set -euf
 if [ -z "${AZLINT_VERSION+x}" ]; then
     AZLINT_VERSION='dev'
 fi
-build_args="${1---no-cache --pull}"
+build_args='--no-cache --pull'
 
-docker build --build-arg "AZLINT_VERSION=${AZLINT_VERSION}" './runner/' -t "matejkosiarcik/azlint:${AZLINT_VERSION}"
+docker build ${build_args} --build-arg "AZLINT_VERSION=${AZLINT_VERSION}" './runner/' -t "matejkosiarcik/azlint:${AZLINT_VERSION}"
 docker build ${build_args} './components/alpine' -t "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-alpine"
 docker build ${build_args} './components/bash' -t "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-bash"
 docker build ${build_args} './components/brew' -t "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-brew"
