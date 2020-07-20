@@ -100,6 +100,7 @@ async function runComponent(componentName, dockerArgs) {
         await runComponent('Haskell', dockerArgs.concat(`${dockerTagPrefix}haskell`))
         await runComponent('Node', dockerArgs.concat(`${dockerTagPrefix}node`))
         await runComponent('Python', dockerArgs.concat(`${dockerTagPrefix}python`))
+        await runComponent('Ruby', dockerArgs.concat(`${dockerTagPrefix}ruby`))
         await runComponent('Swift', dockerArgs.concat(`${dockerTagPrefix}swift`))
         await runComponent('Zsh', dockerArgs.concat(`${dockerTagPrefix}zsh`))
     } catch (error) {
