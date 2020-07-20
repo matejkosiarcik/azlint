@@ -23,5 +23,6 @@ docker build ${build_args} --build-arg "BUILD_ENV=${BUILD_ENV}" './components/ha
 docker build ${build_args} --build-arg "BUILD_ENV=${BUILD_ENV}" './components/node' -t "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-node"
 docker build ${build_args} --build-arg "BUILD_ENV=${BUILD_ENV}" './components/python' -t "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-python"
 docker build ${build_args} --build-arg "BUILD_ENV=${BUILD_ENV}" './components/ruby' -t "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-ruby"
+docker build ${build_args} --build-arg "BUILD_ENV=${BUILD_ENV}" './components/rust' -t "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-rust"
 docker build ${build_args} --build-arg "BUILD_ENV=${BUILD_ENV}" './components/swift' -t "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-swift"
 docker build ${build_args} --build-arg "BUILD_ENV=${BUILD_ENV}" './components/zsh' -t "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-zsh"

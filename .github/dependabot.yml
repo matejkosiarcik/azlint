@@ -186,6 +186,18 @@ updates:
     assignees:
       - matejkosiarcik
 
+  # Rust
+  - package-ecosystem: docker
+    directory: "/components/rust"
+    schedule:
+      interval: daily
+      time: "02:00"
+      timezone: "Europe/Bratislava"
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+
   # Swift
   - package-ecosystem: docker
     directory: "/components/swift"

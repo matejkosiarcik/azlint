@@ -92,7 +92,7 @@ function writeProjectFileList(files) {
 
     try {
         // TODO: research parallelization
-        for (let component of ['alpine', 'bash', 'brew', 'composer', 'debian', 'go', 'haskell', 'node', 'python', 'ruby', 'swift', 'zsh']) {
+        for (let component of ['alpine', 'bash', 'brew', 'composer', 'debian', 'go', 'haskell', 'node', 'python', 'ruby', 'rust', 'swift', 'zsh']) {
             await runComponent(component)
         }
     } catch (error) {

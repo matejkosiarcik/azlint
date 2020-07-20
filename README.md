@@ -46,6 +46,8 @@ Project is in early development stage, though versioned releases are already ava
   - [jsonlint](https://github.com/Seldaek/jsonlint)
 - Ruby
   - WIP ¯\\_(ツ)_/¯
+- Rust
+  - WIP ¯\\_(ツ)_/¯
 - Golang
   - [shfmt](https://github.com/mvdan/sh)
 - Swift
