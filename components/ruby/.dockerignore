@@ -1,0 +1,4 @@
+.dockerignore
+Dockerfile
+.bundle/
+.DS_Store

@@ -44,6 +44,8 @@ Project is in early development stage, though versioned releases are already ava
   - [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)
   - [composer-normalize](https://github.com/ergebnis/composer-normalize)
   - [jsonlint](https://github.com/Seldaek/jsonlint)
+- Ruby
+  - WIP ¯\\_(ツ)_/¯
 - Golang
   - [shfmt](https://github.com/mvdan/sh)
 - Swift
