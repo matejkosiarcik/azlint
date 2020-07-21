@@ -142,10 +142,15 @@ It is very python oriented.
 ## Future plans
 
 - TODO: rewrite runner in rust
-- TODO: proselint
-- TODO: clangformat lint? (when config files present)
-- TODO: sass-lint, scss-lint, css-lint? (only when config file available)
-- TODO: htmlhint, htmllint? (when config file present)
-- TODO: jshint, jslint, google-closure-linter? (when config files present)
-- TODO: dotenv linter
 - TODO: use go dep or go.mod files (+ apply dependabot)
+- TODO: check following tools
+  - clangformat lint? (when config files present)
+  - sass-lint, scss-lint, css-lint? (only when config file available)
+  - htmlhint, htmllint? (when config file present)
+  - jshint, jslint, google-closure-linter? (when config files present)
+  - dotenv linter
+  - proselint
+  - purcell/sqlint
+  - cweiske/php-sqllint
+  - kufii/sql-formatter-plus
+  - jdorn/sql-formatter
