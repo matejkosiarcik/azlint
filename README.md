@@ -52,6 +52,7 @@ Project is in early development stage, though versioned releases are already ava
 - Golang
   - [shfmt](https://github.com/mvdan/sh)
   - [stoml](https://github.com/freshautomations/stoml)
+  - [tomljson](https://github.com/pelletier/go-toml)
 - Swift
   - [swiftlint](https://github.com/realm/SwiftLint)
 - Haskell
