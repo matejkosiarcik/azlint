@@ -4,16 +4,13 @@ workflows:
   version: 2
   test:
     jobs:
-      - azlint: { matrix: { parameters: { tag: [ latest, "0.1.2" ] }}}
+      - azlint
       - build
 
 jobs:
   azlint:
-    parameters:
-      tag:
-        type: string
     docker:
-      - image: "matejkosiarcik/azlint:<< parameters.tag >>"
+      - image: matejkosiarcik/azlint
     steps:
       - checkout
       - setup_remote_docker
