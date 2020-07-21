@@ -197,6 +197,16 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
+  - package-ecosystem: cargo
+    directory: "/components/rust"
+    schedule:
+      interval: daily
+      time: "02:00"
+      timezone: "Europe/Bratislava"
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
 
   # Swift
   - package-ecosystem: docker
