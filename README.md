@@ -48,7 +48,7 @@ Project is in early development stage, though versioned releases are already ava
 - Ruby
   - [markdownlint](https://github.com/markdownlint/markdownlint)
 - Rust
-  - WIP ¯\\_(ツ)_/¯
+  - [jsonprima](https://github.com/jsonprima/jsonprima)
 - Golang
   - [shfmt](https://github.com/mvdan/sh)
 - Swift
