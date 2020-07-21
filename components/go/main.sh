@@ -12,3 +12,4 @@ elif (xargs -r <'/dev/null' >'/dev/null' 2>&1); then
 fi
 
 grep -iE '\.(sh|ksh|bash|zsh)$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} shfmt -l -d
+grep -iE '\.toml$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 -I% ${xargs_r} stoml % .

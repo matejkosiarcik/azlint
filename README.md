@@ -51,6 +51,7 @@ Project is in early development stage, though versioned releases are already ava
   - [jsonprima](https://github.com/jsonprima/jsonprima)
 - Golang
   - [shfmt](https://github.com/mvdan/sh)
+  - [stoml](https://github.com/freshautomations/stoml)
 - Swift
   - [swiftlint](https://github.com/realm/SwiftLint)
 - Haskell
