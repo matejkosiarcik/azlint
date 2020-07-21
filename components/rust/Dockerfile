@@ -1,4 +1,4 @@
-FROM rust:1.44.0-alpine AS build
+FROM rust:1.45.0-alpine AS build
 ARG BUILD_ENV=dev
 WORKDIR /src
 RUN if [ "${BUILD_ENV}" = prod ]; then \
