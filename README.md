@@ -140,8 +140,7 @@ It is very python oriented.
 ## Future plans
 
 - TODO: rewrite runner in rust
-- TODO: rust component
-- TODO: ruby component (mdlint, travis)
+- TODO: ruby component (travis)
 - TODO: proselint
 - TODO: clangformat lint? (when config files present)
 - TODO: sass-lint, scss-lint, css-lint? (only when config file available)
