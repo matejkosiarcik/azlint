@@ -40,14 +40,14 @@ Project is in early development stage, though versioned releases are already ava
 - Python
   - [yamllint](https://github.com/adrienverge/yamllint)
   - [bashate](https://github.com/openstack/bashate)
-  - [travislint](https://pypi.org/project/travislint/)
+  <!-- - [travislint](https://pypi.org/project/travislint/) -->
 - Composer
   - [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)
   - [composer-normalize](https://github.com/ergebnis/composer-normalize)
   - [jsonlint](https://github.com/Seldaek/jsonlint)
 - Ruby
   - [markdownlint](https://github.com/markdownlint/markdownlint)
-  - [travis-lint](https://github.com/travis-ci/travis.rb#lint)
+  <!-- - [travis-lint](https://github.com/travis-ci/travis.rb#lint) -->
 - Rust
   - [jsonprima](https://github.com/jsonprima/jsonprima)
 - Golang
