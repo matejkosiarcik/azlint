@@ -5,6 +5,7 @@ RUN GOPATH="${PWD}" GO111MODULE=on go get -ldflags='-s -w' 'github.com/freshauto
 FROM rust:1.45.0-alpine AS build
 ARG BUILD_ENV=dev
 WORKDIR /src
+# must copy everything, docker won't copy folder when listed explicitely (e.g. src/)
 COPY . .
 COPY --from=toml /src/bin/stoml /usr/bin/stoml
 RUN stoml Cargo.toml dev-dependencies | tr ' ' '\n' | xargs -n1 cargo install --force && \
