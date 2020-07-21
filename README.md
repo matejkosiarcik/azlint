@@ -36,6 +36,7 @@ Project is in early development stage, though versioned releases are already ava
   - [package-json-validator](https://github.com/gorillamania/package.json-validator)
   - [gitlab-ci-validate](https://github.com/pradel/gitlab-ci-validate)
   - [gitlab-ci-lint](https://github.com/BuBuaBu/gitlab-ci-lint)
+  - [dockerfilelint](https://github.com/replicatedhq/dockerfilelint)
 - Python
   - [yamllint](https://github.com/adrienverge/yamllint)
   - [bashate](https://github.com/openstack/bashate)
