@@ -47,6 +47,7 @@ Project is in early development stage, though versioned releases are already ava
   - [jsonlint](https://github.com/Seldaek/jsonlint)
 - Ruby
   - [markdownlint](https://github.com/markdownlint/markdownlint)
+  - [travis-lint](https://github.com/travis-ci/travis.rb#lint)
 - Rust
   - [jsonprima](https://github.com/jsonprima/jsonprima)
 - Golang
@@ -141,7 +142,6 @@ It is very python oriented.
 ## Future plans
 
 - TODO: rewrite runner in rust
-- TODO: ruby component (travis)
 - TODO: proselint
 - TODO: clangformat lint? (when config files present)
 - TODO: sass-lint, scss-lint, css-lint? (only when config file available)
