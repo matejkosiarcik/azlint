@@ -1,0 +1,6 @@
+#!/bin/bash
+
+newtag="${DOCKER_REPO}:${SOURCE_COMMIT}-${DOCKER_TAG}"
+printf 'New tag: %s\n' "${newtag}"
+docker tag "${IMAGE_NAME}" "${newtag}"
+docker push "${newtag}"

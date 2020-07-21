@@ -44,16 +44,20 @@ Project is in early development stage, though versioned releases are already ava
   - [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)
   - [composer-normalize](https://github.com/ergebnis/composer-normalize)
   - [jsonlint](https://github.com/Seldaek/jsonlint)
+- Ruby
+  - WIP ¯\\_(ツ)_/¯
+- Rust
+  - WIP ¯\\_(ツ)_/¯
 - Golang
   - [shfmt](https://github.com/mvdan/sh)
 - Swift
   - [swiftlint](https://github.com/realm/SwiftLint)
-- System (Alpine & Debian)
-  - sh, ash, dash, bash, yash, ksh (mksh, loksh), zsh
-  - xmllint
 - Haskell
   - [shellcheck](https://github.com/koalaman/shellcheck)
   - [hadolint](https://github.com/hadolint/hadolint)
+- System (Alpine & Debian)
+  - sh, ash, dash, bash, yash, ksh (mksh, loksh), zsh
+  - xmllint
 - Other
   - [brew-bundle](https://github.com/Homebrew/homebrew-bundle) via [linuxbrew/brew](https://hub.docker.com/r/linuxbrew/brew)
   - bash

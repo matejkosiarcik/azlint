@@ -79,29 +79,22 @@ function writeProjectFileList(files) {
     return filePath
 }
 
-async function runComponent(componentName, dockerArgs) {
-    console.log(`--- ${componentName} ---`)
-    await execa(dockerArgs[0], dockerArgs.splice(1), { stdout: process.stdout, stderr: process.stderr })
-}
-
 (async () => {
     const files = await getProjectFileList()
     const listPath = writeProjectFileList(files)
     const dockerArgs = ['docker', 'run', '--rm', '--tty'].concat(dockerVolumeArgumets(listPath))
     const dockerTagPrefix = `matejkosiarcik/azlint-internal:${process.env['AZLINT_VERSION']}-`
 
+    async function runComponent(componentName) {
+        console.log(`--- ${componentName} ---`)
+        await execa(dockerArgs[0], dockerArgs.slice(1).concat(`${dockerTagPrefix}${componentName}`), { stdout: process.stdout, stderr: process.stderr })
+    }
+
     try {
-        await runComponent('Alpine', dockerArgs.concat(`${dockerTagPrefix}alpine`))
-        await runComponent('Bash', dockerArgs.concat(`${dockerTagPrefix}bash`))
-        await runComponent('Brew', dockerArgs.concat(`${dockerTagPrefix}brew`))
-        await runComponent('Composer', dockerArgs.concat(`${dockerTagPrefix}composer`))
-        await runComponent('Debian', dockerArgs.concat(`${dockerTagPrefix}debian`))
-        await runComponent('Go', dockerArgs.concat(`${dockerTagPrefix}go`))
-        await runComponent('Haskell', dockerArgs.concat(`${dockerTagPrefix}haskell`))
-        await runComponent('Node', dockerArgs.concat(`${dockerTagPrefix}node`))
-        await runComponent('Python', dockerArgs.concat(`${dockerTagPrefix}python`))
-        await runComponent('Swift', dockerArgs.concat(`${dockerTagPrefix}swift`))
-        await runComponent('Zsh', dockerArgs.concat(`${dockerTagPrefix}zsh`))
+        // TODO: research parallelization
+        for (let component of ['alpine', 'bash', 'brew', 'composer', 'debian', 'go', 'haskell', 'node', 'python', 'ruby', 'rust', 'swift', 'zsh']) {
+            await runComponent(component)
+        }
     } catch (error) {
         process.exit(1)
     }
