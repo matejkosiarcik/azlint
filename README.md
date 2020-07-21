@@ -46,7 +46,7 @@ Project is in early development stage, though versioned releases are already ava
   - [composer-normalize](https://github.com/ergebnis/composer-normalize)
   - [jsonlint](https://github.com/Seldaek/jsonlint)
 - Ruby
-  - WIP ¯\\_(ツ)_/¯
+  - [markdownlint](https://github.com/markdownlint/markdownlint)
 - Rust
   - WIP ¯\\_(ツ)_/¯
 - Golang
