@@ -1,5 +1,6 @@
 FROM haskell:8.10.1 AS build
-# TODO: replace base with raw debian
+ARG BUILD_ENV=dev
+# TODO: replace base haskell with raw debian for multiplatform builds
 
 WORKDIR /src
 COPY . ./
@@ -14,12 +15,13 @@ FROM debian:10.4-slim AS build2
 WORKDIR /src
 COPY --from=build /src/binaries/shellcheck /usr/bin/
 COPY --from=build /src/binaries/hadolint /usr/bin/
-RUN apt-get update && \
+RUN if [ "${BUILD_ENV}" = prod ]; then \
+    apt-get update && \
     apt-get install --yes --no-install-recommends upx-ucl && \
     rm -rf /var/lib/apt/lists/* && \
-    upx --ultra-brute /usr/bin/shellcheck &&  \
-    upx --best /usr/bin/hadolint
-# TODO: --ultra-brute hadolint
+    upx --ultra-brute /usr/bin/shellcheck && \
+    upx --ultra-brute /usr/bin/hadolint \
+    ; fi
 
 FROM debian:10.4-slim
 WORKDIR /src

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 printf '%s\n' '--- < env > ---'
 env
@@ -12,5 +12,7 @@ printf 'IMAGE_NAME: %s\n' "${IMAGE_NAME}"
 printf 'SOURCE_BRANCH: %s\n' "${SOURCE_BRANCH}"
 printf 'SOURCE_COMMIT: %s\n' "${SOURCE_COMMIT}"
 
-# must override build command to append version as build argument
-docker build --build-arg "AZLINT_VERSION=${SOURCE_COMMIT}" --file "${DOCKERFILE_PATH}" --tag "${IMAGE_NAME}" .
+newtag="${DOCKER_REPO}:${SOURCE_COMMIT}-${DOCKER_TAG}"
+printf 'New tag: %s\n' "${newtag}"
+docker tag "${IMAGE_NAME}" "${newtag}"
+docker push "${newtag}"
