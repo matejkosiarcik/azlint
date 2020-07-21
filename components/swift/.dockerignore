@@ -4,3 +4,4 @@ Dockerfile
 **/.DS_Store
 Packages/
 .build/
+hooks/
