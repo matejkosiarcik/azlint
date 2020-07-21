@@ -17,11 +17,11 @@ build_list="$(mktemp)"
 if [ "${#}" -eq 0 ]; then
     # no arguments, build all
     printf 'runner\n' >"${build_list}"
-    ls -1 'components' | sort >>"${build_list}"
+    find 'components' -type d -mindepth 1 -maxdepth 1 | sed -E 's~.*components/?~~' | sort >>"${build_list}"
 else
     # list components  to build
     while [ "${#}" -ge 1 ]; do
-        printf "${1}\n" >>"${build_list}"
+        printf '%s\n' "${1}" >>"${build_list}"
         shift 1
     done
 fi

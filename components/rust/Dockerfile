@@ -8,7 +8,8 @@ WORKDIR /src
 # must copy everything, docker won't copy folder when listed explicitely (e.g. src/)
 COPY . .
 COPY --from=toml /src/bin/stoml /usr/bin/stoml
-RUN stoml Cargo.toml dev-dependencies | tr ' ' '\n' | xargs -n1 cargo install --force && \
+# hadolint ignore=DL4006
+RUN stoml 'Cargo.toml' dev-dependencies | tr ' ' '\n' | xargs -n1 cargo install --force && \
     mkdir bin && \
     find / -name 'jsonprima' \( -path '*/cargo/bin/jsonprima' -or -path '*/.cargo/bin/jsonprima' \) -exec cp {} bin/ \; && \
     if [ "${BUILD_ENV}" = prod ]; then \
