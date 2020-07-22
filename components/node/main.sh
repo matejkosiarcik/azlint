@@ -26,7 +26,7 @@ grep -iEe '\.(json|geojson|htmlhintrc|htmllintrc|babelrc|jsonl|jscsrc|jshintrc|j
 grep -iE '\.bats$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -I% ${xargs_r} bats --count % >/dev/null
 grep -iE '\.gitlab-ci\.yml$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 ${xargs_r} gitlab-ci-lint
 grep -iE '\.gitlab-ci\.yml$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 ${xargs_r} gitlab-ci-validate validate
-grep -iE '(^|/|\.)Dockerfile$' <'/projectlist/projectlist.txt' | while read -r file;  do
+grep -iE '(^|/|\.)Dockerfile$' <'/projectlist/projectlist.txt' | while read -r file; do
     if ! dockerfilelint "${file}" >"${tmpfile}"; then
         cat "${tmpfile}"
         exit 1
