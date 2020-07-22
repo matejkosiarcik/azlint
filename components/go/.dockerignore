@@ -3,3 +3,4 @@ Dockerfile
 bin/
 pkg/
 .DS_Store
+hooks/

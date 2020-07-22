@@ -2,3 +2,4 @@
 Dockerfile
 .bundle/
 .DS_Store
+hooks/
