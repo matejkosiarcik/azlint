@@ -50,6 +50,7 @@ Project is in early development stage, though versioned releases are already ava
   <!-- - [travis-lint](https://github.com/travis-ci/travis.rb#lint) -->
 - Rust
   - [jsonprima](https://github.com/jsonprima/jsonprima)
+  - [toml-cli](https://github.com/gnprice/toml-cli)
 - Golang
   - [shfmt](https://github.com/mvdan/sh)
   - [stoml](https://github.com/freshautomations/stoml)
@@ -143,7 +144,8 @@ It is very python oriented.
 
 - TODO: rewrite runner in rust
 - TODO: use go dep or go.mod files (+ apply dependabot)
-- TODO: check following tools
+- TODO: check following tools:
+  - mrsh
   - clangformat lint? (when config files present)
   - sass-lint, scss-lint, css-lint? (only when config file available)
   - htmlhint, htmllint? (when config file present)
@@ -154,3 +156,6 @@ It is very python oriented.
   - cweiske/php-sqllint
   - kufii/sql-formatter-plus
   - jdorn/sql-formatter
+- TODO: add linters from:
+  - github-super-linter
+  - git-lint

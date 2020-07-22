@@ -18,9 +18,6 @@ jobs:
     - arch: s390x
   include:
     - { os: linux, dist: focal, arch: amd64 }
-    - { os: linux, dist: focal, arch: arm64, if: branch == master }
-    - { os: linux, dist: focal, arch: ppc64le, if: branch == master }
-    - { os: linux, dist: focal, arch: s390x, if: branch == master }
 
 install:
   - nvm install node  # otherwise node is not available

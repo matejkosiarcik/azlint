@@ -11,6 +11,7 @@ if (xargs --no-run-if-empty <'/dev/null' >'/dev/null' 2>&1); then
 elif (xargs -r <'/dev/null' >'/dev/null' 2>&1); then
     xargs_r='-r'
 fi
+tmpfile="$(mktemp)"
 
 # disable indent size for editorconfig-lint, because sometimes it is beneficial to disregard perfect indent size
 # such as with properties in HTML elements or arguments in C functions, example:
@@ -25,7 +26,12 @@ grep -iEe '\.(json|geojson|htmlhintrc|htmllintrc|babelrc|jsonl|jscsrc|jshintrc|j
 grep -iE '\.bats$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -I% ${xargs_r} bats --count % >/dev/null
 grep -iE '\.gitlab-ci\.yml$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 ${xargs_r} gitlab-ci-lint
 grep -iE '\.gitlab-ci\.yml$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 ${xargs_r} gitlab-ci-validate validate
-grep -iE '(^|/|\.)Dockerfile$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} dockerfilelint
+grep -iE '(^|/|\.)Dockerfile$' <'/projectlist/projectlist.txt' | while read -r file; do
+    if ! dockerfilelint "${file}" >"${tmpfile}"; then
+        cat "${tmpfile}"
+        exit 1
+    fi
+done
 
 grep -iE '(^|/)package\.json$' <'/projectlist/projectlist.txt' | while read -r file; do
     # only run pjv on non-private packages
@@ -33,3 +39,5 @@ grep -iE '(^|/)package\.json$' <'/projectlist/projectlist.txt' | while read -r f
         pjv --quiet --filename "${file}"
     fi
 done
+
+rm -f "${tmpfile}"
