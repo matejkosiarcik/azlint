@@ -4,4 +4,4 @@ name = "placeholder"
 version = "0.0.0"
 
 [dev-dependencies]
-jsonprima = "0.2.0"
+jsonprima = "0.3.0"
