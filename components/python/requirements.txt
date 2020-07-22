@@ -6,4 +6,4 @@ yamllint==1.24.2
 bashate==2.0.0
 
 # CI
-travislint==1.1
+# travislint==1.1

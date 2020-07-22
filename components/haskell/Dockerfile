@@ -3,6 +3,7 @@ ARG BUILD_ENV=dev
 # TODO: replace base haskell with raw debian for multiplatform builds
 
 WORKDIR /src
+# must copy everything, docker won't copy folder when listed explicitely (e.g. src/)
 COPY . ./
 
 RUN stack setup && \

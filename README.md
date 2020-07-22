@@ -36,20 +36,24 @@ Project is in early development stage, though versioned releases are already ava
   - [package-json-validator](https://github.com/gorillamania/package.json-validator)
   - [gitlab-ci-validate](https://github.com/pradel/gitlab-ci-validate)
   - [gitlab-ci-lint](https://github.com/BuBuaBu/gitlab-ci-lint)
+  - [dockerfilelint](https://github.com/replicatedhq/dockerfilelint)
 - Python
   - [yamllint](https://github.com/adrienverge/yamllint)
   - [bashate](https://github.com/openstack/bashate)
-  - [travislint](https://pypi.org/project/travislint/)
+  <!-- - [travislint](https://pypi.org/project/travislint/) -->
 - Composer
   - [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)
   - [composer-normalize](https://github.com/ergebnis/composer-normalize)
   - [jsonlint](https://github.com/Seldaek/jsonlint)
 - Ruby
-  - WIP ¯\\_(ツ)_/¯
+  - [markdownlint](https://github.com/markdownlint/markdownlint)
+  <!-- - [travis-lint](https://github.com/travis-ci/travis.rb#lint) -->
 - Rust
-  - WIP ¯\\_(ツ)_/¯
+  - [jsonprima](https://github.com/jsonprima/jsonprima)
 - Golang
   - [shfmt](https://github.com/mvdan/sh)
+  - [stoml](https://github.com/freshautomations/stoml)
+  - [tomljson](https://github.com/pelletier/go-toml)
 - Swift
   - [swiftlint](https://github.com/realm/SwiftLint)
 - Haskell
@@ -138,12 +142,15 @@ It is very python oriented.
 ## Future plans
 
 - TODO: rewrite runner in rust
-- TODO: rust component
-- TODO: ruby component (mdlint, travis)
-- TODO: proselint
-- TODO: clangformat lint? (when config files present)
-- TODO: sass-lint, scss-lint, css-lint? (only when config file available)
-- TODO: htmlhint, htmllint? (when config file present)
-- TODO: jshint, jslint, google-closure-linter? (when config files present)
-- TODO: dotenv linter
 - TODO: use go dep or go.mod files (+ apply dependabot)
+- TODO: check following tools
+  - clangformat lint? (when config files present)
+  - sass-lint, scss-lint, css-lint? (only when config file available)
+  - htmlhint, htmllint? (when config file present)
+  - jshint, jslint, google-closure-linter? (when config files present)
+  - dotenv linter
+  - proselint
+  - purcell/sqlint
+  - cweiske/php-sqllint
+  - kufii/sql-formatter-plus
+  - jdorn/sql-formatter

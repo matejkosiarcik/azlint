@@ -4,15 +4,18 @@
 /runner/azlint
 
 # golang local packages
-components/go/bin/
-components/go/pkg/
+/components/go/bin/
+/components/go/pkg/
 
 # composer only ignores root "/vendor/"
-components/composer/vendor/
+/components/composer/vendor/
 
 # ignore generated cabal files
-components/haskell/*.cabal
-components/haskell/stack.yaml.lock
+/components/haskell/*.cabal
+/components/haskell/stack.yaml.lock
+
+# ignore ruby installed gems
+/components/ruby/.bundle/
 
 # Created by https://www.toptal.com/developers/gitignore/api/node,python,rust,ruby,composer,haskell,go,swift,swiftpackagemanager,venv,virtualenv,jetbrains+all,visualstudiocode,sublimetext,emacs,vim,macos,linux,windows
 # Edit at https://www.toptal.com/developers/gitignore?templates=node,python,rust,ruby,composer,haskell,go,swift,swiftpackagemanager,venv,virtualenv,jetbrains+all,visualstudiocode,sublimetext,emacs,vim,macos,linux,windows
