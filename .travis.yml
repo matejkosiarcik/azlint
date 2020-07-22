@@ -23,6 +23,11 @@ jobs:
     - { os: linux, dist: focal, arch: s390x, if: branch == master }
 
 install:
+  - |
+    command -v nvm >/dev/null 2>&1 || (
+      git clone --depth 1 https://github.com/creationix/nvm.git ./.nvm
+      source ./.nvm/nvm.sh
+    )
   - nvm install node  # otherwise node is not available
   - make bootstrap
 
