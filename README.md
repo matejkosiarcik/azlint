@@ -49,8 +49,8 @@ Project is in early development stage, though versioned releases are already ava
   - [markdownlint](https://github.com/markdownlint/markdownlint)
   <!-- - [travis-lint](https://github.com/travis-ci/travis.rb#lint) -->
 - Rust
-  - [jsonprima](https://github.com/jsonprima/jsonprima)
-  - [toml-cli](https://github.com/gnprice/toml-cli)
+  - wip
+  <!-- - [toml-cli](https://github.com/gnprice/toml-cli) -->
 - Golang
   - [shfmt](https://github.com/mvdan/sh)
   - [stoml](https://github.com/freshautomations/stoml)

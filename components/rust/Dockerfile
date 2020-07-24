@@ -9,16 +9,13 @@ WORKDIR /src
 COPY . .
 COPY --from=toml /src/bin/stoml /usr/bin/stoml
 # hadolint ignore=DL4006
-RUN stoml 'Cargo.toml' dev-dependencies | tr ' ' '\n' | xargs -n1 cargo install --force && \
+RUN stoml 'Cargo.toml' dev-dependencies | tr ' ' '\n' | xargs -n1 --no-run-if-empty cargo install --force && \
     mkdir bin && \
-    find / -name 'jsonprima' \( -path '*/cargo/bin/jsonprima' -or -path '*/.cargo/bin/jsonprima' \) -exec cp {} bin/ \; && \
     if [ "${BUILD_ENV}" = prod ]; then \
-    apk add --no-cache upx && \
-    upx --ultra-brute bin/jsonprima \
+    apk add --no-cache upx \
     ; fi
 
 FROM alpine:3.12.0
 WORKDIR /src
 COPY main.sh .
-COPY --from=build /src/bin/jsonprima /usr/bin/jsonprima
 CMD [ "sh", "main.sh" ]
