@@ -1,17 +1,5 @@
 #!/bin/bash
 
-printf '%s\n' '--- < env > ---'
-env
-printf '%s\n' '--- ^ env ^ ---'
-
-printf 'COMMIT_MSG: %s\n' "${COMMIT_MSG}"
-printf 'DOCKER_REPO: %s\n' "${DOCKER_REPO}"
-printf 'DOCKER_TAG: %s\n' "${DOCKER_TAG}"
-printf 'DOCKERFILE_PATH: %s\n' "${DOCKERFILE_PATH}"
-printf 'IMAGE_NAME: %s\n' "${IMAGE_NAME}"
-printf 'SOURCE_BRANCH: %s\n' "${SOURCE_BRANCH}"
-printf 'SOURCE_COMMIT: %s\n' "${SOURCE_COMMIT}"
-
 newtag="${DOCKER_REPO}:${SOURCE_COMMIT}-${DOCKER_TAG}"
 printf 'New tag: %s\n' "${newtag}"
 docker tag "${IMAGE_NAME}" "${newtag}"
