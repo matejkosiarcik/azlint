@@ -28,10 +28,10 @@ fi
 
 while read -r component; do
     if [ "${component}" = runner ]; then
-        printf '%s\n' '--- runner ---'
+        printf '%s Building: runner --\n' '--'
         docker build ${build_args} --build-arg "BUILD_ENV=${BUILD_ENV}" --build-arg "AZLINT_VERSION=${AZLINT_VERSION}" './runner/' -t "matejkosiarcik/azlint:${AZLINT_VERSION}"
     else
-        printf '%s %s %s\n' '---' "${component}" '---'
+        printf '%s Building: %s --\n' '--' "${component}"
         docker build ${build_args} --build-arg "BUILD_ENV=${BUILD_ENV}" "./components/${component}" -t "matejkosiarcik/azlint-internal:${AZLINT_VERSION}-${component}"
     fi
 done <"${build_list}"
