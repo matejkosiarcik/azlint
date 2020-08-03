@@ -18,7 +18,7 @@
   "dependencies": {
     "execa": "^4.0.3",
     "glob": "^7.1.6",
-    "simple-git": "^2.15.0"
+    "simple-git": "^2.16.0"
   },
   "devDependencies": {
     "node-prune": "^1.0.2"
