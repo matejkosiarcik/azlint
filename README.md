@@ -44,13 +44,11 @@ Project is in early development stage, though versioned releases are already ava
 - Composer
   - [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)
   - [composer-normalize](https://github.com/ergebnis/composer-normalize)
-  - [jsonlint](https://github.com/Seldaek/jsonlint)
 - Ruby
   - [markdownlint](https://github.com/markdownlint/markdownlint)
   <!-- - [travis-lint](https://github.com/travis-ci/travis.rb#lint) -->
 - Rust
   - wip
-  <!-- - [toml-cli](https://github.com/gnprice/toml-cli) -->
 - Golang
   - [shfmt](https://github.com/mvdan/sh)
   - [stoml](https://github.com/freshautomations/stoml)

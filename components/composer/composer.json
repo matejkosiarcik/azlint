@@ -2,8 +2,7 @@
   "type": "metapackage",
   "require": {
     "php": "^7",
-    "ergebnis/composer-normalize": "^2.6",
-    "seld/jsonlint": "^1.8"
+    "ergebnis/composer-normalize": "^2.6"
   },
   "scripts": {
     "lint": "sh main.sh"
