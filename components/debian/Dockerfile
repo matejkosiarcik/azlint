@@ -1,4 +1,4 @@
-FROM debian:10.4-slim
+FROM debian:10.5-slim
 WORKDIR /src
 COPY main.sh .
 
