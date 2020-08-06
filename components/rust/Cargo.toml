@@ -4,4 +4,4 @@ name = "placeholder"
 version = "0.0.0"
 
 [dev-dependencies]
-# TODO: toml-cli = "0.2.0"
+dotenv-linter = "2.1.0"
