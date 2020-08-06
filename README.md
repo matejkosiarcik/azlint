@@ -48,7 +48,7 @@ Project is in early development stage, though versioned releases are already ava
   - [markdownlint](https://github.com/markdownlint/markdownlint)
   <!-- - [travis-lint](https://github.com/travis-ci/travis.rb#lint) -->
 - Rust
-  - wip
+  - [dotenv-linter](https://github.com/dotenv-linter/dotenv-linter)
 - Golang
   - [shfmt](https://github.com/mvdan/sh)
   - [stoml](https://github.com/freshautomations/stoml)
@@ -143,12 +143,10 @@ It is very python oriented.
 - TODO: rewrite runner in rust
 - TODO: use go dep or go.mod files (+ apply dependabot)
 - TODO: check following tools:
-  - mrsh
   - clangformat lint? (when config files present)
   - sass-lint, scss-lint, css-lint? (only when config file available)
   - htmlhint, htmllint? (when config file present)
-  - jshint, jslint, google-closure-linter? (when config files present)
-  - dotenv linter
+  - tslint, jshint, jslint, google-closure-linter? (when config files present)
   - proselint
   - purcell/sqlint
   - cweiske/php-sqllint
