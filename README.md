@@ -40,6 +40,10 @@ Project is in early development stage, though versioned releases are already ava
 - Python
   - [yamllint](https://github.com/adrienverge/yamllint)
   - [bashate](https://github.com/openstack/bashate)
+  - [pylint](https://www.pylint.org)
+  - [pycodestyle](https://github.com/PyCQA/pycodestyle)
+  - [flake8](https://gitlab.com/pycqa/flake8)
+  - [pyflakes](https://github.com/PyCQA/pyflakes)
   <!-- - [travislint](https://pypi.org/project/travislint/) -->
 - Composer
   - [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)
