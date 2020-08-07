@@ -4,6 +4,7 @@ yamllint==1.24.2
 # shells
 bashate==2.0.0
 pylint==2.5.3
+pycodestyle==2.6.0
 
 # CI
 # travislint==1.1
