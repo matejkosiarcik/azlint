@@ -1,9 +1,9 @@
 # config files
 yamllint==1.24.2
-# requirements-validator==2019.4.13 # TODO: find alternative, seems to be gone
 
 # shells
 bashate==2.0.0
+pylint==2.5.3
 
 # CI
 # travislint==1.1
