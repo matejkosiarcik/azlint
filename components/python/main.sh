@@ -16,4 +16,5 @@ grep -iE '\.(sh|ksh|bash|zsh)$' <'/projectlist/projectlist.txt' | tr '\n' '\0' |
 grep -iE '\.py(2|3)?$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} pylint
 grep -iE '\.py(2|3)?$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} pycodestyle
 grep -iE '\.py(2|3)?$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} flake8
+grep -iE '\.py(2|3)?$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} pyflakes
 # grep -iE '(^|/)\.travis\.yml$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} -n1 travislint
