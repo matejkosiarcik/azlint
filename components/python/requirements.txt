@@ -7,8 +7,6 @@ bashate==2.0.0
 # python
 pylint==2.5.3
 flake8==3.8.3
-pycodestyle==2.6.0 # is it owrth it having separately?
-pyflakes==2.2.0 # is it owrth it having separately?
 
 # CI
 # travislint==1.1
