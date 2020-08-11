@@ -25,6 +25,8 @@ grep -iEe '\.(json|geojson|htmlhintrc|htmllintrc|babelrc|jsonl|jscsrc|jshintrc|j
 grep -iE '\.bats$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -I% ${xargs_r} bats --count % >/dev/null
 grep -iE '\.gitlab-ci\.yml$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 ${xargs_r} gitlab-ci-lint
 grep -iE '\.gitlab-ci\.yml$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 -n1 ${xargs_r} gitlab-ci-validate validate
+grep -iE '\.html$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} htmlhint
+grep -iE '\.html$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} htmllint
 
 if grep -E '^/.svglintrc.js$' <'/projectlist/projectlist.txt'; then
     grep -iE '\.svg$' <'/projectlist/projectlist.txt' | tr '\n' '\0' | xargs -0 ${xargs_r} svglint --ci
