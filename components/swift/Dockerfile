@@ -1,4 +1,4 @@
-FROM swift:5.2.4 AS build
+FROM swift:5.2.5 AS build
 ARG BUILD_ENV=dev
 WORKDIR /src
 # must copy everything, docker won't copy folder when listed explicitely (e.g. Sources/)
@@ -20,7 +20,7 @@ RUN if [ "${BUILD_ENV}" = prod ]; then \
     rm -rf /var/lib/apt/lists/* \
     ; fi
 
-FROM swift:5.2.4-slim
+FROM swift:5.2.5
 WORKDIR /src
 COPY main.sh .
 COPY --from=build /usr/lib/libsourcekitdInProc.so /usr/lib/libsourcekitdInProc.so
