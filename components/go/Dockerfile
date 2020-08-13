@@ -1,4 +1,4 @@
-FROM golang:1.14.7-alpine AS build
+FROM golang:1.15.0-alpine AS build
 ARG BUILD_ENV=dev
 WORKDIR /src
 RUN GOPATH="${PWD}" GO111MODULE=on go get -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt' && \
