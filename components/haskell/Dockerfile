@@ -1,4 +1,4 @@
-FROM haskell:8.10.1 AS build
+FROM haskell:8.10.2 AS build
 ARG BUILD_ENV=dev
 # TODO: replace base haskell with raw debian for multiplatform builds
 
