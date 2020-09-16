@@ -16,7 +16,7 @@
     "htmllint-cli": "0.0.7",
     "markdownlint-cli": "^0.23.2",
     "package-json-validator": "^0.6.3",
-    "svglint": "^1.0.5"
+    "svglint": "^1.0.6"
   },
   "devDependencies": {
     "node-prune": "^1.0.2"
