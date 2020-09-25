@@ -1,4 +1,7 @@
 #!/bin/bash
+# Custom push hook for dockerhub
+# When git tag like v1.2.3 appers
+# This pushes docker tags :1, :1.2, :1.2.3, :latest
 
 tag_original="${DOCKER_REPO}:${DOCKER_TAG}"
 printf 'Original tag: %s\n' "${tag_original}"
