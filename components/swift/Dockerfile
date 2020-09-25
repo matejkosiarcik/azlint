@@ -10,7 +10,7 @@ RUN if [ "${BUILD_ENV}" = prod ]; then \
     swift run --configuration debug mint bootstrap --link \
     ; fi
 
-FROM debian:10.5-slim AS build2
+FROM debian:10.5 AS build2
 WORKDIR /src
 COPY --from=build /usr/local/bin/swiftlint /usr/bin/swiftlint
 RUN if [ "${BUILD_ENV}" = prod ]; then \
@@ -20,7 +20,7 @@ RUN if [ "${BUILD_ENV}" = prod ]; then \
     rm -rf /var/lib/apt/lists/* \
     ; fi
 
-FROM swift:5.3
+FROM swift:5.3-slim
 WORKDIR /src
 COPY main.sh .
 COPY --from=build /usr/lib/libsourcekitdInProc.so /usr/lib/libsourcekitdInProc.so
