@@ -1,4 +1,4 @@
-FROM golang:1.15.2-alpine AS toml
+FROM golang:1.15.3-alpine AS toml
 WORKDIR /src
 RUN GOPATH="${PWD}" GO111MODULE=on go get -ldflags='-s -w' 'github.com/freshautomations/stoml'
 
