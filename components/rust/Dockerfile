@@ -17,7 +17,7 @@ RUN stoml 'Cargo.toml' dev-dependencies | tr ' ' '\n' | xargs -n1 --no-run-if-em
     upx --ultra-brute bin/dotenv-linter \
     ; fi
 
-FROM alpine:3.12.0
+FROM alpine:3.12.1
 WORKDIR /src
 COPY main.sh .
 COPY --from=build /src/bin/dotenv-linter /usr/bin/dotenv-linter
