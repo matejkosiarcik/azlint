@@ -8,7 +8,7 @@ RUN apk add --no-cache bash && \
     npm prune --production
 
 # production image with just node, without npm
-FROM alpine:3.12.0
+FROM alpine:3.12.1
 WORKDIR /src
 COPY main.sh .
 COPY --from=build /src/node_modules node_modules
