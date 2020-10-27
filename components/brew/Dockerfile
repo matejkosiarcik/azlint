@@ -1,4 +1,4 @@
-FROM linuxbrew/brew:2.5.6
+FROM linuxbrew/brew:2.5.7
 WORKDIR /src
 COPY main.sh .
 
