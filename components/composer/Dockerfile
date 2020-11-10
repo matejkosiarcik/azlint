@@ -1,4 +1,4 @@
-FROM composer:2.0.4
+FROM composer:2.0.6
 WORKDIR /src
 COPY composer.json composer.lock main.sh ./
 
