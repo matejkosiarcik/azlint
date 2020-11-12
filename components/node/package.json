@@ -11,7 +11,7 @@
     "eclint": "^2.8.1",
     "gitlab-ci-lint": "^1.0.2",
     "gitlab-ci-validate": "^0.4.0",
-    "htmlhint": "^0.14.1",
+    "htmlhint": "^0.14.2",
     "htmllint": "^0.8.0",
     "htmllint-cli": "0.0.7",
     "markdownlint-cli": "^0.24.0",
