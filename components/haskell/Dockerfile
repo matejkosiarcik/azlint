@@ -12,7 +12,7 @@ RUN stack setup && \
     find / -name 'shellcheck' -path '*/bin/shellcheck' -exec cp {} /src/binaries/ \; && \
     find / -name 'hadolint' -path '*/bin/hadolint' -exec cp {} /src/binaries/ \;
 
-FROM debian:10.6-slim AS build2
+FROM debian:10.7-slim AS build2
 WORKDIR /src
 COPY --from=build /src/binaries/shellcheck /usr/bin/
 COPY --from=build /src/binaries/hadolint /usr/bin/
@@ -24,7 +24,7 @@ RUN if [ "${BUILD_ENV}" = prod ]; then \
     upx --ultra-brute /usr/bin/hadolint \
     ; fi
 
-FROM debian:10.6-slim
+FROM debian:10.7-slim
 WORKDIR /src
 COPY --from=build2 /usr/bin/shellcheck /usr/bin/
 COPY --from=build2 /usr/bin/hadolint /usr/bin/
