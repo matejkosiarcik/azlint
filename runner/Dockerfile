@@ -10,7 +10,7 @@ RUN apk add --no-cache bash && \
     rm -rf node_modules/.bin && \
     chmod +x main.js
 
-FROM docker:19.03.13-git
+FROM docker:20.10.1-git
 WORKDIR /project
 COPY --from=build /src/main.js /src/main.js
 COPY --from=build /src/node_modules /src/node_modules
