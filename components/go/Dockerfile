@@ -11,7 +11,7 @@ RUN GOPATH="${PWD}" GO111MODULE=on go get -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/s
     upx --ultra-brute bin/tomljson \
     ; fi
 
-FROM alpine:3.12.1
+FROM alpine:3.12.3
 WORKDIR /src
 COPY --from=build /src/bin/shfmt /usr/bin/shfmt
 COPY --from=build /src/bin/stoml /usr/bin/stoml
