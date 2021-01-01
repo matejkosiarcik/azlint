@@ -2,7 +2,7 @@ FROM golang:1.15.5-alpine AS toml
 WORKDIR /src
 RUN GOPATH="${PWD}" GO111MODULE=on go get -ldflags='-s -w' 'github.com/freshautomations/stoml'
 
-FROM rust:1.48.0-alpine AS build
+FROM rust:1.49.0-alpine AS build
 ARG BUILD_ENV=dev
 WORKDIR /src
 # must copy everything, docker won't copy folder when listed explicitely (e.g. src/)
