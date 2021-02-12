@@ -13,6 +13,9 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
+    open-pull-requests-limit: 0
+    labels:
+      - automerge
   - package-ecosystem: docker
     directory: "/runner"
     schedule:
@@ -23,6 +26,9 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
+    open-pull-requests-limit: 0
+    labels:
+      - automerge
 
   # Alpine
   - package-ecosystem: docker
@@ -35,6 +41,9 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
+    open-pull-requests-limit: 0
+    labels:
+      - automerge
 
   # Bash
   - package-ecosystem: docker
@@ -47,6 +56,9 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
+    open-pull-requests-limit: 0
+    labels:
+      - automerge
 
   # Brew
   - package-ecosystem: docker
@@ -59,6 +71,9 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
+    open-pull-requests-limit: 0
+    labels:
+      - automerge
 
   # Composer
   - package-ecosystem: docker
@@ -71,6 +86,9 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
+    open-pull-requests-limit: 0
+    labels:
+      - automerge
   - package-ecosystem: composer
     directory: "/components/composer"
     versioning-strategy: increase
@@ -82,6 +100,9 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
+    open-pull-requests-limit: 0
+    labels:
+      - automerge
 
   # Debian
   - package-ecosystem: docker
@@ -94,6 +115,9 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
+    open-pull-requests-limit: 0
+    labels:
+      - automerge
 
   # Go
   - package-ecosystem: docker
@@ -106,6 +130,9 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
+    open-pull-requests-limit: 0
+    labels:
+      - automerge
 
   # Haskell
   - package-ecosystem: docker
@@ -118,6 +145,9 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
+    open-pull-requests-limit: 0
+    labels:
+      - automerge
 
   # Node
   - package-ecosystem: docker
@@ -130,6 +160,9 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
+    open-pull-requests-limit: 0
+    labels:
+      - automerge
   - package-ecosystem: npm
     directory: "/components/node"
     versioning-strategy: increase
@@ -141,6 +174,9 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
+    open-pull-requests-limit: 0
+    labels:
+      - automerge
 
   # Python
   - package-ecosystem: docker
@@ -153,6 +189,9 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
+    open-pull-requests-limit: 0
+    labels:
+      - automerge
   - package-ecosystem: pip
     directory: "/components/python"
     schedule:
@@ -163,6 +202,9 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
+    open-pull-requests-limit: 0
+    labels:
+      - automerge
 
   # Ruby
   - package-ecosystem: docker
@@ -175,6 +217,9 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
+    open-pull-requests-limit: 0
+    labels:
+      - automerge
   - package-ecosystem: bundler
     directory: "/components/ruby"
     schedule:
@@ -185,6 +230,9 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
+    open-pull-requests-limit: 0
+    labels:
+      - automerge
 
   # Rust
   - package-ecosystem: docker
@@ -197,6 +245,9 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
+    open-pull-requests-limit: 0
+    labels:
+      - automerge
   - package-ecosystem: cargo
     directory: "/components/rust"
     schedule:
@@ -207,6 +258,9 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
+    open-pull-requests-limit: 0
+    labels:
+      - automerge
 
   # Swift
   - package-ecosystem: docker
@@ -219,6 +273,9 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
+    open-pull-requests-limit: 0
+    labels:
+      - automerge
 
   # Zsh
   - package-ecosystem: docker
@@ -231,3 +288,6 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
+    open-pull-requests-limit: 0
+    labels:
+      - automerge
