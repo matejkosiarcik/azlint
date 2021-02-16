@@ -16,7 +16,7 @@
     "start": "node main.js"
   },
   "dependencies": {
-    "execa": "^4.1.0",
+    "execa": "^5.0.0",
     "glob": "^7.1.6",
     "simple-git": "^2.23.0"
   },
