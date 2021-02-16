@@ -1,5 +1,5 @@
 # config files
-yamllint==1.25.0
+yamllint==1.26.0
 
 # shells
 bashate==2.0.0
