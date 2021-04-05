@@ -46,7 +46,7 @@ RUN apt-get update && \
 
 # Upx #
 # Single stage to compress all executables from components
-FROM debian AS upx
+FROM debian:10.9 AS upx
 COPY --from=go /src/bin/stoml /usr/bin/stoml
 COPY --from=go /src/bin/tomljson /usr/bin/tomljson
 COPY --from=circleci /usr/local/bin/circleci /usr/bin/circleci
