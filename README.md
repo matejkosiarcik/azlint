@@ -20,55 +20,51 @@
 
 ## About
 
-This project's goal is to bundle as many linters as possible in a docker container.
-This makes it really easy to adopt for your project on a CI/CD server
-(or even locally during development).
+This project works as a complement to github's
+[super-linter](https://github.com/github/super-linter) and similar project
+[mega-linter](https://github.com/nvuillam/mega-linter).
 
-Project is in early development stage, though versioned releases are already available.
+While these tools are awesome, and I recommend using them.
+But they don't contain every linter in existence.
+This is probably an impossible job.
+
+So this tool bundles linters that are important to me, that are missing from
+*super-linter* and *mega-linter*.
 
 ### Included linters
 
 - NodeJS
-  - [eclint](https://github.com/jedmao/eclint)
   - [jsonlint](https://github.com/prantlf/jsonlint)
+    - because this accepts json5, which is not standard
   - [bats-core](https://github.com/bats-core/bats-core)
-  - [markdownlint](https://github.com/igorshubovych/markdownlint-cli)
+    - dry run bats files, checks only syntax, does not run the tests
   - [package-json-validator](https://github.com/gorillamania/package.json-validator)
+    - check recommended fields are included for non-private packages
   - [gitlab-ci-validate](https://github.com/pradel/gitlab-ci-validate)
+    - validate `.gitlab-ci.yml`
   - [gitlab-ci-lint](https://github.com/BuBuaBu/gitlab-ci-lint)
-  - [dockerfilelint](https://github.com/replicatedhq/dockerfilelint)
+    - validate `.gitlab-ci.yml`
+  - [htmllint](https://github.com/htmllint/htmllint)
+    - both super-linter and mega-linter only have
+      [HtmlHint](https://github.com/HTMLHint/HTMLHint)
 - Python
-  - [yamllint](https://github.com/adrienverge/yamllint)
   - [bashate](https://github.com/openstack/bashate)
-  - [pylint](https://www.pylint.org)
-  - [pycodestyle](https://github.com/PyCQA/pycodestyle)
-  - [flake8](https://gitlab.com/pycqa/flake8)
-  - [pyflakes](https://github.com/PyCQA/pyflakes)
-  <!-- - [travislint](https://pypi.org/project/travislint/) -->
+    - validate shell files for bash and posix/bourne shell
 - Composer
   - [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)
   - [composer-normalize](https://github.com/ergebnis/composer-normalize)
 - Ruby
   - [markdownlint](https://github.com/markdownlint/markdownlint)
-  <!-- - [travis-lint](https://github.com/travis-ci/travis.rb#lint) -->
-- Rust
-  - [dotenv-linter](https://github.com/dotenv-linter/dotenv-linter)
+    - both super-linter and mega-linter only have []() which is NodeJS based
+      linter, while the functionalities are probably overlapping, I think it is
+      important to have this tool as well
+  - [travis-lint](https://github.com/travis-ci/travis.rb#lint)
+    - validate `.travis.yml`
 - Golang
-  - [shfmt](https://github.com/mvdan/sh)
   - [stoml](https://github.com/freshautomations/stoml)
+    - validate `.toml` files
   - [tomljson](https://github.com/pelletier/go-toml)
-- Swift
-  - [swiftlint](https://github.com/realm/SwiftLint)
-- Haskell
-  - [shellcheck](https://github.com/koalaman/shellcheck)
-  - [hadolint](https://github.com/hadolint/hadolint)
-- System (Alpine & Debian)
-  - sh, ash, dash, bash, yash, ksh (mksh, loksh), zsh
-  - xmllint
-- Other
-  - [brew-bundle](https://github.com/Homebrew/homebrew-bundle) via [linuxbrew/brew](https://hub.docker.com/r/linuxbrew/brew)
-  - bash
-  - zsh
+    - validate `.toml` files
 
 ## Usage
 
@@ -76,8 +72,6 @@ Project is in early development stage, though versioned releases are already ava
 > all available tags beside `:latest`.
 
 ### gitlab-ci
-
-Note: must support docker-in-docker, more at [docs.gitlab.com](https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#use-docker-in-docker-workflow-with-docker-executor).
 
 ```yaml
 job-azlint:
@@ -94,27 +88,15 @@ job-azlint:
     - image: matejkosiarcik/azlint
   steps:
     - checkout
-    - setup_remote_docker
     - run: azlint
 ```
 
-### Local install
-
-Note: Depends on NodeJS (subject to change)
-
-```sh
-git clone git@github.com:matejkosiarcik/azlint.git # or https://github.com/matejkosiarcik/azlint.git
-cd azlint
-DESTDIR=<directory in your $PATH> make install
-azlint # runs azlint in current directory
-```
-
-### Local docker
+### Local usage
 
 Note: not recommended, currently this takes way longer than previous methods
 
 ```sh
-docker run -v "${PWD}:/project" -v "/var/run/docker.sock:/var/run/docker.sock" matejkosiarcik/azlint
+docker run -itv "${PWD}:/project" matejkosiarcik/azlint
 ```
 
 ## Development
@@ -122,40 +104,20 @@ docker run -v "${PWD}:/project" -v "/var/run/docker.sock:/var/run/docker.sock" m
 Typical workflow is as follows:
 
 ```sh
-make bootstrap # install dependencies
-## change source here ##
-make build # build runner and components
+make build # build docker image
 make run # lint current project
 ```
 
 ## License
 
 This project is licensed under the MIT License, see [LICENSE.txt](LICENSE.txt)
-file for full license details.
+for full license details.
 
 ## Alternatives
 
-Obvious alternative is
-[github super-linter](https://github.com/github/super-linter).
-However it is tied to github and you can't use it locally.
+This project does not have any competitor per se.
+It is just a collection of linters I like.
 
-Smaller project I found is [git-lint](https://github.com/sk-/git-lint).
-It is very python oriented.
-
-## Future plans
-
-- TODO: rewrite runner in rust
-- TODO: use go dep or go.mod files (+ apply dependabot)
-- TODO: check following tools:
-  - clangformat lint? (when config files present)
-  - sass-lint, scss-lint, css-lint? (only when config file available)
-  - htmlhint, htmllint? (when config file present)
-  - tslint, jshint, jslint, google-closure-linter? (when config files present)
-  - proselint
-  - purcell/sqlint
-  - cweiske/php-sqllint
-  - kufii/sql-formatter-plus
-  - jdorn/sql-formatter
-- TODO: add linters from:
-  - github-super-linter
-  - git-lint
+For repetition, I recommend checking out
+[super-linter](https://github.com/github/super-linter) and
+[mega-linter](https://github.com/nvuillam/mega-linter) beforehand.
