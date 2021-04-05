@@ -1,0 +1,14 @@
+DISABLE:
+  - COPYPASTE # too many false-positives for the time being
+  - EDITORCONFIG # instead usable from super-linter
+  - JAVASCRIPT
+  - TYPESCRIPT
+  - CSS
+
+DISABLE_LINTERS:
+  - SPELL_CSPELL
+
+# Override default config files
+YAML_YAMLLINT_CONFIG_FILE: .yamllint.yml
+RUBY_RUBOCOP_CONFIG_FILE: .rubocop.yml
+DOCKERFILE_HADOLINT_CONFIG_FILE: .hadolint.yaml

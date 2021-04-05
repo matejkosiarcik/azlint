@@ -1,7 +1,21 @@
 version: 2
 
 updates:
-  # Bash
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "00:30"
+      timezone: "Europe/Bratislava"
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+    open-pull-requests-limit: 1
+    labels:
+      - automerge
+
+  # Main runner
   - package-ecosystem: docker
     directory: "/"
     schedule:
@@ -16,7 +30,7 @@ updates:
     labels:
       - automerge
 
-  # Components
+  # Components/dependencies
   - package-ecosystem: npm
     directory: "/dependencies"
     versioning-strategy: increase

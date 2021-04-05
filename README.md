@@ -67,6 +67,11 @@ from *super-linter* and *mega-linter*.
     - validate `.toml` files
   - [tomljson](https://github.com/pelletier/go-toml)
     - validate `.toml` files
+- Other
+  - [circle-ci lint](https://circleci.com/docs/2.0/local-cli)
+    - validates `.circleci/config.yml`
+  - [gmake](https://www.gnu.org/software/make/) and [bmake](https://packages.debian.org/buster/bmake)
+    - dry run for `Makefile`s
 
 ## Usage
 
@@ -110,11 +115,13 @@ Where VALIDATE_FOO is one of following:
 
 - `VALIDATE_BASHATE`
 - `VALIDATE_BATS`
+- `VALIDATE_BMAKE`
 - `VALIDATE_CIRCLE_VALIDATE`
 - `VALIDATE_COMPOSER_NORMALIZE`
 - `VALIDATE_COMPOSER_VALIDATE`
 - `VALIDATE_GITLAB_LINT`
 - `VALIDATE_GITLAB_VALIDATE`
+- `VALIDATE_GMAKE`
 - `VALIDATE_HTMLLINT`
 - `VALIDATE_JSONLINT`
 - `VALIDATE_MDL`

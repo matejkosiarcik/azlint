@@ -1,7 +1,7 @@
 #!/bin/sh
 set -euf
 export PATH="/src/node_modules/.bin:${PATH}" # npm
-export PATH="/usr/local/bundle/bin:${PATH}" # ruby bundler
+export PATH="/usr/local/bundle/bin:${PATH}"  # ruby bundler
 export GEM_HOME=/usr/local/bundle
 cd '/project'
 
@@ -10,7 +10,7 @@ cd '/project'
 if [ -z "${VALIDATE_COMPOSER_VALIDATE+x}" ] || [ "${VALIDATE_COMPOSER_VALIDATE}" != 'false' ]; then
     project-find 'composer.json' | while read -r file; do
         printf "## composer validate %s ##\n" "${file}" >&2
-        composer validate --quiet --no-interaction --no-cache --ansi --no-check-all --no-check-publish "${file}" || \
+        composer validate --quiet --no-interaction --no-cache --ansi --no-check-all --no-check-publish "${file}" ||
             composer validate --no-interaction --no-cache --ansi --no-check-all --no-check-publish "${file}"
     done
 fi
@@ -121,5 +121,17 @@ if [ -z "${VALIDATE_CIRCLE_VALIDATE+x}" ] || [ "${VALIDATE_CIRCLE_VALIDATE}" != 
     project-find '.circleci/config.yml' | while read -r file; do
         printf "## circleci validate %s ##\n" "${file}" >&2
         (cd "$(dirname "$(dirname "${file}")")" && circleci config validate)
+    done
+fi
+if [ -z "${VALIDATE_GMAKE+x}" ] || [ "${VALIDATE_GMAKE}" != 'false' ]; then
+    project-find 'makefile' 'Makefile' 'GNUMakefile' '*.make' | while read -r file; do
+        printf "## gmake dry run %s ##\n" "${file}" >&2
+        make --dry-run --file="${file}" >/dev/null
+    done
+fi
+if [ -z "${VALIDATE_BMAKE+x}" ] || [ "${VALIDATE_BMAKE}" != 'false' ]; then
+    project-find 'makefile' 'Makefile' 'BSDMakefile' '*.make' | while read -r file; do
+        printf "## bmake dry run %s ##\n" "${file}" >&2
+        make -n -f "${file}" >/dev/null
     done
 fi

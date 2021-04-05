@@ -4,7 +4,7 @@
 FROM golang:1.15.5 AS go
 WORKDIR /src
 RUN GOPATH="${PWD}" GO111MODULE=on go get -ldflags='-s -w' 'github.com/freshautomations/stoml' && \
-  GOPATH="${PWD}" GO111MODULE=on go get -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson'
+    GOPATH="${PWD}" GO111MODULE=on go get -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson'
 
 # NodeJS #
 FROM node:lts-slim AS node
@@ -12,7 +12,6 @@ WORKDIR /src
 COPY dependencies/package.json dependencies/package-lock.json ./
 RUN npm install --unsafe-perm && \
     npm prune --production
-# TODO: `npm ci` instead of `npm install`?
 
 # Ruby #
 # confusingly it has 2 stages
@@ -28,7 +27,7 @@ FROM debian:10.9 AS ruby
 WORKDIR /src
 COPY --from=pre-ruby /usr/local/bundle/ /usr/local/bundle/
 RUN apt-get update && \
-    apt-get install --yes --no-install-recommends ruby ruby-dev ruby-build && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ruby ruby-dev ruby-build && \
     rm -rf /var/lib/apt/lists/* && \
     GEM_HOME=/usr/local/bundle gem pristine --all
 
@@ -38,7 +37,7 @@ RUN apt-get update && \
 # then we just copy it to production container
 FROM debian:10.9 AS circleci
 RUN apt-get update && \
-    apt-get install --yes --no-install-recommends curl ca-certificates && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends curl ca-certificates && \
     curl -fLSs https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh | bash && \
     rm -rf /var/lib/apt/lists/*
 
@@ -46,20 +45,22 @@ RUN apt-get update && \
 
 # Upx #
 # Single stage to compress all executables from components
-FROM debian AS upx
+FROM debian:10.9 AS upx
 COPY --from=go /src/bin/stoml /usr/bin/stoml
 COPY --from=go /src/bin/tomljson /usr/bin/tomljson
 COPY --from=circleci /usr/local/bin/circleci /usr/bin/circleci
 RUN apt-get update --yes && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends upx-ucl && \
-    upx /usr/bin/stoml && \
-    upx /usr/bin/tomljson && \
-    upx /usr/bin/circleci
+    rm -rf /var/lib/apt/lists/* && \
+    upx --best /usr/bin/circleci && \
+    upx --best /usr/bin/stoml && \
+    upx --best /usr/bin/tomljson
 
 ### Main runner ###
 # curl is only needed to install nodejs&composer
 FROM debian:10.9
-LABEL maintainer="matej.kosiarcik@gmail.com"
+LABEL maintainer="matej.kosiarcik@gmail.com" \
+    repo="https://github.com/matejkosiarcik/azlint"
 WORKDIR /src
 COPY utils/project-find.py utils/main.sh dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt ./
 COPY --from=upx /usr/bin/stoml /usr/bin/stoml
@@ -68,7 +69,7 @@ COPY --from=upx /usr/bin/circleci /usr/bin/circleci
 COPY --from=node /src/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
 RUN apt-get update --yes && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends curl git jq php-cli php-zip unzip php-mbstring python3 python3-pip ruby && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends curl git jq php-cli php-zip unzip php-mbstring python3 python3-pip ruby make bmake && \
     curl -sL https://deb.nodesource.com/setup_lts.x | bash - && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs && \
     curl -sL -o composer-setup.php https://getcomposer.org/installer && \
@@ -77,8 +78,8 @@ RUN apt-get update --yes && \
     apt-get remove --purge --yes curl && \
     rm -rf /var/lib/apt/lists/* && \
     composer install && \
-    python3 -m pip install --upgrade setuptools && \
-    python3 -m pip install --requirement requirements.txt && \
+    python3 -m pip install --no-cache-dir --upgrade setuptools && \
+    python3 -m pip install --no-cache-dir --requirement requirements.txt && \
     ln -s /src/main.sh /usr/bin/azlint && \
     chmod a+x /src/main.sh && \
     ln -s /src/project-find.py /usr/bin/project-find && \
