@@ -21,5 +21,4 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - run: apk add make git nodejs npm
-      - run: make bootstrap build run
+      - run: make build run
