@@ -4,17 +4,16 @@ workflows:
   version: 2
   test:
     jobs:
-      - azlint
+      # - azlint
       - build
 
 jobs:
-  azlint:
-    docker:
-      - image: matejkosiarcik/azlint
-    steps:
-      - checkout
-      - setup_remote_docker
-      - run: azlint
+  # azlint:
+  #   docker:
+  #     - image: matejkosiarcik/azlint
+  #   steps:
+  #     - checkout
+  #     - run: azlint
 
   build:
     docker:
