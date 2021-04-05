@@ -2,19 +2,18 @@ version: 2.1
 
 workflows:
   version: 2
-  test:
+  circleci-build:
     jobs:
-      - azlint
+      # - azlint
       - build
 
 jobs:
-  azlint:
-    docker:
-      - image: matejkosiarcik/azlint
-    steps:
-      - checkout
-      - setup_remote_docker
-      - run: azlint
+  # azlint:
+  #   docker:
+  #     - image: matejkosiarcik/azlint
+  #   steps:
+  #     - checkout
+  #     - run: azlint
 
   build:
     docker:
@@ -22,5 +21,5 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - run: apk add make git nodejs npm
-      - run: make bootstrap build run
+      - run: apk add make
+      - run: make build run

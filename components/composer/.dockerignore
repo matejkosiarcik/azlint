@@ -1,5 +1,0 @@
-.dockerignore
-Dockerfile
-vendor/
-.DS_Store
-hooks/

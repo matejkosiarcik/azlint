@@ -9,9 +9,17 @@ pull_request_rules:
       - -conflict
       - -merged
       - -locked
+      - -draft
       - head~=^(develop|feature-.+)$
     actions:
       merge:
         method: merge
         strict: smart
         strict_method: rebase
+
+  - name: Automatic merge (for Dependabot)
+    conditions:
+      - author~=^dependabot(|-preview)\[bot\]$
+    actions:
+      merge:
+        method: rebase

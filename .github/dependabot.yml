@@ -1,199 +1,52 @@
 version: 2
 
 updates:
-  # Runner
+  # Bash
+  - package-ecosystem: docker
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "00:30"
+      timezone: "Europe/Bratislava"
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+    open-pull-requests-limit: 1
+    labels:
+      - automerge
+
+  # Components
   - package-ecosystem: npm
-    directory: "/runner"
+    directory: "/dependencies"
     versioning-strategy: increase
     schedule:
       interval: daily
-      time: "02:00"
+      time: "01:00"
       timezone: "Europe/Bratislava"
     reviewers:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
-    open-pull-requests-limit: 0
-    labels:
-      - automerge
-  - package-ecosystem: docker
-    directory: "/runner"
-    schedule:
-      interval: daily
-      time: "02:00"
-      timezone: "Europe/Bratislava"
-    reviewers:
-      - matejkosiarcik
-    assignees:
-      - matejkosiarcik
-    open-pull-requests-limit: 0
-    labels:
-      - automerge
-
-  # Alpine
-  - package-ecosystem: docker
-    directory: "/components/alpine"
-    schedule:
-      interval: daily
-      time: "02:00"
-      timezone: "Europe/Bratislava"
-    reviewers:
-      - matejkosiarcik
-    assignees:
-      - matejkosiarcik
-    open-pull-requests-limit: 0
-    labels:
-      - automerge
-
-  # Bash
-  - package-ecosystem: docker
-    directory: "/components/bash"
-    schedule:
-      interval: daily
-      time: "02:00"
-      timezone: "Europe/Bratislava"
-    reviewers:
-      - matejkosiarcik
-    assignees:
-      - matejkosiarcik
-    open-pull-requests-limit: 0
-    labels:
-      - automerge
-
-  # Brew
-  - package-ecosystem: docker
-    directory: "/components/brew"
-    schedule:
-      interval: daily
-      time: "02:00"
-      timezone: "Europe/Bratislava"
-    reviewers:
-      - matejkosiarcik
-    assignees:
-      - matejkosiarcik
-    open-pull-requests-limit: 0
-    labels:
-      - automerge
-
-  # Composer
-  - package-ecosystem: docker
-    directory: "/components/composer"
-    schedule:
-      interval: daily
-      time: "02:00"
-      timezone: "Europe/Bratislava"
-    reviewers:
-      - matejkosiarcik
-    assignees:
-      - matejkosiarcik
-    open-pull-requests-limit: 0
+    open-pull-requests-limit: 1
     labels:
       - automerge
   - package-ecosystem: composer
-    directory: "/components/composer"
+    directory: "/dependencies"
     versioning-strategy: increase
     schedule:
       interval: daily
-      time: "02:00"
+      time: "01:30"
       timezone: "Europe/Bratislava"
     reviewers:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
-    open-pull-requests-limit: 0
-    labels:
-      - automerge
-
-  # Debian
-  - package-ecosystem: docker
-    directory: "/components/debian"
-    schedule:
-      interval: daily
-      time: "02:00"
-      timezone: "Europe/Bratislava"
-    reviewers:
-      - matejkosiarcik
-    assignees:
-      - matejkosiarcik
-    open-pull-requests-limit: 0
-    labels:
-      - automerge
-
-  # Go
-  - package-ecosystem: docker
-    directory: "/components/go"
-    schedule:
-      interval: daily
-      time: "02:00"
-      timezone: "Europe/Bratislava"
-    reviewers:
-      - matejkosiarcik
-    assignees:
-      - matejkosiarcik
-    open-pull-requests-limit: 0
-    labels:
-      - automerge
-
-  # Haskell
-  - package-ecosystem: docker
-    directory: "/components/haskell"
-    schedule:
-      interval: daily
-      time: "02:00"
-      timezone: "Europe/Bratislava"
-    reviewers:
-      - matejkosiarcik
-    assignees:
-      - matejkosiarcik
-    open-pull-requests-limit: 0
-    labels:
-      - automerge
-
-  # Node
-  - package-ecosystem: docker
-    directory: "/components/node"
-    schedule:
-      interval: daily
-      time: "02:00"
-      timezone: "Europe/Bratislava"
-    reviewers:
-      - matejkosiarcik
-    assignees:
-      - matejkosiarcik
-    open-pull-requests-limit: 0
-    labels:
-      - automerge
-  - package-ecosystem: npm
-    directory: "/components/node"
-    versioning-strategy: increase
-    schedule:
-      interval: daily
-      time: "02:00"
-      timezone: "Europe/Bratislava"
-    reviewers:
-      - matejkosiarcik
-    assignees:
-      - matejkosiarcik
-    open-pull-requests-limit: 0
-    labels:
-      - automerge
-
-  # Python
-  - package-ecosystem: docker
-    directory: "/components/python"
-    schedule:
-      interval: daily
-      time: "02:00"
-      timezone: "Europe/Bratislava"
-    reviewers:
-      - matejkosiarcik
-    assignees:
-      - matejkosiarcik
-    open-pull-requests-limit: 0
+    open-pull-requests-limit: 1
     labels:
       - automerge
   - package-ecosystem: pip
-    directory: "/components/python"
+    directory: "/dependencies"
     schedule:
       interval: daily
       time: "02:00"
@@ -202,92 +55,19 @@ updates:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
-    open-pull-requests-limit: 0
-    labels:
-      - automerge
-
-  # Ruby
-  - package-ecosystem: docker
-    directory: "/components/ruby"
-    schedule:
-      interval: daily
-      time: "02:00"
-      timezone: "Europe/Bratislava"
-    reviewers:
-      - matejkosiarcik
-    assignees:
-      - matejkosiarcik
-    open-pull-requests-limit: 0
+    open-pull-requests-limit: 1
     labels:
       - automerge
   - package-ecosystem: bundler
-    directory: "/components/ruby"
+    directory: "/dependencies"
     schedule:
       interval: daily
-      time: "02:00"
+      time: "02:30"
       timezone: "Europe/Bratislava"
     reviewers:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
-    open-pull-requests-limit: 0
-    labels:
-      - automerge
-
-  # Rust
-  - package-ecosystem: docker
-    directory: "/components/rust"
-    schedule:
-      interval: daily
-      time: "02:00"
-      timezone: "Europe/Bratislava"
-    reviewers:
-      - matejkosiarcik
-    assignees:
-      - matejkosiarcik
-    open-pull-requests-limit: 0
-    labels:
-      - automerge
-  - package-ecosystem: cargo
-    directory: "/components/rust"
-    schedule:
-      interval: daily
-      time: "02:00"
-      timezone: "Europe/Bratislava"
-    reviewers:
-      - matejkosiarcik
-    assignees:
-      - matejkosiarcik
-    open-pull-requests-limit: 0
-    labels:
-      - automerge
-
-  # Swift
-  - package-ecosystem: docker
-    directory: "/components/swift"
-    schedule:
-      interval: daily
-      time: "02:00"
-      timezone: "Europe/Bratislava"
-    reviewers:
-      - matejkosiarcik
-    assignees:
-      - matejkosiarcik
-    open-pull-requests-limit: 0
-    labels:
-      - automerge
-
-  # Zsh
-  - package-ecosystem: docker
-    directory: "/components/zsh"
-    schedule:
-      interval: daily
-      time: "02:00"
-      timezone: "Europe/Bratislava"
-    reviewers:
-      - matejkosiarcik
-    assignees:
-      - matejkosiarcik
-    open-pull-requests-limit: 0
+    open-pull-requests-limit: 1
     labels:
       - automerge

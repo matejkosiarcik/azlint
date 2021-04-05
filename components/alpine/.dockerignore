@@ -1,4 +1,0 @@
-.dockerignore
-Dockerfile
-.DS_Store
-hooks/
