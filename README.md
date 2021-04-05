@@ -100,6 +100,29 @@ Note: not recommended, currently this takes way longer than previous methods
 docker run -itv "${PWD}:/project" matejkosiarcik/azlint
 ```
 
+## Configuration
+
+You can turn of linters using environment variables. Example:
+`docker run -itv "${PWD}:/project" -e VALIDATE_FOO=false matejkosiarcik/azlint`.
+
+Where VALIDATE_FOO is one of following:
+
+- `VALIDATE_BASHATE`
+- `VALIDATE_BATS`
+- `VALIDATE_CIRCLE_VALIDATE`
+- `VALIDATE_COMPOSER_NORMALIZE`
+- `VALIDATE_COMPOSER_VALIDATE`
+- `VALIDATE_GITLAB_LINT`
+- `VALIDATE_GITLAB_VALIDATE`
+- `VALIDATE_HTMLLINT`
+- `VALIDATE_JSONLINT`
+- `VALIDATE_MDL`
+- `VALIDATE_PACKAGE_JSON`
+- `VALIDATE_STOML`
+- `VALIDATE_SVGLINT`
+- `VALIDATE_TOMLJSON`
+- `VALIDATE_TRAVIS_LINT`
+
 ## Development
 
 Typical workflow is as follows:
