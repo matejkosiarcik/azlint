@@ -27,8 +27,8 @@ While these tools are awesome, and I recommend using them.
 But they don't contain every linter in existence.
 This is probably an impossible job.
 
-So this tool bundles linters that are important to me, that are missing from
-*super-linter* and *mega-linter*.
+So this tool bundles linters that are important to me, that are **missing**
+from *super-linter* and *mega-linter*.
 
 ### Included linters
 
