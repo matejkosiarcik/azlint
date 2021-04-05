@@ -28,7 +28,7 @@ But they don't contain every linter in existence.
 This is probably an impossible job.
 
 So this tool bundles linters that are important to me, that are **missing**
-from *super-linter* and *mega-linter*.
+from _super-linter_ and _mega-linter_.
 
 ### Included linters
 
@@ -70,7 +70,7 @@ from *super-linter* and *mega-linter*.
 - Other
   - [circle-ci lint](https://circleci.com/docs/2.0/local-cli)
     - validates `.circleci/config.yml`
-  - [gmake](https://www.gnu.org/software/make/) and [bmake](https://packages.debian.org/buster/bmake)
+  - [gmake](https://www.gnu.org/software/make/) and [bmake](https://man.netbsd.org/make.1)
     - dry run for `Makefile`s
 
 ## Usage

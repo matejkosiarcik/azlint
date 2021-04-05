@@ -48,10 +48,11 @@ jobs:
           fetch-depth: 0 # Full git history is needed to get a proper list of changed files
 
       - name: Mega Linter
-        uses: nvuillam/mega-linter@v4.31.0
+        uses: nvuillam/mega-linter@v4.30.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: master
           LINTER_RULES_PATH: /
+          JSON_V8R_FILTER_REGEX_EXCLUDE: composer.json
           # Rest of the config is in /.mega-linter.yml
