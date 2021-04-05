@@ -37,6 +37,7 @@ RUN apt-get update && \
 # this script builds the executable and optimizes with https://upx.github.io
 # then we just copy it to production container
 FROM debian:10.9 AS circleci
+# hadolint disable=DL4006
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends curl ca-certificates && \
     curl -fLSs https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh | bash && \
@@ -68,6 +69,7 @@ COPY --from=upx /usr/bin/tomljson /usr/bin/tomljson
 COPY --from=upx /usr/bin/circleci /usr/bin/circleci
 COPY --from=node /src/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
+# hadolint disable=DL4006
 RUN apt-get update --yes && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends curl git jq php-cli php-zip unzip php-mbstring python3 python3-pip ruby && \
     curl -sL https://deb.nodesource.com/setup_lts.x | bash - && \
@@ -78,8 +80,8 @@ RUN apt-get update --yes && \
     apt-get remove --purge --yes curl && \
     rm -rf /var/lib/apt/lists/* && \
     composer install && \
-    python3 -m pip install --upgrade setuptools && \
-    python3 -m pip install --requirement requirements.txt && \
+    python3 -m pip install --no-cache-dir --upgrade setuptools && \
+    python3 -m pip install --no-cache-dir --requirement requirements.txt && \
     ln -s /src/main.sh /usr/bin/azlint && \
     chmod a+x /src/main.sh && \
     ln -s /src/project-find.py /usr/bin/project-find && \
