@@ -9,12 +9,10 @@
 - [Usage](#usage)
   - [gitlab-ci](#gitlab-ci)
   - [circle-ci](#circle-ci)
-  - [Local install](#local-install)
-  - [Local docker](#local-docker)
+  - [Local usage](#local-usage)
 - [Development](#development)
 - [License](#license)
 - [Alternatives](#alternatives)
-- [Future plans](#future-plans)
 
 <!-- tocstop -->
 
