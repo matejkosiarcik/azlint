@@ -61,7 +61,7 @@ RUN apt-get update --yes && \
 FROM debian:10.8-slim
 LABEL maintainer="matej.kosiarcik@gmail.com"
 WORKDIR /src
-COPY project-find.py main.sh dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt ./
+COPY utils/project-find.py utils/main.sh dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt ./
 COPY --from=upx /usr/bin/stoml /usr/bin/stoml
 COPY --from=upx /usr/bin/tomljson /usr/bin/tomljson
 COPY --from=upx /usr/bin/circleci /usr/bin/circleci
