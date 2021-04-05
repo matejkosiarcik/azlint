@@ -1,7 +1,7 @@
 #!/bin/sh
 set -euf
 export PATH="/src/node_modules/.bin:${PATH}" # npm
-export PATH="/usr/local/bundle/bin:${PATH}" # ruby bundler
+export PATH="/usr/local/bundle/bin:${PATH}"  # ruby bundler
 export GEM_HOME=/usr/local/bundle
 cd '/project'
 
@@ -10,7 +10,7 @@ cd '/project'
 if [ -z "${VALIDATE_COMPOSER_VALIDATE+x}" ] || [ "${VALIDATE_COMPOSER_VALIDATE}" != 'false' ]; then
     project-find 'composer.json' | while read -r file; do
         printf "## composer validate %s ##\n" "${file}" >&2
-        composer validate --quiet --no-interaction --no-cache --ansi --no-check-all --no-check-publish "${file}" || \
+        composer validate --quiet --no-interaction --no-cache --ansi --no-check-all --no-check-publish "${file}" ||
             composer validate --no-interaction --no-cache --ansi --no-check-all --no-check-publish "${file}"
     done
 fi

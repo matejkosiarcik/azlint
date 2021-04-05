@@ -3,3 +3,4 @@ ignored:
   - DL3013 # pip exact versions
   - DL3018 # apk exact versions
   - DL3028 # gem exact versions
+  - DL4006 # set -o pipefail - because bash is not always the current shell
