@@ -20,7 +20,7 @@ jobs:
     - { os: linux, dist: focal, arch: amd64 }
 
 install:
-  - nvm install node  # otherwise node is not available
+  - nvm install node # otherwise node is not available
   - make bootstrap
 
 script:

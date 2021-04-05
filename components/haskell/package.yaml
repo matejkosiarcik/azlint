@@ -1,5 +1,5 @@
 dependencies:
-  - base >= 4.8 && < 5  # TODO: find out what is this?
+  - base >= 4.8 && < 5 # TODO: find out what is this?
   - ShellCheck >= 0.7.1
   - hadolint >= 1.18.0
 

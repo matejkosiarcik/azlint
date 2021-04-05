@@ -73,7 +73,7 @@ Project is in early development stage, though versioned releases are already ava
 ## Usage
 
 > Go to [hub.docker.com](https://hub.docker.com/r/matejkosiarcik/azlint) to see
-all available tags beside `:latest`.
+> all available tags beside `:latest`.
 
 ### gitlab-ci
 
