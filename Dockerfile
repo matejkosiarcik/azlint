@@ -52,6 +52,7 @@ COPY --from=go /src/bin/tomljson /usr/bin/tomljson
 COPY --from=circleci /usr/local/bin/circleci /usr/bin/circleci
 RUN apt-get update --yes && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends upx-ucl && \
+    rm -rf /var/lib/apt/lists/* && \
     upx --ultra-brute /usr/bin/stoml && \
     upx --ultra-brute /usr/bin/tomljson && \
     upx --ultra-brute /usr/bin/circleci
