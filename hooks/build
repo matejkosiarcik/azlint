@@ -1,6 +1,0 @@
-#!/bin/sh
-
-printf 'AZLINT_VERSION=%s\n' "${SOURCE_COMMIT}"
-
-# must override build command to append version as build argument
-docker build --file "${DOCKERFILE_PATH}" --tag "${IMAGE_NAME}" .
