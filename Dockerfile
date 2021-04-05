@@ -24,7 +24,7 @@ COPY dependencies/Gemfile dependencies/Gemfile.lock ./
 RUN gem install bundler && \
     gem update --system && \
     bundle install
-FROM debian:10.8 AS ruby
+FROM debian:10.9 AS ruby
 WORKDIR /src
 COPY --from=pre-ruby /usr/local/bundle/ /usr/local/bundle/
 RUN apt-get update && \
@@ -36,7 +36,7 @@ RUN apt-get update && \
 # it has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
 # this script builds the executable and optimizes with https://upx.github.io
 # then we just copy it to production container
-FROM debian:10.8-slim AS circleci
+FROM debian:10.9 AS circleci
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends curl ca-certificates && \
     curl -fLSs https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh | bash && \
@@ -58,7 +58,7 @@ RUN apt-get update --yes && \
 
 ### Main runner ###
 # curl is only needed to install nodejs&composer
-FROM debian:10.8-slim
+FROM debian:10.9
 LABEL maintainer="matej.kosiarcik@gmail.com"
 WORKDIR /src
 COPY utils/project-find.py utils/main.sh dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt ./
