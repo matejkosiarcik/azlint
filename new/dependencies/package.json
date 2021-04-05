@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "scripts": {
+    "postinstall": "node-prune"
+  },
+  "dependencies": {
+    "gitlab-ci-lint": "^1.0.2",
+    "gitlab-ci-validate": "^0.4.0"
+  },
+  "devDependencies": {
+    "node-prune": "^1.0.2"
+  }
+}
