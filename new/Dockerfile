@@ -24,7 +24,7 @@ COPY dependencies/Gemfile dependencies/Gemfile.lock ./
 RUN gem install bundler && \
     gem update --system && \
     bundle install
-FROM debian:10.7 AS ruby
+FROM debian:10.8 AS ruby
 WORKDIR /src
 COPY --from=pre-ruby /usr/local/bundle/ /usr/local/bundle/
 RUN apt-get update && \
@@ -36,7 +36,7 @@ RUN apt-get update && \
 # it has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
 # this script builds the executable and optimizes with https://upx.github.io
 # then we just copy it to production container
-FROM debian:10.7-slim AS circleci
+FROM debian:10.8-slim AS circleci
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends curl ca-certificates && \
     curl -fLSs https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh | bash && \
@@ -57,18 +57,18 @@ RUN apt-get update --yes && \
     upx /usr/bin/circleci
 
 ### Main runner ###
-# curl is only needed to install nodejs
-FROM debian:10.7-slim
+# curl is only needed to install nodejs&composer
+FROM debian:10.8-slim
 LABEL maintainer="matej.kosiarcik@gmail.com"
 WORKDIR /src
-COPY project-find.py main.sh dependencies/composer.json dependencies/composer.lock ./
+COPY project-find.py main.sh dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt ./
 COPY --from=upx /usr/bin/stoml /usr/bin/stoml
 COPY --from=upx /usr/bin/tomljson /usr/bin/tomljson
 COPY --from=upx /usr/bin/circleci /usr/bin/circleci
-COPY --from=node /src/node_modules ./
+COPY --from=node /src/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
 RUN apt-get update --yes && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends curl ruby php-cli php-zip unzip php-mbstring python3 git && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends curl git jq php-cli php-zip unzip php-mbstring python3 python3-pip ruby && \
     curl -sL https://deb.nodesource.com/setup_lts.x | bash - && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs && \
     curl -sL -o composer-setup.php https://getcomposer.org/installer && \
@@ -77,6 +77,8 @@ RUN apt-get update --yes && \
     apt-get remove --purge --yes curl && \
     rm -rf /var/lib/apt/lists/* && \
     composer install && \
+    python3 -m pip install --upgrade setuptools && \
+    python3 -m pip install --requirement requirements.txt && \
     ln -s /src/main.sh /usr/bin/azlint && \
     chmod a+x /src/main.sh && \
     ln -s /src/project-find.py /usr/bin/project-find && \

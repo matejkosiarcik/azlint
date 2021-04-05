@@ -35,6 +35,7 @@ def main(argv: Optional[List[str]]) -> int:
 
 
 # Get list of files to lint in current directory based on globbing desired filepaths
+# TODO: add support for ignoring files
 def find_files(patterns: List[str]) -> Iterable[str]:
     globs = ['*'] if len(patterns) == 0 else patterns
 
