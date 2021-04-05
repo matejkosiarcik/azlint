@@ -10,6 +10,7 @@
   - [gitlab-ci](#gitlab-ci)
   - [circle-ci](#circle-ci)
   - [Local usage](#local-usage)
+- [Configuration](#configuration)
 - [Development](#development)
 - [License](#license)
 - [Alternatives](#alternatives)
