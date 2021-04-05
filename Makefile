@@ -11,26 +11,12 @@ SHELL := /bin/sh
 
 .DEFAULT: all
 .PHONY: all
-all: bootstrap build run
-
-.PHONY: bootstrap
-bootstrap:
-	npm install --prefix runner
+all: build run
 
 .PHONY: build
 build:
-	sh utils/build.sh
+	docker build . --tag matejkosiarcik/azlint:dev
 
 .PHONY: run
 run:
-	AZLINT_VERSION=$(AZLINT_VERSION) node runner/main.js
-
-.PHONY: run-docker
-run-docker:
-	docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project" --volume '/var/run/docker.sock:/var/run/docker.sock' "matejkosiarcik/azlint:$(AZLINT_VERSION)"
-
-.PHONY: install
-install:
-	@[ -d "$(DESTDIR)" ] || (printf 'Error: install directory "%s" not existent\n' "$(DESTDIR)" >&2 && exit 1)
-	printf '#!/bin/sh\nnode "%s/runner/main.js"\n' '$(PWD)' >"$(DESTDIR)/azlint"
-	chmod +x "$(DESTDIR)/azlint"
+	docker run --interactive --tty --volume "$${PWD}:/project" matejkosiarcik/azlint:dev
