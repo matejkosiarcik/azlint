@@ -17,7 +17,7 @@ RUN npm install --unsafe-perm && \
 # confusingly it has 2 stages
 # first stage installs all gems with bundler
 # second stage reinstalls these gems to the (almost) same container as our production one (without this stage we get warnings for gems with native extensions in production)
-FROM ruby:2.7.0 AS pre-ruby
+FROM ruby:3.0.0 AS pre-ruby
 WORKDIR /src
 COPY dependencies/Gemfile dependencies/Gemfile.lock ./
 RUN gem install bundler && \
