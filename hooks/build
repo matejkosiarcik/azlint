@@ -3,4 +3,4 @@
 printf 'AZLINT_VERSION=%s\n' "${SOURCE_COMMIT}"
 
 # must override build command to append version as build argument
-docker build --build-arg "AZLINT_VERSION=${SOURCE_COMMIT}" --file "${DOCKERFILE_PATH}" --tag "${IMAGE_NAME}" .
+docker build --file "${DOCKERFILE_PATH}" --tag "${IMAGE_NAME}" .
