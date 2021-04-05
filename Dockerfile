@@ -38,7 +38,7 @@ RUN apt-get update && \
 FROM debian:10.9 AS circleci
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends curl ca-certificates && \
-    curl -fLSs https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh | bash && \
+    curl -fLsS https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh | bash && \
     rm -rf /var/lib/apt/lists/*
 
 ### Helpers ###
@@ -70,9 +70,9 @@ COPY --from=node /src/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
 RUN apt-get update --yes && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends curl git jq php-cli php-zip unzip php-mbstring python3 python3-pip ruby make bmake && \
-    curl -sL https://deb.nodesource.com/setup_lts.x | bash - && \
+    curl -fLsS https://deb.nodesource.com/setup_lts.x | bash - && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs && \
-    curl -sL -o composer-setup.php https://getcomposer.org/installer && \
+    curl -fLsSo composer-setup.php https://getcomposer.org/installer && \
     php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
     rm -f composer-setup.php && \
     apt-get remove --purge --yes curl && \
