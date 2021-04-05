@@ -1,7 +1,7 @@
 ### Components ###
 
 # GoLang #
-FROM golang:1.15.5 AS go
+FROM golang:1.16.3 AS go
 WORKDIR /src
 RUN GOPATH="${PWD}" GO111MODULE=on go get -ldflags='-s -w' 'github.com/freshautomations/stoml' && \
     GOPATH="${PWD}" GO111MODULE=on go get -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson'
