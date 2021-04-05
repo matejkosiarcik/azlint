@@ -21,4 +21,5 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      - run: apk add make
       - run: make build run
