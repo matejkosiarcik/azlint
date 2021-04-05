@@ -12,7 +12,6 @@ WORKDIR /src
 COPY dependencies/package.json dependencies/package-lock.json ./
 RUN npm install --unsafe-perm && \
     npm prune --production
-# TODO: `npm ci` instead of `npm install`?
 
 # Ruby #
 # confusingly it has 2 stages
@@ -53,14 +52,15 @@ COPY --from=circleci /usr/local/bin/circleci /usr/bin/circleci
 RUN apt-get update --yes && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends upx-ucl && \
     rm -rf /var/lib/apt/lists/* && \
-    upx --ultra-brute /usr/bin/circleci && \
-    upx --ultra-brute /usr/bin/stoml && \
-    upx --ultra-brute /usr/bin/tomljson
+    upx --best /usr/bin/circleci && \
+    upx --best /usr/bin/stoml && \
+    upx --best /usr/bin/tomljson
 
 ### Main runner ###
 # curl is only needed to install nodejs&composer
 FROM debian:10.9
-LABEL maintainer="matej.kosiarcik@gmail.com"
+LABEL maintainer="matej.kosiarcik@gmail.com" \
+    repo="https://github.com/matejkosiarcik/azlint"
 WORKDIR /src
 COPY utils/project-find.py utils/main.sh dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt ./
 COPY --from=upx /usr/bin/stoml /usr/bin/stoml
