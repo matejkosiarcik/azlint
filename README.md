@@ -41,9 +41,9 @@ So this tool bundles linters that are important to me, that are missing from
   - [package-json-validator](https://github.com/gorillamania/package.json-validator)
     - check recommended fields are included for non-private packages
   - [gitlab-ci-validate](https://github.com/pradel/gitlab-ci-validate)
-    - validate `.gitlab-ci.yml`
+    - validates `.gitlab-ci.yml`
   - [gitlab-ci-lint](https://github.com/BuBuaBu/gitlab-ci-lint)
-    - validate `.gitlab-ci.yml`
+    - validates `.gitlab-ci.yml`
   - [htmllint](https://github.com/htmllint/htmllint)
     - both super-linter and mega-linter only have
       [HtmlHint](https://github.com/HTMLHint/HTMLHint)
@@ -52,12 +52,15 @@ So this tool bundles linters that are important to me, that are missing from
     - validate shell files for bash and posix/bourne shell
 - Composer
   - [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)
+    - builtin composer validator
   - [composer-normalize](https://github.com/ergebnis/composer-normalize)
+    - 3rd party `composer.json` normalizer
 - Ruby
   - [markdownlint](https://github.com/markdownlint/markdownlint)
-    - both super-linter and mega-linter only have []() which is NodeJS based
-      linter, while the functionalities are probably overlapping, I think it is
-      important to have this tool as well
+    - both super-linter and mega-linter only have this other
+      [markdownlint](https://github.com/DavidAnson/markdownlint) which is
+      NodeJS based markdown linter, while the functionalities are overlapping
+      to great extent, I think it is useful to have this tool as well
   - [travis-lint](https://github.com/travis-ci/travis.rb#lint)
     - validate `.travis.yml`
 - Golang
