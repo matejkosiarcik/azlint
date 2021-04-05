@@ -52,9 +52,9 @@ COPY --from=go /src/bin/tomljson /usr/bin/tomljson
 COPY --from=circleci /usr/local/bin/circleci /usr/bin/circleci
 RUN apt-get update --yes && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends upx-ucl && \
-    upx /usr/bin/stoml && \
-    upx /usr/bin/tomljson && \
-    upx /usr/bin/circleci
+    upx --ultra-brute /usr/bin/stoml && \
+    upx --ultra-brute /usr/bin/tomljson && \
+    upx --ultra-brute /usr/bin/circleci
 
 ### Main runner ###
 # curl is only needed to install nodejs&composer
