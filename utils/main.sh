@@ -123,3 +123,15 @@ if [ -z "${VALIDATE_CIRCLE_VALIDATE+x}" ] || [ "${VALIDATE_CIRCLE_VALIDATE}" != 
         (cd "$(dirname "$(dirname "${file}")")" && circleci config validate)
     done
 fi
+if [ -z "${VALIDATE_GMAKE+x}" ] || [ "${VALIDATE_GMAKE}" != 'false' ]; then
+    project-find 'makefile' 'Makefile' 'GNUMakefile' '*.make' | while read -r file; do
+        printf "## gmake dry run %s ##\n" "${file}" >&2
+        make --dry-run --file="${file}" >/dev/null
+    done
+fi
+if [ -z "${VALIDATE_BMAKE+x}" ] || [ "${VALIDATE_BMAKE}" != 'false' ]; then
+    project-find 'makefile' 'Makefile' 'BSDMakefile' '*.make' | while read -r file; do
+        printf "## bmake dry run %s ##\n" "${file}" >&2
+        make -n -f "${file}" >/dev/null
+    done
+fi

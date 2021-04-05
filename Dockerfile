@@ -4,7 +4,7 @@
 FROM golang:1.15.5 AS go
 WORKDIR /src
 RUN GOPATH="${PWD}" GO111MODULE=on go get -ldflags='-s -w' 'github.com/freshautomations/stoml' && \
-  GOPATH="${PWD}" GO111MODULE=on go get -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson'
+    GOPATH="${PWD}" GO111MODULE=on go get -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson'
 
 # NodeJS #
 FROM node:lts-slim AS node
@@ -28,7 +28,7 @@ FROM debian:10.9 AS ruby
 WORKDIR /src
 COPY --from=pre-ruby /usr/local/bundle/ /usr/local/bundle/
 RUN apt-get update && \
-    apt-get install --yes --no-install-recommends ruby ruby-dev ruby-build && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ruby ruby-dev ruby-build && \
     rm -rf /var/lib/apt/lists/* && \
     GEM_HOME=/usr/local/bundle gem pristine --all
 
@@ -37,9 +37,8 @@ RUN apt-get update && \
 # this script builds the executable and optimizes with https://upx.github.io
 # then we just copy it to production container
 FROM debian:10.9 AS circleci
-# hadolint disable=DL4006
 RUN apt-get update && \
-    apt-get install --yes --no-install-recommends curl ca-certificates && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends curl ca-certificates && \
     curl -fLSs https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh | bash && \
     rm -rf /var/lib/apt/lists/*
 
@@ -54,9 +53,9 @@ COPY --from=circleci /usr/local/bin/circleci /usr/bin/circleci
 RUN apt-get update --yes && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends upx-ucl && \
     rm -rf /var/lib/apt/lists/* && \
+    upx --ultra-brute /usr/bin/circleci && \
     upx --ultra-brute /usr/bin/stoml && \
-    upx --ultra-brute /usr/bin/tomljson && \
-    upx --ultra-brute /usr/bin/circleci
+    upx --ultra-brute /usr/bin/tomljson
 
 ### Main runner ###
 # curl is only needed to install nodejs&composer
@@ -69,9 +68,8 @@ COPY --from=upx /usr/bin/tomljson /usr/bin/tomljson
 COPY --from=upx /usr/bin/circleci /usr/bin/circleci
 COPY --from=node /src/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
-# hadolint disable=DL4006
 RUN apt-get update --yes && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends curl git jq php-cli php-zip unzip php-mbstring python3 python3-pip ruby && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends curl git jq php-cli php-zip unzip php-mbstring python3 python3-pip ruby make bmake && \
     curl -sL https://deb.nodesource.com/setup_lts.x | bash - && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs && \
     curl -sL -o composer-setup.php https://getcomposer.org/installer && \
