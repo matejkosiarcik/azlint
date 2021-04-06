@@ -85,6 +85,6 @@ RUN apt-get update --yes && \
     ln -s /src/project-find.py /usr/bin/project-find && \
     chmod a+x /src/project-find.py
 
+WORKDIR /project
 ENTRYPOINT [ "azlint" ]
-# WORKDIR /project
 # CMD [ "azlint" ]
