@@ -57,15 +57,14 @@ RUN apt-get update --yes && \
     upx --best /usr/bin/tomljson
 
 ### Main runner ###
+
 # curl is only needed to install nodejs&composer
 FROM debian:10.9
 LABEL maintainer="matej.kosiarcik@gmail.com" \
     repo="https://github.com/matejkosiarcik/azlint"
 WORKDIR /src
 COPY utils/project-find.py utils/main.sh dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt ./
-COPY --from=upx /usr/bin/stoml /usr/bin/stoml
-COPY --from=upx /usr/bin/tomljson /usr/bin/tomljson
-COPY --from=upx /usr/bin/circleci /usr/bin/circleci
+COPY --from=upx /usr/bin/stoml /usr/bin/tomljson /usr/bin/circleci /usr/bin/
 COPY --from=node /src/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
 RUN apt-get update --yes && \
@@ -87,4 +86,4 @@ RUN apt-get update --yes && \
 
 WORKDIR /project
 ENTRYPOINT [ "azlint" ]
-# CMD [ "azlint" ]
+CMD [ ]
