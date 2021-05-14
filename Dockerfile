@@ -63,7 +63,7 @@ FROM debian:10.9
 LABEL maintainer="matej.kosiarcik@gmail.com" \
     repo="https://github.com/matejkosiarcik/azlint"
 WORKDIR /src
-COPY utils/project-find.py utils/main.sh dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt ./
+COPY src/project-find.py src/main.sh dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt ./
 COPY --from=upx /usr/bin/stoml /usr/bin/tomljson /usr/bin/circleci /usr/bin/
 COPY --from=node /src/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
