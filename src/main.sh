@@ -88,6 +88,12 @@ if [ -z "${VALIDATE_JSONLINT+x}" ] || [ "${VALIDATE_JSONLINT}" != 'false' ]; the
         jsonlint --quiet --comments "${file}"
     done
 fi
+if [ -z "${VALIDATE_PRETTIER+x}" ] || [ "${VALIDATE_PRETTIER}" != 'false' ]; then
+    project-find '*.yml' '*.yaml' '*.json' '*.html' '*.htm' '*.xhtml' '*.css' '*.scss' '*.sass' '*.md' | while read -r file; do
+        printf "## prettier %s ##\n" "${file}" >&2
+        prettier --list-different "${file}"
+    done
+fi
 
 ## Python ##
 
