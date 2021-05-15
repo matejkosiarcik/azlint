@@ -226,6 +226,14 @@ if [ -z "${VALIDATE_BLACK+x}" ] || [ "${VALIDATE_BLACK}" != 'false' ]; then
         fi
     done
 fi
+if [ -z "${VALIDATE_YAMLLINT+x}" ] || [ "${VALIDATE_YAMLLINT}" != 'false' ]; then
+    if is_lint; then
+        project_find '*.yml' '*.yaml' | while read -r file; do
+            printf "## yamllint %s ##\n" "${file}" >&2
+            yamllint --strict "$file"
+        done
+    fi
+fi
 
 ## Ruby ##
 
@@ -259,7 +267,7 @@ fi
 if [ -z "${VALIDATE_GMAKE+x}" ] || [ "${VALIDATE_GMAKE}" != 'false' ]; then
     if is_lint; then
         project_find 'makefile' 'Makefile' 'GNUMakefile' '*.make' | while read -r file; do
-            printf "## gmake dry run %s ##\n" "${file}" >&2
+            printf "## gmake %s ##\n" "${file}" >&2
             make --dry-run --file="${file}" >/dev/null
         done
     fi
@@ -267,7 +275,7 @@ fi
 if [ -z "${VALIDATE_BMAKE+x}" ] || [ "${VALIDATE_BMAKE}" != 'false' ]; then
     if is_lint; then
         project_find 'makefile' 'Makefile' 'BSDMakefile' '*.make' | while read -r file; do
-            printf "## bmake dry run %s ##\n" "${file}" >&2
+            printf "## bmake %s ##\n" "${file}" >&2
             make -n -f "${file}" >/dev/null
         done
     fi
