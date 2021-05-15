@@ -134,7 +134,7 @@ azlint:
 ### Full usage
 
 ```sh
-$ docker run -itv "${PWD}:/project:ro" matejkosiarcik/azlint --help
+$ docker run -itv "$PWD:/project:ro" matejkosiarcik/azlint --help
 azlint [options]... command
 
 Options

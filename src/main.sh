@@ -53,7 +53,7 @@ if [ -z "${VALIDATE_COMPOSER_VALIDATE+x}" ] || [ "$VALIDATE_COMPOSER_VALIDATE" !
         done
     fi
 fi
-if [ -z "${VALIDATE_COMPOSER_NORMALIZE+x}" ] || [ "${VALIDATE_COMPOSER_NORMALIZE+x}" != 'false' ]; then
+if [ -z "${VALIDATE_COMPOSER_NORMALIZE+x}" ] || [ "$VALIDATE_COMPOSER_NORMALIZE" != 'false' ]; then
     project_find 'composer.json' | while read -r file; do
         printf "## composer normalize %s ##\n" "$file" >&2
         file="$PWD/$file"

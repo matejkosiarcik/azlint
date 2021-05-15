@@ -3,8 +3,8 @@
 # GoLang #
 FROM golang:1.16.4 AS go
 WORKDIR /src
-RUN GOPATH="${PWD}" GO111MODULE=on go get -ldflags='-s -w' 'github.com/freshautomations/stoml' && \
-    GOPATH="${PWD}" GO111MODULE=on go get -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson'
+RUN GOPATH="$PWD" GO111MODULE=on go get -ldflags='-s -w' 'github.com/freshautomations/stoml' && \
+    GOPATH="$PWD" GO111MODULE=on go get -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson'
 
 # NodeJS/NPM #
 FROM node:lts-slim AS node
@@ -37,7 +37,7 @@ WORKDIR /src
 COPY dependencies/Cargo.toml ./
 COPY --from=go /src/bin/stoml /usr/bin/stoml
 # hadolint ignore=DL4006
-RUN stoml 'Cargo.toml' dev-dependencies | tr ' ' '\n' | xargs -n1 --no-run-if-empty cargo install --force
+RUN stoml 'Cargo.toml' dev-dependencies | tr ' ' '\n' | xargs --no-run-if-empty cargo install --force
 
 # CircleCI #
 # it has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
