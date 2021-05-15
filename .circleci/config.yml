@@ -4,17 +4,9 @@ workflows:
   version: 2
   circleci-build:
     jobs:
-      # - azlint
       - build
 
 jobs:
-  # azlint:
-  #   docker:
-  #     - image: matejkosiarcik/azlint
-  #   steps:
-  #     - checkout
-  #     - run: azlint
-
   build:
     docker:
       - image: docker:latest
