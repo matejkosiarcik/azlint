@@ -31,7 +31,7 @@ So this tool bundles linters that are important to me, that are mostly
 _missing_ from _super-linter_ and _mega-linter_.
 
 Also this tool has an optional **formatting** mode 🤯, that applies suggested
-fixes from included linters to your files.
+fixes from supported included linters to your files.
 
 ### Included linters
 
@@ -52,6 +52,10 @@ fixes from included linters to your files.
     - validates _html_ files
   - [prettier](https://github.com/prettier/prettier)
     - validates "support" files (_json_, _yaml_, _markdown_, _css_, _html_)
+  - [markdownlint](https://github.com/DavidAnson/markdownlint)
+    - validates _markdown_ files
+  - [dockerfilelint](https://github.com/replicatedhq/dockerfilelint)
+    - validates `Dockerfile`s
 - From python
   - [bashate](https://github.com/openstack/bashate)
     - validates _shell_ files
@@ -161,6 +165,7 @@ Where `VALIDATE_FOO` is one of following:
 - `VALIDATE_CIRCLE_VALIDATE`
 - `VALIDATE_COMPOSER_NORMALIZE`
 - `VALIDATE_COMPOSER_VALIDATE`
+- `VALIDATE_DOCKERFILELINT`
 - `VALIDATE_DOTENV`
 - `VALIDATE_FLAKE8`
 - `VALIDATE_GITLAB_LINT`
@@ -170,6 +175,7 @@ Where `VALIDATE_FOO` is one of following:
 - `VALIDATE_HTMLLINT`
 - `VALIDATE_ISORT`
 - `VALIDATE_JSONLINT`
+- `VALIDATE_MARKDOWNLINT`
 - `VALIDATE_MDL`
 - `VALIDATE_PACKAGE_JSON`
 - `VALIDATE_PRETTIER`

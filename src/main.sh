@@ -169,6 +169,24 @@ if [ -z "${VALIDATE_PRETTIER+x}" ] || [ "$VALIDATE_PRETTIER" != 'false' ]; then
         fi
     done
 fi
+if [ -z "${VALIDATE_MARKDOWNLINT+x}" ] || [ "$VALIDATE_MARKDOWNLINT" != 'false' ]; then
+    project_find '*.md' | while read -r file; do
+        printf "## markdownlint %s ##\n" "$file" >&2
+        if is_lint; then
+            markdownlint "$file"
+        else
+            markdownlint --fix "$file"
+        fi
+    done
+fi
+if [ -z "${VALIDATE_DOCKERFILELINT+x}" ] || [ "$VALIDATE_DOCKERFILELINT" != 'false' ]; then
+    if is_lint; then
+        project_find 'Dockerfile' '*.Dockerfile' | while read -r file; do
+            printf "## dockerfilelint %s ##\n" "$file" >&2
+            dockerfilelint "$file"
+        done
+    fi
+fi
 
 ## Python/Pip ##
 
