@@ -35,7 +35,7 @@ fixes from supported linters to your files.
 
 ### Included linters
 
-- NodeJS
+- From nodeJS
   - [jsonlint](https://github.com/prantlf/jsonlint)
     - because this accepts json5, which is not standard
   - [bats-core](https://github.com/bats-core/bats-core)
@@ -49,15 +49,17 @@ fixes from supported linters to your files.
   - [htmllint](https://github.com/htmllint/htmllint)
     - both super-linter and mega-linter only have
       [HtmlHint](https://github.com/HTMLHint/HTMLHint)
-- Python
+  - [prettier](https://github.com/prettier/prettier)
+    - formatter for support files (json, yaml, markdown, css, html)
+- From python
   - [bashate](https://github.com/openstack/bashate)
     - validate shell files for bash and posix/bourne shell
-- Composer
+- From composer
   - [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)
     - builtin composer validator
   - [composer-normalize](https://github.com/ergebnis/composer-normalize)
     - 3rd party `composer.json` normalizer
-- Ruby
+- From ruby
   - [markdownlint](https://github.com/markdownlint/markdownlint)
     - both super-linter and mega-linter only have this other
       [markdownlint](https://github.com/DavidAnson/markdownlint) which is
@@ -65,12 +67,12 @@ fixes from supported linters to your files.
       to great extent, I think it is useful to have this tool as well
   - [travis-lint](https://github.com/travis-ci/travis.rb#lint)
     - validate `.travis.yml`
-- Golang
+- From golang
   - [stoml](https://github.com/freshautomations/stoml)
     - validate `.toml` files
   - [tomljson](https://github.com/pelletier/go-toml)
     - validate `.toml` files
-- Other
+- Others
   - [circle-ci lint](https://circleci.com/docs/2.0/local-cli)
     - validates `.circleci/config.yml`
   - [gmake](https://www.gnu.org/software/make/) and [bmake](https://man.netbsd.org/make.1)
