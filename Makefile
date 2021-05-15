@@ -11,12 +11,16 @@ SHELL := /bin/sh
 
 .DEFAULT: all
 .PHONY: all
-all: build run
+all: build run-lint
 
 .PHONY: build
 build:
 	docker build . --tag matejkosiarcik/azlint:dev
 
-.PHONY: run
-run:
-	docker run --interactive --tty --volume "$${PWD}:/project" matejkosiarcik/azlint:dev
+.PHONY: run-lint
+run-lint:
+	docker run --interactive --tty --volume "$(PROJECT_DIR):/project:ro" matejkosiarcik/azlint:dev
+
+.PHONY: run-fmt
+run-fmt:
+	docker run --interactive --tty --volume "$(PROJECT_DIR):/project" matejkosiarcik/azlint:dev fmt

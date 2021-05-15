@@ -30,6 +30,9 @@ This is probably an impossible job.
 So this tool bundles linters that are important to me, that are **missing**
 from _super-linter_ and _mega-linter_.
 
+Also this tool has an optional **formatting** mode 🤯, that applies suggested
+fixes from supported linters to your files.
+
 ### Included linters
 
 - NodeJS
@@ -78,10 +81,24 @@ from _super-linter_ and _mega-linter_.
 > Go to [hub.docker.com](https://hub.docker.com/r/matejkosiarcik/azlint) to see
 > all available tags beside `:latest`.
 
+### Locally
+
+To **lint** files in current folder:
+
+```sh
+docker run -itv "$PWD:/project:ro" matejkosiarcik/azlint
+```
+
+To **format** files in current folder:
+
+```sh
+docker run -itv "$PWD:/project" matejkosiarcik/azlint fmt
+```
+
 ### gitlab-ci
 
 ```yaml
-job-azlint:
+azlint:
   image: matejkosiarcik/azlint
   script:
     - azlint
@@ -90,7 +107,7 @@ job-azlint:
 ### circle-ci
 
 ```yaml
-job-azlint:
+azlint:
   docker:
     - image: matejkosiarcik/azlint
   steps:
@@ -98,20 +115,26 @@ job-azlint:
     - run: azlint
 ```
 
-### Local usage
-
-Note: not recommended, currently this takes way longer than previous methods
+### Full usage
 
 ```sh
-docker run -itv "${PWD}:/project" matejkosiarcik/azlint
+$ docker run -itv "${PWD}:/project:ro" matejkosiarcik/azlint --help
+azlint [options]... command
+
+Options
+-h, --help    print help message
+
+Command:
+lint          lint files with available linters
+fmt           format files with available formatters
 ```
 
 ## Configuration
 
 You can turn of linters using environment variables. Example:
-`docker run -itv "${PWD}:/project" -e VALIDATE_FOO=false matejkosiarcik/azlint`.
+`docker run -itv "$PWD:/project:ro" -e VALIDATE_FOO=false matejkosiarcik/azlint`.
 
-Where VALIDATE_FOO is one of following:
+Where `VALIDATE_FOO` is one of following:
 
 - `VALIDATE_BASHATE`
 - `VALIDATE_BATS`
