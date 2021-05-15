@@ -4,8 +4,7 @@
 # It does (by design) not need any 3rd party dependencies
 # Supports searching in raw directories and git repositories
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import argparse
 import itertools
@@ -25,11 +24,11 @@ def main(argv: Optional[List[str]]) -> int:
     parser.add_argument(
         "patterns", nargs="*", default=["*"], help="Glob patterns to find"
     )
-    parser.prog = "project-find"
+    parser.prog = "project_find"
     args = parser.parse_args(argv)
 
-    for x in find_files(args.patterns):
-        print(x)
+    for file in find_files(args.patterns):
+        print(file)
     return 0
 
 

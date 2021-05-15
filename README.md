@@ -180,8 +180,9 @@ Where `VALIDATE_FOO` is one of following:
 Typical workflow is as follows:
 
 ```sh
-make build # build docker image
-make run # lint current project
+# make some changes
+make build
+make run-fmt run-lint
 ```
 
 ## License
