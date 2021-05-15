@@ -54,6 +54,18 @@ fixes from supported linters to your files.
 - From python
   - [bashate](https://github.com/openstack/bashate)
     - validate shell files for bash and posix/bourne shell
+  - [isort](https://github.com/PyCQA/isort)
+    - sort python imports
+  - [black](https://github.com/psf/black)
+    - general python linter
+  - [flake8](https://github.com/PyCQA/flake8)
+    - general python linter
+  - [autopep8](https://github.com/hhatto/autopep8)
+    - general python linter
+  - [pylint](https://github.com/PyCQA/pylint/)
+    - general python linter
+  - [pycodestyle](https://github.com/PyCQA/pycodestyle)
+    - general python linter
 - From composer
   - [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)
     - builtin composer validator
@@ -138,20 +150,26 @@ You can turn of linters using environment variables. Example:
 
 Where `VALIDATE_FOO` is one of following:
 
+- `VALIDATE_AUTOPEP8`
 - `VALIDATE_BASHATE`
 - `VALIDATE_BATS`
+- `VALIDATE_BLACK`
 - `VALIDATE_BMAKE`
 - `VALIDATE_CIRCLE_VALIDATE`
 - `VALIDATE_COMPOSER_NORMALIZE`
 - `VALIDATE_COMPOSER_VALIDATE`
+- `VALIDATE_FLAKE8`
 - `VALIDATE_GITLAB_LINT`
 - `VALIDATE_GITLAB_VALIDATE`
 - `VALIDATE_GMAKE`
 - `VALIDATE_HTMLLINT`
+- `VALIDATE_ISORT`
 - `VALIDATE_JSONLINT`
 - `VALIDATE_MDL`
 - `VALIDATE_PACKAGE_JSON`
 - `VALIDATE_PRETTIER`
+- `VALIDATE_PYCODESTYLE`
+- `VALIDATE_PYLINT`
 - `VALIDATE_STOML`
 - `VALIDATE_SVGLINT`
 - `VALIDATE_TOMLJSON`

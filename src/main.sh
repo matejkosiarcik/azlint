@@ -171,6 +171,60 @@ if [ -z "${VALIDATE_BASHATE+x}" ] || [ "${VALIDATE_BASHATE}" != 'false' ]; then
         done
     fi
 fi
+if [ -z "${VALIDATE_AUTOPEP8+x}" ] || [ "${VALIDATE_AUTOPEP8}" != 'false' ]; then
+    project-find '*.py' | while read -r file; do
+        printf "## autopep8 %s ##\n" "${file}" >&2
+        if is_lint; then
+            autopep8 --diff "$file"
+        else
+            autopep8 --in-place "$file"
+        fi
+    done
+fi
+if [ -z "${VALIDATE_PYCODESTYLE+x}" ] || [ "${VALIDATE_PYCODESTYLE}" != 'false' ]; then
+    if is_lint; then
+        project-find '*.py' | while read -r file; do
+            printf "## pycodestyle %s ##\n" "${file}" >&2
+            pycodestyle "$file"
+        done
+    fi
+fi
+if [ -z "${VALIDATE_FLAKE8+x}" ] || [ "${VALIDATE_FLAKE8}" != 'false' ]; then
+    if is_lint; then
+        project-find '*.py' | while read -r file; do
+            printf "## flake8 %s ##\n" "${file}" >&2
+            flake8 "$file"
+        done
+    fi
+fi
+if [ -z "${VALIDATE_ISORT+x}" ] || [ "${VALIDATE_ISORT}" != 'false' ]; then
+    project-find '*.py' | while read -r file; do
+        printf "## isort %s ##\n" "${file}" >&2
+        if is_lint; then
+            isort --honor-noqa --check-only --diff "$file"
+        else
+            isort --honor-noqa "$file"
+        fi
+    done
+fi
+if [ -z "${VALIDATE_PYLINT+x}" ] || [ "${VALIDATE_PYLINT}" != 'false' ]; then
+    if is_lint; then
+        project-find '*.py' | while read -r file; do
+            printf "## pylint %s ##\n" "${file}" >&2
+            pylint "$file"
+        done
+    fi
+fi
+if [ -z "${VALIDATE_BLACK+x}" ] || [ "${VALIDATE_BLACK}" != 'false' ]; then
+    project-find '*.py' | while read -r file; do
+        printf "## black %s ##\n" "${file}" >&2
+        if is_lint; then
+            black --check --diff "$file"
+        else
+            black "$file"
+        fi
+    done
+fi
 
 ## Ruby ##
 
