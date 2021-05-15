@@ -187,8 +187,8 @@ make run-fmt run-lint
 
 ## License
 
-This project is licensed under the MIT License, see [LICENSE.txt](LICENSE.txt)
-for full license details.
+This project is licensed under the LGPLv3 License, see
+[LICENSE.txt](LICENSE.txt) for full license details.
 
 ## Alternatives
 
