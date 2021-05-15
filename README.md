@@ -37,37 +37,38 @@ fixes from included linters to your files.
 
 - From nodeJS
   - [jsonlint](https://github.com/prantlf/jsonlint)
-    - general _json5_ linter
+    - validates _json_ and _json5_ files
   - [bats-core](https://github.com/bats-core/bats-core)
-    - validates `.bats` files in dry-run mode
+    - validates _bats_ files in dry-run mode
   - [package-json-validator](https://github.com/gorillamania/package.json-validator)
-    - checks recommended fields in `package.json` filesa
+    - checks recommended fields in `package.json` files
   - [gitlab-ci-validate](https://github.com/pradel/gitlab-ci-validate)
     - validates `.gitlab-ci.yml`
   - [gitlab-ci-lint](https://github.com/BuBuaBu/gitlab-ci-lint)
     - validates `.gitlab-ci.yml`
   - [htmllint](https://github.com/htmllint/htmllint)
-    - both super-linter and mega-linter only have
-      [HtmlHint](https://github.com/HTMLHint/HTMLHint)
+    - validates _html_ files
+  - [htmlhint](https://github.com/HTMLHint/HTMLHint)
+    - validates _html_ files
   - [prettier](https://github.com/prettier/prettier)
-    - validates "support" files (json, yaml, markdown, css, html)
+    - validates "support" files (_json_, _yaml_, _markdown_, _css_, _html_)
 - From python
   - [bashate](https://github.com/openstack/bashate)
-    - validates shell files
+    - validates _shell_ files
   - [isort](https://github.com/PyCQA/isort)
-    - sorts python imports
+    - sorts _python_ imports
   - [black](https://github.com/psf/black)
-    - validates python
+    - validates _python_ files
   - [flake8](https://github.com/PyCQA/flake8)
-    - validates python
+    - validates _python_ files
   - [autopep8](https://github.com/hhatto/autopep8)
-    - validates python
+    - validates _python_ files
   - [pylint](https://github.com/PyCQA/pylint/)
-    - validates python
+    - validates _python_ files
   - [pycodestyle](https://github.com/PyCQA/pycodestyle)
-    - validates python
+    - validates _python_ files
   - [yamllint](https://github.com/adrienverge/yamllint)
-    - validates yaml
+    - validates _yaml_ files
 - From composer
   - [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)
     - builtin composer validator
@@ -83,14 +84,14 @@ fixes from included linters to your files.
     - validates `.travis.yml`
 - From golang
   - [stoml](https://github.com/freshautomations/stoml)
-    - validates `.toml` files
+    - validates _toml_ files
   - [tomljson](https://github.com/pelletier/go-toml)
-    - validates `.toml` files
+    - validates _toml_ files
 - Others
   - [circle-ci lint](https://circleci.com/docs/2.0/local-cli)
     - validates `.circleci/config.yml`
   - [gmake](https://www.gnu.org/software/make/) and [bmake](https://man.netbsd.org/make.1)
-    - dry run for `Makefile`s
+    - validates `Makefile`s in dry-run mode
 
 ## Usage
 
@@ -147,7 +148,7 @@ fmt           format files with available formatters
 
 ## Configuration
 
-You can turn of linters using environment variables. Example:
+You can turn of linters/formatters using environment variables. Example:
 `docker run -itv "$PWD:/project:ro" -e VALIDATE_FOO=false matejkosiarcik/azlint`.
 
 Where `VALIDATE_FOO` is one of following:
@@ -160,10 +161,12 @@ Where `VALIDATE_FOO` is one of following:
 - `VALIDATE_CIRCLE_VALIDATE`
 - `VALIDATE_COMPOSER_NORMALIZE`
 - `VALIDATE_COMPOSER_VALIDATE`
+- `VALIDATE_DOTENV`
 - `VALIDATE_FLAKE8`
 - `VALIDATE_GITLAB_LINT`
 - `VALIDATE_GITLAB_VALIDATE`
 - `VALIDATE_GMAKE`
+- `VALIDATE_HTMLHINT`
 - `VALIDATE_HTMLLINT`
 - `VALIDATE_ISORT`
 - `VALIDATE_JSONLINT`
@@ -172,10 +175,12 @@ Where `VALIDATE_FOO` is one of following:
 - `VALIDATE_PRETTIER`
 - `VALIDATE_PYCODESTYLE`
 - `VALIDATE_PYLINT`
+- `VALIDATE_SHELLHARDEN`
 - `VALIDATE_STOML`
 - `VALIDATE_SVGLINT`
 - `VALIDATE_TOMLJSON`
 - `VALIDATE_TRAVIS_LINT`
+- `VALIDATE_YAMLLINT`
 
 ## Development
 

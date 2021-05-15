@@ -130,6 +130,14 @@ if [ -z "${VALIDATE_HTMLLINT+x}" ] || [ "$VALIDATE_HTMLLINT" != 'false' ]; then
         done
     fi
 fi
+if [ -z "${VALIDATE_HTMLHINT+x}" ] || [ "$VALIDATE_HTMLHINT" != 'false' ]; then
+    if is_lint && [ -e '.htmlhintrc' ]; then
+        project_find '*.html' '*.htm' | while read -r file; do
+            printf "## htmlhint %s ##\n" "$file" >&2
+            htmlhint "$file"
+        done
+    fi
+fi
 if [ -z "${VALIDATE_BATS+x}" ] || [ "$VALIDATE_BATS" != 'false' ]; then
     if is_lint; then
         project_find '*.bats' | while read -r file; do
