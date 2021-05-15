@@ -4,12 +4,8 @@
 # It does (by design) not need any 3rd party dependencies
 # Supports searching in raw directories and git repositories
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import argparse
 import itertools
