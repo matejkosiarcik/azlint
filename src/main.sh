@@ -5,6 +5,31 @@ export PATH="/usr/local/bundle/bin:${PATH}"  # ruby bundler
 export GEM_HOME=/usr/local/bundle
 cd '/project'
 
+mode='lint'
+if [ "$#" -ge 1 ]; then
+    mode="$1"
+fi
+if [ "$mode" != 'lint' ] && [ "$mode" != 'fmt' ]; then
+    printf 'Unrecognised command %s\n' "$mode" >&2
+    exit 1
+fi
+
+is_lint() {
+    if [ "$mode" = 'lint' ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+is_fmt() {
+    if [ "$mode" = 'fmt' ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 ## Composer ##
 
 if [ -z "${VALIDATE_COMPOSER_VALIDATE+x}" ] || [ "${VALIDATE_COMPOSER_VALIDATE}" != 'false' ]; then
@@ -98,7 +123,7 @@ fi
 ## Python ##
 
 if [ -z "${VALIDATE_BASHATE+x}" ] || [ "${VALIDATE_BASHATE}" != 'false' ]; then
-    project-find '*.sh' '*.bash' '*.ksh' '*.ash' '*.dash' '*.' | while read -r file; do
+    project-find '*.sh' '*.bash' '*.ksh' '*.ash' '*.dash' '*.zsh' '*.yash' | while read -r file; do
         printf "## bashate %s ##\n" "${file}" >&2
         bashate --ignore E001,E002,E003,E004,E005,E006 "${file}" # ignore all whitespace/basic errors
     done
