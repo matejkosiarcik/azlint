@@ -85,3 +85,16 @@ updates:
     open-pull-requests-limit: 1
     labels:
       - automerge
+  - package-ecosystem: cargo
+    directory: "/dependencies"
+    schedule:
+      interval: daily
+      time: "03:00"
+      timezone: "Europe/Bratislava"
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+    open-pull-requests-limit: 1
+    labels:
+      - automerge
