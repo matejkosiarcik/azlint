@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "953264553bf130b6ee774ff95ee3889d",
+    "content-hash": "8de5fef75a0d7696dd82019249ff54a7",
     "packages": [
         {
             "name": "ergebnis/composer-normalize",
@@ -364,7 +364,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^8"
+        "php": "^7 || ^8"
     },
     "platform-dev": [],
     "plugin-api-version": "2.0.0"
