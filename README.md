@@ -98,6 +98,8 @@ fixes from supported included linters to your files.
     - validates `.circleci/config.yml`
   - [gmake](https://www.gnu.org/software/make/) and [bmake](https://man.netbsd.org/make.1)
     - validates `Makefile`s in dry-run mode
+  - [checkmake](https://github.com/mrtazz/checkmake)
+    - validates `Makefile`s
   - [xmllint](http://www.xmlsoft.org)
     - validate _xml_ files
 
@@ -166,6 +168,7 @@ Where `VALIDATE_FOO` is one of following:
 - `VALIDATE_BATS`
 - `VALIDATE_BLACK`
 - `VALIDATE_BMAKE`
+- `VALIDATE_CHECKMAKE`
 - `VALIDATE_CIRCLE_VALIDATE`
 - `VALIDATE_COMPOSER_NORMALIZE`
 - `VALIDATE_COMPOSER_VALIDATE`
@@ -186,10 +189,12 @@ Where `VALIDATE_FOO` is one of following:
 - `VALIDATE_PYCODESTYLE`
 - `VALIDATE_PYLINT`
 - `VALIDATE_SHELLHARDEN`
+- `VALIDATE_SHFMT`
 - `VALIDATE_STOML`
 - `VALIDATE_SVGLINT`
 - `VALIDATE_TOMLJSON`
 - `VALIDATE_TRAVIS_LINT`
+- `VALIDATE_XMLLINT`
 - `VALIDATE_YAMLLINT`
 
 ## Development
@@ -215,3 +220,10 @@ That said, there are similar projects such as:
 - [super-linter](https://github.com/github/super-linter)
 - [mega-linter](https://github.com/nvuillam/mega-linter)
 - [git-lint](https://github.com/sk-/git-lint)
+
+<!-- Personal TODO:
+yapf
+yamlfmt
+hadolint
+shellcheck
+-->

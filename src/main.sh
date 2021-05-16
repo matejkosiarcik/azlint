@@ -324,7 +324,7 @@ if [ -z "${VALIDATE_CIRCLE_VALIDATE+x}" ] || [ "$VALIDATE_CIRCLE_VALIDATE" != 'f
 fi
 if [ -z "${VALIDATE_GMAKE+x}" ] || [ "$VALIDATE_GMAKE" != 'false' ]; then
     if is_lint; then
-        project_find 'makefile' 'Makefile' 'GNUMakefile' '*.make' | while read -r file; do
+        project_find 'makefile' 'Makefile' '*.make' 'GNUMakefile' | while read -r file; do
             printf "## gmake %s ##\n" "$file" >&2
             make --dry-run --file="$file" >/dev/null
         done
@@ -332,9 +332,17 @@ if [ -z "${VALIDATE_GMAKE+x}" ] || [ "$VALIDATE_GMAKE" != 'false' ]; then
 fi
 if [ -z "${VALIDATE_BMAKE+x}" ] || [ "$VALIDATE_BMAKE" != 'false' ]; then
     if is_lint; then
-        project_find 'makefile' 'Makefile' 'BSDMakefile' '*.make' | while read -r file; do
+        project_find 'makefile' 'Makefile' '*.make' 'BSDMakefile' | while read -r file; do
             printf "## bmake %s ##\n" "$file" >&2
             make -n -f "$file" >/dev/null
+        done
+    fi
+fi
+if [ -z "${VALIDATE_CHECKMAKE+x}" ] || [ "$VALIDATE_CHECKMAKE" != 'false' ]; then
+    if is_lint; then
+        project_find 'makefile' 'Makefile' '*.make' 'GNUMakefile' 'BSDMakefile' | while read -r file; do
+            printf "## checkmake %s ##\n" "$file" >&2
+            checkmake "$file"
         done
     fi
 fi

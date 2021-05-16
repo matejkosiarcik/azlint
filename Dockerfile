@@ -50,22 +50,34 @@ RUN apt-get update && \
     curl -fLsS https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh | bash && \
     rm -rf /var/lib/apt/lists/*
 
+# Checkmake #
+FROM golang:1.16.4 AS checkmake
+WORKDIR /
+RUN apt-get update && \
+    apt-get install --yes --no-install-recommends git pandoc && \
+    rm -rf /var/lib/apt/lists/* && \
+    git clone https://github.com/mrtazz/checkmake /checkmake && \
+    cd /checkmake && \
+    BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
+
 ### Helpers ###
 
 # Upx #
 # Single stage to compress all executables from components
 FROM debian:10.9 AS upx
-COPY --from=go /src/bin/stoml /src/bin/tomljson /src/bin/shfmt /usr/bin/
+COPY --from=go /src/bin/shfmt /src/bin/stoml /src/bin/tomljson /usr/bin/
+COPY --from=checkmake /checkmake/checkmake /usr/bin/
 COPY --from=circleci /usr/local/bin/circleci /usr/bin/
-COPY --from=rust /usr/local/cargo/bin/dotenv-linter /usr/local/cargo/bin/shellharden /usr/bin/
+COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter /usr/bin/
 RUN apt-get update --yes && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends upx-ucl && \
     rm -rf /var/lib/apt/lists/* && \
+    upx --best /usr/bin/checkmake && \
     upx --best /usr/bin/circleci && \
-    upx --best /usr/bin/stoml && \
-    upx --best /usr/bin/tomljson && \
     upx --best /usr/bin/dotenv-linter && \
-    upx --best /usr/bin/shellharden
+    upx --best /usr/bin/shellharden && \
+    upx --best /usr/bin/stoml && \
+    upx --best /usr/bin/tomljson
 
 ### Main runner ###
 
@@ -75,7 +87,7 @@ LABEL maintainer="matej.kosiarcik@gmail.com" \
     repo="https://github.com/matejkosiarcik/azlint"
 WORKDIR /src
 COPY src/project_find.py src/main.sh dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt ./
-COPY --from=upx /usr/bin/stoml /usr/bin/tomljson /usr/bin/shfmt /usr/bin/circleci /usr/bin/dotenv-linter /usr/bin/shellharden /usr/bin/
+COPY --from=upx /usr/bin/checkmake /usr/bin/circleci /usr/bin/dotenv-linter /usr/bin/shellharden /usr/bin/shfmt /usr/bin/stoml /usr/bin/tomljson /usr/bin/
 COPY --from=node /src/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
 RUN apt-get update --yes && \
