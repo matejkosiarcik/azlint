@@ -190,6 +190,14 @@ if [ -z "${VALIDATE_MARKDOWNLINT+x}" ] || [ "$VALIDATE_MARKDOWNLINT" != 'false' 
         fi
     done
 fi
+if [ -z "${VALIDATE_MARKDOWN_LINK_CHECK+x}" ] || [ "$VALIDATE_MARKDOWN_LINK_CHECK" != 'false' ]; then
+    if is_lint && [ -e '.markdown-link-check.json' ]; then
+        project_find '*.md' | while read -r file; do
+            printf "## markdown-link-check %s ##\n" "$file" >&2
+            markdown-link-check --config '.markdown-link-check.json' --retry --quiet "$file"
+        done
+    fi
+fi
 if [ -z "${VALIDATE_DOCKERFILELINT+x}" ] || [ "$VALIDATE_DOCKERFILELINT" != 'false' ]; then
     if is_lint; then
         project_find 'Dockerfile' '*.Dockerfile' | while read -r file; do
@@ -355,4 +363,20 @@ if [ -z "${VALIDATE_XMLLINT+x}" ] || [ "$VALIDATE_XMLLINT" != 'false' ]; then
             xmllint --format --output "$file" "$file"
         fi
     done
+fi
+if [ -z "${VALIDATE_SHELLCHECK+x}" ] || [ "$VALIDATE_SHELLCHECK" != 'false' ]; then
+    if is_lint; then
+        project_find '*.sh' '*.bash' '*.ksh' '*.ash' '*.dash' '*.zsh' '*.yash' '*.bats' | while read -r file; do
+            printf "## shellcheck %s ##\n" "$file" >&2
+            shellcheck --external-sources "$file"
+        done
+    fi
+fi
+if [ -z "${VALIDATE_HADOLINT+x}" ] || [ "$VALIDATE_HADOLINT" != 'false' ]; then
+    if is_lint; then
+        project_find 'Dockerfile' '*.Dockerfile' | while read -r file; do
+            printf "## hadolint %s ##\n" "$file" >&2
+            hadolint "$file"
+        done
+    fi
 fi

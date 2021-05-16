@@ -29,7 +29,7 @@ But they don't contain every linter in existence.
 This is probably an impossible job.
 
 So this tool bundles linters that are important to me, that are mostly
-_missing_ from _super-linter_ and _mega-linter_.
+missing from _super-linter_ and _mega-linter_.
 
 Also this tool has an optional **formatting** mode 🤯, that applies suggested
 fixes from supported included linters to your files.
@@ -55,6 +55,8 @@ fixes from supported included linters to your files.
     - validates "support" files (_json_, _yaml_, _markdown_, _css_, _html_)
   - [markdownlint](https://github.com/DavidAnson/markdownlint)
     - validates _markdown_ files
+  - [markdown-link-check](https://github.com/tcort/markdown-link-check)
+    - validates links and URLs inside of _markdown_ files
   - [dockerfilelint](https://github.com/replicatedhq/dockerfilelint)
     - validates `Dockerfile`s
   - [svglint](https://github.com/birjolaxew/svglint)
@@ -96,13 +98,18 @@ fixes from supported included linters to your files.
     - validates _toml_ files
   - [shfmt](https://github.com/mvdan/sh)
     - validates _shell_ files
+  - [checkmake](https://github.com/mrtazz/checkmake)
+    - validates `Makefile`s
+- From haskell
+  - [shellcheck](https://github.com/koalaman/shellcheck)
+    - validates _shell_ files
+  - [hadolint](https://github.com/hadolint/hadolint)
+    - validates _shell_ files
 - Others
   - [circle-ci lint](https://circleci.com/docs/2.0/local-cli)
     - validates `.circleci/config.yml`
   - [gmake](https://www.gnu.org/software/make/) and [bmake](https://man.netbsd.org/make.1)
     - validates `Makefile`s in dry-run mode
-  - [checkmake](https://github.com/mrtazz/checkmake)
-    - validates `Makefile`s
   - [xmllint](http://www.xmlsoft.org)
     - validate _xml_ files
 
@@ -181,16 +188,19 @@ Where `VALIDATE_FOO` is one of following:
 - `VALIDATE_GITLAB_LINT`
 - `VALIDATE_GITLAB_VALIDATE`
 - `VALIDATE_GMAKE`
+- `VALIDATE_HADOLINT`
 - `VALIDATE_HTMLHINT`
 - `VALIDATE_HTMLLINT`
 - `VALIDATE_ISORT`
 - `VALIDATE_JSONLINT`
 - `VALIDATE_MARKDOWNLINT`
+- `VALIDATE_MARKDOWN_LINK_CHECK`
 - `VALIDATE_MDL`
 - `VALIDATE_PACKAGE_JSON`
 - `VALIDATE_PRETTIER`
 - `VALIDATE_PYCODESTYLE`
 - `VALIDATE_PYLINT`
+- `VALIDATE_SHELLCHECK`
 - `VALIDATE_SHELLHARDEN`
 - `VALIDATE_SHFMT`
 - `VALIDATE_STOML`
@@ -218,7 +228,7 @@ This project is licensed under the LGPLv3 License, see
 ## Alternatives
 
 This project is just my personal collection of linters I like.
-That said, there are similar projects such as:
+That said, there are similar and much more mature projects such as:
 
 - [super-linter](https://github.com/github/super-linter)
 - [mega-linter](https://github.com/nvuillam/mega-linter)
@@ -227,6 +237,4 @@ That said, there are similar projects such as:
 <!-- Personal TODO:
 yapf
 yamlfmt
-hadolint
-shellcheck
 -->
