@@ -56,6 +56,8 @@ fixes from supported included linters to your files.
     - validates _markdown_ files
   - [dockerfilelint](https://github.com/replicatedhq/dockerfilelint)
     - validates `Dockerfile`s
+  - [svglint](https://github.com/birjolaxew/svglint)
+    - validates _svg_ images
 - From python
   - [bashate](https://github.com/openstack/bashate)
     - validates _shell_ files
