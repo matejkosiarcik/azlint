@@ -91,11 +91,15 @@ fixes from supported included linters to your files.
     - validates _toml_ files
   - [tomljson](https://github.com/pelletier/go-toml)
     - validates _toml_ files
+  - [shfmt](https://github.com/mvdan/sh)
+    - validates _shell_ files
 - Others
   - [circle-ci lint](https://circleci.com/docs/2.0/local-cli)
     - validates `.circleci/config.yml`
   - [gmake](https://www.gnu.org/software/make/) and [bmake](https://man.netbsd.org/make.1)
     - validates `Makefile`s in dry-run mode
+  - [xmllint](http://www.xmlsoft.org)
+    - validate _xml_ files
 
 ## Usage
 

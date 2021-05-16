@@ -4,7 +4,8 @@
 FROM golang:1.16.4 AS go
 WORKDIR /src
 RUN GOPATH="$PWD" GO111MODULE=on go get -ldflags='-s -w' 'github.com/freshautomations/stoml' && \
-    GOPATH="$PWD" GO111MODULE=on go get -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson'
+    GOPATH="$PWD" GO111MODULE=on go get -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson' && \
+    GOPATH="$PWD" GO111MODULE=on go get -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt'
 
 # NodeJS/NPM #
 FROM node:lts-slim AS node
@@ -54,7 +55,7 @@ RUN apt-get update && \
 # Upx #
 # Single stage to compress all executables from components
 FROM debian:10.9 AS upx
-COPY --from=go /src/bin/stoml /src/bin/tomljson /usr/bin/
+COPY --from=go /src/bin/stoml /src/bin/tomljson /src/bin/shfmt /usr/bin/
 COPY --from=circleci /usr/local/bin/circleci /usr/bin/
 COPY --from=rust /usr/local/cargo/bin/dotenv-linter /usr/local/cargo/bin/shellharden /usr/bin/
 RUN apt-get update --yes && \
@@ -74,11 +75,11 @@ LABEL maintainer="matej.kosiarcik@gmail.com" \
     repo="https://github.com/matejkosiarcik/azlint"
 WORKDIR /src
 COPY src/project_find.py src/main.sh dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt ./
-COPY --from=upx /usr/bin/stoml /usr/bin/tomljson /usr/bin/circleci /usr/bin/dotenv-linter /usr/bin/shellharden /usr/bin/
+COPY --from=upx /usr/bin/stoml /usr/bin/tomljson /usr/bin/shfmt /usr/bin/circleci /usr/bin/dotenv-linter /usr/bin/shellharden /usr/bin/
 COPY --from=node /src/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
 RUN apt-get update --yes && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bmake curl git jq make php-cli php-mbstring php-zip python3 python3-pip ruby unzip && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bmake curl git jq libxml2-utils make php-cli php-mbstring php-zip python3 python3-pip ruby unzip && \
     curl -fLsS https://deb.nodesource.com/setup_lts.x | bash - && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs && \
     curl -fLsSo composer-setup.php https://getcomposer.org/installer && \

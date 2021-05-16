@@ -5,6 +5,7 @@ export PATH="/usr/local/bundle/bin:$PATH"  # ruby bundler
 export GEM_HOME=/usr/local/bundle
 cd '/project'
 
+# shellcheck disable=SC2235
 if [ "$#" -ge 1 ] && ([ "$1" = '-h' ] || [ "$1" = '--help' ] || [ "$1" = 'help' ]); then
     printf 'azlint [options]... command\n'
     printf '\n'
@@ -83,6 +84,16 @@ if [ -z "${VALIDATE_TOMLJSON+x}" ] || [ "$VALIDATE_TOMLJSON" != 'false' ]; then
             tomljson "$file" >/dev/null
         done
     fi
+fi
+if [ -z "${VALIDATE_SHFMT+x}" ] || [ "$VALIDATE_SHFMT" != 'false' ]; then
+    project_find '*.sh' '*.bash' '*.ksh' '*.ash' '*.dash' '*.yash' | while read -r file; do
+        printf "## shfmt %s ##\n" "$file" >&2
+        if is_lint; then
+            shfmt -l -d "$file"
+        else
+            shfmt -w "$file"
+        fi
+    done
 fi
 
 ## NodeJS/NPM ##
@@ -175,7 +186,7 @@ if [ -z "${VALIDATE_MARKDOWNLINT+x}" ] || [ "$VALIDATE_MARKDOWNLINT" != 'false' 
         if is_lint; then
             markdownlint "$file"
         else
-            markdownlint --fix "$file"
+            markdownlint --fix "$file" || true
         fi
     done
 fi
@@ -301,7 +312,7 @@ if [ -z "${VALIDATE_SHELLHARDEN+x}" ] || [ "$VALIDATE_SHELLHARDEN" != 'false' ];
     done
 fi
 
-## Exectables ##
+## Other ##
 
 if [ -z "${VALIDATE_CIRCLE_VALIDATE+x}" ] || [ "$VALIDATE_CIRCLE_VALIDATE" != 'false' ]; then
     if is_lint; then
@@ -326,4 +337,14 @@ if [ -z "${VALIDATE_BMAKE+x}" ] || [ "$VALIDATE_BMAKE" != 'false' ]; then
             make -n -f "$file" >/dev/null
         done
     fi
+fi
+if [ -z "${VALIDATE_XMLLINT+x}" ] || [ "$VALIDATE_XMLLINT" != 'false' ]; then
+    project_find '*.xml' | while read -r file; do
+        printf "## xmllint %s ##\n" "$file" >&2
+        if is_lint; then
+            xmllint --noout "$file"
+        else
+            xmllint --format --output "$file" "$file"
+        fi
+    done
 fi
