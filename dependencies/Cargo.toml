@@ -4,7 +4,7 @@ name = "placeholder"
 version = "0.0.0"
 
 [dev-dependencies]
-dotenv-linter = "2.1.0"
+dotenv-linter = "3.0.0"
 shellharden = "4.1.0"
 
 [[bin]]
