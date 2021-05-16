@@ -1,3 +1,5 @@
+# Well this is kinda long Dockerfile ¯\_(ツ)_/¯
+
 ### Components ###
 
 # GoLang #
@@ -52,28 +54,36 @@ RUN apt-get update && \
 
 # Checkmake #
 FROM golang:1.16.4 AS checkmake
-WORKDIR /checkmake
+WORKDIR /src
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends git pandoc && \
     rm -rf /var/lib/apt/lists/* && \
     git clone https://github.com/mrtazz/checkmake . && \
     BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
 
+# Hadolint #
+FROM hadolint/hadolint:2.4.1 AS hadolint
+
+# Shellcheck #
+FROM koalaman/shellcheck:v0.7.2 AS shellcheck
+
 ### Helpers ###
 
 # Upx #
-# Single stage to compress all executables from components
+# Single stage to compress all executables from multiple components
 FROM debian:10.9 AS upx
-COPY --from=go /src/bin/shfmt /src/bin/stoml /src/bin/tomljson /usr/bin/
-COPY --from=checkmake /checkmake/checkmake /usr/bin/
+COPY --from=checkmake /src/checkmake /usr/bin/
 COPY --from=circleci /usr/local/bin/circleci /usr/bin/
+COPY --from=go /src/bin/shfmt /src/bin/stoml /src/bin/tomljson /usr/bin/
 COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter /usr/bin/
+COPY --from=shellcheck /bin/shellcheck /usr/bin/
 RUN apt-get update --yes && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends upx-ucl && \
     rm -rf /var/lib/apt/lists/* && \
     upx --best /usr/bin/checkmake && \
     upx --best /usr/bin/circleci && \
     upx --best /usr/bin/dotenv-linter && \
+    upx --best /usr/bin/shellcheck && \
     upx --best /usr/bin/shellharden && \
     upx --best /usr/bin/stoml && \
     upx --best /usr/bin/tomljson
@@ -86,9 +96,10 @@ LABEL maintainer="matej.kosiarcik@gmail.com" \
     repo="https://github.com/matejkosiarcik/azlint"
 WORKDIR /src
 COPY src/project_find.py src/main.sh dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt ./
-COPY --from=upx /usr/bin/checkmake /usr/bin/circleci /usr/bin/dotenv-linter /usr/bin/shellharden /usr/bin/shfmt /usr/bin/stoml /usr/bin/tomljson /usr/bin/
+COPY --from=hadolint /bin/hadolint /usr/bin/
 COPY --from=node /src/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
+COPY --from=upx /usr/bin/checkmake /usr/bin/circleci /usr/bin/dotenv-linter /usr/bin/shellcheck /usr/bin/shellharden /usr/bin/shfmt /usr/bin/stoml /usr/bin/tomljson /usr/bin/
 RUN apt-get update --yes && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bmake curl git jq libxml2-utils make php-cli php-mbstring php-zip python3 python3-pip ruby unzip && \
     curl -fLsS https://deb.nodesource.com/setup_lts.x | bash - && \
