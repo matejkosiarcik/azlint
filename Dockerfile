@@ -35,7 +35,7 @@ RUN apt-get update && \
     GEM_HOME=/usr/local/bundle gem pristine --all
 
 # Rust/Cargo #
-FROM rust:1.46.0 AS rust
+FROM rust:1.52.1 AS rust
 WORKDIR /src
 COPY dependencies/Cargo.toml ./
 COPY --from=go /src/bin/stoml /usr/bin/stoml
