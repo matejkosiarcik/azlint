@@ -52,12 +52,11 @@ RUN apt-get update && \
 
 # Checkmake #
 FROM golang:1.16.4 AS checkmake
-WORKDIR /
+WORKDIR /checkmake
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends git pandoc && \
     rm -rf /var/lib/apt/lists/* && \
-    git clone https://github.com/mrtazz/checkmake /checkmake && \
-    cd /checkmake && \
+    git clone https://github.com/mrtazz/checkmake . && \
     BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
 
 ### Helpers ###
