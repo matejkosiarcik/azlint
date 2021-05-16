@@ -4,12 +4,7 @@
 # It does (by design) not need any 3rd party dependencies
 # Supports searching in raw directories and git repositories
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import argparse
 import itertools
@@ -29,11 +24,11 @@ def main(argv: Optional[List[str]]) -> int:
     parser.add_argument(
         "patterns", nargs="*", default=["*"], help="Glob patterns to find"
     )
-    parser.prog = "project-find"
+    parser.prog = "project_find"
     args = parser.parse_args(argv)
 
-    for x in find_files(args.patterns):
-        print(x)
+    for file in find_files(args.patterns):
+        print(file)
     return 0
 
 
@@ -63,8 +58,7 @@ def find_files(patterns: List[str]) -> Iterable[str]:
         # `git ls-files package.json` -> this will only find package.json in the root of the repository
         # `git ls-files */package.json` -> this will find package.json anywhere except the root of the repository
         # `git ls-files package.json */package.json` -> this will find it anywhere, which we want
-        globs = ([f"*/{x}", x] for x in globs)
-        globs = list(itertools.chain(*globs))
+        globs = list(itertools.chain(*((f"*/{x}", x) for x in globs)))
 
         tracked_files = (
             subprocess.check_output(["git", "ls-files", "-z"] + globs)
@@ -74,12 +68,12 @@ def find_files(patterns: List[str]) -> Iterable[str]:
         tracked_files = [x for x in tracked_files if len(x) > 0]
         # print('tracked:', tracked_files, file=sys.stderr)
 
-        deleted_files = (
+        deleted_files_raw = (
             subprocess.check_output(["git", "ls-files", "-z", "--deleted"] + globs)
             .decode("utf-8")
             .split("\0")
         )
-        deleted_files = {x for x in deleted_files if len(x) > 0}
+        deleted_files = {x for x in deleted_files_raw if len(x) > 0}
         # print('deleted:', deleted_files, file=sys.stderr)
 
         untracked_files = (
@@ -98,7 +92,7 @@ def find_files(patterns: List[str]) -> Iterable[str]:
         return sorted(all_files)
     else:
         # we want recursive glob, anywhere under current directory
-        globs = (f"**/{x}" for x in globs)
+        globs = [f"**/{x}" for x in globs]
 
         all_files = []
         for pattern in globs:

@@ -1,10 +1,7 @@
 {
   "type": "metapackage",
   "require": {
-    "php": "^7",
+    "php": "^7 || ^8",
     "ergebnis/composer-normalize": "^2.8"
-  },
-  "scripts": {
-    "lint": "sh main.sh"
   }
 }

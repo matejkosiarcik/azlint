@@ -16,10 +16,3 @@ pull_request_rules:
         method: merge
         strict: smart
         strict_method: rebase
-
-  - name: Automatic merge (for Dependabot)
-    conditions:
-      - author~=^dependabot(|-preview)\[bot\]$
-    actions:
-      merge:
-        method: rebase
