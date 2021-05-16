@@ -6,6 +6,7 @@ DISABLE:
 
 DISABLE_LINTERS:
   - SPELL_CSPELL
+  - RUST_CLIPPY
 
 # Override default config files
 DOCKERFILE_HADOLINT_CONFIG_FILE: .hadolint.yaml
