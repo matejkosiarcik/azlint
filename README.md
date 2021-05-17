@@ -98,6 +98,8 @@ fixes \(from supported linters\) to your files.
     - validates _shell_ files
   - [checkmake](https://github.com/mrtazz/checkmake)
     - validates `Makefile`s
+  - [editorconfig-checker](https://github.com/editorconfig-checker/editorconfig-checker)
+    - validates _all_ files
 - From haskell
   - [shellcheck](https://github.com/koalaman/shellcheck)
     - validates _shell_ files
@@ -190,6 +192,7 @@ Where `VALIDATE_FOO` is one of following:
 - `VALIDATE_COMPOSER_VALIDATE`
 - `VALIDATE_DOCKERFILELINT`
 - `VALIDATE_DOTENV`
+- `VALIDATE_EDITORCONFIG`
 - `VALIDATE_FLAKE8`
 - `VALIDATE_GITLAB_LINT`
 - `VALIDATE_GITLAB_VALIDATE`

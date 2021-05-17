@@ -1,9 +1,11 @@
-# shells
-bashate==2.0.0
-isort==5.8.0
-black==21.5b1
-pylint==2.8.2
-flake8==3.9.2
+# python
 autopep8==1.5.7
+black==21.5b1
+flake8==3.9.2
+isort==5.8.0
 pycodestyle==2.7.0
+pylint==2.8.2
+
+# other
+bashate==2.0.0
 yamllint==1.26.1

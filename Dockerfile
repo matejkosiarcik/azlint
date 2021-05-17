@@ -8,6 +8,16 @@ WORKDIR /src
 RUN GOPATH="$PWD" GO111MODULE=on go get -ldflags='-s -w' 'github.com/freshautomations/stoml' && \
     GOPATH="$PWD" GO111MODULE=on go get -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson' && \
     GOPATH="$PWD" GO111MODULE=on go get -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt'
+FROM golang:1.16.4 AS go2
+WORKDIR /src/checkmake
+RUN apt-get update && \
+    apt-get install --yes --no-install-recommends git pandoc && \
+    rm -rf /var/lib/apt/lists/* && \
+    git clone https://github.com/mrtazz/checkmake . && \
+    BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
+WORKDIR /src/editorconfig-checker
+RUN git clone https://github.com/editorconfig-checker/editorconfig-checker . && \
+    make build
 
 # NodeJS/NPM #
 FROM node:lts-slim AS node
@@ -52,15 +62,6 @@ RUN apt-get update && \
     curl -fLsS https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh | bash && \
     rm -rf /var/lib/apt/lists/*
 
-# Checkmake #
-FROM golang:1.16.4 AS checkmake
-WORKDIR /src
-RUN apt-get update && \
-    apt-get install --yes --no-install-recommends git pandoc && \
-    rm -rf /var/lib/apt/lists/* && \
-    git clone https://github.com/mrtazz/checkmake . && \
-    BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
-
 # Hadolint #
 FROM hadolint/hadolint:2.4.1 AS hadolint
 
@@ -72,9 +73,9 @@ FROM koalaman/shellcheck:v0.7.2 AS shellcheck
 # Upx #
 # Single stage to compress all executables from multiple components
 FROM debian:10.9 AS upx
-COPY --from=checkmake /src/checkmake /usr/bin/
 COPY --from=circleci /usr/local/bin/circleci /usr/bin/
 COPY --from=go /src/bin/shfmt /src/bin/stoml /src/bin/tomljson /usr/bin/
+COPY --from=go2 /src/checkmake/checkmake /src/editorconfig-checker/bin/ec  /usr/bin/
 COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter /usr/bin/
 COPY --from=shellcheck /bin/shellcheck /usr/bin/
 RUN apt-get update --yes && \
@@ -99,7 +100,7 @@ COPY src/project_find.py src/main.sh dependencies/composer.json dependencies/com
 COPY --from=hadolint /bin/hadolint /usr/bin/
 COPY --from=node /src/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
-COPY --from=upx /usr/bin/checkmake /usr/bin/circleci /usr/bin/dotenv-linter /usr/bin/shellcheck /usr/bin/shellharden /usr/bin/shfmt /usr/bin/stoml /usr/bin/tomljson /usr/bin/
+COPY --from=upx /usr/bin/checkmake /usr/bin/circleci /usr/bin/dotenv-linter /usr/bin/ec /usr/bin/shellcheck /usr/bin/shellharden /usr/bin/shfmt /usr/bin/stoml /usr/bin/tomljson /usr/bin/
 RUN apt-get update --yes && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bmake curl git jq libxml2-utils make php-cli php-mbstring php-zip python3 python3-pip ruby unzip && \
     curl -fLsS https://deb.nodesource.com/setup_lts.x | bash - && \
