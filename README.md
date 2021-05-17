@@ -173,9 +173,12 @@ fmt           format files with available formatters
 
 ## Configuration
 
+AZLint expects to have config files in the root directory you are calling from.
+Eg. repository root.
+AZLint relies on bundled linters to pick their own config file automatically.
+
 You can turn of linters/formatters using environment variables. Example:
 `docker run -itv "$PWD:/project:ro" -e VALIDATE_FOO=false matejkosiarcik/azlint`.
-
 Where `VALIDATE_FOO` is one of following:
 
 - `VALIDATE_AUTOPEP8`
@@ -237,7 +240,7 @@ That said, there are similar and much more mature projects such as:
 
 - [super-linter](https://github.com/github/super-linter)
 - [mega-linter](https://github.com/nvuillam/mega-linter)
-- [git-lint](https://github.com/sk-/git-lint)
+- [git-lint](https://github.com/sk-/git-lint) (deprecated)
 
 <!-- Personal TODO:
 yapf
