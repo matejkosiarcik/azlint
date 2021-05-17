@@ -105,6 +105,11 @@ fixes from supported included linters to your files.
     - validates _shell_ files
   - [hadolint](https://github.com/hadolint/hadolint)
     - validates _shell_ files
+- From rust
+  - [shellharden](https://github.com/anordal/shellharden)
+    - validates _shell_ files
+  - [dotenv-linter](https://github.com/dotenv-linter/dotenv-linter)
+    - validates `.env` files
 - Others
   - [circle-ci lint](https://circleci.com/docs/2.0/local-cli)
     - validates `.circleci/config.yml`
