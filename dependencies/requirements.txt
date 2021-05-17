@@ -1,7 +1,7 @@
 # shells
 bashate==2.0.0
 isort==5.8.0
-black==21.5b0
+black==21.5b1
 pylint==2.8.2
 flake8==3.9.2
 autopep8==1.5.7
