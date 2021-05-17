@@ -43,6 +43,15 @@ is_fmt() {
     fi
 }
 
+if [ -z "${VALIDATE_EDITORCONFIG+x}" ] || [ "$VALIDATE_EDITORCONFIG" != 'false' ]; then
+    if is_lint; then
+        project_find '*' | while read -r file; do
+            printf "## editorconfig-checker %s ##\n" "$file" >&2
+            ec "$file"
+        done
+    fi
+fi
+
 ## PHP/Composer ##
 
 if [ -z "${VALIDATE_COMPOSER_VALIDATE+x}" ] || [ "$VALIDATE_COMPOSER_VALIDATE" != 'false' ]; then
