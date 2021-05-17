@@ -104,7 +104,7 @@ fixes from supported included linters to your files.
   - [shellcheck](https://github.com/koalaman/shellcheck)
     - validates _shell_ files
   - [hadolint](https://github.com/hadolint/hadolint)
-    - validates _shell_ files
+    - validates `Dockerfile`s
 - From rust
   - [shellharden](https://github.com/anordal/shellharden)
     - validates _shell_ files
