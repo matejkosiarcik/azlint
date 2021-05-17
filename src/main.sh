@@ -13,7 +13,7 @@ if [ "$#" -ge 1 ] && ([ "$1" = '-h' ] || [ "$1" = '--help' ] || [ "$1" = 'help' 
     printf '%s\n' '-h, --help    print help message'
     printf '\n'
     printf 'Command:\n'
-    printf 'lint          lint files with available linters\n'
+    printf 'lint          lint files with available linters (default)\n'
     printf 'fmt           format files with available formatters\n'
     exit 0
 fi

@@ -20,19 +20,17 @@
 
 ## About
 
-This project works as a complement to github's
-[super-linter](https://github.com/github/super-linter) and similar project
-[mega-linter](https://github.com/nvuillam/mega-linter).
+The main purpose of this tool is to bundle as many linters \(I use\) as
+possible into a single docker image.
 
-While these tools are awesome, and I recommend using them.
-But they don't contain every linter in existence.
-This is probably an impossible job.
+I see it as a complement to
+[super-linter](https://github.com/github/super-linter) and
+[MegaLinter](https://github.com/nvuillam/mega-linter).
+These tools are awesome, but are missing some linters that are bundled into
+_azlint_.
 
-So this tool bundles linters that are important to me, that are mostly
-missing from _super-linter_ and _mega-linter_.
-
-Also this tool has an optional **formatting** mode 🤯, that applies suggested
-fixes from supported included linters to your files.
+Also _azlint_ has an optional **formatting** mode 🤯, that applies suggested
+fixes \(from supported linters\) to your files.
 
 ### Included linters
 
@@ -120,8 +118,8 @@ fixes from supported included linters to your files.
 
 ## Usage
 
-> Go to [hub.docker.com](https://hub.docker.com/r/matejkosiarcik/azlint) to see
-> all available tags beside `:latest`.
+> Go to dockerhub's [tags](https://hub.docker.com/r/matejkosiarcik/azlint/tags?page=1&ordering=last_updated) to see all available tags
+> Or see github's [releases](https://github.com/matejkosiarcik/azlint/releases) for all project releases
 
 ### Locally
 
@@ -167,7 +165,7 @@ Options
 -h, --help    print help message
 
 Command:
-lint          lint files with available linters
+lint          lint files with available linters (default)
 fmt           format files with available formatters
 ```
 
