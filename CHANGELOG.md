@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
+## \[0.4.0\] - 2021-05-18
+
 - Added
+  - Formatting mode for supported linters
   - New linters
     - autopep8
     - black
@@ -27,7 +30,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - shfmt
     - xmllint
     - yamllint
-  - Add formatting mode for supported linters
 - Changed
   - Update dependencies
 
