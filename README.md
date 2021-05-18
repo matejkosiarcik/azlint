@@ -137,6 +137,10 @@ To **format** files in current folder:
 docker run -itv "$PWD:/project" matejkosiarcik/azlint fmt
 ```
 
+#### See it in action
+
+![azlint-demo](./doc/demo.gif)
+
 ### gitlab-ci
 
 ```yaml
