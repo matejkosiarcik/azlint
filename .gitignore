@@ -1,22 +1,22 @@
 # OS stuff
-.DS_Store
 ._*
-Thumbs.db
+.DS_Store
 [Dd]esktop.ini
 *~
+Thumbs.db
 
 # editors
-.vscode/
 .idea/
+.vscode/
 *.sublime-*
-Package Control.*
 *.vim
+Package Control.*
 
 # dependencies
-node_modules/
-venv/
 .bundle/
-node_modules/
-vendor/
 composer.phar
 dist/
+gitman/
+node_modules/
+vendor/
+venv/

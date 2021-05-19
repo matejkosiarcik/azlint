@@ -1,20 +1,24 @@
 #!/bin/sh
 set -euf
-export PATH="/src/node_modules/.bin:$PATH" # npm
-export PATH="/usr/local/bundle/bin:$PATH"  # ruby bundler
-export GEM_HOME=/usr/local/bundle
+export PATH="/src/node_modules/.bin:$PATH"
+export PATH="/usr/local/bundle/bin:$PATH"
+export GEM_HOME='/usr/local/bundle'
 cd '/project'
 
 # shellcheck disable=SC2235
 if [ "$#" -ge 1 ] && ([ "$1" = '-h' ] || [ "$1" = '--help' ] || [ "$1" = 'help' ]); then
-    printf 'azlint [options]... command\n'
+    printf 'azlint <command>\n'
     printf '\n'
-    printf 'Options\n'
+    printf 'Global options:\n'
     printf '%s\n' '-h, --help    print help message'
     printf '\n'
-    printf 'Command:\n'
+    printf 'Commands:\n'
     printf 'lint          lint files with available linters (default)\n'
     printf 'fmt           format files with available formatters\n'
+    printf '\n'
+    printf 'Docker:\n'
+    # shellcheck disable=SC2016
+    printf 'docker run -itv "$PWD:/project" matejkosiarcik/azlint <command>\n'
     exit 0
 fi
 
@@ -322,7 +326,7 @@ if [ -z "${VALIDATE_SHELLHARDEN+x}" ] || [ "$VALIDATE_SHELLHARDEN" != 'false' ];
     project_find '*.sh' '*.bash' '*.ksh' '*.ash' '*.dash' '*.zsh' '*.yash' '*.bats' | while read -r file; do
         printf "## shellharden %s ##\n" "$file" >&2
         if is_lint; then
-            shellharden --check "$file"
+            shellharden --check "$file" || shellharden --check --suggest "$file"
         else
             shellharden --replace "$file"
         fi
@@ -335,7 +339,7 @@ if [ -z "${VALIDATE_CIRCLE_VALIDATE+x}" ] || [ "$VALIDATE_CIRCLE_VALIDATE" != 'f
     if is_lint; then
         project_find '.circleci/config.yml' | while read -r file; do
             printf "## circleci validate %s ##\n" "$file" >&2
-            (cd "$(dirname "$(dirname "$file")")" && circleci config validate)
+            (cd "$(dirname "$(dirname "$file")")" && circleci --skip-update-check config validate)
         done
     fi
 fi

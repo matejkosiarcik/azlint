@@ -96,7 +96,11 @@ FROM debian:10.9
 LABEL maintainer="matej.kosiarcik@gmail.com" \
     repo="https://github.com/matejkosiarcik/azlint"
 WORKDIR /src
-COPY src/project_find.py src/main.sh dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt ./
+COPY dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt ./
+COPY src/main.sh /usr/bin/azlint
+COPY src/lint.sh /usr/bin/lint
+COPY src/fmt.sh /usr/bin/fmt
+COPY src/project_find.py /usr/bin/project_find
 COPY --from=hadolint /bin/hadolint /usr/bin/
 COPY --from=node /src/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
@@ -113,9 +117,7 @@ RUN apt-get update --yes && \
     composer install && \
     python3 -m pip install --no-cache-dir --upgrade setuptools && \
     python3 -m pip install --no-cache-dir --requirement requirements.txt && \
-    ln -s /src/main.sh /usr/bin/azlint && \
-    ln -s /src/project_find.py /usr/bin/project_find && \
-    chmod a+x /src/main.sh /src/project_find.py
+    chmod a+x /usr/bin/azlint /usr/bin/project_find /usr/bin/lint /usr/bin/fmt
 
 WORKDIR /project
 ENTRYPOINT [ "azlint" ]
