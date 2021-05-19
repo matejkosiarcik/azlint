@@ -7,9 +7,9 @@ cd '/project'
 
 # shellcheck disable=SC2235
 if [ "$#" -ge 1 ] && ([ "$1" = '-h' ] || [ "$1" = '--help' ] || [ "$1" = 'help' ]); then
-    printf 'azlint [options]... command\n'
+    printf 'azlint <command>\n'
     printf '\n'
-    printf 'Options:\n'
+    printf 'Global options:\n'
     printf '%s\n' '-h, --help    print help message'
     printf '\n'
     printf 'Commands:\n'
@@ -17,7 +17,8 @@ if [ "$#" -ge 1 ] && ([ "$1" = '-h' ] || [ "$1" = '--help' ] || [ "$1" = 'help' 
     printf 'fmt           format files with available formatters\n'
     printf '\n'
     printf 'Docker:\n'
-    printf 'docker run -itv "$PWD:/project:ro" matejkosiarcik/azlint [options...]\n'
+    # shellcheck disable=SC2016
+    printf 'docker run -itv "$PWD:/project" matejkosiarcik/azlint <command>\n'
     exit 0
 fi
 
