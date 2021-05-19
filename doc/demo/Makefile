@@ -13,7 +13,7 @@ ACTIVATE_VENV := [ -n "$${VIRTUAL_ENV+x}" ] || . ./venv/bin/activate
 
 .DEFAULT: all
 .PHONY: all
-all: bootstrap demo
+all: bootstrap record
 
 .PHONY: bootstrap
 bootstrap:
@@ -33,8 +33,8 @@ bootstrap:
 		gitman install \
 	;else exit 1; fi
 
-.PHONY: demo
-demo:
+.PHONY: record
+record:
 	if $(ACTIVATE_VENV); then \
-		PATH="$$PATH:$(PROJECT_DIR)/node_modules/.bin" sh record.sh \
+		PATH="$$PATH:$(PROJECT_DIR)/node_modules/.bin" sh main.sh \
 	;else exit 1; fi
