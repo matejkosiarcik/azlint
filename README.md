@@ -5,16 +5,23 @@
 <!-- toc -->
 
 - [About](#about)
-  - [Included linters](#included-linters)
 - [Usage](#usage)
   - [Locally](#locally)
   - [gitlab-ci](#gitlab-ci)
   - [circle-ci](#circle-ci)
-  - [Full usage](#full-usage)
 - [Configuration](#configuration)
+- [Included linters](#included-linters)
+  - [General](#general)
+  - [Configs](#configs)
+  - [Python](#python)
+  - [Shell](#shell)
+  - [CI](#ci)
+  - [Build tools](#build-tools)
+  - [Documentation](#documentation)
+  - [Other](#other)
 - [Development](#development)
 - [License](#license)
-- [Alternatives](#alternatives)
+- [Alternatives and Drawbacks](#alternatives-and-drawbacks)
 
 <!-- tocstop -->
 
