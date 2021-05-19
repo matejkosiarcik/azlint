@@ -29,8 +29,67 @@ I see it as a complement to
 These tools are awesome, but are missing some linters that are bundled into
 _azlint_.
 
-Also _azlint_ has an optional **formatting** mode 🤯, that applies suggested
+Also _azlint_ has an optional **formatting** mode 🤯, which applies suggested
 fixes \(from supported linters\) to your files.
+
+## Usage
+
+![azlint-demo](./doc/demo.gif)
+
+> Go to dockerhub's [tags](https://hub.docker.com/r/matejkosiarcik/azlint/tags?page=1&ordering=last_updated) to see all available tags
+>
+> Or see github's [releases](https://github.com/matejkosiarcik/azlint/releases) for all project releases
+
+### Locally
+
+To **lint** files in current folder:
+
+```sh
+docker run -itv "$PWD:/project:ro" matejkosiarcik/azlint
+```
+
+To **format** files in current folder:
+
+```sh
+docker run -itv "$PWD:/project" matejkosiarcik/azlint fmt
+```
+
+When in doubt, get help:
+
+```sh
+$ docker run matejkosiarcik/azlint --help
+azlint [options]... command
+
+Options:
+-h, --help    print help message
+
+Commands:
+lint          lint files with available linters (default)
+fmt           format files with available formatters
+
+Docker:
+docker run -itv "$PWD:/project:ro" matejkosiarcik/azlint [options...]
+```
+
+### gitlab-ci
+
+```yaml
+azlint:
+  image: matejkosiarcik/azlint
+  script:
+    - azlint
+```
+
+### circle-ci
+
+```yaml
+azlint:
+  docker:
+    - image: matejkosiarcik/azlint
+  steps:
+    - checkout
+    - run: azlint
+```
 
 ### Included linters
 
@@ -117,63 +176,6 @@ fixes \(from supported linters\) to your files.
     - validates `Makefile`s in dry-run mode
   - [xmllint](http://www.xmlsoft.org)
     - validate _xml_ files
-
-## Usage
-
-> Go to dockerhub's [tags](https://hub.docker.com/r/matejkosiarcik/azlint/tags?page=1&ordering=last_updated) to see all available tags
-> Or see github's [releases](https://github.com/matejkosiarcik/azlint/releases) for all project releases
-
-### Locally
-
-To **lint** files in current folder:
-
-```sh
-docker run -itv "$PWD:/project:ro" matejkosiarcik/azlint
-```
-
-To **format** files in current folder:
-
-```sh
-docker run -itv "$PWD:/project" matejkosiarcik/azlint fmt
-```
-
-#### See it in action
-
-![azlint-demo](./doc/demo.gif)
-
-### gitlab-ci
-
-```yaml
-azlint:
-  image: matejkosiarcik/azlint
-  script:
-    - azlint
-```
-
-### circle-ci
-
-```yaml
-azlint:
-  docker:
-    - image: matejkosiarcik/azlint
-  steps:
-    - checkout
-    - run: azlint
-```
-
-### Full usage
-
-```sh
-$ docker run -itv "$PWD:/project:ro" matejkosiarcik/azlint --help
-azlint [options]... command
-
-Options
--h, --help    print help message
-
-Command:
-lint          lint files with available linters (default)
-fmt           format files with available formatters
-```
 
 ## Configuration
 

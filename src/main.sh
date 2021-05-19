@@ -1,20 +1,23 @@
 #!/bin/sh
 set -euf
-export PATH="/src/node_modules/.bin:$PATH" # npm
-export PATH="/usr/local/bundle/bin:$PATH"  # ruby bundler
-export GEM_HOME=/usr/local/bundle
+export PATH="/src/node_modules/.bin:$PATH"
+export PATH="/usr/local/bundle/bin:$PATH"
+export GEM_HOME='/usr/local/bundle'
 cd '/project'
 
 # shellcheck disable=SC2235
 if [ "$#" -ge 1 ] && ([ "$1" = '-h' ] || [ "$1" = '--help' ] || [ "$1" = 'help' ]); then
     printf 'azlint [options]... command\n'
     printf '\n'
-    printf 'Options\n'
+    printf 'Options:\n'
     printf '%s\n' '-h, --help    print help message'
     printf '\n'
-    printf 'Command:\n'
+    printf 'Commands:\n'
     printf 'lint          lint files with available linters (default)\n'
     printf 'fmt           format files with available formatters\n'
+    printf '\n'
+    printf 'Docker:\n'
+    printf 'docker run -itv "$PWD:/project:ro" matejkosiarcik/azlint [options...]\n'
     exit 0
 fi
 
