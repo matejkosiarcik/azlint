@@ -339,7 +339,7 @@ if [ -z "${VALIDATE_CIRCLE_VALIDATE+x}" ] || [ "$VALIDATE_CIRCLE_VALIDATE" != 'f
     if is_lint; then
         project_find '.circleci/config.yml' | while read -r file; do
             printf "## circleci validate %s ##\n" "$file" >&2
-            (cd "$(dirname "$(dirname "$file")")" && circleci config validate)
+            (cd "$(dirname "$(dirname "$file")")" && circleci --skip-update-check config validate)
         done
     fi
 fi
