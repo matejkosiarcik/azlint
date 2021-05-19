@@ -32,9 +32,12 @@ _azlint_.
 Also _azlint_ has an optional **formatting** mode 🤯, which applies suggested
 fixes \(from supported linters\) to your files.
 
+All that said, AZLint is mostly for my personal usage.
+But feel free to use it and report any found issues 😉.
+
 ## Usage
 
-![azlint-demo](./doc/demo.gif)
+![azlint demo](./doc/demo.gif)
 
 > Go to dockerhub's [tags](https://hub.docker.com/r/matejkosiarcik/azlint/tags?page=1&ordering=last_updated) to see all available tags
 >
@@ -187,7 +190,6 @@ Typical workflow is as follows:
 ```sh
 # ... make some changes ...
 $ make build
-$ make run-fmt run-lint
 ```
 
 ## License
@@ -195,16 +197,12 @@ $ make run-fmt run-lint
 This project is licensed under the LGPLv3 License, see
 [LICENSE.txt](LICENSE.txt) for full license details.
 
-## Alternatives
+## Alternatives and Drawbacks
 
-This project is just my personal collection of linters I like.
-That said, there are similar and much more mature projects such as:
+AZLint currently exits on first error (in _lint_ mode).
+This can be problematic if you expect to report all the errors which can be found by included linters.
+There are much more mature projects, which do not share this drawback as:
 
 - [super-linter](https://github.com/github/super-linter)
 - [mega-linter](https://github.com/nvuillam/mega-linter)
 - [git-lint](https://github.com/sk-/git-lint) (deprecated)
-
-<!-- Personal TODO:
-yapf
-yamlfmt
--->
