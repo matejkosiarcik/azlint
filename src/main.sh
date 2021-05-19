@@ -325,7 +325,7 @@ if [ -z "${VALIDATE_SHELLHARDEN+x}" ] || [ "$VALIDATE_SHELLHARDEN" != 'false' ];
     project_find '*.sh' '*.bash' '*.ksh' '*.ash' '*.dash' '*.zsh' '*.yash' '*.bats' | while read -r file; do
         printf "## shellharden %s ##\n" "$file" >&2
         if is_lint; then
-            shellharden --check "$file"
+            shellharden --check "$file" || shellharden --check --suggest "$file"
         else
             shellharden --replace "$file"
         fi

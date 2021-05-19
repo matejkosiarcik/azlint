@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
+- Fixed
+  - Print shellharden diff on error
+
 ## \[0.4.0\] - 2021-05-18
 
 - Added
