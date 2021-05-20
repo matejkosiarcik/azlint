@@ -3,7 +3,6 @@
 > Lint everything From A to Z
 
 [![dockerhub automated status](https://img.shields.io/docker/cloud/automated/matejkosiarcik/azlint)](https://hub.docker.com/r/matejkosiarcik/azlint/builds)
-[![dockerhub build status](https://img.shields.io/docker/cloud/build/matejkosiarcik/azlint)](https://hub.docker.com/r/matejkosiarcik/azlint/builds)
 
 <!-- toc -->
 
