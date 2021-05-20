@@ -20,3 +20,4 @@ gitman/
 node_modules/
 vendor/
 venv/
+target/
