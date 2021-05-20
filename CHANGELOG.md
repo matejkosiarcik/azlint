@@ -10,12 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed
   - Print shellharden diff on error
   - Skip circleci update check (can potentially hang the process)
+- Changed
+  - Update dependencies
 
 ## \[0.4.0\] - 2021-05-18
 
 - Added
   - Formatting mode for supported linters
-  - New linters
+  - New linters:
     - autopep8
     - black
     - checkmake
