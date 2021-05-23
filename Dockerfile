@@ -74,7 +74,7 @@ FROM koalaman/shellcheck:v0.7.2 AS shellcheck
 # Single stage to compress all executables from multiple components
 FROM debian:10.9 AS upx
 COPY --from=circleci /usr/local/bin/circleci /usr/bin/
-COPY --from=go /src/bin/shfmt /src/bin/stoml /src/bin/tomljson /usr/bin/
+COPY --from=go /src/bin/shfmt /src/bin/tomljson /usr/bin/
 COPY --from=go2 /src/checkmake/checkmake /src/editorconfig-checker/bin/ec  /usr/bin/
 COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter /usr/bin/
 COPY --from=shellcheck /bin/shellcheck /usr/bin/
@@ -86,7 +86,6 @@ RUN apt-get update --yes && \
     upx --best /usr/bin/dotenv-linter && \
     upx --best /usr/bin/shellcheck && \
     upx --best /usr/bin/shellharden && \
-    upx --best /usr/bin/stoml && \
     upx --best /usr/bin/tomljson
 
 ### Main runner ###
@@ -104,7 +103,7 @@ COPY src/project_find.py /usr/bin/project_find
 COPY --from=hadolint /bin/hadolint /usr/bin/
 COPY --from=node /src/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
-COPY --from=upx /usr/bin/checkmake /usr/bin/circleci /usr/bin/dotenv-linter /usr/bin/ec /usr/bin/shellcheck /usr/bin/shellharden /usr/bin/shfmt /usr/bin/stoml /usr/bin/tomljson /usr/bin/
+COPY --from=upx /usr/bin/checkmake /usr/bin/circleci /usr/bin/dotenv-linter /usr/bin/ec /usr/bin/shellcheck /usr/bin/shellharden /usr/bin/shfmt /usr/bin/tomljson /usr/bin/
 RUN apt-get update --yes && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bmake curl git jq libxml2-utils make php-cli php-mbstring php-zip python3 python3-pip ruby unzip && \
     curl -fLsS https://deb.nodesource.com/setup_lts.x | bash - && \

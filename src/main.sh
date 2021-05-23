@@ -81,15 +81,6 @@ fi
 
 ## GoLang ##
 
-if [ -z "${VALIDATE_STOML+x}" ] || [ "$VALIDATE_STOML" != 'false' ]; then
-    if is_lint; then
-        project_find '*.toml' | while read -r file; do
-            printf "## stoml %s ##\n" "$file" >&2
-            stoml "$file" .
-            printf '\n' # stoml output does not end in a newline
-        done
-    fi
-fi
 if [ -z "${VALIDATE_TOMLJSON+x}" ] || [ "$VALIDATE_TOMLJSON" != 'false' ]; then
     if is_lint; then
         project_find '*.toml' | while read -r file; do

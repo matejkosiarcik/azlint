@@ -130,7 +130,6 @@ Where `VALIDATE_FOO` can be found in the following section.
 | [dotenv-linter](https://github.com/dotenv-linter/dotenv-linter)                  | `VALIDATE_DOTENV`             | `*.env`         |
 | [jsonlint](https://github.com/prantlf/jsonlint)                                  | `VALIDATE_JSONLINT`           | `*.json` etc.   |
 | [package-json-validator](https://github.com/gorillamania/package.json-validator) | `VALIDATE_PACKAGE_JSON`       | `package.json`  |
-| [stoml](https://github.com/freshautomations/stoml)                               | `VALIDATE_STOML`              | `*.toml`        |
 | [tomljson](https://github.com/pelletier/go-toml)                                 | `VALIDATE_TOMLJSON`           | `*.toml`        |
 | [xmllint](http://www.xmlsoft.org)                                                | `VALIDATE_XMLLINT`            | `*.xml`         |
 | [yamllint](https://github.com/adrienverge/yamllint)                              | `VALIDATE_YAMLLINT`           | `*.{yml,yaml}`  |
@@ -191,6 +190,10 @@ Where `VALIDATE_FOO` can be found in the following section.
 | [htmllint](https://github.com/htmllint/htmllint) | `VALIDATE_HTMLLINT` | `*.{html,htm}`             |
 | [prettier](https://github.com/prettier/prettier) | `VALIDATE_PRETTIER` | `*.{json,yml,md,css,html}` |
 | [svglint](https://github.com/birjolaxew/svglint) | `VALIDATE_SVGLINT`  | `*.svg`                    |
+
+<!-- Internal documentation -->
+<!-- List of tool unable to be bundled | reason for doing so -->
+<!-- [stoml](https://github.com/freshautomations/stoml) | Can't deal with "'" in toml section headings -->
 
 ## Development
 

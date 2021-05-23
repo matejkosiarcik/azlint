@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Skip circleci update check (can potentially hang the process)
 - Changed
   - Update dependencies
+- Removed
+  - stoml linter
 
 ## \[0.4.0\] - 2021-05-18
 
