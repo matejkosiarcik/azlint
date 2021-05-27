@@ -23,7 +23,7 @@ RUN git clone https://github.com/editorconfig-checker/editorconfig-checker . && 
 FROM node:lts-slim AS node
 WORKDIR /src
 COPY dependencies/package.json dependencies/package-lock.json ./
-RUN npm install --unsafe-perm && \
+RUN npm ci --unsafe-perm && \
     npm prune --production
 
 # Ruby/Gem #
