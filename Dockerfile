@@ -49,7 +49,6 @@ FROM rust:1.52.1 AS rust
 WORKDIR /src
 COPY dependencies/Cargo.toml ./
 COPY --from=go /src/bin/stoml /usr/bin/stoml
-# hadolint ignore=DL4006
 RUN stoml 'Cargo.toml' dev-dependencies | tr ' ' '\n' | xargs --no-run-if-empty cargo install --force
 
 # CircleCI #
