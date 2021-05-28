@@ -70,17 +70,15 @@ When in doubt, get help:
 
 ```sh
 $ docker run matejkosiarcik/azlint --help
-azlint <command>
+usage: azlint [-h] [-V] [-c] {lint,fmt} ...
 
-Global options:
--h, --help    print help message
+positional arguments:
+  {lint,fmt}
 
-Commands:
-lint          lint files with available linters (default)
-fmt           format files with available formatters
-
-Docker:
-docker run -itv "$PWD:/project" matejkosiarcik/azlint <command>
+optional arguments:
+  -h, --help          show this help message and exit
+  -V, --version       show program's version number and exit
+  -c, --only-changed  Analyze only changed files (on current git branch)
 ```
 
 ### gitlab-ci
