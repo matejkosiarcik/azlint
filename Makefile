@@ -24,3 +24,7 @@ run-lint:
 .PHONY: run-fmt
 run-fmt:
 	docker run --interactive --tty --volume "$(PROJECT_DIR):/project" matejkosiarcik/azlint:dev fmt
+
+.PHONY: doc
+doc:
+	@$(MAKE) -C$(PROJECT_DIR)/doc/demo bootstrap record
