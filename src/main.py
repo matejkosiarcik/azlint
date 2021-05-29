@@ -3,6 +3,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import argparse
+import functools
 import subprocess
 import sys
 import tempfile
@@ -40,6 +41,12 @@ def main(argv: Optional[List[str]]) -> int:
     filelist = tempfile.mktemp()
     with open(filelist, "w") as file:
         subprocess.check_call(find_command, stdout=file)
+
+    with open(filelist, "r") as file:
+        line_count = functools.reduce(lambda x, sum: x + sum, (1 for _ in file), 0)
+        if line_count == 0:
+            print("No files found", file=sys.stderr)
+            sys.exit(0)
 
     # actually perform linting/formatting
     run_command = [path.join(script_dirname, "run.sh"), command, filelist]
