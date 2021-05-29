@@ -15,12 +15,13 @@
 - [Included linters](#included-linters)
   - [General](#general)
   - [Configs](#configs)
-  - [Python](#python)
-  - [Shell](#shell)
   - [CI](#ci)
-  - [Build tools](#build-tools)
+  - [Make](#make)
+  - [Docker](#docker)
+  - [Markup](#markup)
   - [Documentation](#documentation)
-  - [Other](#other)
+  - [Shell](#shell)
+  - [Python](#python)
 - [Development](#development)
 - [License](#license)
 - [Alternatives and Drawbacks](#alternatives-and-drawbacks)
@@ -70,17 +71,17 @@ When in doubt, get help:
 
 ```sh
 $ docker run matejkosiarcik/azlint --help
-azlint <command>
+usage: azlint [-h] [-V] [-c] {lint,fmt} ...
 
-Global options:
--h, --help    print help message
+positional arguments:
+  {lint,fmt}
+    lint              Lint files (default)
+    fmt               Fix files
 
-Commands:
-lint          lint files with available linters (default)
-fmt           format files with available formatters
-
-Docker:
-docker run -itv "$PWD:/project" matejkosiarcik/azlint <command>
+optional arguments:
+  -h, --help          show this help message and exit
+  -V, --version       show program's version number and exit
+  -c, --only-changed  Analyze only changed files (on current git branch)
 ```
 
 ### gitlab-ci
@@ -123,27 +124,57 @@ Where `VALIDATE_FOO` can be found in the following section.
 
 ### Configs
 
-| tool                                                                             | disable                       | files           |
-| -------------------------------------------------------------------------------- | ----------------------------- | --------------- |
-| [composer-normalize](https://github.com/ergebnis/composer-normalize)             | `VALIDATE_COMPOSER_NORMALIZE` | `composer.json` |
-| [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)              | `VALIDATE_COMPOSER_VALIDATE`  | `composer.json` |
-| [dotenv-linter](https://github.com/dotenv-linter/dotenv-linter)                  | `VALIDATE_DOTENV`             | `*.env`         |
-| [jsonlint](https://github.com/prantlf/jsonlint)                                  | `VALIDATE_JSONLINT`           | `*.json` etc.   |
-| [package-json-validator](https://github.com/gorillamania/package.json-validator) | `VALIDATE_PACKAGE_JSON`       | `package.json`  |
-| [tomljson](https://github.com/pelletier/go-toml)                                 | `VALIDATE_TOMLJSON`           | `*.toml`        |
-| [xmllint](http://www.xmlsoft.org)                                                | `VALIDATE_XMLLINT`            | `*.xml`         |
-| [yamllint](https://github.com/adrienverge/yamllint)                              | `VALIDATE_YAMLLINT`           | `*.{yml,yaml}`  |
+| tool                                                                             | disable                       | files                      |
+| -------------------------------------------------------------------------------- | ----------------------------- | -------------------------- |
+| [composer-normalize](https://github.com/ergebnis/composer-normalize)             | `VALIDATE_COMPOSER_NORMALIZE` | `composer.json`            |
+| [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)              | `VALIDATE_COMPOSER_VALIDATE`  | `composer.json`            |
+| [dotenv-linter](https://github.com/dotenv-linter/dotenv-linter)                  | `VALIDATE_DOTENV`             | `*.env`                    |
+| [jsonlint](https://github.com/prantlf/jsonlint)                                  | `VALIDATE_JSONLINT`           | `*.json` etc.              |
+| [package-json-validator](https://github.com/gorillamania/package.json-validator) | `VALIDATE_PACKAGE_JSON`       | `package.json`             |
+| [prettier](https://github.com/prettier/prettier)                                 | `VALIDATE_PRETTIER`           | `*.{json,yml,md,css,html}` |
+| [tomljson](https://github.com/pelletier/go-toml)                                 | `VALIDATE_TOMLJSON`           | `*.toml`                   |
+| [yamllint](https://github.com/adrienverge/yamllint)                              | `VALIDATE_YAMLLINT`           | `*.{yml,yaml}`             |
 
-### Python
+### CI
 
-| tool                                                | disable                | files  |
-| --------------------------------------------------- | ---------------------- | ------ |
-| [autopep8](https://github.com/hhatto/autopep8)      | `VALIDATE_AUTOPEP8`    | `*.py` |
-| [black](https://github.com/psf/black)               | `VALIDATE_BLACK`       | `*.py` |
-| [flake8](https://github.com/PyCQA/flake8)           | `VALIDATE_FLAKE8`      | `*.py` |
-| [isort](https://github.com/PyCQA/isort)             | `VALIDATE_ISORT`       | `*.py` |
-| [pycodestyle](https://github.com/PyCQA/pycodestyle) | `VALIDATE_PYCODESTYLE` | `*.py` |
-| [pylint](https://github.com/PyCQA/pylint/)          | `VALIDATE_PYLINT`      | `*.py` |
+| tool                                                               | disable                    | files                  |
+| ------------------------------------------------------------------ | -------------------------- | ---------------------- |
+| [circle-ci lint](https://circleci.com/docs/2.0/local-cli)          | `VALIDATE_CIRCLE_VALIDATE` | `.circleci/config.yml` |
+| [gitlab-ci-lint](https://github.com/BuBuaBu/gitlab-ci-lint)        | `VALIDATE_GITLAB_LINT`     | `.gitlab-ci.yml`       |
+| [gitlab-ci-validate](https://github.com/pradel/gitlab-ci-validate) | `VALIDATE_GITLAB_VALIDATE` | `.gitlab-ci.yml`       |
+| [travis-lint](https://github.com/travis-ci/travis.rb#lint)         | `VALIDATE_TRAVIS_LINT`     | `.travis.yml`          |
+
+### Make
+
+| tool                                             | disable              | files           |
+| ------------------------------------------------ | -------------------- | --------------- |
+| [bmake](https://man.netbsd.org/make.1)           | `VALIDATE_BMAKE`     | `Makefile` etc. |
+| [checkmake](https://github.com/mrtazz/checkmake) | `VALIDATE_CHECKMAKE` | `Makefile` etc. |
+| [gmake](https://www.gnu.org/software/make/)      | `VALIDATE_GMAKE`     | `Makefile` etc. |
+
+### Docker
+
+| tool                                                             | disable                   | files             |
+| ---------------------------------------------------------------- | ------------------------- | ----------------- |
+| [dockerfilelint](https://github.com/replicatedhq/dockerfilelint) | `VALIDATE_DOCKERFILELINT` | `Dockerfile` etc. |
+| [hadolint](https://github.com/hadolint/hadolint)                 | `VALIDATE_HADOLINT`       | `Dockerfile` etc. |
+
+### Markup
+
+| tool                                             | disable             | files          |
+| ------------------------------------------------ | ------------------- | -------------- |
+| [htmlhint](https://github.com/HTMLHint/HTMLHint) | `VALIDATE_HTMLHINT` | `*.{html,htm}` |
+| [htmllint](https://github.com/htmllint/htmllint) | `VALIDATE_HTMLLINT` | `*.{html,htm}` |
+| [svglint](https://github.com/birjolaxew/svglint) | `VALIDATE_SVGLINT`  | `*.svg`        |
+| [xmllint](http://www.xmlsoft.org)                | `VALIDATE_XMLLINT`  | `*.xml`        |
+
+### Documentation
+
+| tool                                                                | disable                        | files  |
+| ------------------------------------------------------------------- | ------------------------------ | ------ |
+| [markdown-link-check](https://github.com/tcort/markdown-link-check) | `VALIDATE_MARKDOWN_LINK_CHECK` | `*.md` |
+| [markdownlint](https://github.com/DavidAnson/markdownlint)          | `VALIDATE_MARKDOWNLINT`        | `*.md` |
+| [mdl](https://github.com/markdownlint/markdownlint)                 | `VALIDATE_MDL`                 | `*.md` |
 
 ### Shell
 
@@ -155,45 +186,20 @@ Where `VALIDATE_FOO` can be found in the following section.
 | [shellharden](https://github.com/anordal/shellharden) | `VALIDATE_SHELLHARDEN` | `*.sh` etc. |
 | [shfmt](https://github.com/mvdan/sh)                  | `VALIDATE_SHFMT`       | `*.sh` etc. |
 
-### CI
+### Python
 
-| tool                                                               | disable                    | files                  |
-| ------------------------------------------------------------------ | -------------------------- | ---------------------- |
-| [circle-ci lint](https://circleci.com/docs/2.0/local-cli)          | `VALIDATE_CIRCLE_VALIDATE` | `.circleci/config.yml` |
-| [gitlab-ci-lint](https://github.com/BuBuaBu/gitlab-ci-lint)        | `VALIDATE_GITLAB_LINT`     | `.gitlab-ci.yml`       |
-| [gitlab-ci-validate](https://github.com/pradel/gitlab-ci-validate) | `VALIDATE_GITLAB_VALIDATE` | `.gitlab-ci.yml`       |
-| [travis-lint](https://github.com/travis-ci/travis.rb#lint)         | `VALIDATE_TRAVIS_LINT`     | `.travis.yml`          |
+| tool                                                | disable                | files  |
+| --------------------------------------------------- | ---------------------- | ------ |
+| [autopep8](https://github.com/hhatto/autopep8)      | `VALIDATE_AUTOPEP8`    | `*.py` |
+| [black](https://github.com/psf/black)               | `VALIDATE_BLACK`       | `*.py` |
+| [flake8](https://github.com/PyCQA/flake8)           | `VALIDATE_FLAKE8`      | `*.py` |
+| [isort](https://github.com/PyCQA/isort)             | `VALIDATE_ISORT`       | `*.py` |
+| [pycodestyle](https://github.com/PyCQA/pycodestyle) | `VALIDATE_PYCODESTYLE` | `*.py` |
+| [pylint](https://github.com/PyCQA/pylint/)          | `VALIDATE_PYLINT`      | `*.py` |
+| [mypy](https://github.com/python/mypy)              | `VALIDATE_MYPY`        | `*.py` |
 
-### Build tools
-
-| tool                                                             | disable                   | files             |
-| ---------------------------------------------------------------- | ------------------------- | ----------------- |
-| [bmake](https://man.netbsd.org/make.1)                           | `VALIDATE_BMAKE`          | `Makefile` etc.   |
-| [checkmake](https://github.com/mrtazz/checkmake)                 | `VALIDATE_CHECKMAKE`      | `Makefile` etc.   |
-| [dockerfilelint](https://github.com/replicatedhq/dockerfilelint) | `VALIDATE_DOCKERFILELINT` | `Dockerfile` etc. |
-| [gmake](https://www.gnu.org/software/make/)                      | `VALIDATE_GMAKE`          | `Makefile` etc.   |
-| [hadolint](https://github.com/hadolint/hadolint)                 | `VALIDATE_HADOLINT`       | `Dockerfile` etc. |
-
-### Documentation
-
-| tool                                                                | disable                        | files  |
-| ------------------------------------------------------------------- | ------------------------------ | ------ |
-| [markdown-link-check](https://github.com/tcort/markdown-link-check) | `VALIDATE_MARKDOWN_LINK_CHECK` | `*.md` |
-| [markdownlint](https://github.com/DavidAnson/markdownlint)          | `VALIDATE_MARKDOWNLINT`        | `*.md` |
-| [mdl](https://github.com/markdownlint/markdownlint)                 | `VALIDATE_MDL`                 | `*.md` |
-
-### Other
-
-| tool                                             | disable             | files                      |
-| ------------------------------------------------ | ------------------- | -------------------------- |
-| [htmlhint](https://github.com/HTMLHint/HTMLHint) | `VALIDATE_HTMLHINT` | `*.{html,htm}`             |
-| [htmllint](https://github.com/htmllint/htmllint) | `VALIDATE_HTMLLINT` | `*.{html,htm}`             |
-| [prettier](https://github.com/prettier/prettier) | `VALIDATE_PRETTIER` | `*.{json,yml,md,css,html}` |
-| [svglint](https://github.com/birjolaxew/svglint) | `VALIDATE_SVGLINT`  | `*.svg`                    |
-
-<!-- Internal documentation -->
-<!-- List of tool unable to be bundled | reason for doing so -->
-<!-- [stoml](https://github.com/freshautomations/stoml) | Can't deal with "'" in toml section headings -->
+<!-- List of unsuitable tools -->
+<!-- [stoml](https://github.com/freshautomations/stoml) - Can't deal with "'" in toml section headings (sometimes used in Cargo.toml) -->
 
 ## Development
 
@@ -202,6 +208,7 @@ Typical workflow is as follows:
 ```sh
 # ... make some changes ...
 $ make build
+$ make run
 ```
 
 ## License

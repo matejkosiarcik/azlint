@@ -23,7 +23,7 @@ RUN git clone https://github.com/editorconfig-checker/editorconfig-checker . && 
 FROM node:lts-slim AS node
 WORKDIR /src
 COPY dependencies/package.json dependencies/package-lock.json ./
-RUN npm install --unsafe-perm && \
+RUN npm ci --unsafe-perm && \
     npm prune --production
 
 # Ruby/Gem #
@@ -49,7 +49,6 @@ FROM rust:1.52.1 AS rust
 WORKDIR /src
 COPY dependencies/Cargo.toml ./
 COPY --from=go /src/bin/stoml /usr/bin/stoml
-# hadolint ignore=DL4006
 RUN stoml 'Cargo.toml' dev-dependencies | tr ' ' '\n' | xargs --no-run-if-empty cargo install --force
 
 # CircleCI #
@@ -88,6 +87,15 @@ RUN apt-get update --yes && \
     upx --best /usr/bin/shellharden && \
     upx --best /usr/bin/tomljson
 
+# Prepare executable files
+# Well this is not strictly necessary
+# But doing it before the final stage is potentilly better (saves layer space)
+# As the final stage only copies these files and does not modify them further
+FROM debian:10.9 AS chmod
+WORKDIR /src
+COPY src/glob_files.py src/list_files.py src/main.py src/run.sh ./
+RUN chmod a+x glob_files.py list_files.py main.py run.sh
+
 ### Main runner ###
 
 # curl is only needed to install nodejs&composer
@@ -96,10 +104,7 @@ LABEL maintainer="matej.kosiarcik@gmail.com" \
     repo="https://github.com/matejkosiarcik/azlint"
 WORKDIR /src
 COPY dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt ./
-COPY src/main.sh /usr/bin/azlint
-COPY src/lint.sh /usr/bin/lint
-COPY src/fmt.sh /usr/bin/fmt
-COPY src/project_find.py /usr/bin/project_find
+COPY --from=chmod /src/glob_files.py /src/list_files.py /src/main.py /src/run.sh ./
 COPY --from=hadolint /bin/hadolint /usr/bin/
 COPY --from=node /src/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
@@ -116,7 +121,10 @@ RUN apt-get update --yes && \
     composer install && \
     python3 -m pip install --no-cache-dir --upgrade setuptools && \
     python3 -m pip install --no-cache-dir --requirement requirements.txt && \
-    chmod a+x /usr/bin/azlint /usr/bin/project_find /usr/bin/lint /usr/bin/fmt
+    ln -s /src/main.py /usr/bin/azlint && \
+    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >/usr/bin/fmt && \
+    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint lint $@' >/usr/bin/lint && \
+    chmod a+x /usr/bin/lint /usr/bin/fmt
 
 WORKDIR /project
 ENTRYPOINT [ "azlint" ]
