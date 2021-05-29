@@ -87,6 +87,10 @@ RUN apt-get update --yes && \
     upx --best /usr/bin/shellharden && \
     upx --best /usr/bin/tomljson
 
+# Prepare executable files
+# Well this is not strictly necessary
+# But doing it before the final stage is potentilly better (saves layer space)
+# As the final stage only copies these files and does not modify them further
 FROM debian:10.9 AS chmod
 WORKDIR /src
 COPY src/glob_files.py src/list_files.py src/main.py src/run.sh ./
