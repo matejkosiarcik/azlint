@@ -9,20 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added
   - `--only-changes` option
+  - Colored file output
 - Changed
   - new python wrapper
   - Optimize reading list of files
+  - Change lint order based on file types
 
 ## \[0.4.1\] - 2021-05-24
 
-- Added
-  - Colored file output
 - Fixed
   - Print shellharden diff on error
   - Skip circleci update check (can potentially hang the process)
 - Changed
   - Update dependencies
-  - Change lint order based on file types
 - Removed
   - stoml linter
 
