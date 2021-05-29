@@ -74,6 +74,8 @@ usage: azlint [-h] [-V] [-c] {lint,fmt} ...
 
 positional arguments:
   {lint,fmt}
+    lint              Lint files (default)
+    fmt               Fix files
 
 optional arguments:
   -h, --help          show this help message and exit

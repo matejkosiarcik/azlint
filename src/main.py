@@ -16,9 +16,9 @@ def main(argv: Optional[List[str]]) -> int:
     parser.add_argument("-V", "--version", action="version", version="%(prog)s 0.4.1")
     parser.add_argument("-c", "--only-changed", action="store_true", help="Analyze only changed files (on current git branch)")
     subparsers = parser.add_subparsers(dest="command")
-    lint_parser = subparsers.add_parser("lint")
+    lint_parser = subparsers.add_parser("lint", help="Lint files (default)")
     lint_parser.add_argument("-c", "--only-changed", action="store_true", default=argparse.SUPPRESS)
-    fmt_parser = subparsers.add_parser("fmt")
+    fmt_parser = subparsers.add_parser("fmt", help="Fix files")
     fmt_parser.add_argument("-c", "--only-changed", action="store_true", default=argparse.SUPPRESS)
     args = parser.parse_args(argv)
 
