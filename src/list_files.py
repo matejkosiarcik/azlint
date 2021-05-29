@@ -83,26 +83,33 @@ def find_files(only_changed: bool) -> Iterable[str]:
                     commit = f"HEAD~{i}"
                     break
 
+            # get files modified in working tree
+            changed_files = {
+                x
+                for x in itertools.chain(
+                    subprocess.check_output(["git", "diff", "--name-only", "--cached", "-z"]).decode("utf-8").split("\0"),
+                    subprocess.check_output(["git", "diff", "--name-only", "HEAD", "-z"]).decode("utf-8").split("\0"),
+                )
+                if len(x) > 0
+            }
+
             if commit is None:
+                # get files modified
                 print("Could not get parent branch, returning all files", sys.stderr)
             else:
-                added_staged_files = {
-                    x
-                    for x in subprocess.check_output(["git", "diff", "--name-only", "--cached", "--diff-filter=A", "-z"]).decode("utf-8").split("\0")
-                    if len(x) > 0
-                }
+                # get files modified
+                changed_files = set.union(
+                    changed_files,
+                    {
+                        x
+                        for x in subprocess.check_output(["git", "whatchanged", "--name-only", "--pretty=", f"{commit}..HEAD", "-z"])
+                        .decode("utf-8")
+                        .split("\0")
+                        if len(x) > 0
+                    },
+                )
 
-                # actually this might not always be right
-                # sometimes when getting changes for old branch, HEAD might be too far ahead and so return unnecessary results
-                # however it should be right 99% of the time, good enough for this little tool ¯\_(ツ)_/¯
-                changed_files = {
-                    x
-                    for x in subprocess.check_output(["git", "whatchanged", "--name-only", "--pretty=", f"{commit}..HEAD", "-z"])
-                    .decode("utf-8")
-                    .split("\0")
-                    if len(x) > 0
-                }
-                files = [x for x in files if x in set.union(changed_files, added_staged_files)]
+            files = [x for x in files if x in changed_files]
 
         # untracked files are not in git whatchanged
         # but they should be in both full output and changed output as well
