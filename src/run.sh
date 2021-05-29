@@ -24,7 +24,10 @@ is_lint() {
 }
 
 filelistpy="$(dirname "$0")/glob_files.py"
+# shellcheck disable=SC2139
 alias list="$filelistpy $filelist"
+
+logfile="$(mktemp)"
 
 if [ -z "${VALIDATE_EDITORCONFIG+x}" ] || [ "$VALIDATE_EDITORCONFIG" != 'false' ]; then
     if is_lint; then
@@ -41,8 +44,7 @@ if [ -z "${VALIDATE_COMPOSER_VALIDATE+x}" ] || [ "$VALIDATE_COMPOSER_VALIDATE" !
     if is_lint; then
         list 'composer.json' | while read -r file; do
             printf "## composer validate %s ##\n" "$file" >&2
-            composer validate --quiet --no-interaction --no-cache --ansi --no-check-all --no-check-publish "$file" ||
-                composer validate --no-interaction --no-cache --ansi --no-check-all --no-check-publish "$file"
+            composer validate --no-interaction --no-cache --ansi --no-check-all --no-check-publish "$file" >"$logfile" 2>&1 || { cat "$logfile" && exit 1; }
         done
     fi
 fi
@@ -51,7 +53,10 @@ if [ -z "${VALIDATE_COMPOSER_NORMALIZE+x}" ] || [ "$VALIDATE_COMPOSER_NORMALIZE"
         printf "## composer normalize %s ##\n" "$file" >&2
         file="$PWD/$file"
         if is_lint; then
-            (cd /src && composer normalize --no-interaction --no-cache --ansi --dry-run --diff "$file")
+            if ! (cd /src && composer normalize --no-interaction --no-cache --ansi --dry-run --diff "$file" >"$logfile" 2>&1); then
+                cat "$logfile"
+                exit 1
+            fi
         else
             (cd /src && composer normalize --no-interaction --no-cache --ansi "$file")
         fi
@@ -159,7 +164,7 @@ if [ -z "${VALIDATE_PRETTIER+x}" ] || [ "$VALIDATE_PRETTIER" != 'false' ]; then
         if is_lint; then
             prettier --list-different "$file"
         else
-            prettier --write "$file"
+            prettier --loglevel error --write "$file"
         fi
     done
 fi
@@ -177,7 +182,7 @@ if [ -z "${VALIDATE_MARKDOWN_LINK_CHECK+x}" ] || [ "$VALIDATE_MARKDOWN_LINK_CHEC
     if is_lint && [ -e '.markdown-link-check.json' ]; then
         list '*.md' | while read -r file; do
             printf "## markdown-link-check %s ##\n" "$file" >&2
-            markdown-link-check --config '.markdown-link-check.json' --retry --quiet "$file"
+            markdown-link-check --quiet --config '.markdown-link-check.json' --retry "$file" >"$logfile" 2>&1 || { cat "$logfile" && exit 1; }
         done
     fi
 fi
@@ -185,7 +190,7 @@ if [ -z "${VALIDATE_DOCKERFILELINT+x}" ] || [ "$VALIDATE_DOCKERFILELINT" != 'fal
     if is_lint; then
         list 'Dockerfile' '*.Dockerfile' | while read -r file; do
             printf "## dockerfilelint %s ##\n" "$file" >&2
-            dockerfilelint "$file"
+            dockerfilelint "$file" >"$logfile" 2>&1 || { cat "$logfile" && exit 1; }
         done
     fi
 fi
@@ -214,7 +219,7 @@ if [ -z "${VALIDATE_PYCODESTYLE+x}" ] || [ "$VALIDATE_PYCODESTYLE" != 'false' ];
     if is_lint; then
         list '*.py' | while read -r file; do
             printf "## pycodestyle %s ##\n" "$file" >&2
-            pycodestyle "$file"
+            pycodestyle --quiet --quiet "$file"
         done
     fi
 fi
@@ -222,7 +227,7 @@ if [ -z "${VALIDATE_FLAKE8+x}" ] || [ "$VALIDATE_FLAKE8" != 'false' ]; then
     if is_lint; then
         list '*.py' | while read -r file; do
             printf "## flake8 %s ##\n" "$file" >&2
-            flake8 "$file"
+            flake8 --quiet --quiet "$file"
         done
     fi
 fi
@@ -240,7 +245,8 @@ if [ -z "${VALIDATE_PYLINT+x}" ] || [ "$VALIDATE_PYLINT" != 'false' ]; then
     if is_lint; then
         list '*.py' | while read -r file; do
             printf "## pylint %s ##\n" "$file" >&2
-            pylint "$file"
+            # doesn't have --quiet mode
+            pylint "$file" >"$logfile" 2>&1 || { cat "$logfile" && exit 1; }
         done
     fi
 fi
@@ -248,9 +254,9 @@ if [ -z "${VALIDATE_BLACK+x}" ] || [ "$VALIDATE_BLACK" != 'false' ]; then
     list '*.py' | while read -r file; do
         printf "## black %s ##\n" "$file" >&2
         if is_lint; then
-            black --check --diff "$file"
+            black --check --diff --quiet "$file"
         else
-            black "$file"
+            black --quiet "$file"
         fi
     done
 fi
@@ -288,7 +294,7 @@ if [ -z "${VALIDATE_DOTENV+x}" ] || [ "$VALIDATE_DOTENV" != 'false' ]; then
     if is_lint; then
         list '*.env' | while read -r file; do
             printf "## dotenv-linter %s ##\n" "$file" >&2
-            dotenv-linter "$file"
+            dotenv-linter --quiet "$file"
         done
     fi
 fi
@@ -296,9 +302,9 @@ if [ -z "${VALIDATE_SHELLHARDEN+x}" ] || [ "$VALIDATE_SHELLHARDEN" != 'false' ];
     list '*.sh' '*.bash' '*.ksh' '*.ash' '*.dash' '*.zsh' '*.yash' '*.bats' | while read -r file; do
         printf "## shellharden %s ##\n" "$file" >&2
         if is_lint; then
-            shellharden --check "$file" || shellharden --check --suggest "$file"
+            shellharden --check --suggest -- "$file" >"$logfile" 2>&1 || { cat "$logfile" && exit 1; }
         else
-            shellharden --replace "$file"
+            shellharden --replace -- "$file"
         fi
     done
 fi
@@ -309,7 +315,10 @@ if [ -z "${VALIDATE_CIRCLE_VALIDATE+x}" ] || [ "$VALIDATE_CIRCLE_VALIDATE" != 'f
     if is_lint; then
         list '.circleci/config.yml' | while read -r file; do
             printf "## circleci validate %s ##\n" "$file" >&2
-            (cd "$(dirname "$(dirname "$file")")" && circleci --skip-update-check config validate)
+            if ! (cd "$(dirname "$(dirname "$file")")" && circleci --skip-update-check config validate >"$logfile" 2>&1); then
+                cat "$logfile"
+                exit 1
+            fi
         done
     fi
 fi
@@ -333,7 +342,7 @@ if [ -z "${VALIDATE_CHECKMAKE+x}" ] || [ "$VALIDATE_CHECKMAKE" != 'false' ]; the
     if is_lint; then
         list 'makefile' 'Makefile' '*.make' 'GNUMakefile' 'BSDMakefile' | while read -r file; do
             printf "## checkmake %s ##\n" "$file" >&2
-            checkmake "$file"
+            checkmake "$file" >"$logfile" 2>&1 || { cat "$logfile" && exit 1; }
         done
     fi
 fi
@@ -363,3 +372,5 @@ if [ -z "${VALIDATE_HADOLINT+x}" ] || [ "$VALIDATE_HADOLINT" != 'false' ]; then
         done
     fi
 fi
+
+rm -f "$logfile"
