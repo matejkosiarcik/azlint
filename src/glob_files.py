@@ -5,10 +5,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import argparse
 import re
 import sys
-from typing import Iterator, List
+from typing import Iterable, List
 
 
-def match_file(file: str, regexes: Iterator[re.Pattern]) -> bool:
+def match_file(file: str, regexes: Iterable[re.Pattern]) -> bool:
     for regex in regexes:
         if re.match(regex, file):
             return True

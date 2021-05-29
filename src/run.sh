@@ -369,6 +369,13 @@ list '*.py' | while read -r file; do
         fi
     fi
 
+    if [ -z "${VALIDATE_MYPY+x}" ] || [ "$VALIDATE_MYPY" != 'false' ]; then
+        if is_lint; then
+            printf "## mypy %b%s%b ##\n" '\033[36m' "$file" '\033[0m' >&2
+            mypy --follow-imports skip "$file" >"$logfile" 2>&1 || { cat "$logfile" && exit 1; }
+        fi
+    fi
+
     if [ -z "${VALIDATE_BLACK+x}" ] || [ "$VALIDATE_BLACK" != 'false' ]; then
         printf "## black %b%s%b ##\n" '\033[36m' "$file" '\033[0m' >&2
         if is_lint; then

@@ -195,6 +195,7 @@ Where `VALIDATE_FOO` can be found in the following section.
 | [isort](https://github.com/PyCQA/isort)             | `VALIDATE_ISORT`       | `*.py` |
 | [pycodestyle](https://github.com/PyCQA/pycodestyle) | `VALIDATE_PYCODESTYLE` | `*.py` |
 | [pylint](https://github.com/PyCQA/pylint/)          | `VALIDATE_PYLINT`      | `*.py` |
+| [mypy](https://github.com/python/mypy)              | `VALIDATE_MYPY`        | `*.py` |
 
 <!-- List of unsuitable tools -->
 <!-- [stoml](https://github.com/freshautomations/stoml) - Can't deal with "'" in toml section headings (sometimes used in Cargo.toml) -->

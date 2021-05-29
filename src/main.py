@@ -48,6 +48,7 @@ def main(argv: Optional[List[str]]) -> int:
     except subprocess.CalledProcessError as error:
         print(error, file=sys.stderr)
         sys.exit(1)
+    return 0
 
 
 if __name__ == "__main__":

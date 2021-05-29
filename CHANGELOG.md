@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added
   - `--only-changes` option
   - Colored file output
+  - New mypy component
 - Changed
   - new python wrapper
   - Optimize reading list of files
