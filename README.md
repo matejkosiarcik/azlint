@@ -125,6 +125,7 @@ Where `VALIDATE_FOO` can be found in the following section.
 | tool                                                                                 | disable                 | files |
 | ------------------------------------------------------------------------------------ | ----------------------- | ----- |
 | [editorconfig-checker](https://github.com/editorconfig-checker/editorconfig-checker) | `VALIDATE_EDITORCONFIG` | `*`   |
+| git check-ignore                                                                     | `VALIDATE_GITIGNORE`    | `*`   |
 
 ### Configs
 

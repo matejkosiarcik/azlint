@@ -36,6 +36,24 @@ if [ -z "${VALIDATE_EDITORCONFIG+x}" ] || [ "$VALIDATE_EDITORCONFIG" != 'false' 
     fi
 fi
 
+if [ -z "${VALIDATE_GITIGNORE+x}" ] || [ "$VALIDATE_GITIGNORE" != 'false' ]; then
+    if [ -d ".git" ]; then
+        list '*' | while read -r file; do
+            printf "## git-check-ignore %b%s%b ##\n" '\033[36m' "$file" '\033[0m' >&2
+            if is_lint; then
+                if git check-ignore --no-index "$file" >/dev/null; then
+                    printf 'File %s should be ignored\n' "$file"
+                    exit 1
+                fi
+            else
+                if git check-ignore --no-index "$file" >/dev/null; then
+                    git rm --cached "$file"
+                fi
+            fi
+        done
+    fi
+fi
+
 ## Configs (JSON, YAML, TOML, ENV, etc.) ##
 
 list '*.{json,json5,jsonl,geojson}' '*.{htmlhintrc,htmllintrc,babelrc,jscsrc,jshintrc,jslintrc,ecrc,remarkrc}' | while read -r file; do
