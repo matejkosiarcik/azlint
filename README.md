@@ -2,8 +2,11 @@
 
 > Lint everything From A to Z
 
-[![dockerhub automated status](https://img.shields.io/docker/cloud/automated/matejkosiarcik/azlint)](https://hub.docker.com/r/matejkosiarcik/azlint/builds)
 [![dockerhub version](https://img.shields.io/docker/v/matejkosiarcik/azlint?label=dockerhub&sort=semver)](https://hub.docker.com/r/matejkosiarcik/azlint/tags?page=1&ordering=last_updated)
+[![github version](https://img.shields.io/github/v/release/matejkosiarcik/azlint?sort=semver)](https://github.com/matejkosiarcik/azlint/releases)
+
+[![dockerhub automated status](https://img.shields.io/docker/cloud/automated/matejkosiarcik/azlint)](https://hub.docker.com/r/matejkosiarcik/azlint/builds)
+[![dockerhub build status](https://img.shields.io/docker/cloud/build/matejkosiarcik/azlint)](https://hub.docker.com/r/matejkosiarcik/azlint/builds)
 
 <!-- toc -->
 
