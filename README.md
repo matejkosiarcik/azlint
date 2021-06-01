@@ -11,6 +11,7 @@
 <!-- toc -->
 
 - [About](#about)
+- [Features](#features)
 - [Usage](#usage)
   - [Locally](#locally)
   - [gitlab-ci](#gitlab-ci)
