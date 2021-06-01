@@ -49,13 +49,21 @@ fixes \(from supported linters\) to your files.
 All that said, AZLint is mostly for my personal usage.
 But feel free to use it and report any found issues 😉.
 
+## Features
+
+- 📱 includes 38 linters
+- 🖋 11 linters support formatting
+- ⛴ Available as a docker image
+
+<!-- - ⚠️ Reports all found errors -->
+
 ## Usage
 
 ![azlint demo](./doc/demo.gif)
 
 > Go to dockerhub's [tags](https://hub.docker.com/r/matejkosiarcik/azlint/tags?page=1&ordering=last_updated) to see all available tags
 >
-> Or see github's [releases](https://github.com/matejkosiarcik/azlint/releases) for all project releases
+> Or see github's [releases](https://github.com/matejkosiarcik/azlint/releases) for all project versions
 
 ### Locally
 
