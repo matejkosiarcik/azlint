@@ -11,7 +11,7 @@
 <!-- toc -->
 
 - [About](#about)
-- [Features](#features)
+  - [Features](#features)
 - [Usage](#usage)
   - [Locally](#locally)
   - [gitlab-ci](#gitlab-ci)
@@ -50,7 +50,7 @@ fixes \(from supported linters\) to your files.
 All that said, AZLint is mostly for my personal usage.
 But feel free to use it and report any found issues 😉.
 
-## Features
+### Features
 
 - 📱 includes 38 linters
 - 🖋 11 linters support formatting
