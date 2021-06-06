@@ -2,7 +2,6 @@
 set -euf
 export PATH="/src/node_modules/.bin:/usr/local/bundle/bin:$PATH"
 export GEM_HOME='/usr/local/bundle'
-cd '/project'
 
 if [ "$#" -lt 2 ]; then
     printf 'Not enough arguments\n' >&2
