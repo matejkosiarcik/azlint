@@ -29,7 +29,7 @@
   - [Python](#python)
 - [Development](#development)
 - [License](#license)
-- [Alternatives and Drawbacks](#alternatives-and-drawbacks)
+- [Alternatives](#alternatives)
 
 <!-- tocstop -->
 
