@@ -30,7 +30,7 @@ updates:
     labels:
       - automerge
 
-  # Components/dependencies
+  # Dependencies
   - package-ecosystem: npm
     directory: "/dependencies"
     versioning-strategy: increase
