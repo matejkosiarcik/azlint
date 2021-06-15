@@ -16,7 +16,7 @@
     "markdownlint-cli": "^0.27.1",
     "package-json-validator": "^0.6.3",
     "prettier": "^2.3.1",
-    "svglint": "^1.0.7"
+    "svglint": "^1.0.8"
   },
   "devDependencies": {
     "node-prune": "^1.0.2"
