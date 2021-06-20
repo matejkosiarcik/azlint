@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added
   - Dry run shell scripts
+- Changed
+  - Upgrade runtime container to 10.9 (buster - stable) -> 11 (bullseye - testing)
+  - Upgrade python 3.7 -> 3.9
 
 ## \[0.4.4\] - 2021-06-12
 
