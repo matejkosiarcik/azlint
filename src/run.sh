@@ -15,6 +15,9 @@ filelistpy="$(dirname "$0")/glob_files.py"
 # shellcheck disable=SC2139
 alias list="$filelistpy $filelist"
 
+# shellcheck source=./src/shell-dry.sh
+. "$(dirname "$0")/shell-dry.sh"
+
 if [ "$mode" = 'lint' ]; then
     _is_lint=0
 else
@@ -299,7 +302,7 @@ done
 
 if [ -z "${VALIDATE_BASHATE+x}" ] || [ "$VALIDATE_BASHATE" != 'false' ]; then
     if is_lint; then
-        list '*.{sh,bash,ksh,ash,dash,zsh,yash}' | while read -r file; do
+        list '*.{sh,bash,ksh,mksh,ash,dash,zsh,yash}' | while read -r file; do
             printf "## bashate %b%s%b ##\n" '\033[36m' "$file" '\033[0m' >&2
             bashate --ignore E001,E002,E003,E004,E005,E006 "$file" || printf '1' >"$status_file" # ignore all whitespace/basic errors
         done
@@ -342,6 +345,15 @@ if [ -z "${VALIDATE_BATS+x}" ] || [ "$VALIDATE_BATS" != 'false' ]; then
         list '*.bats' | while read -r file; do
             printf "## bats %b%s%b ##\n" '\033[36m' "$file" '\033[0m' >&2
             bats --count "$file" >/dev/null || printf '1' >"$status_file"
+        done
+    fi
+fi
+
+if [ -z "${VALIDATE_SHELL_DRY+x}" ] || [ "$VALIDATE_SHELL_DRY" != 'false' ]; then
+    if is_lint; then
+        list '*.{sh,bash,ksh,mksh,ash,dash,zsh,yash}' | while read -r file; do
+            printf "## shell-dry %b%s%b ##\n" '\033[36m' "$file" '\033[0m' >&2
+            check_file "$file" || printf '1' >"$status_file"
         done
     fi
 fi

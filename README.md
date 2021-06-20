@@ -52,7 +52,7 @@ But feel free to use it and report any found issues 😉.
 
 ### Features
 
-- 📱 includes 38 linters
+- 📱 includes 39 linters
 - 🖋 11 linters support autofix (format files)
 - ⛴ Available as a docker image
 - 💯 Reports all found errors
@@ -198,6 +198,7 @@ Where `VALIDATE_FOO` can be found in the following section.
 | [shellcheck](https://github.com/koalaman/shellcheck)  | `VALIDATE_SHELLCHECK`  | `*.sh` etc. | ❌      |
 | [shellharden](https://github.com/anordal/shellharden) | `VALIDATE_SHELLHARDEN` | `*.sh` etc. | ✅      |
 | [shfmt](https://github.com/mvdan/sh)                  | `VALIDATE_SHFMT`       | `*.sh` etc. | ✅      |
+| custom dry runner                                     | `VALIDATE_SHELL_DRY`   | `*.sh` etc. | ❌      |
 
 ### Python
 

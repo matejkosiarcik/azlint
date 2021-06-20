@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## \[Unreleased\]
+
+- Added
+  - Dry run shell scripts
+- Changed
+  - Upgrade runtime container to 10.9 (buster - stable) -> 11 (bullseye - testing)
+  - Upgrade python 3.7 -> 3.9
+  - Migrate from dockerhub autobuilds to github actions for publishing docker images
+
 ## \[0.4.4\] - 2021-06-12
 
 - Added

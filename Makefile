@@ -2,8 +2,6 @@
 
 MAKEFLAGS += --warn-undefined-variables
 PROJECT_DIR := $(dir $(abspath $(MAKEFILE_LIST)))
-AZLINT_VERSION ?= dev
-DESTDIR ?= $$HOME/bin
 SHELL := /bin/sh
 .SHELLFLAGS := -ec
 
@@ -11,22 +9,30 @@ SHELL := /bin/sh
 
 .DEFAULT: all
 .PHONY: all
-all: build run
+all: bootstrap build test run
+
+.PHONY: bootstrap
+bootstrap:
+	npm ci --prefix tests-cli
 
 .PHONY: build
 build:
 	docker build . --tag matejkosiarcik/azlint:dev
+
+.PHONY: test
+test:
+	npm test --prefix tests-cli
 
 .PHONY: run
 run: run-fmt run-lint
 
 .PHONY: run-lint
 run-lint:
-	docker run --interactive --tty --volume "$(PROJECT_DIR):/project:ro" matejkosiarcik/azlint:dev lint
+	docker run --interactive --volume "$(PROJECT_DIR):/project:ro" matejkosiarcik/azlint:dev lint
 
 .PHONY: run-fmt
 run-fmt:
-	docker run --interactive --tty --volume "$(PROJECT_DIR):/project" matejkosiarcik/azlint:dev fmt
+	docker run --interactive --volume "$(PROJECT_DIR):/project" matejkosiarcik/azlint:dev fmt
 
 .PHONY: doc
 doc:
