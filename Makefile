@@ -9,11 +9,18 @@ SHELL := /bin/sh
 
 .DEFAULT: all
 .PHONY: all
-all: build run
+all: bootstrap build test run
+
+.PHONY: bootstrap
+	npm ci --prefix tests-cli
 
 .PHONY: build
 build:
 	docker build . --tag matejkosiarcik/azlint:dev
+
+.PHONY: test
+test:
+	npm test --prefix tests-cli
 
 .PHONY: run
 run: run-fmt run-lint

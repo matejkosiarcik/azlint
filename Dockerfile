@@ -103,14 +103,14 @@ FROM debian:10.9
 LABEL maintainer="matej.kosiarcik@gmail.com" \
     repo="https://github.com/matejkosiarcik/azlint"
 WORKDIR /src
-COPY dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt ./
+COPY dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt src/shell-dry.sh ./
 COPY --from=chmod /src/glob_files.py /src/list_files.py /src/main.py /src/run.sh ./
 COPY --from=hadolint /bin/hadolint /usr/bin/
 COPY --from=node /src/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
 COPY --from=upx /usr/bin/checkmake /usr/bin/circleci /usr/bin/dotenv-linter /usr/bin/ec /usr/bin/shellcheck /usr/bin/shellharden /usr/bin/shfmt /usr/bin/tomljson /usr/bin/
 RUN apt-get update --yes && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bmake curl git jq libxml2-utils make php-cli php-mbstring php-zip python3 python3-pip ruby unzip && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ash bash bmake curl dash git jq ksh libxml2-utils make mksh php-cli php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
     curl -fLsS https://deb.nodesource.com/setup_lts.x | bash - && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs && \
     curl -fLsSo composer-setup.php https://getcomposer.org/installer && \
