@@ -110,7 +110,7 @@ COPY --from=node /src/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
 COPY --from=upx /usr/bin/checkmake /usr/bin/circleci /usr/bin/dotenv-linter /usr/bin/ec /usr/bin/shellcheck /usr/bin/shellharden /usr/bin/shfmt /usr/bin/tomljson /usr/bin/
 RUN apt-get update --yes && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ash bash bmake curl dash git jq ksh libxml2-utils make mksh php-cli php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ash bash bmake curl dash git jq ksh libxml2-utils make mksh php php-cli php-common php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
     curl -fLsS https://deb.nodesource.com/setup_lts.x | bash - && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs && \
     curl -fLsSo composer-setup.php https://getcomposer.org/installer && \

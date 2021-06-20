@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed
   - Upgrade runtime container to 10.9 (buster - stable) -> 11 (bullseye - testing)
   - Upgrade python 3.7 -> 3.9
+  - Migrate from dockerhub autobuilds to github actions for publishing docker images
 
 ## \[0.4.4\] - 2021-06-12
 

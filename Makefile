@@ -12,6 +12,7 @@ SHELL := /bin/sh
 all: bootstrap build test run
 
 .PHONY: bootstrap
+bootstrap:
 	npm ci --prefix tests-cli
 
 .PHONY: build
@@ -27,11 +28,11 @@ run: run-fmt run-lint
 
 .PHONY: run-lint
 run-lint:
-	docker run --interactive --tty --volume "$(PROJECT_DIR):/project:ro" matejkosiarcik/azlint:dev lint
+	docker run --interactive --volume "$(PROJECT_DIR):/project:ro" matejkosiarcik/azlint:dev lint
 
 .PHONY: run-fmt
 run-fmt:
-	docker run --interactive --tty --volume "$(PROJECT_DIR):/project" matejkosiarcik/azlint:dev fmt
+	docker run --interactive --volume "$(PROJECT_DIR):/project" matejkosiarcik/azlint:dev fmt
 
 .PHONY: doc
 doc:
