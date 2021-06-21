@@ -15,9 +15,14 @@ Package Control.*
 # dependencies
 .bundle/
 composer.phar
-dist/
 gitman/
 node_modules/
 vendor/
 venv/
+
+# build
+dist/
 target/
+
+# misc
+report/
