@@ -62,7 +62,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Hadolint #
-FROM hadolint/hadolint:v2.5.0 AS hadolint
+FROM hadolint/hadolint:v2.6.0 AS hadolint
 
 # Shellcheck #
 FROM koalaman/shellcheck:v0.7.2 AS shellcheck
