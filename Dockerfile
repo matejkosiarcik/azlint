@@ -3,12 +3,12 @@
 ### Components ###
 
 # GoLang #
-FROM golang:1.16.5 AS go
+FROM golang:1.17rc1 AS go
 WORKDIR /src
 RUN GOPATH="$PWD" GO111MODULE=on go get -ldflags='-s -w' 'github.com/freshautomations/stoml' && \
     GOPATH="$PWD" GO111MODULE=on go get -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson' && \
     GOPATH="$PWD" GO111MODULE=on go get -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt'
-FROM golang:1.16.5 AS go2
+FROM golang:1.17rc1 AS go2
 WORKDIR /src/checkmake
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends git pandoc && \
