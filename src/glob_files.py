@@ -35,7 +35,7 @@ def main(argv: List[str]) -> int:
     args = parser.parse_args(argv)
 
     regexes = [wildcard2regex(x) for x in args.patterns]
-    with open(args.list) as file_list:
+    with open(args.list, "r", encoding="utf-8") as file_list:
         for file in file_list:
             file = file.rstrip()
             if match_file(file, regexes):

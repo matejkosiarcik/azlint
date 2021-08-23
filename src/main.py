@@ -39,10 +39,10 @@ def main(argv: Optional[List[str]]) -> int:
     if args.only_changed:
         find_command.append("--only-changed")
     filelist = tempfile.mktemp()
-    with open(filelist, "w") as file:
+    with open(filelist, "w", encoding="utf-8") as file:
         subprocess.check_call(find_command, stdout=file)
 
-    with open(filelist, "r") as file:
+    with open(filelist, "r", encoding="utf-8") as file:
         line_count = functools.reduce(lambda x, sum: x + sum, (1 for _ in file), 0)
         if line_count == 0:
             print("No files found", file=sys.stderr)
