@@ -10,10 +10,10 @@ fi
 
 logfile="$(mktemp)"
 mode="$1"
-filelist="$2"
-filelistpy="$(dirname "$0")/glob_files.py"
+projectlist="$2"
+glob="$(dirname "$0")/glob_files.py"
 # shellcheck disable=SC2139
-alias list="$filelistpy $filelist"
+alias list="$glob $projectlist"
 
 # shellcheck source=./src/shell-dry.sh
 . "$(dirname "$0")/shell-dry.sh"
