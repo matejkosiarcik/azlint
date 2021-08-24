@@ -43,8 +43,7 @@ def main(argv: Optional[List[str]]) -> int:
         subprocess.check_call(find_command, stdout=file)
 
     with open(filelist, "r", encoding="utf-8") as file:
-        line_count = functools.reduce(lambda x, sum: x + sum, (1 for _ in file), 0)
-        if line_count == 0:
+        if sum(file) == 0:
             print("No files found", file=sys.stderr)
             sys.exit(0)
 
