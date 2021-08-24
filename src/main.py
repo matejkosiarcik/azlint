@@ -3,12 +3,14 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import argparse
-import functools
+import itertools
+import pathlib
+import re
 import subprocess
 import sys
 import tempfile
 from os import path
-from typing import List, Optional
+from typing import Iterable, List, Optional
 
 
 def main(argv: Optional[List[str]]) -> int:
@@ -35,26 +37,127 @@ def main(argv: Optional[List[str]]) -> int:
     script_dirname = path.dirname(path.realpath(__file__))
 
     # find files to validate
-    find_command = [path.join(script_dirname, "list_files.py")]
-    if args.only_changed:
-        find_command.append("--only-changed")
-    filelist = tempfile.mktemp()
-    with open(filelist, "w", encoding="utf-8") as file:
-        subprocess.check_call(find_command, stdout=file)
-
-    with open(filelist, "r", encoding="utf-8") as file:
-        if sum(file) == 0:
-            print("No files found", file=sys.stderr)
-            sys.exit(0)
+    only_changed = args.only_changed is True
+    project_files_tmpfile = tempfile.mktemp()
+    project_files_count = 0
+    with open(project_files_tmpfile, "w", encoding="utf-8") as file:
+        for found_file in find_files(only_changed):
+            print(found_file, file=file)
+            project_files_count += 1
+    if project_files_count == 0:
+        print("No files to check", file=sys.stderr)
+        sys.exit(0)
 
     # actually perform linting/formatting
-    run_command = [path.join(script_dirname, "run.sh"), command, filelist]
     try:
-        subprocess.check_call(run_command)
+        subprocess.check_call([path.join(script_dirname, "run.sh"), command, project_files_tmpfile])
     except subprocess.CalledProcessError as error:
         print(error, file=sys.stderr)
         sys.exit(1)
     return 0
+
+
+# Get list of all project files in current directory
+def find_files(only_changed: bool) -> Iterable[str]:
+    # check if we are currently in git repository
+    is_git = False
+    try:
+        # this command returns code 0 in repository, otherwise non-0
+        subprocess.check_call(
+            ["git", "rev-parse", "--git-dir"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        is_git = True
+    except subprocess.CalledProcessError:
+        pass
+
+    if is_git:
+        # NOTE: `git ls-files` accepts kinda non-standard globs
+        # `git ls-files *.js` does not glob *files* with a name of "*.json", it globs *PATHS* with pattern of "*.json"
+        # So if we glob literal name of certain files, such as "package.json":
+        # `git ls-files package.json` -> this will only find package.json in the root of the repository
+        # `git ls-files */package.json` -> this will find package.json anywhere except the root of the repository
+        # `git ls-files package.json */package.json` -> this will find it anywhere, which we want
+
+        tracked_files = [x for x in subprocess.check_output(["git", "ls-files", "-z"]).decode("utf-8").split("\0") if len(x) > 0]
+
+        deleted_files = {x for x in subprocess.check_output(["git", "ls-files", "-z", "--deleted"]).decode("utf-8").split("\0") if len(x) > 0}
+
+        files = [x for x in tracked_files if x not in deleted_files]
+
+        # filter only recent changes when requested
+        if only_changed:
+            current_branches = [
+                re.sub(r"^\* ", "", x)
+                for x in subprocess.check_output(["git", "branch", "--list"]).decode("utf-8").strip().split("\n")
+                if re.match(r"^\* .+$", x)
+            ]
+            assert len(current_branches) == 1, "Too many current branches"
+            current_branch = current_branches[0]
+
+            for i in itertools.count(start=0):
+                try:
+                    commit_branches = [
+                        x
+                        for x in subprocess.check_output(["git", "branch", "--contains", f"HEAD~{i}", "--format=%(refname:short)"])
+                        .decode("utf-8")
+                        .strip()
+                        .split("\n")
+                        if x != current_branch
+                    ]
+                except subprocess.CalledProcessError:
+                    break
+
+                if len(commit_branches) > 0:
+                    commit = f"HEAD~{i}"
+                    break
+
+            # get files modified in working tree
+            changed_files = {
+                x
+                for x in itertools.chain(
+                    subprocess.check_output(["git", "diff", "--name-only", "--cached", "-z"]).decode("utf-8").split("\0"),
+                    subprocess.check_output(["git", "diff", "--name-only", "HEAD", "-z"]).decode("utf-8").split("\0"),
+                )
+                if len(x) > 0
+            }
+
+            if commit is None:
+                # get files modified
+                print("Could not get parent branch, returning all files", sys.stderr)
+            else:
+                # get files modified
+                changed_files = set.union(
+                    changed_files,
+                    {
+                        x
+                        for x in subprocess.check_output(["git", "whatchanged", "--name-only", "--pretty=", f"{commit}..HEAD", "-z"])
+                        .decode("utf-8")
+                        .split("\0")
+                        if len(x) > 0
+                    },
+                )
+
+            files = [x for x in files if x in changed_files]
+
+        # untracked files are not in git whatchanged
+        # but they should be in both full output and changed output as well
+        untracked_files = [
+            x for x in subprocess.check_output(["git", "ls-files", "-z", "--others", "--exclude-standard"]).decode("utf-8").split("\0") if len(x) > 0
+        ]
+
+        files = files + untracked_files
+        return sorted(files)
+    else:
+        if only_changed:
+            print("Could not get only changed files, not a git repository", file=sys.stderr)
+
+        # use pathlib instead of glob, because it also returns hidden files
+        # files = glob.iglob(pattern, recursive=True)
+        files = [str(x) for x in pathlib.Path(".").glob("**/*") if path.isfile(x) or path.isfile(path.realpath(x))]
+
+        return sorted(files)
 
 
 if __name__ == "__main__":

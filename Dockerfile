@@ -93,8 +93,8 @@ RUN apt-get update --yes && \
 # As the final stage only copies these files and does not modify them further
 FROM debian:testing-20210816 AS chmod
 WORKDIR /src
-COPY src/glob_files.py src/list_files.py src/main.py src/run.sh ./
-RUN chmod a+x glob_files.py list_files.py main.py run.sh
+COPY src/glob_files.py src/main.py src/run.sh ./
+RUN chmod a+x glob_files.py main.py run.sh
 
 ### Main runner ###
 
@@ -104,7 +104,7 @@ LABEL maintainer="matej.kosiarcik@gmail.com" \
     repo="https://github.com/matejkosiarcik/azlint"
 WORKDIR /src
 COPY dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt src/shell-dry.sh ./
-COPY --from=chmod /src/glob_files.py /src/list_files.py /src/main.py /src/run.sh ./
+COPY --from=chmod /src/glob_files.py /src/main.py /src/run.sh ./
 COPY --from=hadolint /bin/hadolint /usr/bin/
 COPY --from=node /src/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
