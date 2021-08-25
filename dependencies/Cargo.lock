@@ -54,9 +54,9 @@ dependencies = [
 
 [[package]]
 name = "dotenv-linter"
-version = "3.1.0"
+version = "3.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5424b555beed04c826b21d39b7ae066534a312668e0aea596e7e321e0636711b"
+checksum = "7e95f0c955fca394f73aaec1a1f3c821709ed252407d6fa7426a764068f2f9c8"
 dependencies = [
  "clap",
  "colored",
