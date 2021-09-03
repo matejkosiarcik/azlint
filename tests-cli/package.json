@@ -2,7 +2,7 @@
   "name": "example",
   "private": true,
   "scripts": {
-    "test": "bats --recursive tests"
+    "test": "./node_modules/.bin/bats --recursive tests"
   },
   "devDependencies": {
     "bats": "^1.4.1",
