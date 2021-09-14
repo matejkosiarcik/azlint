@@ -9,5 +9,5 @@ pycodestyle==2.7.0
 pylint==2.10.2
 
 # other
-bashate==2.0.0
+bashate==2.1.0
 yamllint==1.26.3
