@@ -30,7 +30,7 @@ is_lint() {
 status_file="$(mktemp)"
 printf '0' >"$status_file"
 
-## General ##
+## General files ##
 
 if [ -z "${VALIDATE_EDITORCONFIG+x}" ] || [ "$VALIDATE_EDITORCONFIG" != 'false' ]; then
     if is_lint; then
@@ -59,7 +59,7 @@ if [ -z "${VALIDATE_GITIGNORE+x}" ] || [ "$VALIDATE_GITIGNORE" != 'false' ]; the
     fi
 fi
 
-## Configs (JSON, YAML, TOML, ENV, etc.) ##
+## General configs (JSON, YAML, TOML, ENV, etc.) ##
 
 list '*.{json,json5,jsonl,geojson}' '*.{htmlhintrc,htmllintrc,babelrc,jscsrc,jshintrc,jslintrc,ecrc,remarkrc}' | while read -r file; do
     if [ -z "${VALIDATE_JSONLINT+x}" ] || [ "$VALIDATE_JSONLINT" != 'false' ]; then
@@ -147,7 +147,7 @@ if [ -z "${VALIDATE_DOTENV+x}" ] || [ "$VALIDATE_DOTENV" != 'false' ]; then
     fi
 fi
 
-## CI ##
+## CI configs ##
 
 list '.gitlab-ci.yml' | while read -r file; do
     if [ -z "${VALIDATE_GITLAB_LINT+x}" ] || [ "$VALIDATE_GITLAB_LINT" != 'false' ]; then
@@ -417,6 +417,8 @@ list '*.py' | while read -r file; do
         fi
     fi
 done
+
+## Finish ##
 
 status_code="$(cat "$status_file")"
 rm -f "$logfile"
