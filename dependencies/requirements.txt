@@ -6,7 +6,7 @@ flake8==3.9.2
 isort==5.9.3
 mypy==0.910
 pycodestyle==2.7.0
-pylint==2.10.2
+pylint==2.11.1
 
 # other
 bashate==2.1.0
