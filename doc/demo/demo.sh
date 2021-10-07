@@ -10,5 +10,4 @@ TYPE_SPEED=7
 cd '../..' # cd to project root
 
 clear
-# shellcheck disable=SC2016
 pei 'docker run -itv "$PWD:/project:ro" matejkosiarcik/azlint:dev'
