@@ -6,7 +6,7 @@
   },
   "dependencies": {
     "@prantlf/jsonlint": "^10.2.0",
-    "bats": "^1.4.1",
+    "bats": "^1.5.0",
     "dockerfilelint": "^1.8.0",
     "gitlab-ci-lint": "^1.1.0",
     "gitlab-ci-validate": "^0.5.0",
