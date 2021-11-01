@@ -1,7 +1,7 @@
 # python
 autopep8==1.6.0
 bandit==1.7.0
-black==21.9b0
+black==21.10b0
 flake8==4.0.1
 isort==5.9.3
 mypy==0.910
