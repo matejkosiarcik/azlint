@@ -3,7 +3,7 @@ autopep8==1.6.0
 bandit==1.7.0
 black==21.10b0
 flake8==4.0.1
-isort==5.9.3
+isort==5.10.0
 mypy==0.910
 pycodestyle==2.8.0
 pylint==2.11.1
