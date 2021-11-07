@@ -65,7 +65,7 @@ RUN apt-get update && \
 FROM hadolint/hadolint:v2.7.0 AS hadolint
 
 # Shellcheck #
-FROM koalaman/shellcheck:v0.7.2 AS shellcheck
+FROM koalaman/shellcheck:v0.8.0 AS shellcheck
 
 ### Helpers ###
 
