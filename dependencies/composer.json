@@ -2,6 +2,6 @@
   "type": "metapackage",
   "require": {
     "php": "^7 || ^8",
-    "ergebnis/composer-normalize": "^2.21"
+    "ergebnis/composer-normalize": "^2.22"
   }
 }
