@@ -6,21 +6,31 @@ GEM
       i18n (>= 0.7, < 2)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
-    addressable (2.7.0)
+    addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     chef-utils (17.1.35)
       concurrent-ruby
-    concurrent-ruby (1.1.8)
-    faraday (1.4.1)
+    concurrent-ruby (1.1.9)
+    faraday (1.8.0)
+      faraday-em_http (~> 1.0)
+      faraday-em_synchrony (~> 1.0)
       faraday-excon (~> 1.1)
+      faraday-httpclient (~> 1.0.1)
       faraday-net_http (~> 1.0)
       faraday-net_http_persistent (~> 1.1)
+      faraday-patron (~> 1.0)
+      faraday-rack (~> 1.0)
       multipart-post (>= 1.2, < 3)
       ruby2_keywords (>= 0.0.4)
+    faraday-em_http (1.0.0)
+    faraday-em_synchrony (1.0.0)
     faraday-excon (1.1.0)
+    faraday-httpclient (1.0.1)
     faraday-net_http (1.0.1)
-    faraday-net_http_persistent (1.1.0)
-    faraday_middleware (1.0.0)
+    faraday-net_http_persistent (1.2.0)
+    faraday-patron (1.0.0)
+    faraday-rack (1.0.0)
+    faraday_middleware (1.2.0)
       faraday (~> 1.0)
     gh (0.18.0)
       activesupport (~> 5.0)
@@ -31,10 +41,10 @@ GEM
       net-http-persistent (~> 2.9)
       net-http-pipeline
     highline (2.0.3)
-    i18n (1.8.10)
+    i18n (1.8.11)
       concurrent-ruby (~> 1.0)
-    json (2.5.1)
-    json_pure (2.5.1)
+    json (2.6.1)
+    json_pure (2.6.1)
     kramdown (2.3.1)
       rexml
     kramdown-parser-gfm (1.1.0)
@@ -47,7 +57,7 @@ GEM
       mixlib-cli (~> 2.1, >= 2.1.1)
       mixlib-config (>= 2.2.1, < 4)
       mixlib-shellout
-    minitest (5.14.4)
+    minitest (5.15.0)
     mixlib-cli (2.1.8)
     mixlib-config (3.0.9)
       tomlrb
@@ -62,10 +72,10 @@ GEM
       json
       websocket (~> 1.0)
     rexml (3.2.5)
-    ruby2_keywords (0.0.4)
+    ruby2_keywords (0.0.5)
     thread_safe (0.3.6)
     tomlrb (2.0.1)
-    travis (1.10.0)
+    travis (1.11.0)
       faraday (~> 1.0)
       faraday_middleware (~> 1.0)
       gh (~> 0.13)
@@ -82,7 +92,7 @@ PLATFORMS
 
 DEPENDENCIES
   mdl (= 0.11.0)
-  travis (= 1.10.0)
+  travis (= 1.11.0)
 
 RUBY VERSION
    ruby 2.7.1p83
