@@ -6,17 +6,17 @@
   },
   "dependencies": {
     "@prantlf/jsonlint": "^10.2.0",
-    "bats": "^1.5.0",
+    "bats": "^1.6.0",
     "dockerfilelint": "^1.8.0",
     "gitlab-ci-lint": "^1.1.0",
     "gitlab-ci-validate": "^0.5.0",
-    "htmlhint": "^1.1.0",
+    "htmlhint": "^1.1.2",
     "htmllint-cli": "^0.0.7",
-    "markdown-link-check": "^3.9.0",
-    "markdownlint-cli": "^0.30.0",
+    "markdown-link-check": "^3.9.3",
+    "markdownlint-cli": "^0.31.1",
     "package-json-validator": "^0.6.3",
     "prettier": "^2.5.1",
-    "svglint": "^2.0.0"
+    "svglint": "^2.1.0"
   },
   "devDependencies": {
     "node-prune": "^1.0.2"
