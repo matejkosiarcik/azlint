@@ -5,9 +5,9 @@
 # GoLang #
 FROM golang:1.18beta1 AS go
 WORKDIR /src
-RUN GOPATH="$PWD" GO111MODULE=on go get -ldflags='-s -w' 'github.com/freshautomations/stoml' && \
-    GOPATH="$PWD" GO111MODULE=on go get -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson' && \
-    GOPATH="$PWD" GO111MODULE=on go get -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt'
+RUN GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
+    GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
+    GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
 FROM golang:1.18beta1 AS go2
 WORKDIR /src/checkmake
 RUN apt-get update && \

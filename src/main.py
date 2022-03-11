@@ -25,7 +25,7 @@ def main(argv: Optional[List[str]]) -> int:
     fmt_parser.add_argument("-c", "--only-changed", action="store_true", default=argparse.SUPPRESS)
     args = parser.parse_args(argv)
 
-    if args.command == "lint" or args.command == "fmt":
+    if args.command in ["lint", "fmt"]:
         command = args.command
     elif args.command is None:
         command = "lint"
