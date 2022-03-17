@@ -8,13 +8,14 @@ WORKDIR /src
 RUN GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
     GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
     GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
-FROM golang:1.18.0 AS go2
+FROM golang:1.18.0 AS checkmake
 WORKDIR /src/checkmake
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends git pandoc && \
     rm -rf /var/lib/apt/lists/* && \
     git clone https://github.com/mrtazz/checkmake . && \
     BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
+FROM golang:1.18.0 AS editorconfig-checker
 WORKDIR /src/editorconfig-checker
 RUN git clone https://github.com/editorconfig-checker/editorconfig-checker . && \
     make build
@@ -74,10 +75,11 @@ FROM koalaman/shellcheck:v0.8.0 AS shellcheck
 FROM debian:11.2-slim AS upx
 COPY --from=circleci /usr/local/bin/circleci /usr/bin/
 COPY --from=go /src/bin/shfmt /src/bin/tomljson /usr/bin/
-COPY --from=go2 /src/checkmake/checkmake /src/editorconfig-checker/bin/ec  /usr/bin/
+COPY --from=checkmake /src/checkmake/checkmake /usr/bin/
+COPY --from=editorconfig-checker /src/editorconfig-checker/bin/ec /usr/bin/
 COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter /usr/bin/
 COPY --from=shellcheck /bin/shellcheck /usr/bin/
-RUN apt-get update --yes && \
+RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends upx-ucl && \
     rm -rf /var/lib/apt/lists/* && \
     upx --best /usr/bin/checkmake && \
@@ -109,10 +111,8 @@ COPY --from=hadolint /bin/hadolint /usr/bin/
 COPY --from=node /src/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
 COPY --from=upx /usr/bin/checkmake /usr/bin/circleci /usr/bin/dotenv-linter /usr/bin/ec /usr/bin/shellcheck /usr/bin/shellharden /usr/bin/shfmt /usr/bin/tomljson /usr/bin/
-RUN apt-get update --yes && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ash bash bmake curl dash git jq ksh libxml2-utils make mksh php php-cli php-common php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
-    curl -fLsS https://deb.nodesource.com/setup_lts.x | bash - && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs && \
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ash bash bmake curl dash git jq ksh libxml2-utils make mksh nodejs php php-cli php-common php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
     curl -fLsSo composer-setup.php https://getcomposer.org/installer && \
     php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
     rm -f composer-setup.php && \
