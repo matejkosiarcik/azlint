@@ -12,7 +12,7 @@
     "gitlab-ci-validate": "^0.5.0",
     "htmlhint": "^1.1.2",
     "htmllint-cli": "^0.0.7",
-    "markdown-link-check": "^3.9.3",
+    "markdown-link-check": "^3.10.0",
     "markdownlint-cli": "^0.31.1",
     "package-json-validator": "^0.6.3",
     "prettier": "^2.6.0",
