@@ -1,7 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (5.2.6)
+    activesupport (5.2.8)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 0.7, < 2)
       minitest (~> 5.1)
@@ -10,26 +10,30 @@ GEM
       public_suffix (>= 2.0.2, < 5.0)
     chef-utils (17.1.35)
       concurrent-ruby
-    concurrent-ruby (1.1.9)
-    faraday (1.8.0)
+    concurrent-ruby (1.1.10)
+    faraday (1.10.0)
       faraday-em_http (~> 1.0)
       faraday-em_synchrony (~> 1.0)
       faraday-excon (~> 1.1)
-      faraday-httpclient (~> 1.0.1)
+      faraday-httpclient (~> 1.0)
+      faraday-multipart (~> 1.0)
       faraday-net_http (~> 1.0)
-      faraday-net_http_persistent (~> 1.1)
+      faraday-net_http_persistent (~> 1.0)
       faraday-patron (~> 1.0)
       faraday-rack (~> 1.0)
-      multipart-post (>= 1.2, < 3)
+      faraday-retry (~> 1.0)
       ruby2_keywords (>= 0.0.4)
     faraday-em_http (1.0.0)
     faraday-em_synchrony (1.0.0)
     faraday-excon (1.1.0)
     faraday-httpclient (1.0.1)
+    faraday-multipart (1.0.4)
+      multipart-post (~> 2)
     faraday-net_http (1.0.1)
     faraday-net_http_persistent (1.2.0)
     faraday-patron (1.0.0)
     faraday-rack (1.0.0)
+    faraday-retry (1.0.3)
     faraday_middleware (1.2.0)
       faraday (~> 1.0)
     gh (0.18.0)
@@ -41,10 +45,10 @@ GEM
       net-http-persistent (~> 2.9)
       net-http-pipeline
     highline (2.0.3)
-    i18n (1.8.11)
+    i18n (1.10.0)
       concurrent-ruby (~> 1.0)
-    json (2.6.1)
-    json_pure (2.6.1)
+    json (2.6.2)
+    json_pure (2.6.2)
     kramdown (2.3.1)
       rexml
     kramdown-parser-gfm (1.1.0)
@@ -64,10 +68,10 @@ GEM
     mixlib-shellout (3.2.5)
       chef-utils
     multi_json (1.15.0)
-    multipart-post (2.1.1)
+    multipart-post (2.2.2)
     net-http-persistent (2.9.4)
     net-http-pipeline (1.0.1)
-    public_suffix (4.0.6)
+    public_suffix (4.0.7)
     pusher-client (0.6.2)
       json
       websocket (~> 1.0)
@@ -75,7 +79,7 @@ GEM
     ruby2_keywords (0.0.5)
     thread_safe (0.3.6)
     tomlrb (2.0.1)
-    travis (1.11.0)
+    travis (1.11.1)
       faraday (~> 1.0)
       faraday_middleware (~> 1.0)
       gh (~> 0.13)
@@ -92,7 +96,7 @@ PLATFORMS
 
 DEPENDENCIES
   mdl (= 0.11.0)
-  travis (= 1.11.0)
+  travis (= 1.11.1)
 
 RUBY VERSION
    ruby 2.7.1p83
