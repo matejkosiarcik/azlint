@@ -2,7 +2,6 @@
   "type": "metapackage",
   "config": {
     "allow-plugins": {
-      "allow-plugins.ergebnis/composer-normalize": true,
       "ergebnis/composer-normalize": true
     }
   },
