@@ -5,7 +5,7 @@
     "test": "./node_modules/bats/bin/bats --recursive tests"
   },
   "devDependencies": {
-    "bats": "^1.7.0",
+    "bats": "^1.8.0",
     "cross-env": "^7.0.3"
   }
 }
