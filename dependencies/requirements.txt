@@ -1,5 +1,5 @@
 # python
-autopep8==1.7.0
+autopep8==2.0.0
 bandit==1.7.4
 black==22.10.0
 flake8==5.0.4
