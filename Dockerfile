@@ -21,7 +21,7 @@ RUN git clone https://github.com/editorconfig-checker/editorconfig-checker . && 
     make build
 
 # NodeJS/NPM #
-FROM node:19.0.0-slim AS node
+FROM node:19.0.1-slim AS node
 WORKDIR /src
 COPY dependencies/package.json dependencies/package-lock.json ./
 RUN npm ci --unsafe-perm && \
