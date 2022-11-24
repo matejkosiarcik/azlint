@@ -15,7 +15,7 @@
     "markdown-link-check": "^3.10.3",
     "markdownlint-cli": "^0.32.2",
     "package-json-validator": "^0.6.3",
-    "prettier": "^2.7.1",
+    "prettier": "^2.8.0",
     "svglint": "^2.2.0"
   },
   "devDependencies": {
