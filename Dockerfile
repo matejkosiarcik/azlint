@@ -3,19 +3,19 @@
 ### Components ###
 
 # GoLang #
-FROM golang:1.20.0 AS go
+FROM golang:1.20.2 AS go
 WORKDIR /src
 RUN GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
     GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
     GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
-FROM golang:1.20.0 AS checkmake
+FROM golang:1.20.2 AS checkmake
 WORKDIR /src/checkmake
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends git pandoc && \
     rm -rf /var/lib/apt/lists/* && \
     git clone https://github.com/mrtazz/checkmake . && \
     BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
-FROM golang:1.20.0 AS editorconfig-checker
+FROM golang:1.20.2 AS editorconfig-checker
 WORKDIR /src/editorconfig-checker
 RUN git clone https://github.com/editorconfig-checker/editorconfig-checker . && \
     make build
