@@ -13,7 +13,7 @@ trim_trailing_whitespace = true
 # max_line_length - probably better to leave to language specific tools
 
 # Ignore binaries
-[*.{so,pdb,dylib,dll,cache,a,zip,tar,7z,gz,xz,jpg,jpeg,png,gif,bmp,ico,webp,webm,mp4,avi,mkv,exe,bin}]
+[*.{3gp,7z,a,apng,avf,avi,bak,bin,bmp,br,bz,DS_Store,cache,dll,dylib,exe,gif,gz,gzip,ico,jpeg,jpg,mkv,mp2,mp3,mp4,ogg,pdb,png,so,tar,wav,webm,webp,xz,zip,zst}]
 charset = unset
 end_of_line = unset
 indent_size = unset
@@ -22,7 +22,7 @@ insert_final_newline = unset
 trim_trailing_whitespace = unset
 
 # files to keep directories in version systems, usually empty
-[*.{,git,hg}{keep,empty}]
+[*.{,git,hg}{empty,keep}]
 insert_final_newline = false
 
 # Makefiles must be indented using tabs
@@ -30,48 +30,58 @@ insert_final_newline = false
 indent_style = tab
 
 # Trailing whitespace is generally permitted in markdown
-# But it is rarely used by me, and I prefer trimming such whitespace regardless
+# But it is stupid, so left out
+# If you need it, just uncomment following line:
 # [*.md]
 # trim_trailing_whitespace = false
 
-### Documentation and Configuration # ###
+# C-style languages multiline comments
+[*.{c,C,c++,cc,cpp,cs,cxx,fs,h,H,h++,hh,hpp,hxx,java,js,jsx,kt,ktm,kts,m,M,mm,php,sc,scala,swift,ts,tsx}]
+block_comment = *
+block_comment_start = /*
+block_comment_end = */
+
+### Documentation, Configuration, Markup # ###
 
 # Most documentation formats prefer 2 spaces per indent level
-[*.{yml,yaml,toml,xml,html,xhtml,htm,liquid,svg,xlf,sdef,md,mdown,markdown,css,scss,sass,less}]
+[*.{css,htm,html,j2,jinja,jinja2,less,liquid,markdown,md,mdown,sass,scss,sdef,svg,toml,xhtml,xlf,xml,yaml,yml}]
 indent_size = 2
 
 # Multiline comments
-[*.{html,htm}]
+[*.{htm,html}]
 block_comment_end = -->
 block_comment_start = <!--
 
-# C-style languages multiline comments
-[*.{c,cc,C,cpp,cxx,c++,h,hh,H,hpp,hxx,h++,m,mm,M,swift,js,ts,jsx,tsx,php,java,scala,sc,kt,ktm,kts,cs,fs}]
-block_comment = *
-block_comment_end = */
-block_comment_start = /*
-
 ### Apple ecosystem ###
 
-[*{Fastfile,Podfile,Cartfile}{,.resolved}]
+[*.{entitlements,pbxproj,plist,storyboard,strings,stringsdict,xcscheme,xcworkspacedata,xib}]
 indent_size = 2
 
-[*.{plist,entitlements,stringsdict,strings,storyboard,xib,pbxproj,xcworkspacedata,xcscheme}]
+# Cocoapods https://cocoapods.org
+[Podfile]
+indent_size = 2
+
+# Fastlane https://fastlane.tools
+[{Appfile,Deliverfile,Fastfile,Snapfile}]
+indent_size = 2
+
+# Carthage https://github.com/Carthage/Carthage
+[Cartfile{,.resolved}]
 indent_size = 2
 
 ### JavaScript ecosystem ###
 
-[*.{js,ts,jsx,tsx}]
-indent_size = 2
+# [*.{js,ts,jsx,tsx}]
+# indent_size = 2
 
-# All jsons
-[*.{json,json5,remarkrc,htmllintrc,htmlhintrc,eslintrc,babelrc,hintrc,ecrc}]
+# JSON variants
+[*.{babelrc,ecrc,eslintrc,htmlhintrc,htmllintrc,hintrc,json,json5,remarkrc}]
 indent_size = 2
 
 ### Ruby ecosystem ###
 
 # Indent Gemfile using 2 spaces
-[*{Rakefile,Gemfile}]
+[{Rakefile,Gemfile}]
 indent_size = 2
 
 # There is a bug that erronously outputs 3 spaces per indent for last few lines of Gemfile.lock
@@ -83,11 +93,11 @@ indent_size = unset
 ### .NET/Windows ecosystem ###
 
 # Encoding exception for VisualStudio project files
-[*.{cs,csx,vb,vbx,csproj,njsproj,sln}]
+[*.{cs,csproj,csx,njsproj,sln,vb,vbx}]
 charset = utf-8-bom
 
 # config files indent differently
-[*.{csproj,njsproj,Config,config,targets}]
+[*.{config,Config,csproj,njsproj,targets}]
 indent_size = 2
 
 [*.sln]
