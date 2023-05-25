@@ -1,12 +1,12 @@
 {
   "type": "metapackage",
+  "require": {
+    "php": "^7 || ^8",
+    "ergebnis/composer-normalize": "^2.30"
+  },
   "config": {
     "allow-plugins": {
       "ergebnis/composer-normalize": true
     }
-  },
-  "require": {
-    "php": "^7 || ^8",
-    "ergebnis/composer-normalize": "^2.30"
   }
 }
