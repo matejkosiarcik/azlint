@@ -2,7 +2,7 @@
   "type": "metapackage",
   "require": {
     "php": "^7 || ^8",
-    "ergebnis/composer-normalize": "^2.30"
+    "ergebnis/composer-normalize": "2.30.0"
   },
   "config": {
     "allow-plugins": {
