@@ -127,6 +127,8 @@ RUN apt-get update && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint lint $@' >/usr/bin/lint && \
     chmod a+x /usr/bin/lint /usr/bin/fmt
 
+# Maybe?: ENV COMPOSER_ALLOW_SUPERUSER=1
+
 WORKDIR /project
 ENTRYPOINT [ "azlint" ]
 CMD [ ]
