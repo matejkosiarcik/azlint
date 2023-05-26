@@ -24,6 +24,7 @@ RUN git clone https://github.com/editorconfig-checker/editorconfig-checker . && 
 FROM node:19.6.0-slim AS node
 WORKDIR /src
 COPY dependencies/package.json dependencies/package-lock.json ./
+ENV NODE_OPTIONS=--dns-result-order=ipv4first
 RUN npm ci --unsafe-perm && \
     npm prune --production
 
@@ -125,6 +126,8 @@ RUN apt-get update && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >/usr/bin/fmt && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint lint $@' >/usr/bin/lint && \
     chmod a+x /usr/bin/lint /usr/bin/fmt
+
+# Maybe?: ENV COMPOSER_ALLOW_SUPERUSER=1
 
 WORKDIR /project
 ENTRYPOINT [ "azlint" ]

@@ -96,6 +96,7 @@ def find_files(only_changed: bool) -> Iterable[str]:
             assert len(current_branches) == 1, "Too many current branches"
             current_branch = current_branches[0]
 
+            commit = None
             for i in itertools.count(start=0):
                 try:
                     commit_branches = [
