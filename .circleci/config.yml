@@ -1,3 +1,5 @@
+# checkov:skip=CKV_CIRCLECIPIPELINES_1:docker latest image
+
 version: 2.1
 
 workflows:
@@ -9,9 +11,7 @@ workflows:
 jobs:
   build:
     docker:
-      # checkov:skip=CKV_CIRCLECIPIPELINES_1:docker latest image
-      # TODO: Lock image version and setup autoupdate
-      - image: docker:latest
+      - image: docker:latest # TODO: Lock image version and setup autoupdate
     steps:
       - checkout
       - setup_remote_docker:
