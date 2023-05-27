@@ -2,14 +2,15 @@ version: 2.1
 
 workflows:
   version: 2
-  circleci-build:
+  circleci:
     jobs:
       - build
 
 jobs:
   build:
     docker:
-      - image: docker:latest
+      # TODO: Lock image version and setup autoupdate
+      - image: docker:latest # checkov:skip=CKV_CIRCLECIPIPELINES_1:Allow docker latest image
     steps:
       - checkout
       - setup_remote_docker:
