@@ -1,4 +1,4 @@
-# checkov:skip=CKV_CIRCLECIPIPELINES_1:docker latest image
+# checkov:skip=CKV_CIRCLECIPIPELINES_1:Allow docker latest image
 
 version: 2.1
 
