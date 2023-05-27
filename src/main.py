@@ -10,7 +10,7 @@ import subprocess
 import sys
 import tempfile
 from os import path
-from typing import Iterable, List, Optional
+from typing import List, Optional
 
 
 def main(argv: Optional[List[str]]) -> int:
@@ -39,14 +39,15 @@ def main(argv: Optional[List[str]]) -> int:
     # find files to validate
     only_changed = args.only_changed is True
     project_files_tmpfile = tempfile.mktemp()
-    project_files_count = 0
-    with open(project_files_tmpfile, "w", encoding="utf-8") as file:
-        for found_file in find_files(only_changed):
-            print(found_file, file=file)
-            project_files_count += 1
-    if project_files_count == 0:
+
+    files = find_files(only_changed)
+
+    if len(files) == 0:
         print("No files to check", file=sys.stderr)
         sys.exit(0)
+
+    with open(project_files_tmpfile, "w", encoding="utf-8") as file:
+        print("\n".join(files), file=file)
 
     # actually perform linting/formatting
     try:
@@ -58,7 +59,7 @@ def main(argv: Optional[List[str]]) -> int:
 
 
 # Get list of all project files in current directory
-def find_files(only_changed: bool) -> Iterable[str]:
+def find_files(only_changed: bool) -> List[str]:
     # check if we are currently in git repository
     is_git = False
     try:
