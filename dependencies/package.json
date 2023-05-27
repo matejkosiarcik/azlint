@@ -5,17 +5,17 @@
     "postinstall": "node-prune"
   },
   "dependencies": {
-    "@prantlf/jsonlint": "^11.7.0",
+    "@prantlf/jsonlint": "^14.0.3",
     "bats": "^1.9.0",
     "dockerfilelint": "^1.8.0",
     "gitlab-ci-lint": "^1.1.0",
     "gitlab-ci-validate": "^0.5.0",
     "htmlhint": "^1.1.4",
     "htmllint-cli": "^0.0.7",
-    "markdown-link-check": "^3.10.3",
-    "markdownlint-cli": "^0.33.0",
+    "markdown-link-check": "^3.11.2",
+    "markdownlint-cli": "^0.34.0",
     "package-json-validator": "^0.6.3",
-    "prettier": "^2.8.4",
+    "prettier": "^2.8.8",
     "svglint": "^2.3.1"
   },
   "devDependencies": {
