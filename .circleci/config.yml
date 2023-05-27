@@ -9,7 +9,7 @@ workflows:
 jobs:
   build:
     docker:
-      # checkov:skip=CKV_CIRCLECIPIPELINES_1:Allow docker latest image
+      #checkov:skip=CKV_CIRCLECIPIPELINES_1:Allow docker latest image
       - image: docker:latest # TODO: Lock image version and setup autoupdate
     steps:
       - checkout
