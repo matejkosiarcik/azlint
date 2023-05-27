@@ -1,12 +1,12 @@
 version: 2
 
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: github-actions
+    directory: /
     schedule:
       interval: daily
       time: "00:00"
-      timezone: "Europe/Bratislava"
+      timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
     assignees:
@@ -15,11 +15,11 @@ updates:
 
   # Main runner
   - package-ecosystem: docker
-    directory: "/"
+    directory: /
     schedule:
       interval: daily
       time: "00:30"
-      timezone: "Europe/Bratislava"
+      timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
     assignees:
@@ -28,82 +28,82 @@ updates:
 
   # Dependencies
   - package-ecosystem: npm
-    directory: "/dependencies"
+    directory: /dependencies
     versioning-strategy: increase
     schedule:
       interval: daily
       time: "01:00"
-      timezone: "Europe/Bratislava"
+      timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
     open-pull-requests-limit: 1
   - package-ecosystem: composer
-    directory: "/dependencies"
+    directory: /dependencies
     versioning-strategy: increase
     schedule:
       interval: daily
       time: "01:30"
-      timezone: "Europe/Bratislava"
+      timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
     open-pull-requests-limit: 1
   - package-ecosystem: pip
-    directory: "/dependencies"
+    directory: /dependencies
     schedule:
       interval: daily
       time: "02:00"
-      timezone: "Europe/Bratislava"
+      timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
     open-pull-requests-limit: 1
   - package-ecosystem: bundler
-    directory: "/dependencies"
+    directory: /dependencies
     schedule:
       interval: daily
       time: "02:30"
-      timezone: "Europe/Bratislava"
+      timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
     open-pull-requests-limit: 1
   - package-ecosystem: cargo
-    directory: "/dependencies"
+    directory: /dependencies
     schedule:
       interval: daily
       time: "03:00"
-      timezone: "Europe/Bratislava"
+      timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
     open-pull-requests-limit: 1
 
-  # Doc
+  # Docs
   - package-ecosystem: npm
-    directory: "/doc/record"
+    directory: /doc/record
     versioning-strategy: increase
     schedule:
       interval: daily
-      time: "02:00"
-      timezone: "Europe/Bratislava"
+      time: "03:00"
+      timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
     assignees:
       - matejkosiarcik
     open-pull-requests-limit: 1
   - package-ecosystem: pip
-    directory: "/doc/record"
+    directory: /doc/record
     schedule:
       interval: daily
-      time: "02:30"
-      timezone: "Europe/Bratislava"
+      time: "03:30"
+      timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
     assignees:
