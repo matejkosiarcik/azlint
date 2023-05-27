@@ -125,10 +125,12 @@ RUN apt-get update && \
     ln -s /src/main.py /usr/bin/azlint && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >/usr/bin/fmt && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint lint $@' >/usr/bin/lint && \
-    chmod a+x /usr/bin/lint /usr/bin/fmt
+    chmod a+x /usr/bin/lint /usr/bin/fmt && \
+    git config --system --add safe.directory /project && \
+    useradd --create-home --no-log-init --shell /bin/bash --user-group --system azlint && \
+    su - azlint -c 'git config --global --add safe.directory /project'
 
-# Maybe?: ENV COMPOSER_ALLOW_SUPERUSER=1
-
+USER azlint
 WORKDIR /project
 ENTRYPOINT [ "azlint" ]
-CMD [ ]
+CMD []
