@@ -1,3 +1,5 @@
+LINTER_RULES_PATH: .config/
+
 DISABLE:
   - COPYPASTE # too many false-positives
   - CSS
