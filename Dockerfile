@@ -74,7 +74,7 @@ FROM koalaman/shellcheck:v0.9.0 AS shellcheck
 
 # Upx #
 # Single stage to compress all executables from multiple components
-FROM debian:11.6 AS upx
+FROM debian:11.7 AS upx
 COPY --from=circleci /usr/local/bin/circleci /usr/bin/
 COPY --from=go /src/bin/shfmt /src/bin/tomljson /usr/bin/
 COPY --from=checkmake /src/checkmake/checkmake /usr/bin/
@@ -95,7 +95,7 @@ RUN apt-get update && \
 # Well this is not strictly necessary
 # But doing it before the final stage is potentilly better (saves layer space)
 # As the final stage only copies these files and does not modify them further
-FROM debian:11.6 AS chmod
+FROM debian:11.7 AS chmod
 WORKDIR /src
 COPY src/glob_files.py src/main.py src/run.sh ./
 RUN chmod a+x glob_files.py main.py run.sh
