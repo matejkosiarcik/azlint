@@ -100,6 +100,10 @@ WORKDIR /src
 COPY src/glob_files.py src/main.py src/run.sh ./
 RUN chmod a+x glob_files.py main.py run.sh
 
+FROM scratch AS aggregator1
+COPY dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt src/shell-dry.sh /src/
+COPY --from=chmod /src/glob_files.py /src/main.py /src/run.sh /src/
+
 ### Main runner ###
 
 # curl is only needed to install nodejs&composer
@@ -107,8 +111,7 @@ FROM debian:11.6
 LABEL maintainer="matej.kosiarcik@gmail.com" \
     repo="https://github.com/matejkosiarcik/azlint"
 WORKDIR /src
-COPY dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt src/shell-dry.sh ./
-COPY --from=chmod /src/glob_files.py /src/main.py /src/run.sh ./
+COPY --from=aggregator1 /src/ ./
 COPY --from=hadolint /bin/hadolint /usr/bin/
 COPY --from=node /src/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
