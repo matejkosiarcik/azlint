@@ -22,7 +22,7 @@ RUN git clone https://github.com/editorconfig-checker/editorconfig-checker . && 
     make build
 
 # NodeJS/NPM #
-FROM node:20.2.0-slim AS node
+FROM node:20.3.0-slim AS node
 WORKDIR /src
 COPY dependencies/package.json dependencies/package-lock.json ./
 ENV NODE_OPTIONS=--dns-result-order=ipv4first
