@@ -9,6 +9,7 @@ WORKDIR /src
 RUN GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
     GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
     GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
+
 FROM golang:1.20.5 AS checkmake
 WORKDIR /src/checkmake
 RUN apt-get update && \
@@ -16,6 +17,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     git clone https://github.com/mrtazz/checkmake . && \
     BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
+
 FROM golang:1.20.5 AS editorconfig-checker
 WORKDIR /src/editorconfig-checker
 RUN git clone https://github.com/editorconfig-checker/editorconfig-checker . && \
@@ -40,6 +42,7 @@ COPY dependencies/Gemfile dependencies/Gemfile.lock ./
 RUN gem install bundler && \
     gem update --system && \
     bundle install
+
 FROM debian:11.6 AS ruby
 WORKDIR /src
 COPY --from=pre-ruby /usr/local/bundle/ /usr/local/bundle/
