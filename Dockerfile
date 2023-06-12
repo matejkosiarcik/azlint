@@ -27,6 +27,7 @@ WORKDIR /src
 COPY dependencies/package.json dependencies/package-lock.json ./
 ENV NODE_OPTIONS=--dns-result-order=ipv4first
 RUN npm ci --unsafe-perm && \
+    npx node-prune && \
     npm prune --production
 
 # Ruby/Gem #
