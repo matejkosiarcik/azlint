@@ -16,6 +16,7 @@ DISABLE_LINTERS:
 
 # Override default config files
 DOCKERFILE_HADOLINT_CONFIG_FILE: .hadolint.yaml
+MAKEFILE_CHECKMAKE_CONFIG_FILE: checkmake.ini
 PYTHON_BLACK_CONFIG_FILE: pyproject.toml
 PYTHON_FLAKE8_CONFIG_FILE: setup.cfg
 PYTHON_ISORT_CONFIG_FILE: pyproject.toml
