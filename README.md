@@ -227,7 +227,7 @@ $ make run
 
 ## License
 
-This project is licensed under the LGPLv3 License, see
+This project is licensed under the MIT License, see
 [LICENSE.txt](LICENSE.txt) for full license details.
 
 ## Alternatives
