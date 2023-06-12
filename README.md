@@ -52,9 +52,9 @@ But feel free to use it and report any found issues 😉.
 
 ### Features
 
-- 📱 includes 39 linters
+- 📦 includes 39 linters
 - 🖋 11 linters support autofix (format files)
-- ⛴ Available as a docker image
+- 🐳 Available as a docker image
 - 💯 Reports all found errors
 
 ## Usage
