@@ -39,7 +39,7 @@ The main purpose of this tool is to bundle as many linters \(I use\) as
 possible into a single docker image.
 
 I see it as a complement to
-[super-linter](https://github.com/github/super-linter) and
+[SuperLinter](https://github.com/github/super-linter) and
 [MegaLinter](https://github.com/nvuillam/mega-linter).
 These tools are awesome, but are missing some linters that are bundled into
 _azlint_.
