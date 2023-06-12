@@ -28,7 +28,6 @@ jobs:
           LINTER_RULES_PATH: .config/
 
           # disable
-          VALIDATE_BASH: false
           VALIDATE_CSS: false
           VALIDATE_JSON: false # because eslint considers .json as .js (so rules like single-quote don't make sense)
           VALIDATE_JAVASCRIPT_ES: false
