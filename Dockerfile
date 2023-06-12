@@ -100,7 +100,7 @@ WORKDIR /src
 COPY src/glob_files.py src/main.py src/run.sh ./
 RUN chmod a+x glob_files.py main.py run.sh
 
-FROM scratch AS aggregator1
+FROM debian:11.7-slim AS aggregator1
 COPY dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt src/shell-dry.sh /src/
 COPY --from=chmod /src/glob_files.py /src/main.py /src/run.sh /src/
 
