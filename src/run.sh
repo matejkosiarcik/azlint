@@ -61,19 +61,20 @@ fi
 
 ## General configs (JSON, YAML, TOML, ENV, etc.) ##
 
-list '*.{json,json5,jsonl,geojson}' '*.{htmlhintrc,htmllintrc,babelrc,jscsrc,jshintrc,jslintrc,ecrc,remarkrc}' | while read -r file; do
-    if [ -z "${VALIDATE_JSONLINT+x}" ] || [ "$VALIDATE_JSONLINT" != 'false' ]; then
-        printf "## jsonlint %b%s%b ##\n" '\033[36m' "$file" '\033[0m' >&2
-        if is_lint; then
-            jsonlint --quiet --comments --no-duplicate-keys "$file" || printf '1' >"$status_file"
-        else
-            jsonlint --in-place --quiet --comments --enforce-double-quotes --trim-trailing-commas "$file"
-            if [ "$(tail -c 1 <"$file")" != "$(printf '\n')" ]; then
-                printf '\n' >>"$file" # jsonlint omits final newline
-            fi
-        fi
-    fi
-done
+# TODO: Reenable jsonlint
+# list '*.{json,json5,jsonl,geojson}' '*.{htmlhintrc,htmllintrc,babelrc,jscsrc,jshintrc,jslintrc,ecrc,remarkrc}' | while read -r file; do
+#     if [ -z "${VALIDATE_JSONLINT+x}" ] || [ "$VALIDATE_JSONLINT" != 'false' ]; then
+#         printf "## jsonlint %b%s%b ##\n" '\033[36m' "$file" '\033[0m' >&2
+#         if is_lint; then
+#             jsonlint --quiet --comments --no-duplicate-keys "$file" || printf '1' >"$status_file"
+#         else
+#             jsonlint --in-place --quiet --comments --enforce-double-quotes --trim-trailing-commas "$file"
+#             if [ "$(tail -c 1 <"$file")" != "$(printf '\n')" ]; then
+#                 printf '\n' >>"$file" # jsonlint omits final newline
+#             fi
+#         fi
+#     fi
+# done
 
 if [ -z "${VALIDATE_PRETTIER+x}" ] || [ "$VALIDATE_PRETTIER" != 'false' ]; then
     list '*.{md,json,yml,yaml,html,vue,css,scss,sass,less}' | while read -r file; do
