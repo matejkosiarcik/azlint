@@ -43,7 +43,7 @@ RUN gem install bundler && \
     gem update --system && \
     bundle install
 
-FROM debian:11.6 AS ruby
+FROM debian:12.0 AS ruby
 WORKDIR /src
 COPY --from=pre-ruby /usr/local/bundle/ /usr/local/bundle/
 RUN apt-get update && \
@@ -62,7 +62,7 @@ RUN stoml 'Cargo.toml' dev-dependencies | tr ' ' '\n' | xargs --no-run-if-empty 
 # it has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
 # this script builds the executable and optimizes with https://upx.github.io
 # then we just copy it to production container
-FROM debian:11.6 AS circleci
+FROM debian:12.0 AS circleci
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl && \
     curl -fLsS https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh | bash && \
@@ -78,7 +78,7 @@ FROM koalaman/shellcheck:v0.9.0 AS shellcheck
 
 # Upx #
 # Single stage to compress all executables from multiple components
-FROM debian:11.7 AS upx
+FROM debian:12.0 AS upx
 COPY --from=circleci /usr/local/bin/circleci /usr/bin/
 COPY --from=go /src/bin/shfmt /src/bin/tomljson /usr/bin/
 COPY --from=checkmake /src/checkmake/checkmake /usr/bin/
@@ -99,19 +99,19 @@ RUN apt-get update && \
 # Well this is not strictly necessary
 # But doing it before the final stage is potentilly better (saves layer space)
 # As the final stage only copies these files and does not modify them further
-FROM debian:11.7 AS chmod
+FROM debian:12.0 AS chmod
 WORKDIR /src
 COPY src/glob_files.py src/main.py src/run.sh ./
 RUN chmod a+x glob_files.py main.py run.sh
 
-FROM debian:11.7-slim AS aggregator1
+FROM debian:12.0-slim AS aggregator1
 COPY dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt src/shell-dry.sh /src/
 COPY --from=chmod /src/glob_files.py /src/main.py /src/run.sh /src/
 
 ### Main runner ###
 
 # curl is only needed to install nodejs&composer
-FROM debian:11.6
+FROM debian:12.0
 LABEL maintainer="matej.kosiarcik@gmail.com" \
     repo="https://github.com/matejkosiarcik/azlint"
 WORKDIR /src
