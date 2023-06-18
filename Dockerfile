@@ -1,5 +1,7 @@
 # Well this is kinda long Dockerfile ¯\_(ツ)_/¯
 # checkov:skip=CKV_DOCKER_2:Disable HEALTHCHECK
+# TODO: Update debian 11 (bullseye) to 12 (bookworm)
+# TODO: Update all other images
 
 ### Components ###
 
