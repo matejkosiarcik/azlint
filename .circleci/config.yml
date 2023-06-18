@@ -24,4 +24,4 @@ jobs:
           # So this workaround is needed for the time being
       - run: apk update --no-cache
       - run: apk add --no-cache bash make nodejs npm
-      - run: make
+      - run: make bootstrap build test run
