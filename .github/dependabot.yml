@@ -6,7 +6,7 @@ updates:
     directory: /
     schedule:
       interval: daily
-      time: "00:00"
+      time: "00:30"
       timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
@@ -19,7 +19,7 @@ updates:
     directory: /
     schedule:
       interval: daily
-      time: "00:30"
+      time: "01:00"
       timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
@@ -33,7 +33,7 @@ updates:
     versioning-strategy: increase
     schedule:
       interval: daily
-      time: "01:00"
+      time: "01:30"
       timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
@@ -92,7 +92,7 @@ updates:
     versioning-strategy: increase
     schedule:
       interval: daily
-      time: "03:00"
+      time: "03:30"
       timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
@@ -103,7 +103,7 @@ updates:
     directory: /doc/record
     schedule:
       interval: daily
-      time: "03:30"
+      time: "04:00"
       timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
