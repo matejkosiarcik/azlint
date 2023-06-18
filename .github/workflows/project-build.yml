@@ -24,5 +24,4 @@ jobs:
         with:
           platforms: linux/amd64
           push: false
-          tags: |
-            matejkosiarcik/azlint:dev
+          tags: matejkosiarcik/azlint:dev

@@ -52,7 +52,7 @@ RUN apt-get update && \
     GEM_HOME=/usr/local/bundle gem pristine --all
 
 # Rust/Cargo #
-FROM rust:1.70.0 AS rust
+FROM rust:1.70.0-bookworm AS rust
 WORKDIR /src
 COPY dependencies/Cargo.toml ./
 COPY --from=go /src/bin/stoml /usr/bin/stoml
@@ -135,7 +135,7 @@ RUN apt-get update && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint lint $@' >/usr/bin/lint && \
     chmod a+x /usr/bin/lint /usr/bin/fmt && \
     git config --system --add safe.directory /project && \
-    useradd --create-home --no-log-init --shell /bin/bash --user-group --system azlint && \
+    useradd --create-home --no-log-init --shell /bin/sh --user-group --system azlint && \
     su - azlint -c 'git config --global --add safe.directory /project'
 
 USER azlint
