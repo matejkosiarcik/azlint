@@ -14,7 +14,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.2
+          version: 20.10.14
           # Current circleci docker default version is 17.09.0-ce https://circleci.com/docs/2.0/building-docker-images/#docker-version
           # But during installation of php, some utilities run statx syscalls
           # To use statx calls, the docker host must run 18.04+ https://github.com/gem/oq-qgis-server/issues/1
