@@ -12,6 +12,12 @@
       "options": {
         "printWidth": 150
       }
+    },
+    {
+      "files": "*.{md,mdown,markdown}",
+      "options": {
+        "tabWidth": 4
+      }
     }
   ]
 }
