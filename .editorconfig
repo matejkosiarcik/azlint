@@ -41,6 +41,10 @@ block_comment = *
 block_comment_start = /*
 block_comment_end = */
 
+# Rust
+[Cargo.lock]
+indent_size = unset
+
 ### Documentation, Configuration, Markup # ###
 
 # Most documentation formats prefer 2 spaces per indent level

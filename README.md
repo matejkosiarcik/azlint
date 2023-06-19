@@ -83,34 +83,34 @@ $ docker run matejkosiarcik/azlint --help
 usage: azlint [-h] [-V] [-c] {lint,fmt} ...
 
 positional arguments:
-  {lint,fmt}
-    lint              Lint files (default)
-    fmt               Fix files
+    {lint,fmt}
+        lint              Lint files (default)
+        fmt               Fix files
 
 optional arguments:
-  -h, --help          show this help message and exit
-  -V, --version       show program's version number and exit
-  -c, --only-changed  Analyze only changed files (on current git branch)
+    -h, --help          show this help message and exit
+    -V, --version       show program's version number and exit
+    -c, --only-changed  Analyze only changed files (on current git branch)
 ```
 
 ### gitlab-ci
 
 ```yaml
 azlint:
-  image: matejkosiarcik/azlint
-  script:
-    - lint
+    image: matejkosiarcik/azlint
+    script:
+        - lint
 ```
 
 ### circle-ci
 
 ```yaml
 azlint:
-  docker:
-    - image: matejkosiarcik/azlint
-  steps:
-    - checkout
-    - run: lint
+    docker:
+        - image: matejkosiarcik/azlint
+    steps:
+        - checkout
+        - run: lint
 ```
 
 ## Configuration
