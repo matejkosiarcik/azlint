@@ -8,22 +8,22 @@
 <!-- toc -->
 
 - [About](#about)
-  - [Features](#features)
+    - [Features](#features)
 - [Usage](#usage)
-  - [Locally](#locally)
-  - [gitlab-ci](#gitlab-ci)
-  - [circle-ci](#circle-ci)
+    - [Locally](#locally)
+    - [gitlab-ci](#gitlab-ci)
+    - [circle-ci](#circle-ci)
 - [Configuration](#configuration)
 - [Included linters](#included-linters)
-  - [General](#general)
-  - [Configs](#configs)
-  - [CI](#ci)
-  - [Make](#make)
-  - [Docker](#docker)
-  - [Markup](#markup)
-  - [Documentation](#documentation)
-  - [Shell](#shell)
-  - [Python](#python)
+    - [General](#general)
+    - [Configs](#configs)
+    - [CI](#ci)
+    - [Make](#make)
+    - [Docker](#docker)
+    - [Markup](#markup)
+    - [Documentation](#documentation)
+    - [Shell](#shell)
+    - [Python](#python)
 - [Development](#development)
 - [License](#license)
 - [Alternatives](#alternatives)
@@ -83,34 +83,34 @@ $ docker run matejkosiarcik/azlint --help
 usage: azlint [-h] [-V] [-c] {lint,fmt} ...
 
 positional arguments:
-  {lint,fmt}
-    lint              Lint files (default)
-    fmt               Fix files
+    {lint,fmt}
+        lint              Lint files (default)
+        fmt               Fix files
 
 optional arguments:
-  -h, --help          show this help message and exit
-  -V, --version       show program's version number and exit
-  -c, --only-changed  Analyze only changed files (on current git branch)
+    -h, --help          show this help message and exit
+    -V, --version       show program's version number and exit
+    -c, --only-changed  Analyze only changed files (on current git branch)
 ```
 
 ### gitlab-ci
 
 ```yaml
 azlint:
-  image: matejkosiarcik/azlint
-  script:
-    - lint
+    image: matejkosiarcik/azlint
+    script:
+        - lint
 ```
 
 ### circle-ci
 
 ```yaml
 azlint:
-  docker:
-    - image: matejkosiarcik/azlint
-  steps:
-    - checkout
-    - run: lint
+    docker:
+        - image: matejkosiarcik/azlint
+    steps:
+        - checkout
+        - run: lint
 ```
 
 ## Configuration
@@ -134,16 +134,16 @@ Where `VALIDATE_FOO` can be found in the following section.
 
 ### Configs
 
-| tool                                                                             | disable                       | files                      | autofix |
-| -------------------------------------------------------------------------------- | ----------------------------- | -------------------------- | ------- |
-| [composer-normalize](https://github.com/ergebnis/composer-normalize)             | `VALIDATE_COMPOSER_NORMALIZE` | `composer.json`            | ✅      |
-| [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)              | `VALIDATE_COMPOSER_VALIDATE`  | `composer.json`            | ❌      |
-| [dotenv-linter](https://github.com/dotenv-linter/dotenv-linter)                  | `VALIDATE_DOTENV`             | `*.env`                    | ❌      |
-| [jsonlint](https://github.com/prantlf/jsonlint)                                  | `VALIDATE_JSONLINT`           | `*.json` etc.              | ✅      |
-| [package-json-validator](https://github.com/gorillamania/package.json-validator) | `VALIDATE_PACKAGE_JSON`       | `package.json`             | ❌      |
-| [prettier](https://github.com/prettier/prettier)                                 | `VALIDATE_PRETTIER`           | `*.{json,yml,md,css,html}` | ✅      |
-| [tomljson](https://github.com/pelletier/go-toml)                                 | `VALIDATE_TOMLJSON`           | `*.toml`                   | ❌      |
-| [yamllint](https://github.com/adrienverge/yamllint)                              | `VALIDATE_YAMLLINT`           | `*.{yml,yaml}`             | ❌      |
+| tool                                                                             | disable                       | files                   | autofix |
+| -------------------------------------------------------------------------------- | ----------------------------- | ----------------------- | ------- |
+| [composer-normalize](https://github.com/ergebnis/composer-normalize)             | `VALIDATE_COMPOSER_NORMALIZE` | `composer.json`         | ✅      |
+| [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)              | `VALIDATE_COMPOSER_VALIDATE`  | `composer.json`         | ❌      |
+| [dotenv-linter](https://github.com/dotenv-linter/dotenv-linter)                  | `VALIDATE_DOTENV`             | `*.env`                 | ❌      |
+| [jsonlint](https://github.com/prantlf/jsonlint)                                  | `VALIDATE_JSONLINT`           | `*.json` etc.           | ✅      |
+| [package-json-validator](https://github.com/gorillamania/package.json-validator) | `VALIDATE_PACKAGE_JSON`       | `package.json`          | ❌      |
+| [prettier](https://github.com/prettier/prettier)                                 | `VALIDATE_PRETTIER`           | `*.{json,yml,css,html}` | ✅      |
+| [tomljson](https://github.com/pelletier/go-toml)                                 | `VALIDATE_TOMLJSON`           | `*.toml`                | ❌      |
+| [yamllint](https://github.com/adrienverge/yamllint)                              | `VALIDATE_YAMLLINT`           | `*.{yml,yaml}`          | ❌      |
 
 ### CI
 

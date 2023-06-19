@@ -1,16 +1,18 @@
 # Well this is kinda long Dockerfile ¯\_(ツ)_/¯
 # checkov:skip=CKV_DOCKER_2:Disable HEALTHCHECK
+# TODO: Update debian 11 (bullseye) to 12 (bookworm)
+# TODO: Update all other images
 
 ### Components ###
 
 # GoLang #
-FROM golang:1.20.5 AS go
+FROM golang:1.20.5-bullseye AS go
 WORKDIR /src
 RUN GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
     GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
     GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
 
-FROM golang:1.20.5 AS checkmake
+FROM golang:1.20.5-bullseye AS checkmake
 WORKDIR /src/checkmake
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends git pandoc && \
@@ -18,7 +20,7 @@ RUN apt-get update && \
     git clone https://github.com/mrtazz/checkmake . && \
     BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
 
-FROM golang:1.20.5 AS editorconfig-checker
+FROM golang:1.20.5-bullseye AS editorconfig-checker
 WORKDIR /src/editorconfig-checker
 RUN git clone https://github.com/editorconfig-checker/editorconfig-checker . && \
     make build
@@ -52,7 +54,7 @@ RUN apt-get update && \
     GEM_HOME=/usr/local/bundle gem pristine --all
 
 # Rust/Cargo #
-FROM rust:1.70.0-bookworm AS rust
+FROM rust:1.70.0-bullseye AS rust
 WORKDIR /src
 COPY dependencies/Cargo.toml ./
 COPY --from=go /src/bin/stoml /usr/bin/stoml
