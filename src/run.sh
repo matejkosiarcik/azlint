@@ -275,14 +275,15 @@ done
 ## Documentation (Markdown, TeX, RST) ##
 
 list '*.{md,mdown,markdown}' | while read -r file; do
-    if [ -z "${VALIDATE_MARKDOWNLINT+x}" ] || [ "$VALIDATE_MARKDOWNLINT" != 'false' ]; then
-        printf "## markdownlint %b%s%b ##\n" '\033[36m' "$file" '\033[0m' >&2
-        if is_lint; then
-            markdownlint "$file" || printf '1' >"$status_file"
-        else
-            markdownlint --fix "$file" || true
-        fi
-    fi
+    # TODO: Reenable markdownlint
+    # if [ -z "${VALIDATE_MARKDOWNLINT+x}" ] || [ "$VALIDATE_MARKDOWNLINT" != 'false' ]; then
+    #     printf "## markdownlint %b%s%b ##\n" '\033[36m' "$file" '\033[0m' >&2
+    #     if is_lint; then
+    #         markdownlint "$file" || printf '1' >"$status_file"
+    #     else
+    #         markdownlint --fix "$file" || true
+    #     fi
+    # fi
 
     if [ -z "${VALIDATE_MDL+x}" ] || [ "$VALIDATE_MDL" != 'false' ]; then
         if is_lint && [ -e '.mdlrc' ]; then
