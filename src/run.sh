@@ -77,7 +77,7 @@ fi
 # done
 
 if [ -z "${VALIDATE_PRETTIER+x}" ] || [ "$VALIDATE_PRETTIER" != 'false' ]; then
-    list '*.{json,yml,yaml,html,vue,css,scss,sass,less}' | while read -r file; do
+    list '*.{json,json5,yml,yaml,html,vue,css,scss,sass,less}' | while read -r file; do
         printf "## prettier %b%s%b ##\n" '\033[36m' "$file" '\033[0m' >&2
         if is_lint; then
             prettier --list-different "$file" || printf '1' >"$status_file"
