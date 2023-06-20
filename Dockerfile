@@ -128,7 +128,6 @@ RUN apt-get update && \
     apt-get remove --purge --yes curl && \
     rm -rf /var/lib/apt/lists/* && \
     composer install && \
-    python3 -m pip install --no-cache-dir --upgrade setuptools && \
     python3 -m pip install --no-cache-dir --requirement requirements.txt && \
     ln -s /src/main.py /usr/bin/azlint && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >/usr/bin/fmt && \
