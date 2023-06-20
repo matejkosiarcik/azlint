@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
+## \[0.5.0\] - 2023-06-20
+
+- Changed
+    - Disable `jsonlint` and `markdownlint`
 - Miscellaneous
     - Update dependencies
     - Update runtime container from debian `11.6` to `11.7`
