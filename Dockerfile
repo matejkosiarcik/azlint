@@ -99,12 +99,12 @@ RUN apt-get update && \
 # Well this is not strictly necessary
 # But doing it before the final stage is potentilly better (saves layer space)
 # As the final stage only copies these files and does not modify them further
-FROM debian:11.7 AS chmod
+FROM debian:12.0 AS chmod
 WORKDIR /src
 COPY src/glob_files.py src/main.py src/run.sh ./
 RUN chmod a+x glob_files.py main.py run.sh
 
-FROM debian:11.7-slim AS aggregator1
+FROM debian:12.0-slim AS aggregator1
 COPY dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt src/shell-dry.sh /src/
 COPY --from=chmod /src/glob_files.py /src/main.py /src/run.sh /src/
 
