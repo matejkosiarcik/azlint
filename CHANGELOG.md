@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## \[Unreleased\]
 
 - Miscellaneous
-    - Updated dependencies
+    - Update dependencies
     - Update runtime container from debian `11.6` to `11.7`
     - Publish `:edge` tag instead of `:dev` tag to symbolize latest "trunk" release
 
