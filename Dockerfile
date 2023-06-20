@@ -1,7 +1,5 @@
-# Well this is kinda long Dockerfile ¯\_(ツ)_/¯
 # checkov:skip=CKV_DOCKER_2:Disable HEALTHCHECK
 # TODO: Update debian 11 (bullseye) to 12 (bookworm)
-# TODO: Update all other images
 
 ### Components ###
 
@@ -45,7 +43,7 @@ RUN gem install bundler && \
     gem update --system && \
     bundle install
 
-FROM debian:11.6 AS ruby
+FROM debian:11.7 AS ruby
 WORKDIR /src
 COPY --from=pre-ruby /usr/local/bundle/ /usr/local/bundle/
 RUN apt-get update && \
@@ -64,7 +62,7 @@ RUN stoml 'Cargo.toml' dev-dependencies | tr ' ' '\n' | xargs --no-run-if-empty 
 # it has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
 # this script builds the executable and optimizes with https://upx.github.io
 # then we just copy it to production container
-FROM debian:11.6 AS circleci
+FROM debian:11.7 AS circleci
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl && \
     curl -fLsS https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh | bash && \
@@ -113,7 +111,7 @@ COPY --from=chmod /src/glob_files.py /src/main.py /src/run.sh /src/
 ### Main runner ###
 
 # curl is only needed to install nodejs&composer
-FROM debian:11.6
+FROM debian:11.7
 LABEL maintainer="matej.kosiarcik@gmail.com" \
     repo="https://github.com/matejkosiarcik/azlint"
 WORKDIR /src
