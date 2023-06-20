@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed
     - Updated dependencies
 - Miscellaneous
-    - Publish `edge` tag alongside `dev` tag to symbolize latest "trunk" release
+    - Publish `:edge` tag instead of `:dev` tag to symbolize latest "trunk" release
 
 ## \[0.4.5\] - 2021-06-20
 
