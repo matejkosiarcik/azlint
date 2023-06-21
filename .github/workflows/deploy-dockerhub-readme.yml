@@ -20,5 +20,5 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: matejkosiarcik/planckpng
+          repository: matejkosiarcik/azlint
           short-description: ${{ github.event.repository.description }}
