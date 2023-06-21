@@ -17,7 +17,7 @@ detect_shell() {
             # in this case the first argument is the shell, such as `#!/bin/sh` -> sh
             printf '%s' "$shebang_shell"
         fi
-    else if printf '%s' "$file" | grep '.' >/dev/null 2>&1; then
+    elif printf '%s' "$file" | grep '.' >/dev/null 2>&1; then
         # in this case the file does not start with a shebang
         extension="$(printf '%s' "$file" | rev | cut -d '.' -f 1 | rev)"
         printf '%s' "$extension"
