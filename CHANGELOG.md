@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
+## \[0.5.5\] - 2023-06-21
+
+- Fixed
+  - Git permission issues for non-azlint users for all repositories inside the container
+
 ## \[0.5.4\] - 2023-06-21
 
 - Fixed

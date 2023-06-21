@@ -16,7 +16,7 @@ from typing import List, Optional
 def main(argv: Optional[List[str]]) -> int:
     parser = argparse.ArgumentParser()
     parser.prog = "azlint"
-    parser.add_argument("-V", "--version", action="version", version="%(prog)s 0.5.4")
+    parser.add_argument("-V", "--version", action="version", version="%(prog)s 0.5.5")
     parser.add_argument("-c", "--only-changed", action="store_true", help="Analyze only changed files (on current git branch)")
     subparsers = parser.add_subparsers(dest="command")
     lint_parser = subparsers.add_parser("lint", help="Lint files (default)")
