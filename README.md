@@ -62,7 +62,7 @@ But feel free to use it and report any found issues 😉.
 >
 > Or see github's [releases](https://github.com/matejkosiarcik/azlint/releases) for all project versions
 
-### Locally
+### Locally - Linux & macOS
 
 To **lint** files in current folder:
 
@@ -76,7 +76,7 @@ To **format** files in current folder:
 docker run -itv "$PWD:/project" matejkosiarcik/azlint fmt
 ```
 
-When in doubt, get help:
+When in doubt, print help:
 
 ```sh
 $ docker run matejkosiarcik/azlint --help
@@ -91,6 +91,14 @@ optional arguments:
     -h, --help          show this help message and exit
     -V, --version       show program's version number and exit
     -c, --only-changed  Analyze only changed files (on current git branch)
+```
+
+### Locally - Windows
+
+Refer to _Linux & macOS_ examples above, just swap `$PWD` to `%cd%`, for example:
+
+```bat
+docker run -itv "%cd%:/project:ro" matejkosiarcik/azlint lint
 ```
 
 ### gitlab-ci
