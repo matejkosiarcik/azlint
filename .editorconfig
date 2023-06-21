@@ -47,8 +47,10 @@ indent_size = unset
 
 ### Documentation, Configuration, Markup # ###
 
-# Most documentation formats prefer 2 spaces per indent level
-[*.{css,htm,html,j2,jinja,jinja2,less,liquid,sass,scss,sdef,svg,toml,xhtml,xlf,xml,yaml,yml}]
+[*.{css,htm,html,j2,jinja,jinja2,less,liquid,sass,scss,sdef,svg,textlintrc,toml,xhtml,xlf,xml,yaml,yml}]
+indent_size = 2
+
+[*.{md,mdown,markdown}]
 indent_size = 2
 
 # Multiline comments

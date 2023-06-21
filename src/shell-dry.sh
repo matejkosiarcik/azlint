@@ -2,7 +2,8 @@
 set -euf
 
 # extracts the shell from given file
-# uses shebang or extension
+# uses shebang and extension
+# `bash`` is returned as fallback if neither succeed
 detect_shell() {
     file="$1"
     shebang="$(head -n1 "$file")"
@@ -16,10 +17,12 @@ detect_shell() {
             # in this case the first argument is the shell, such as `#!/bin/sh` -> sh
             printf '%s' "$shebang_shell"
         fi
-    else
+    elif printf '%s' "$file" | grep '.' >/dev/null 2>&1; then
         # in this case the file does not start with a shebang
         extension="$(printf '%s' "$file" | rev | cut -d '.' -f 1 | rev)"
         printf '%s' "$extension"
+    else
+        printf 'bash'
     fi
 }
 
@@ -39,7 +42,7 @@ check_file() {
         check_ksh "$file"
         check_bash "$file"
         check_zsh "$file"
-    elif [ "$shell" = bash ]; then
+    elif [ "$shell" = bash ] || [ "$shell" = '' ]; then
         check_bash "$file"
     elif [ "$shell" = zsh ]; then
         check_zsh "$file"

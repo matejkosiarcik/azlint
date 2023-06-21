@@ -8,23 +8,23 @@
 <!-- toc -->
 
 - [About](#about)
-    - [Features](#features)
+  - [Features](#features)
 - [Usage](#usage)
-    - [Locally - Linux & macOS](#locally---linux--macos)
-    - [Locally - Windows](#locally---windows)
-    - [gitlab-ci](#gitlab-ci)
-    - [circle-ci](#circle-ci)
+  - [Locally - Linux & macOS](#locally---linux--macos)
+  - [Locally - Windows](#locally---windows)
+  - [gitlab-ci](#gitlab-ci)
+  - [circle-ci](#circle-ci)
 - [Configuration](#configuration)
 - [Included linters](#included-linters)
-    - [General](#general)
-    - [Configs](#configs)
-    - [CI](#ci)
-    - [Make](#make)
-    - [Docker](#docker)
-    - [Markup](#markup)
-    - [Documentation](#documentation)
-    - [Shell](#shell)
-    - [Python](#python)
+  - [General](#general)
+  - [Configs](#configs)
+  - [CI](#ci)
+  - [Make](#make)
+  - [Docker](#docker)
+  - [Markup](#markup)
+  - [Documentation](#documentation)
+  - [Shell](#shell)
+  - [Python](#python)
 - [Development](#development)
 - [License](#license)
 - [Alternatives](#alternatives)
@@ -84,14 +84,14 @@ $ docker run matejkosiarcik/azlint --help
 usage: azlint [-h] [-V] [-c] {lint,fmt} ...
 
 positional arguments:
-    {lint,fmt}
-        lint              Lint files (default)
-        fmt               Fix files
+  {lint,fmt}
+    lint              Lint files (default)
+    fmt               Fix files
 
 optional arguments:
-    -h, --help          show this help message and exit
-    -V, --version       show program's version number and exit
-    -c, --only-changed  Analyze only changed files (on current git branch)
+  -h, --help          show this help message and exit
+  -V, --version       show program's version number and exit
+  -c, --only-changed  Analyze only changed files (on current git branch)
 ```
 
 ### Locally - Windows
