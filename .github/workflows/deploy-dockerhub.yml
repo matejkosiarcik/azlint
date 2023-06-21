@@ -18,13 +18,13 @@ jobs:
         uses: actions/checkout@v3.5.3
 
       - name: Docker tags
-        uses: docker/metadata-action@v4.5.0
+        uses: docker/metadata-action@v4.6.0
         id: tags
         with:
           images: |
             matejkosiarcik/azlint
           tags: |
-            type=edge
+            type=edge,branch=main
             type=raw,value=latest,enable=${{ github.event_name == 'push tag' }}
             type=semver,pattern={{major}},enable=${{ github.event_name == 'push tag' }}
             type=semver,pattern={{major}}.{{minor}},enable=${{ github.event_name == 'push tag' }}
