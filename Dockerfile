@@ -135,9 +135,9 @@ RUN apt-get update && \
     chmod a+x /usr/bin/lint /usr/bin/fmt && \
     git config --system --add safe.directory /project && \
     useradd --create-home --no-log-init --shell /bin/sh --user-group --system azlint && \
-    git config --global --add safe.directory /project && \
-    su - root -c 'git config --global --add safe.directory /project' && \
-    su - azlint -c 'git config --global --add safe.directory /project'
+    git config --global --add safe.directory '*' && \
+    su - root -c "git config --global --add safe.directory '*'" && \
+    su - azlint -c "git config --global --add safe.directory '*'"
 
 USER azlint
 WORKDIR /project
