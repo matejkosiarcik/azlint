@@ -13,7 +13,9 @@ all: bootstrap build test run
 
 .PHONY: bootstrap
 bootstrap:
+	npm ci
 	npm ci --prefix tests-cli
+	npm ci --prefix dependencies
 
 .PHONY: build
 build:
