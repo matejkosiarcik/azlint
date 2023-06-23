@@ -2,7 +2,7 @@ import fs from 'fs';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { findFiles } from './utils';
-import { LogLevel, logExtraVerbose, logVerbose, setLogLevel } from './log';
+import { LogLevel, logExtraExtraVerbose, logExtraVerbose, logVerbose, setLogLevel } from './log';
 import { execa } from '@esm2cjs/execa';
 import path from 'path';
 import { runLinters } from './linters';
@@ -52,6 +52,7 @@ import { runLinters } from './linters';
     const logLevel = argv.quiet ? LogLevel.QUIET :
         argv.verbose === 1 ? LogLevel.VERBOSE :
         argv.verbose === 2 ? LogLevel.EXTRA_VERBOSE :
+        argv.verbose === 3 ? LogLevel.EXTRA_EXTRA_VERBOSE :
         LogLevel.NORMAL; // TODO: Simplify expression
     const directory = argv.dir;
     const onlyChanged = argv.onlyChanged ?? false;
@@ -77,7 +78,7 @@ import { runLinters } from './linters';
     logVerbose(`Project path: ${path.resolve(process.cwd())}`);
 
     const projectFiles = await findFiles(onlyChanged);
-    logExtraVerbose(`Found ${projectFiles.length} project files:\n${projectFiles.map((el) => `- ${el}`).join('\n')}`);
+    logExtraExtraVerbose(`Found ${projectFiles.length} project files:\n${projectFiles.map((el) => `- ${el}`).join('\n')}`);
 
     const tmpfile = (await execa('mktemp')).stdout;
     fs.writeFileSync(tmpfile, projectFiles.join('\n') + '\n', 'utf8');
@@ -86,5 +87,8 @@ import { runLinters } from './linters';
     const nodeModulesBinPath = path.join(azlintPath, 'dependencies', 'node_modules', '.bin');
     process.env['PATH'] = `${process.env['PATH']}:${nodeModulesBinPath}`;
 
-    await runLinters(projectFiles, command);
+    await runLinters({
+        files: projectFiles,
+        mode: command,
+    });
 })();

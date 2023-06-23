@@ -3,6 +3,7 @@ export enum LogLevel {
     NORMAL = 1,
     VERBOSE = 2,
     EXTRA_VERBOSE = 3,
+    EXTRA_EXTRA_VERBOSE = 4,
 };
 
 let level: LogLevel;
@@ -29,6 +30,14 @@ export function logVerbose(...args: unknown[]): boolean {
 
 export function logExtraVerbose(...args: unknown[]): boolean {
     if (level.valueOf() >= LogLevel.EXTRA_VERBOSE.valueOf()) {
+        console.log(...args);
+        return true;
+    }
+    return false;
+}
+
+export function logExtraExtraVerbose(...args: unknown[]): boolean {
+    if (level.valueOf() >= LogLevel.EXTRA_EXTRA_VERBOSE.valueOf()) {
         console.log(...args);
         return true;
     }
