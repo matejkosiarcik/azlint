@@ -5,6 +5,7 @@ import { findFiles } from './utils';
 import { LogLevel, logExtraVerbose, logVerbose, setLogLevel } from './log';
 import { execa } from '@esm2cjs/execa';
 import path from 'path';
+import { runLinters } from './linters';
 
 (async () => {
     const argv = await yargs(hideBin(process.argv))
@@ -33,7 +34,6 @@ import path from 'path';
         .positional('dir', {
             describe: 'Path to project directory', type: 'string', default: '.',
         })
-        .conflicts('verbose', 'quiet')
         .command('lint', 'Lint project (default)', (yargs) => {
             yargs.usage('Usage: azlint lint [options...] [dir]');
         })
@@ -55,14 +55,14 @@ import path from 'path';
         LogLevel.NORMAL; // TODO: Simplify expression
     const directory = argv.dir;
     const onlyChanged = argv.onlyChanged ?? false;
-    const command = (() => {
+    const command: 'lint' | 'fmt' = (() => {
         if (!argv._ || argv._.length === 0) {
             return 'lint';
         }
 
         const cmd = argv._[0].toString();
         if (['lint', 'fmt'].includes(cmd)) {
-            return cmd;
+            return cmd as 'lint' | 'fmt';
         }
 
         console.error(`Unrecognized command: ${cmd}`);
@@ -86,11 +86,5 @@ import path from 'path';
     const nodeModulesBinPath = path.join(azlintPath, 'dependencies', 'node_modules', '.bin');
     process.env['PATH'] = `${process.env['PATH']}:${nodeModulesBinPath}`;
 
-    console.time('run.sh')
-    try {
-        await execa('sh', [path.join(__dirname, 'run.sh'), command, tmpfile], { stdio: 'inherit' });
-    } catch {
-        process.exit(1);
-    }
-    console.timeEnd('run.sh')
+    await runLinters(projectFiles, command);
 })();

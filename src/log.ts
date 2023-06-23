@@ -11,7 +11,7 @@ export function setLogLevel(_level: LogLevel) {
     level = _level;
 }
 
-export function log(...args: unknown[]): boolean {
+export function logNormal(...args: unknown[]): boolean {
     if (level.valueOf() >= LogLevel.NORMAL.valueOf()) {
         console.log(...args);
         return true;
