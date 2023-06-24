@@ -146,6 +146,9 @@ export class Linters {
     }
 
     async run(): Promise<boolean> {
+        const jsonFileMatch = '*.{json,json5,jsonl,geojson,babelrc,ecrc,htmlhintrc,htmllintrc,jscsrc,jshintrc,jslintrc,remarkrc}'
+        const yamlFileMatch = '*.{yml,yaml}';
+
         // Gitignore check
         await this.runLinter({
             linterName: 'git-check-ignore',
@@ -174,9 +177,27 @@ export class Linters {
             },
         });
 
-        const jsonFileMatch = '*.{json,json5,jsonl,geojson,htmlhintrc,htmllintrc,babelrc,ecrc,jscsrc,jshintrc,jslintrc,remarkrc}'
+        // Editorconfig-checker
+        await this.runLinter({
+            linterName: 'editorconfig-checker',
+            fileMatch: '*',
+            envName: 'VALIDATE_EDITORCONFIG',
+            command: async (file: string, toolName: string) => {
+                if (this.mode !== 'lint') {
+                    return;
+                }
 
-        // Jsonlint validator
+                const cmd = await execa(['ec', file]);
+                if (cmd.exitCode === 0) {
+                    logLintSuccess(toolName, file, cmd);
+                } else {
+                    this.foundProblems += 1;
+                    logLintFail(toolName, file, cmd);
+                }
+            },
+        });
+
+        // Jsonlint
         await this.runLinter({
             linterName: 'jsonlint',
             fileMatch: jsonFileMatch,
@@ -196,13 +217,13 @@ export class Linters {
             },
         });
 
-        // Yamllint validator
+        // Yamllint
         const yamllintConfigArgs = configArgs('YAMLLINT_CONFIG_FILE',
             ['yamllint.yml', 'yamllint.yaml', '.yamllint.yml', '.yamllint.yaml'],
             '--config-file');
         await this.runLinter({
             linterName: 'yamllint',
-            fileMatch: '*.{yml,yaml}',
+            fileMatch: yamlFileMatch,
             envName: 'VALIDATE_YAMLLINT',
             command: async (file: string, toolName: string) => {
                 if (this.mode !== 'lint') {
@@ -222,7 +243,7 @@ export class Linters {
         // Prettier
         await this.runLinter({
             linterName: 'prettier',
-            fileMatch: [jsonFileMatch, '*.{yml,yaml,html,vue,css,scss,sass,less}'],
+            fileMatch: [jsonFileMatch, yamlFileMatch, '*.{html,vue,css,scss,sass,less}'],
             envName: 'VALIDATE_PRETTIER',
             command: async (file: string, toolName: string) => {
                 if (this.mode === 'lint') {
