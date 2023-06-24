@@ -104,7 +104,8 @@ export class Linters {
         options: {
             linterName: string,
             fileMatch: string | string[] | ((file: string) => boolean), // TODO: Remove closure maybe?
-            preCommand?: (() => (boolean | Promise<boolean>)) | undefined,
+            globalPreCommand?: () => (boolean | Promise<boolean>),
+            singlePreCommand?: (file: string, toolName: string) => (boolean | Promise<boolean>),
             lintCommand: (file: string, toolName: string) => Promise<void>,
             fmtCommand?: (file: string, toolName: string) => Promise<void>,
             envName: string,
@@ -131,8 +132,8 @@ export class Linters {
             return;
         }
 
-        if (options.preCommand) {
-            let returnValue = options.preCommand();
+        if (options.globalPreCommand) {
+            let returnValue = options.globalPreCommand();
             if (typeof returnValue !== 'boolean') {
                 returnValue = await returnValue;
             }
@@ -160,7 +161,7 @@ export class Linters {
             linterName: 'git-check-ignore',
             envName: 'GITIGNORE',
             fileMatch: '*',
-            preCommand: async () => isProjectGitRepo(),
+            globalPreCommand: async () => isProjectGitRepo(),
             lintCommand: async (file: string, toolName: string) => {
                 const cmd = await execa(['git', 'check-ignore', '--no-index', file]);
                 if (cmd.exitCode !== 0) { // Success
@@ -275,13 +276,15 @@ export class Linters {
             linterName: 'package-json-validator',
             envName: 'PACKAGE_JSON',
             fileMatch: 'package.json',
-            lintCommand: async (file: string, toolName: string) => {
+            singlePreCommand: async (file: string, toolName: string) => {
                 const packageJson = JSON.parse(await fs.readFile(file, 'utf8'));
                 if (packageJson['private'] === true) {
                     logExtraVerbose(`⏩ Skipping ${toolName} - ${file}, because it's private`);
-                    return;
+                    return true;
                 }
-
+                return false;
+            },
+            lintCommand: async (file: string, toolName: string) => {
                 const cmd = await execa(['pjv', '--warnings', '--recommendations', '--filename', file]);
                 if (cmd.exitCode === 0) { // Success
                     logLintSuccess(toolName, file);
