@@ -74,7 +74,7 @@ function configArgs(envName: string, possibleFiles: string[], configArgName: str
     const configDir = process.env['LINTER_RULES_PATH'] ?? '.';
 
     const configFile = (() => {
-        const envValue =process.env[envName];
+        const envValue = process.env[envName + '_CONFIG_FILE'];
         if (envValue) {
             return path.join(configDir, envValue);
         }
@@ -125,8 +125,9 @@ export class Linters {
             return this.files.filter((file) => fileMatch(file));
         })();
 
-        if (process.env[options.envName] && process.env[options.envName] === 'false') {
-            logExtraVerbose(`Skipped ${options.linterName} - ${options.envName} is false`);
+        const envEnable = 'VALIDATE_' + options.envName;
+        if (process.env[envEnable] && process.env[envEnable] === 'false') {
+            logExtraVerbose(`Skipped ${options.linterName} - ${envEnable} is false`);
             return;
         }
 
@@ -157,8 +158,8 @@ export class Linters {
         // Gitignore
         await this.runLinter({
             linterName: 'git-check-ignore',
+            envName: 'GITIGNORE',
             fileMatch: '*',
-            envName: 'VALIDATE_GITIGNORE',
             preCommand: async () => isProjectGitRepo(),
             lintCommand: async (file: string, toolName: string) => {
                 const cmd = await execa(['git', 'check-ignore', '--no-index', file]);
@@ -189,8 +190,8 @@ export class Linters {
         // Editorconfig-checker
         await this.runLinter({
             linterName: 'editorconfig-checker',
+            envName: 'EDITORCONFIG',
             fileMatch: '*',
-            envName: 'VALIDATE_EDITORCONFIG',
             lintCommand: async (file: string, toolName: string) => {
                 const cmd = await execa(['ec', file]);
                 if (cmd.exitCode === 0) {
@@ -205,8 +206,8 @@ export class Linters {
         // Jsonlint
         await this.runLinter({
             linterName: 'jsonlint',
+            envName: 'JSONLINT',
             fileMatch: jsonFileMatch,
-            envName: 'VALIDATE_JSONLINT',
             lintCommand: async (file: string, toolName: string) => {
                 const cmd = await execa(['jsonlint', '--quiet', '--comments', '--no-duplicate-keys', file]);
                 if (cmd.exitCode === 0) {
@@ -219,13 +220,13 @@ export class Linters {
         });
 
         // Yamllint
-        const yamllintConfigArgs = configArgs('YAMLLINT_CONFIG_FILE',
+        const yamllintConfigArgs = configArgs('YAMLLINT',
             ['yamllint.yml', 'yamllint.yaml', '.yamllint.yml', '.yamllint.yaml'],
             '--config-file');
         await this.runLinter({
             linterName: 'yamllint',
+            envName: 'YAMLLINT',
             fileMatch: yamlFileMatch,
-            envName: 'VALIDATE_YAMLLINT',
             lintCommand: async (file: string, toolName: string) => {
                 const cmd = await execa(['yamllint', '--strict', ...yamllintConfigArgs, file]);
                 if (cmd.exitCode === 0) {
@@ -240,8 +241,8 @@ export class Linters {
         // Prettier
         await this.runLinter({
             linterName: 'prettier',
+            envName: 'PRETTIER',
             fileMatch: [jsonFileMatch, yamlFileMatch, '*.{html,vue,css,scss,sass,less}'],
-            envName: 'VALIDATE_PRETTIER',
             lintCommand: async (file: string, toolName: string) => {
                 const cmd = await execa(['prettier', '--list-different', file]);
                 if (cmd.exitCode === 0) {
@@ -272,8 +273,8 @@ export class Linters {
         // Package.json validator
         await this.runLinter({
             linterName: 'package-json-validator',
+            envName: 'PACKAGE_JSON',
             fileMatch: 'package.json',
-            envName: 'VALIDATE_PACKAGE_JSON',
             lintCommand: async (file: string, toolName: string) => {
                 const packageJson = JSON.parse(await fs.readFile(file, 'utf8'));
                 if (packageJson['private'] === true) {
@@ -294,8 +295,8 @@ export class Linters {
         // TomlJson
         await this.runLinter({
             linterName: 'tomljson',
+            envName: 'TOMLJSON',
             fileMatch: '*.toml',
-            envName: 'VALIDATE_TOMLJSON',
             lintCommand: async (file: string, toolName: string) => {
                 const cmd = await execa(['tomljson', file]);
                 if (cmd.exitCode === 0) { // Success
@@ -310,8 +311,8 @@ export class Linters {
         // Dotenv
         await this.runLinter({
             linterName: 'dotenv-linter',
+            envName: 'DOTENV',
             fileMatch: '*.env',
-            envName: 'VALIDATE_DOTENV',
             lintCommand: async (file: string, toolName: string) => {
                 const cmd = await execa(['dotenv-linter', file]); // TODO: maybe add --quiet
                 if (cmd.exitCode === 0) { // Success
