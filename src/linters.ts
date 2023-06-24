@@ -1,13 +1,16 @@
-import { execa as baseExeca, ExecaError, Options as ExecaOptions, ExecaReturnBase, ExecaReturnValue } from "@esm2cjs/execa";
+import { execa as baseExeca, ExecaError, Options as ExecaOptions, ExecaReturnValue } from "@esm2cjs/execa";
 import { logAlways, logExtraVerbose, logNormal, logVerbose } from "./log";
-import { isProjectGitRepo } from "./utils";
-import path from "path";
+import { hashFile, isProjectGitRepo, wildcard2regex } from "./utils";
 import fs from 'fs/promises';
 
-function logLintSuccess(toolName: string, file: string) {
+function logLintSuccess(toolName: string, file: string, command?: ExecaReturnValue<string>) {
     const color = process.stdout.isTTY ? '\x1b[32m' : '';
     const endColor = process.stdout.isTTY ? '\x1b[0m' : '';
     logVerbose(`✅ ${color}${toolName} - ${file}${endColor}`);
+    if (command) {
+        const cmdOutput = command.all ? `:\n${command.all}` : '';
+        logExtraVerbose(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
+    }
 }
 
 function logLintFail(toolName: string, file: string, command?: ExecaReturnValue<string>) {
@@ -15,27 +18,37 @@ function logLintFail(toolName: string, file: string, command?: ExecaReturnValue<
     const endColor = process.stdout.isTTY ? '\x1b[0m' : '';
     logAlways(`❌ ${color}${toolName} - ${file}${endColor}`);
     if (command) {
-        logNormal(`"${command.command}" -> ${command.exitCode}:\n${command.all}`);
+        const cmdOutput = command.all ? `:\n${command.all}` : '';
+        logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
     }
 }
 
-function logFixingSuccess(toolName: string, file: string) {
+function logFixingUnchanged(toolName: string, file: string, command?: ExecaReturnValue<string>) {
     const color = process.stdout.isTTY ? '\x1b[32m' : '';
     const endColor = process.stdout.isTTY ? '\x1b[0m' : '';
-    logNormal(`🛠️ ${color}${toolName} - ${file}${endColor}`);
+    logVerbose(`💯 Unchanged: ${color}${toolName} - ${file}${endColor}`);
+    if (command) {
+        const cmdOutput = command.all ? `:\n${command.all}` : '';
+        logExtraVerbose(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
+    }
+}
+
+function logFixingSuccess(toolName: string, file: string, command?: ExecaReturnValue<string>) {
+    const color = process.stdout.isTTY ? '\x1b[32m' : '';
+    const endColor = process.stdout.isTTY ? '\x1b[0m' : '';
+    logNormal(`🛠️ Fixed: ${color}${toolName} - ${file}${endColor}`);
+    if (command) {
+        const cmdOutput = command.all ? `:\n${command.all}` : '';
+        logExtraVerbose(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
+    }
 }
 
 function logFixingError(toolName: string, file: string, command: ExecaReturnValue<string>) {
     const color = process.stdout.isTTY ? '\x1b[32m' : '';
     const endColor = process.stdout.isTTY ? '\x1b[0m' : '';
-    let commandMessage = `${command.exitCode}`;
-    if (command.stderr) {
-        commandMessage += ` ${command.stderr}`;
-    }
-    if (command.stdout) {
-        commandMessage += ` ${command.stdout}`;
-    }
-    logAlways(`❗️ ${color}${toolName} - There was error fixing ${file}${endColor}: ${commandMessage}`);
+    logAlways(`❗️ Error fixing: ${color}${toolName} - ${file}${endColor}`);
+    const cmdOutput = command.all ? `:\n${command.all}` : '';
+    logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`)
 }
 
 async function execa(command: string[], _options?: ExecaOptions<string>): Promise<ExecaReturnValue<string>> {
@@ -55,90 +68,152 @@ async function execa(command: string[], _options?: ExecaOptions<string>): Promis
     }
 }
 
-export async function runLinters(options: { files: string[], mode: 'lint' | 'fmt', configDir?: string | undefined }): Promise<boolean> {
-    let foundProblems = 0;
-    let fixedProblems = 0;
+export class Linters {
+    foundProblems = 0;
+    fixedProblems = 0;
+    configDir: string;
 
-    // const configDir = options.configDir ?? '.';
-
-    // Gitignore
-    await (async () => {
-        const toolName = 'git-check-ignore';
-
-        if (process.env['VALIDATE_GITIGNORE'] && process.env['VALIDATE_GITIGNORE'] === 'false') {
-            logExtraVerbose(`Skipped ${toolName} - VALIDATE_GITIGNORE is false`);
-            return;
-        }
-
-        if (!await isProjectGitRepo()) {
-            logVerbose(`Skipped ${toolName} - project is not a git repo`);
-        }
-
-        await Promise.all(options.files.map(async (file) => {
-            if (options.mode === 'lint') {
-                const cmd = await execa(['git', 'check-ignore', '--no-index', file]);
-                if (cmd.exitCode !== 0) { // Success
-                    logLintSuccess(toolName, file);
-                } else { // Fail
-                    foundProblems += 1;
-                    logLintFail(toolName, file, cmd);
-                }
-            } else {
-                const cmd = await execa(['git', 'check-ignore', '--no-index', file], { stdio: 'ignore' });
-                if (cmd.exitCode !== 0) { // Success
-                    logLintSuccess(toolName, file);
-                } else { // Fail
-                    foundProblems += 1;
-                    const cmd2 = await execa(['git', 'rm', '--cached', file], { stdio: 'ignore' });
-                    if (cmd2.exitCode === 0) {
-                        logFixingSuccess(toolName, file);
-                        fixedProblems += 1;
-                    } else {
-                        logFixingError(toolName, file, cmd2);
-                    }
-                }
-            }
-        }));
-    })();
-
-    // Package.json validator
-    await (async () => {
-        const toolName = 'package-json-validator';
-
-        if (process.env['VALIDATE_PACKAGE_JSON'] && process.env['VALIDATE_PACKAGE_JSON'] === 'false') {
-            logExtraVerbose(`Skipped ${toolName} - VALIDATE_PACKAGE_JSON is false`);
-            return;
-        }
-
-        if (options.mode !== 'lint') {
-            return;
-        }
-
-        await Promise.all(options.files.filter((file) => path.basename(file) === 'package.json').map(async (file) => {
-            const packageJson = JSON.parse(await fs.readFile(file, 'utf8'));
-            if (packageJson['private'] === true) {
-                logExtraVerbose(`⏩ Skipping ${toolName} - ${file}, because it's private`);
-                return;
-            }
-
-            const cmd = await execa(['pjv', '--warnings', '--recommendations', '--filename', file]);
-            if (cmd.exitCode === 0) { // Success
-                logLintSuccess(toolName, file);
-            } else { // Fail
-                foundProblems += 1;
-                logLintFail(toolName, file, cmd);
-            }
-        }));
-    })();
-
-    // Final work
-    logNormal(`Found ${foundProblems} problems`);
-    if (options.mode === 'lint') {
-        return foundProblems === 0;
-    } else if (options.mode === 'fmt') {
-        logNormal(`Fixed ${fixedProblems} problems`);
-        return foundProblems === fixedProblems;
+    constructor(readonly mode: 'lint' | 'fmt', readonly files: string[], configDir?: string | undefined) {
+        this.configDir = configDir ?? '.';
     }
 
-    return true;
+    async runLinter(
+        options: {
+            linterName: string,
+            fileMatch: string | ((file: string) => boolean), // TODO: Remove closure maybe?
+            preCommand?: (() => (boolean | Promise<boolean>)) | undefined,
+            command: (file: string, toolName: string) => Promise<void>,
+            envName: string,
+        }
+    ): Promise<void> {
+        const files = (() => {
+            const fileMatch = options.fileMatch;
+            if (typeof fileMatch === 'string') {
+                const regex = wildcard2regex(fileMatch);
+                return this.files.filter((file) => regex.test(file));
+            }
+
+            return this.files.filter((file) => fileMatch(file));
+        })();
+
+        if (process.env[options.envName] && process.env[options.envName] === 'false') {
+            logExtraVerbose(`Skipped ${options.linterName} - ${options.envName} is false`);
+            return;
+        }
+
+        if (options.preCommand) {
+            let returnValue = options.preCommand();
+            if (typeof returnValue !== 'boolean') {
+                returnValue = await returnValue;
+            }
+
+            if (returnValue === false) {
+                return;
+            }
+        }
+
+        await Promise.all(files.map(async (file) => {
+            await options.command(file, options.linterName);
+        }));
+    }
+
+    async run(): Promise<boolean> {
+        // Gitignore check
+        await this.runLinter({
+            linterName: 'git-check-ignore',
+            fileMatch: '*',
+            envName: 'VALIDATE_GITIGNORE',
+            preCommand: async () => isProjectGitRepo(),
+            command: async (file: string, toolName: string) => {
+                const cmd = await execa(['git', 'check-ignore', '--no-index', file]);
+                if (cmd.exitCode !== 0) { // Success
+                    logLintSuccess(toolName, file, cmd);
+                } else { // Fail
+                    this.foundProblems += 1;
+
+                    if (this.mode === 'lint') {
+                        logLintFail(toolName, file, cmd);
+                    } else if (this.mode === 'fmt') {
+                        const cmd2 = await execa(['git', 'rm', '--cached', file]);
+                        if (cmd2.exitCode === 0) {
+                            logFixingSuccess(toolName, file);
+                            this.fixedProblems += 1;
+                        } else {
+                            logFixingError(toolName, file, cmd2);
+                        }
+                    }
+                }
+            },
+        });
+
+        // Prettier
+        await this.runLinter({
+            linterName: 'prettier',
+            fileMatch: '*.{json,json5,yml,yaml,html,vue,css,scss,sass,less}',
+            envName: 'VALIDATE_PRETTIER',
+            command: async (file: string, toolName: string) => {
+                if (this.mode === 'lint') {
+                    const cmd = await execa(['prettier', '--list-different', file]);
+                    if (cmd.exitCode === 0) {
+                        logLintSuccess(toolName, file, cmd);
+                    } else {
+                        this.foundProblems += 1;
+                        logLintFail(toolName, file, cmd);
+                    }
+                } else {
+                    const originalHash = await hashFile(file);
+                    const cmd = await execa(['prettier', '--write', file]);
+                    const updatedHash = await hashFile(file);
+                    if (cmd.exitCode === 0) {
+                        if (originalHash !== updatedHash) {
+                            this.foundProblems += 1;
+                            this.fixedProblems += 1;
+                            logFixingSuccess(toolName, file, cmd);
+                        } else {
+                            logFixingUnchanged(toolName, file, cmd);
+                        }
+                    } else {
+                        logFixingError(toolName, file, cmd);
+                    }
+                }
+            },
+        });
+
+        // Package.json validator
+        await this.runLinter({
+            linterName: 'package-json-validator',
+            fileMatch: 'package.json',
+            envName: 'VALIDATE_PACKAGE_JSON',
+            command: async (file: string, toolName: string) => {
+                if (this.mode !== 'lint') {
+                    return;
+                }
+
+                const packageJson = JSON.parse(await fs.readFile(file, 'utf8'));
+                if (packageJson['private'] === true) {
+                    logExtraVerbose(`⏩ Skipping ${toolName} - ${file}, because it's private`);
+                    return;
+                }
+
+                const cmd = await execa(['pjv', '--warnings', '--recommendations', '--filename', file]);
+                if (cmd.exitCode === 0) { // Success
+                    logLintSuccess(toolName, file);
+                } else { // Fail
+                    this.foundProblems += 1;
+                    logLintFail(toolName, file, cmd);
+                }
+            },
+        });
+
+        // Final work
+        logNormal(`Found ${this.foundProblems} problems`);
+        if (this.mode === 'lint') {
+            return this.foundProblems === 0;
+        } else if (this.mode === 'fmt') {
+            logNormal(`Fixed ${this.fixedProblems} problems`);
+            return this.foundProblems === this.fixedProblems;
+        }
+
+        return true;
+    }
 }

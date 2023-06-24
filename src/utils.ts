@@ -1,5 +1,7 @@
-import { execa } from '@esm2cjs/execa';
 import path from 'path';
+import fs from 'fs/promises';
+import crypto from 'crypto';
+import { execa } from '@esm2cjs/execa';
 import { logVerbose } from './log';
 
 export async function isProjectGitRepo(): Promise<boolean> {
@@ -23,4 +25,23 @@ export async function findFiles(onlyChanged: boolean): Promise<string[]> {
 
     const listCommand = await execa('python3', listArguments, { stdio: 'pipe' });
     return listCommand.stdout.split('\n').filter((file) => file);
+}
+
+export async function hashFile(file: string): Promise<string> {
+    const fileContent = await fs.readFile(file, 'utf8');
+    const sha1 = crypto.createHash('sha1');
+    return sha1.update(fileContent).digest('base64');
+}
+
+// Transform wildcard to regex
+// This might not be foolproof, but should be ok for most uses
+// Handles even relatively complex things like '*.{c,h}{,pp}'
+export function wildcard2regex(wildcard: string): RegExp {
+    const regex = wildcard.replace(/\./, "\\.")
+        .replace(/\?/, ".")
+        .replace(/\*/, ".*")
+        .replace(/\{/, "(")
+        .replace(/\}/, ")")
+        .replace(/,/, "|");
+    return new RegExp(`^(.*/)?${regex}$`);
 }

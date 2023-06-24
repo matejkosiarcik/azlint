@@ -5,7 +5,7 @@ import { findFiles } from './utils';
 import { LogLevel, logExtraExtraVerbose, logExtraVerbose, logVerbose, setLogLevel } from './log';
 import { execa } from '@esm2cjs/execa';
 import path from 'path';
-import { runLinters } from './linters';
+import { Linters } from './linters';
 
 (async () => {
     const argv = await yargs(hideBin(process.argv))
@@ -20,7 +20,7 @@ import { runLinters } from './linters';
             alias: 'V', describe: 'Show version', type: 'boolean',
         })
         .option('verbose', {
-            alias: 'v', describe: 'Verbose logging', type: 'count',
+            alias: 'v', describe: 'Verbose logging (stackable, max: -vvv)', type: 'count',
         })
         .option('quiet', {
             alias: 'q', describe: 'Less logging', type: 'boolean',
@@ -50,9 +50,9 @@ import { runLinters } from './linters';
 
     // Extract arguments
     const logLevel = argv.quiet ? LogLevel.QUIET :
-        argv.verbose === 1 ? LogLevel.VERBOSE :
-        argv.verbose === 2 ? LogLevel.EXTRA_VERBOSE :
-        argv.verbose === 3 ? LogLevel.EXTRA_EXTRA_VERBOSE :
+        argv.verbose >= 3 ? LogLevel.EXTRA_EXTRA_VERBOSE :
+        argv.verbose >= 2 ? LogLevel.EXTRA_VERBOSE :
+        argv.verbose >= 1 ? LogLevel.VERBOSE :
         LogLevel.NORMAL; // TODO: Simplify expression
     const directory = argv.dir;
     const onlyChanged = argv.onlyChanged ?? false;
@@ -87,8 +87,7 @@ import { runLinters } from './linters';
     const nodeModulesBinPath = path.join(azlintPath, 'dependencies', 'node_modules', '.bin');
     process.env['PATH'] = `${process.env['PATH']}:${nodeModulesBinPath}`;
 
-    await runLinters({
-        files: projectFiles,
-        mode: command,
-    });
+    const linters = new Linters(command, projectFiles, '.');
+    const success = await linters.run();
+    process.exit(success ? 0 : 1);
 })();
