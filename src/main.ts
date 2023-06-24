@@ -1,9 +1,7 @@
-import fs from 'fs';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { findFiles } from './utils';
 import { LogLevel, logExtraExtraVerbose, logVerbose, setLogLevel } from './log';
-import { execa } from '@esm2cjs/execa';
 import path from 'path';
 import { Linters } from './linters';
 
@@ -74,18 +72,25 @@ import { Linters } from './linters';
     setLogLevel(logLevel);
     process.chdir(directory);
 
+    // Setup paths for dependencies
+    const dependenciesDir = path.resolve(path.join(__dirname, '..', 'dependencies'));
+    const nodePath = path.join(dependenciesDir, 'node_modules', '.bin');
+    const cargoPath = path.join(dependenciesDir, '.cargo', 'bin');
+    const venvPath = path.join(dependenciesDir, 'venv', 'bin');
+    const composerPath = path.join(dependenciesDir, 'vendor', 'bin');
+    process.env['PATH'] = `${nodePath}:${cargoPath}:${venvPath}:${composerPath}:${process.env['PATH']}`;
+    const bundlePath = path.join(dependenciesDir, '.bundle');
+    const gemfilePath = path.join(dependenciesDir, 'Gemfile');
+    process.env['BUNDLE_DISABLE_SHARED_GEMS'] = 'true';
+    process.env['BUNDLE_PATH__SYSTEM'] = 'false';
+    process.env['BUNDLE_PATH'] = bundlePath;
+    process.env['BUNDLE_GEMFILE'] = gemfilePath;
+
     logVerbose(`Performing: ${command}`);
     logVerbose(`Project path: ${path.resolve(process.cwd())}`);
 
     const projectFiles = await findFiles(onlyChanged);
     logExtraExtraVerbose(`Found ${projectFiles.length} project files:\n${projectFiles.map((el) => `- ${el}`).join('\n')}`);
-
-    const tmpfile = (await execa('mktemp')).stdout;
-    fs.writeFileSync(tmpfile, projectFiles.join('\n') + '\n', 'utf8');
-
-    const azlintPath = path.resolve(path.join(__dirname, '..'));
-    const nodeModulesBinPath = path.join(azlintPath, 'dependencies', 'node_modules', '.bin');
-    process.env['PATH'] = `${process.env['PATH']}:${nodeModulesBinPath}`;
 
     const linters = new Linters(command, projectFiles, '.');
     const success = await linters.run();

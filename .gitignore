@@ -27,3 +27,4 @@ target/
 
 # misc
 report/
+.env
