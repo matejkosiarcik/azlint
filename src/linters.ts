@@ -149,7 +149,7 @@ export class Linters {
         const jsonFileMatch = '*.{json,json5,jsonl,geojson,babelrc,ecrc,htmlhintrc,htmllintrc,jscsrc,jshintrc,jslintrc,remarkrc}'
         const yamlFileMatch = '*.{yml,yaml}';
 
-        // Gitignore check
+        // Gitignore
         await this.runLinter({
             linterName: 'git-check-ignore',
             fileMatch: '*',
@@ -290,6 +290,46 @@ export class Linters {
                 }
 
                 const cmd = await execa(['pjv', '--warnings', '--recommendations', '--filename', file]);
+                if (cmd.exitCode === 0) { // Success
+                    logLintSuccess(toolName, file);
+                } else { // Fail
+                    this.foundProblems += 1;
+                    logLintFail(toolName, file, cmd);
+                }
+            },
+        });
+
+        // TomlJson
+        await this.runLinter({
+            linterName: 'tomljson',
+            fileMatch: '*.toml',
+            envName: 'VALIDATE_TOMLJSON',
+            command: async (file: string, toolName: string) => {
+                if (this.mode !== 'lint') {
+                    return;
+                }
+
+                const cmd = await execa(['tomljson', file]);
+                if (cmd.exitCode === 0) { // Success
+                    logLintSuccess(toolName, file);
+                } else { // Fail
+                    this.foundProblems += 1;
+                    logLintFail(toolName, file, cmd);
+                }
+            },
+        });
+
+        // Dotenv
+        await this.runLinter({
+            linterName: 'dotenv-linter',
+            fileMatch: '*.env',
+            envName: 'VALIDATE_DOTENV',
+            command: async (file: string, toolName: string) => {
+                if (this.mode !== 'lint') {
+                    return;
+                }
+
+                const cmd = await execa(['dotenv-linter', file]); // TODO: maybe add --quiet
                 if (cmd.exitCode === 0) { // Success
                     logLintSuccess(toolName, file);
                 } else { // Fail
