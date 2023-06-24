@@ -1,7 +1,9 @@
+import fs from 'fs/promises';
+import fsSync from 'fs';
+import path from "path";
 import { execa as baseExeca, ExecaError, Options as ExecaOptions, ExecaReturnValue } from "@esm2cjs/execa";
 import { logAlways, logExtraVerbose, logNormal, logVerbose } from "./log";
 import { hashFile, isProjectGitRepo, wildcard2regex } from "./utils";
-import fs from 'fs/promises';
 
 function logLintSuccess(toolName: string, file: string, command?: ExecaReturnValue<string>) {
     const color = process.stdout.isTTY ? '\x1b[32m' : '';
@@ -66,6 +68,27 @@ async function execa(command: string[], _options?: ExecaOptions<string>): Promis
         const cmdError = error as ExecaError;
         return cmdError;
     }
+}
+
+function configArgs(envName: string, possibleFiles: string[], configArgName: string): string[] {
+    const configDir = process.env['LINTER_RULES_PATH'] ?? '.';
+
+    const configFile = (() => {
+        const envValue =process.env[envName];
+        if (envValue) {
+            return path.join(configDir, envValue);
+        }
+
+        const potentialConfigs = possibleFiles
+            .map((file) => path.join(configDir, file))
+            .filter((file) => fsSync.existsSync(file));
+        if (potentialConfigs.length === 0) {
+            return undefined;
+        }
+        return potentialConfigs[0];
+    })();
+
+    return configFile ? [configArgName, configFile] : [];
 }
 
 export class Linters {
@@ -164,6 +187,29 @@ export class Linters {
                 }
 
                 const cmd = await execa(['jsonlint', '--quiet', '--comments', '--no-duplicate-keys', file]);
+                if (cmd.exitCode === 0) {
+                    logLintSuccess(toolName, file, cmd);
+                } else {
+                    this.foundProblems += 1;
+                    logLintFail(toolName, file, cmd);
+                }
+            },
+        });
+
+        // Yamllint validator
+        const yamllintConfigArgs = configArgs('YAMLLINT_CONFIG_FILE',
+            ['yamllint.yml', 'yamllint.yaml', '.yamllint.yml', '.yamllint.yaml'],
+            '--config-file');
+        await this.runLinter({
+            linterName: 'yamllint',
+            fileMatch: '*.{yml,yaml}',
+            envName: 'VALIDATE_YAMLLINT',
+            command: async (file: string, toolName: string) => {
+                if (this.mode !== 'lint') {
+                    return;
+                }
+
+                const cmd = await execa(['yamllint', '--strict', ...yamllintConfigArgs, file]);
                 if (cmd.exitCode === 0) {
                     logLintSuccess(toolName, file, cmd);
                 } else {

@@ -1,8 +1,10 @@
+import path from 'path';
+import fs from 'fs';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import dotenv from 'dotenv';
 import { findFiles } from './utils';
 import { LogLevel, logExtraExtraVerbose, logVerbose, setLogLevel } from './log';
-import path from 'path';
 import { Linters } from './linters';
 
 (async () => {
@@ -39,6 +41,10 @@ import { Linters } from './linters';
             yargs.usage('Usage: azlint fmt [options...] [dir]');
         })
         .parse();
+
+    if (fs.existsSync('.env')) {
+        dotenv.config({ path: '.env' });
+    }
 
     // Shortcircuit version
     if (argv.version) {
