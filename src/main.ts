@@ -2,7 +2,7 @@ import fs from 'fs';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { findFiles } from './utils';
-import { LogLevel, logExtraExtraVerbose, logExtraVerbose, logVerbose, setLogLevel } from './log';
+import { LogLevel, logExtraExtraVerbose, logVerbose, setLogLevel } from './log';
 import { execa } from '@esm2cjs/execa';
 import path from 'path';
 import { Linters } from './linters';

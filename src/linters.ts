@@ -80,7 +80,7 @@ export class Linters {
     async runLinter(
         options: {
             linterName: string,
-            fileMatch: string | ((file: string) => boolean), // TODO: Remove closure maybe?
+            fileMatch: string | string[] | ((file: string) => boolean), // TODO: Remove closure maybe?
             preCommand?: (() => (boolean | Promise<boolean>)) | undefined,
             command: (file: string, toolName: string) => Promise<void>,
             envName: string,
@@ -91,6 +91,11 @@ export class Linters {
             if (typeof fileMatch === 'string') {
                 const regex = wildcard2regex(fileMatch);
                 return this.files.filter((file) => regex.test(file));
+            }
+
+            if (Array.isArray(fileMatch)) {
+                const regexes = fileMatch.map((wildcard) => wildcard2regex(wildcard));
+                return this.files.filter((file) => regexes.some((regex) => regex.test(file)));
             }
 
             return this.files.filter((file) => fileMatch(file));
@@ -146,10 +151,32 @@ export class Linters {
             },
         });
 
+        const jsonFileMatch = '*.{json,json5,jsonl,geojson,htmlhintrc,htmllintrc,babelrc,ecrc,jscsrc,jshintrc,jslintrc,remarkrc}'
+
+        // Jsonlint validator
+        await this.runLinter({
+            linterName: 'jsonlint',
+            fileMatch: jsonFileMatch,
+            envName: 'VALIDATE_JSONLINT',
+            command: async (file: string, toolName: string) => {
+                if (this.mode !== 'lint') {
+                    return;
+                }
+
+                const cmd = await execa(['jsonlint', '--quiet', '--comments', '--no-duplicate-keys', file]);
+                if (cmd.exitCode === 0) {
+                    logLintSuccess(toolName, file, cmd);
+                } else {
+                    this.foundProblems += 1;
+                    logLintFail(toolName, file, cmd);
+                }
+            },
+        });
+
         // Prettier
         await this.runLinter({
             linterName: 'prettier',
-            fileMatch: '*.{json,json5,yml,yaml,html,vue,css,scss,sass,less}',
+            fileMatch: [jsonFileMatch, '*.{yml,yaml,html,vue,css,scss,sass,less}'],
             envName: 'VALIDATE_PRETTIER',
             command: async (file: string, toolName: string) => {
                 if (this.mode === 'lint') {
