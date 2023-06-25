@@ -28,3 +28,4 @@ target/
 # misc
 report/
 .env
+Brewfile.lock.json
