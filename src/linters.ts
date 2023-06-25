@@ -459,17 +459,6 @@ export class Linters {
             lintFile: { args: ['dotenv-linter', '--quiet', '#file#'] },
         });
 
-        // Svglint
-        const svglintConfigArgs = configArgs('SVGLINT',
-            ['.svglintrc.js', 'svglintrc.js'],
-            '--config');
-        await this.runLinter({
-            linterName: 'svglint',
-            envName: 'SVGLINT',
-            fileMatch: '*.svg',
-            lintFile: { args: ['svglint', '--ci', ...svglintConfigArgs, '#file#'] },
-        });
-
         // Composer validate
         await this.runLinter({
             linterName: 'composer-validate',
@@ -555,19 +544,36 @@ export class Linters {
         });
 
         // HtmlLint
+        const htmllintConfigArgs = configArgs('HTMLLINT',
+            ['.htmllintrc'],
+            '--rc');
         await this.runLinter({
             linterName: 'htmllint',
             envName: 'HTMLLINT',
             fileMatch: matchers.html,
-            lintFile: { args: ['htmllint', '#file#'] },
+            lintFile: { args: ['htmllint', ...htmllintConfigArgs, '#file#'] },
         });
 
         // HtmlHint
+        const htmlhintConfigArgs = configArgs('HTMLHINT',
+            ['.htmlhintrc'],
+            '--config');
         await this.runLinter({
             linterName: 'htmlhint',
             envName: 'HTMLHINT',
             fileMatch: matchers.html,
-            lintFile: { args: ['htmlhint', '#file#'] },
+            lintFile: { args: ['htmlhint', ...htmlhintConfigArgs, '#file#'] },
+        });
+
+        // Svglint
+        const svglintConfigArgs = configArgs('SVGLINT',
+            ['.svglintrc.js', 'svglintrc.js'],
+            '--config');
+        await this.runLinter({
+            linterName: 'svglint',
+            envName: 'SVGLINT',
+            fileMatch: '*.svg',
+            lintFile: { args: ['svglint', '--ci', ...svglintConfigArgs, '#file#'] },
         });
 
         // Report results
