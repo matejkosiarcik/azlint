@@ -98,8 +98,9 @@ import { Linters } from './linters';
         cargo: path.join(dependenciesDir, '.cargo', 'bin'),
         venv: path.join(dependenciesDir, 'venv', 'bin'),
         composer: path.join(dependenciesDir, 'vendor', 'bin'),
-        checkmake: path.join(dependenciesDir, 'checkmake', 'bin'),
-        editorconfig: path.join(dependenciesDir, 'editorconfig-checker', 'bin'),
+        go: path.join(dependenciesDir, 'go', 'bin'),
+        checkmake: path.join(dependenciesDir, 'checkmake'),
+        ec: path.join(dependenciesDir, 'editorconfig-checker', 'bin'),
     };
     process.env['PATH'] = `${Object.values(binPaths).join(':')}:${process.env['PATH']}`;
     process.env['BUNDLE_DISABLE_SHARED_GEMS'] = 'true';
