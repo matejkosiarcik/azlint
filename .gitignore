@@ -13,19 +13,9 @@ Thumbs.db
 Package Control.*
 
 # dependencies
-.bundle/
-.cargo/
-composer.phar
 gitman/
 node_modules/
-vendor/
-venv/
-
-# build
-dist/
-target/
 
 # misc
-report/
 .env
 Brewfile.lock.json
