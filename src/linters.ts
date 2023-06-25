@@ -359,6 +359,8 @@ export class Linters {
             html: '*.{html,htm,html5,xhtml}',
         };
 
+        /* Generic linters for all files */
+
         // Gitignore
         await this.runLinter({
             linterName: 'git-check-ignore',
@@ -400,6 +402,20 @@ export class Linters {
             lintFile: { args: ['ec', '#file#'] },
         });
 
+        /* HTML, JSON, SVG, TOML, XML, YAML */
+
+        // Prettier
+        const prettierConfigArgs = configArgs('PRETTIER',
+            ['prettierrc', 'prettierrc.yml', 'prettierrc.yaml', 'prettierrc.json', 'prettierrc.js', '.prettierrc', '.prettierrc.yml', '.prettierrc.yaml', '.prettierrc.json', '.prettierrc.js'],
+            '--config');
+        await this.runLinter({
+            linterName: 'prettier',
+            envName: 'PRETTIER',
+            fileMatch: [matchers.json, matchers.yaml, '*.{html,vue,css,scss,sass,less}'],
+            lintFile: { args: ['prettier', ...prettierConfigArgs, '--list-different', '#file#'] },
+            fmtFile: { args: ['prettier', ...prettierConfigArgs, '--write', '#file#'] },
+        });
+
         // Jsonlint
         const jsonlintConfigArgs = configArgs('JSONLINT',
             [], // TODO: Finish
@@ -422,123 +438,12 @@ export class Linters {
             lintFile: { args: ['yamllint', '--strict', ...yamllintConfigArgs, '#file#'] },
         });
 
-        // Prettier
-        const prettierConfigArgs = configArgs('PRETTIER',
-            ['prettierrc', 'prettierrc.yml', 'prettierrc.yaml', 'prettierrc.json', 'prettierrc.js', '.prettierrc', '.prettierrc.yml', '.prettierrc.yaml', '.prettierrc.json', '.prettierrc.js'],
-            '--config');
-        await this.runLinter({
-            linterName: 'prettier',
-            envName: 'PRETTIER',
-            fileMatch: [matchers.json, matchers.yaml, '*.{html,vue,css,scss,sass,less}'],
-            lintFile: { args: ['prettier', ...prettierConfigArgs, '--list-different', '#file#'] },
-            fmtFile: { args: ['prettier', ...prettierConfigArgs, '--write', '#file#'] },
-        });
-
-        // Package.json validator
-        await this.runLinter({
-            linterName: 'package-json-validator',
-            envName: 'PACKAGE_JSON',
-            fileMatch: 'package.json',
-            beforeFile: async (file: string, toolName: string) => {
-                const packageJson = JSON.parse(await fs.readFile(file, 'utf8'));
-                if (packageJson['private'] === true) {
-                    logExtraVerbose(`⏩ Skipping ${toolName} - ${file}, because it's private`);
-                    return false;
-                }
-                return true;
-            },
-            lintFile: { args: ['pjv', '--warnings', '--recommendations', '--filename', '#file#'] },
-        });
-
         // TomlJson
         await this.runLinter({
             linterName: 'tomljson',
             envName: 'TOMLJSON',
             fileMatch: '*.toml',
             lintFile: { args: ['tomljson', '#file#'] },
-        });
-
-        // Dotenv
-        await this.runLinter({
-            linterName: 'dotenv-linter',
-            envName: 'DOTENV',
-            fileMatch: matchers.envfile,
-            lintFile: { args: ['dotenv-linter', '--quiet', '#file#'] },
-        });
-
-        // Composer validate
-        await this.runLinter({
-            linterName: 'composer-validate',
-            envName: 'COMPOSER_VALIDATE',
-            fileMatch: 'composer.json',
-            lintFile: { args: ['composer', 'validate', '--no-interaction', '--no-cache', '--ansi', '--no-check-all', '--no-check-publish', '#file#'] },
-        });
-
-        // Composer normalize
-        await this.runLinter({
-            linterName: 'composer-normalize',
-            envName: 'COMPOSER_NORMALIZE',
-            fileMatch: 'composer.json',
-            lintFile: {
-                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '--dry-run', '--diff', '#file-basename#'],
-                options: (file) => {
-                    return {
-                        cwd: path.dirname(file),
-                    }
-                },
-            },
-            fmtFile: {
-                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '#file-basename#'],
-                options: (file) => {
-                    return {
-                        cwd: path.dirname(file),
-                    }
-                },
-            }
-        });
-
-        // Continuos integration
-
-        // CircleCI validate
-        await this.runLinter({
-            linterName: 'circleci-validate',
-            envName: 'CIRCLECI_VALIDATE',
-            fileMatch: '.circleci/config.yml',
-            lintFile: {
-                args: ['circleci', '--skip-update-check', 'config', 'validate'],
-                options: (file: string) => {
-                    return { cwd: path.dirname(path.dirname(file)) };
-                },
-            },
-        });
-
-        // GitLabCI Lint
-        await this.runLinter({
-            linterName: 'gitlab-ci-lint',
-            envName: 'GITLABCI_LINT',
-            fileMatch: '.gitlab-ci.yml',
-            lintFile: { args: ['gitlab-ci-lint', '#file#'] },
-        });
-
-        // GitLabCI Validate
-        await this.runLinter({
-            linterName: 'gitlab-ci-lint',
-            envName: 'GITLABCI_VALIDATE',
-            fileMatch: '.gitlab-ci.yml',
-            lintFile: { args: ['gitlab-ci-validate', 'validate', '#file#'] },
-        });
-
-        // TravisLint
-        await this.runLinter({
-            linterName: 'travis-lint',
-            envName: 'TRAVIS_LINT',
-            fileMatch: '.travis.yml',
-            lintFile: {
-                args: ['travis', 'lint', '--no-interactive', '--skip-version-check', '--skip-completion-check', '--exit-code', '--quiet'],
-                options: (file: string) => {
-                    return { cwd: path.dirname(file) };
-                },
-            },
         });
 
         // XmlLint
@@ -581,6 +486,65 @@ export class Linters {
             envName: 'SVGLINT',
             fileMatch: '*.svg',
             lintFile: { args: ['svglint', '--ci', ...svglintConfigArgs, '#file#'] },
+        });
+
+        /* */
+
+        // Dotenv
+        await this.runLinter({
+            linterName: 'dotenv-linter',
+            envName: 'DOTENV',
+            fileMatch: matchers.envfile,
+            lintFile: { args: ['dotenv-linter', '--quiet', '#file#'] },
+        });
+
+        /* Package manager files */
+
+        // Package.json validator
+        await this.runLinter({
+            linterName: 'package-json-validator',
+            envName: 'PACKAGE_JSON',
+            fileMatch: 'package.json',
+            beforeFile: async (file: string, toolName: string) => {
+                const packageJson = JSON.parse(await fs.readFile(file, 'utf8'));
+                if (packageJson['private'] === true) {
+                    logExtraVerbose(`⏩ Skipping ${toolName} - ${file}, because it's private`);
+                    return false;
+                }
+                return true;
+            },
+            lintFile: { args: ['pjv', '--warnings', '--recommendations', '--filename', '#file#'] },
+        });
+
+        // Composer validate
+        await this.runLinter({
+            linterName: 'composer-validate',
+            envName: 'COMPOSER_VALIDATE',
+            fileMatch: 'composer.json',
+            lintFile: { args: ['composer', 'validate', '--no-interaction', '--no-cache', '--ansi', '--no-check-all', '--no-check-publish', '#file#'] },
+        });
+
+        // Composer normalize
+        await this.runLinter({
+            linterName: 'composer-normalize',
+            envName: 'COMPOSER_NORMALIZE',
+            fileMatch: 'composer.json',
+            lintFile: {
+                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '--dry-run', '--diff', '#file-basename#'],
+                options: (file) => {
+                    return {
+                        cwd: path.dirname(file),
+                    }
+                },
+            },
+            fmtFile: {
+                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '#file-basename#'],
+                options: (file) => {
+                    return {
+                        cwd: path.dirname(file),
+                    }
+                },
+            }
         });
 
         /* Docker */
@@ -641,6 +605,52 @@ export class Linters {
             fileMatch: matchers.bsdmakefile,
             lintFile: { args: ['bsdmake', '-n', '-f', '#file#'] },
         });
+
+        /* CI/CD Services */
+
+        // CircleCI validate
+        await this.runLinter({
+            linterName: 'circleci-validate',
+            envName: 'CIRCLECI_VALIDATE',
+            fileMatch: '.circleci/config.yml',
+            lintFile: {
+                args: ['circleci', '--skip-update-check', 'config', 'validate'],
+                options: (file: string) => {
+                    return { cwd: path.dirname(path.dirname(file)) };
+                },
+            },
+        });
+
+        // GitLabCI Lint
+        await this.runLinter({
+            linterName: 'gitlab-ci-lint',
+            envName: 'GITLABCI_LINT',
+            fileMatch: '.gitlab-ci.yml',
+            lintFile: { args: ['gitlab-ci-lint', '#file#'] },
+        });
+
+        // GitLabCI Validate
+        await this.runLinter({
+            linterName: 'gitlab-ci-lint',
+            envName: 'GITLABCI_VALIDATE',
+            fileMatch: '.gitlab-ci.yml',
+            lintFile: { args: ['gitlab-ci-validate', 'validate', '#file#'] },
+        });
+
+        // TravisLint
+        await this.runLinter({
+            linterName: 'travis-lint',
+            envName: 'TRAVIS_LINT',
+            fileMatch: '.travis.yml',
+            lintFile: {
+                args: ['travis', 'lint', '--no-interactive', '--skip-version-check', '--skip-completion-check', '--exit-code', '--quiet'],
+                options: (file: string) => {
+                    return { cwd: path.dirname(file) };
+                },
+            },
+        });
+
+        /* End of linters */
 
         // Report results
         logNormal(`Found ${this.foundProblems} problems`);
