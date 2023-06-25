@@ -112,8 +112,16 @@ export class Linters {
             fileMatch: string | string[] | ((file: string) => boolean), // TODO: Remove closure maybe?
             beforeAllFiles?: (toolName: string) => (boolean | Promise<boolean>),
             beforeFile?: (file: string, toolName: string) => (boolean | Promise<boolean>),
-            lintFile: { args: string[], options?: ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | ExecaOptions | undefined, successExitCode?: number | undefined } | ((file: string, toolName: string) => Promise<void>),
-            fmtFile?: { args: string[], options?: ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | ExecaOptions | undefined, successExitCode?: number | undefined } | ((file: string, toolName: string) => Promise<void>),
+            lintFile: {
+                args: string[] | ((file: string) => (string[] | Promise<string[]>)),
+                options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
+                successExitCode?: number | undefined,
+            } | ((file: string, toolName: string) => Promise<void>),
+            fmtFile?: {
+                args: string[] | ((file: string) => (string[] | Promise<string[]>)),
+                options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
+                successExitCode?: number | undefined,
+            } | ((file: string, toolName: string) => Promise<void>),
         }
     ): Promise<void> {
         const files = (() => {
@@ -164,18 +172,21 @@ export class Linters {
                 if (typeof options.lintFile === 'object') {
                     const execaConfig = options.lintFile;
                     options.lintFile = async (file: string, toolName: string) => {
-                        const args = execaConfig.args.map((el) => el.replace('#file#', file));
+                        const args: string[] = await (async () => {
+                            if (Array.isArray(execaConfig.args)) {
+                                return execaConfig.args.map((el) => el.replace('#file#', file));
+                            }
+                            let args = execaConfig.args(file);
+                            return 'then' in args ? await args : args;
+                        })();
                         const options: ExecaOptions = await (async () => {
                             if (execaConfig.options === undefined) {
                                 return {};
                             } else if (typeof execaConfig.options === 'object') {
                                 return execaConfig.options;
                             } else {
-                                let returnValue = execaConfig.options(file);
-                                if ('then' in returnValue) {
-                                    returnValue = await returnValue;
-                                }
-                                return returnValue;
+                                let options = execaConfig.options(file);
+                                return 'then' in options ? await options : options;
                             }
                         })();
                         const successExitCode = execaConfig.successExitCode ?? 0;
@@ -194,18 +205,21 @@ export class Linters {
                 if (typeof options.fmtFile === 'object') {
                     const execaConfig = options.fmtFile;
                     options.fmtFile = async (file: string, toolName: string) => {
-                        const args = execaConfig.args.map((el) => el.replace('#file#', file));
+                        const args: string[] = await (async () => {
+                            if (Array.isArray(execaConfig.args)) {
+                                return execaConfig.args.map((el) => el.replace('#file#', file));
+                            }
+                            let args = execaConfig.args(file);
+                            return 'then' in args ? await args : args;
+                        })();
                         const options: ExecaOptions = await (async () => {
                             if (execaConfig.options === undefined) {
                                 return {};
                             } else if (typeof execaConfig.options === 'object') {
                                 return execaConfig.options;
                             } else {
-                                let returnValue = execaConfig.options(file);
-                                if ('then' in returnValue) {
-                                    returnValue = await returnValue;
-                                }
-                                return returnValue;
+                                let options = execaConfig.options(file);
+                                return 'then' in options ? await options : options;
                             }
                         })();
                         const successExitCode = execaConfig.successExitCode ?? 0;
