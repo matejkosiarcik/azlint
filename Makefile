@@ -26,6 +26,7 @@ bootstrap:
 	# install dependencies
 	PATH="$(PROJECT_DIR)/dependencies/venv/bin:$(PATH)" pip install --requirement dependencies/requirements.txt
 
+	gem install bundler
 	BUNDLE_DISABLE_SHARED_GEMS=true \
 	BUNDLE_PATH__SYSTEM=false \
 	BUNDLE_PATH="$(PROJECT_DIR)/dependencies/.bundle" \
