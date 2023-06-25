@@ -352,6 +352,7 @@ export class Linters {
             yaml: '*.{yml,yaml}',
             envfile: '{*.env,env.*,env}',
             dockerfile: '{Dockerfile,*.Dockerfile,Dockerfile.*}',
+            markdown: '*.{md,mdown,markdown}',
             makefile: '{Makefile,*.make}',
             gnumakefile: '{GNU,G,}{Makefile,*.make}',
             bsdmakefile: '{BSD,B,}{Makefile,*.make}',
@@ -400,12 +401,14 @@ export class Linters {
         });
 
         // Jsonlint
-        // --config
+        const jsonlintConfigArgs = configArgs('JSONLINT',
+            [], // TODO: Finish
+            '--config');
         await this.runLinter({
             linterName: 'jsonlint',
             envName: 'JSONLINT',
             fileMatch: matchers.json,
-            lintFile: { args: ['jsonlint', '--quiet', '--comments', '--no-duplicate-keys', '#file#'] },
+            lintFile: { args: ['jsonlint', ...jsonlintConfigArgs, '--quiet', '--comments', '--no-duplicate-keys', '#file#'] },
         });
 
         // Yamllint
