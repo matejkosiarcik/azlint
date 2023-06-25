@@ -355,6 +355,7 @@ export class Linters {
             makefile: '{Makefile,*.make}',
             gnumakefile: '{GNU,G,}{Makefile,*.make}',
             bsdmakefile: '{BSD,B,}{Makefile,*.make}',
+            html: '*.{html,htm,html5,xhtml}',
         };
 
         // Gitignore
@@ -520,9 +521,7 @@ export class Linters {
             linterName: 'gitlab-ci-lint',
             envName: 'GITLABCI_LINT',
             fileMatch: '.gitlab-ci.yml',
-            lintFile: {
-                args: ['gitlab-ci-lint', '#file#'],
-            },
+            lintFile: { args: ['gitlab-ci-lint', '#file#'] },
         });
 
         // GitLabCI Validate
@@ -530,9 +529,7 @@ export class Linters {
             linterName: 'gitlab-ci-lint',
             envName: 'GITLABCI_VALIDATE',
             fileMatch: '.gitlab-ci.yml',
-            lintFile: {
-                args: ['gitlab-ci-validate', 'validate', '#file#'],
-            },
+            lintFile: { args: ['gitlab-ci-validate', 'validate', '#file#'] },
         });
 
         // TravisLint
@@ -546,6 +543,31 @@ export class Linters {
                     return { cwd: path.dirname(file) };
                 },
             },
+        });
+
+        // XmlLint
+        await this.runLinter({
+            linterName: 'xmllint',
+            envName: 'XMLLINT',
+            fileMatch: '*.xml',
+            lintFile: { args: ['xmllint', '--noout', '#file#'] },
+            fmtFile: { args: ['xmllint', '--format', '--output', '#file#', '#file#'] }
+        });
+
+        // HtmlLint
+        await this.runLinter({
+            linterName: 'htmllint',
+            envName: 'HTMLLINT',
+            fileMatch: matchers.html,
+            lintFile: { args: ['htmllint', '#file#'] },
+        });
+
+        // HtmlHint
+        await this.runLinter({
+            linterName: 'htmlhint',
+            envName: 'HTMLHINT',
+            fileMatch: matchers.html,
+            lintFile: { args: ['htmlhint', '#file#'] },
         });
 
         // Report results
