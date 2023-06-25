@@ -94,19 +94,63 @@ function configArgs(envName: string, possibleFiles: string[], configArgName: str
     const configFile = (() => {
         const envValue = process.env[envName + '_CONFIG_FILE'];
         if (envValue) {
-            return path.join(configDir, envValue);
+            if (fsSync.existsSync(envValue)) {
+                return envValue;
+            } else if (fsSync.existsSync(path.join(configDir, envValue))) {
+                return path.join(configDir, envValue);
+            }
         }
 
         const potentialConfigs = possibleFiles
             .map((file) => path.join(configDir, file))
             .filter((file) => fsSync.existsSync(file));
         if (potentialConfigs.length === 0) {
-            return undefined;
+            return;
         }
         return potentialConfigs[0];
     })();
 
-    return configFile ? [configArgName, configFile] : [];
+    return configFile ? (configArgName.endsWith('=') ? [`${configArgName}${configFile}`] : [configArgName, configFile]) : [];
+}
+
+function pythonConfigArgs(envName: string, linterName: string, configArgName: string, specificFiles: string[], commonFiles: string[]): string[] {
+    const configDir = process.env['LINTER_RULES_PATH'] ?? '.';
+    const configFile = (() => {
+        const envValue = process.env[envName + '_CONFIG_FILE'];
+        if (envValue) {
+            if (fsSync.existsSync(envValue)) {
+                return envValue;
+            } else if (fsSync.existsSync(path.join(configDir, envValue))) {
+                return path.join(configDir, envValue);
+            }
+        }
+
+        const specificConfigs = specificFiles
+            .map((file) => path.join(configDir, file))
+            .filter((file) => fsSync.existsSync(file));
+        if (specificConfigs.length > 0) {
+            return specificConfigs[0];
+        }
+
+        const commonConfigs = commonFiles
+            .map((file) => path.join(configDir, file))
+            .filter((file) => fsSync.existsSync(file))
+            .filter((file) => {
+                const configContent = fsSync.readFileSync(file, 'utf8');
+                return configContent.split('\n')
+                    .some((line) => line.includes(`[${linterName}]`) ||
+                        line.includes(`[tool.${linterName}]`) ||
+                        line.includes(`[tool.${linterName}.`)
+                    );
+            });
+        if (commonConfigs.length > 0) {
+            return commonConfigs[0];
+        }
+
+        return;
+    })();
+
+    return configFile ? (configArgName.endsWith('=') ? [`${configArgName}${configFile}`] : [configArgName, configFile]) : [];
 }
 
 export class Linters {
@@ -310,6 +354,7 @@ export class Linters {
                                 .replace('#file#', file)
                                 .replace('#file-basename#', path.basename(file))
                                 .replace('#file-dirname#', path.dirname(file))
+                                .replace('#file-absolute#', path.resolve(file))
                             );
                         }
                         let args = execaConfig.args(file);
@@ -590,54 +635,59 @@ export class Linters {
         /* Python */
 
         // Autopep8
-        await this.runLinter({
-            linterName: 'autopep8',
-            envName: 'AUTOPEP8',
-            fileMatch: matchers.python,
-            lintFile: { args: ['autopep8', '--diff', "#file#"] },
-            fmtFile: { args: ['autopep8', '--in-place', "#file#"] },
-        });
+        // await this.runLinter({
+        //     linterName: 'autopep8',
+        //     envName: 'AUTOPEP8',
+        //     fileMatch: matchers.python,
+        //     lintFile: { args: ['autopep8', '--diff', "#file#"], },
+        //     fmtFile: { args: ['autopep8', '--in-place', "#file#"], },
+        // });
 
         // isort
+        const isortConfigArgs = pythonConfigArgs('ISORT', 'isort', '--settings-file', ['isort.cfg', '.isort.cfg'], ['pyproject.toml', 'setup.cfg', 'tox.ini']);
         await this.runLinter({
             linterName: 'isort',
             envName: 'ISORT',
             fileMatch: matchers.python,
-            lintFile: { args: ['isort', '--honor-noqa', '--check-only', '--diff', "#file#"] },
-            fmtFile: { args: ['isort', '--honor-noqa', "#file#"] },
+            lintFile: { args: ['isort', ...isortConfigArgs, '--honor-noqa', '--check-only', '--diff', "#file#"] },
+            fmtFile: { args: ['isort', ...isortConfigArgs, '--honor-noqa', "#file#"] },
         });
 
         // Black
+        const blackConfigArgs = pythonConfigArgs('BLACK', 'black', '--config', ['black', '.black'], ['pyproject.toml']);
         await this.runLinter({
             linterName: 'black',
             envName: 'BLACK',
             fileMatch: matchers.python,
-            lintFile: { args: ['black', '--check', '--diff', '--quiet', "#file#"] },
-            fmtFile: { args: ['black', '--quiet', "#file#"] },
+            lintFile: { args: ['black', ...blackConfigArgs, '--check', '--diff', '--quiet', "#file#"] },
+            fmtFile: { args: ['black', ...blackConfigArgs, '--quiet', "#file#"] },
         });
 
         // Pycodestyle
+        const pycodestyleConfigArgs = pythonConfigArgs('PYCODESTYLE', 'pycodestyle', '--config', ['pycodestyle', '.pycodestyle'], ['setup.cfg', 'tox.ini']);
         await this.runLinter({
             linterName: 'pycodestyle',
             envName: 'PYCODESTYLE',
             fileMatch: matchers.python,
-            lintFile: { args: ['pycodestyle', '--quiet', '--quiet', "#file#"] },
+            lintFile: { args: ['pycodestyle', ...pycodestyleConfigArgs, "#file#"] },
         });
 
         // Flake8
+        const flake8ConfigArgs = pythonConfigArgs('FLAKE8', 'flake8', '--config', ['flake8', '.flake8'], ['setup.cfg', 'tox.ini']);
         await this.runLinter({
             linterName: 'flake8',
             envName: 'FLAKE8',
             fileMatch: matchers.python,
-            lintFile: { args: ['flake8', '--quiet', '--quiet', "#file#"] },
+            lintFile: { args: ['flake8', ...flake8ConfigArgs, "#file#"] },
         });
 
         // Pylint
+        const pylintConfigArgs = pythonConfigArgs('PYLINT', 'pylint', '--rcfile', ['pylintrc', '.pylintrc'], ['pyproject.toml', 'setup.cfg', 'tox.ini']);
         await this.runLinter({
             linterName: 'pylint',
             envName: 'PYLINT',
             fileMatch: matchers.python,
-            lintFile: { args: ['pylint', "#file#"] },
+            lintFile: { args: ['pylint', ...pylintConfigArgs, "#file#"] },
         });
 
         // MyPy

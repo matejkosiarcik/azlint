@@ -8,12 +8,11 @@ import pathlib
 import re
 import subprocess
 import sys
-import tempfile
 from os import path
 from typing import List, Optional
 
 
-def main(argv: Optional[List[str]]) -> int:
+def main(argv: Optional[List[str]]):
     parser = argparse.ArgumentParser()
     parser.add_argument("--only-changed", action="store_true")
     args = parser.parse_args(argv)
