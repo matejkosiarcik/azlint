@@ -53,6 +53,16 @@ function logFixingError(toolName: string, file: string, command: ExecaReturnValu
     logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`)
 }
 
+function shouldSkipLinter(envName: string, linterName: string): boolean {
+    const envEnable = 'VALIDATE_' + envName;
+    if (process.env[envEnable] && process.env[envEnable] === 'false') {
+        logExtraVerbose(`Skipped ${linterName} - ${envEnable} is false`);
+        return true;
+    }
+
+    return false;
+}
+
 /**
  * Custom `execa` wrapper with default options
  */
@@ -105,13 +115,27 @@ export class Linters {
 
     constructor(readonly mode: 'lint' | 'fmt', readonly files: string[], readonly color: ColorOptions) {}
 
+    matchFiles(fileMatch: string | string[] | ((file: string) => boolean)): string[] {
+        if (typeof fileMatch === 'string') {
+            const regex = wildcard2regex(fileMatch);
+            return this.files.filter((file) => regex.test(file));
+        }
+
+        if (Array.isArray(fileMatch)) {
+            const regexes = fileMatch.map((wildcard) => wildcard2regex(wildcard));
+            return this.files.filter((file) => regexes.some((regex) => regex.test(file)));
+        }
+
+        return this.files.filter((file) => fileMatch(file));
+    }
+
     async runLinter(
         options: {
             linterName: string,
             envName: string,
             fileMatch: string | string[] | ((file: string) => boolean), // TODO: Remove closure maybe?
             beforeAllFiles?: (toolName: string) => (boolean | Promise<boolean>),
-            beforeFile?: (file: string, toolName: string) => (boolean | Promise<boolean>),
+            beforeFile?: ((file: string, toolName: string) => (boolean | Promise<boolean>)) | undefined,
             lintFile: {
                 args: string[] | ((file: string) => (string[] | Promise<string[]>)),
                 options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
@@ -124,24 +148,8 @@ export class Linters {
             } | ((file: string, toolName: string) => Promise<void>),
         }
     ): Promise<void> {
-        const files = (() => {
-            const fileMatch = options.fileMatch;
-            if (typeof fileMatch === 'string') {
-                const regex = wildcard2regex(fileMatch);
-                return this.files.filter((file) => regex.test(file));
-            }
-
-            if (Array.isArray(fileMatch)) {
-                const regexes = fileMatch.map((wildcard) => wildcard2regex(wildcard));
-                return this.files.filter((file) => regexes.some((regex) => regex.test(file)));
-            }
-
-            return this.files.filter((file) => fileMatch(file));
-        })();
-
-        const envEnable = 'VALIDATE_' + options.envName;
-        if (process.env[envEnable] && process.env[envEnable] === 'false') {
-            logExtraVerbose(`Skipped ${options.linterName} - ${envEnable} is false`);
+        const files = this.matchFiles(options.fileMatch);
+        if (shouldSkipLinter(options.envName, options.linterName)) {
             return;
         }
 
@@ -157,92 +165,116 @@ export class Linters {
         }
 
         await Promise.all(files.map(async (file) => {
-            if (options.beforeFile) {
-                let returnValue = options.beforeFile(file, options.linterName);
-                if (typeof returnValue !== 'boolean') {
-                    returnValue = await returnValue;
-                }
-
-                if (!returnValue) {
-                    return;
-                }
-            }
-
-            if (this.mode === 'lint') {
-                if (typeof options.lintFile === 'object') {
-                    const execaConfig = options.lintFile;
-                    options.lintFile = async (file: string, toolName: string) => {
-                        const args: string[] = await (async () => {
-                            if (Array.isArray(execaConfig.args)) {
-                                return execaConfig.args.map((el) => el.replace('#file#', file));
-                            }
-                            let args = execaConfig.args(file);
-                            return 'then' in args ? await args : args;
-                        })();
-                        const options: ExecaOptions = await (async () => {
-                            if (execaConfig.options === undefined) {
-                                return {};
-                            } else if (typeof execaConfig.options === 'object') {
-                                return execaConfig.options;
-                            } else {
-                                let options = execaConfig.options(file);
-                                return 'then' in options ? await options : options;
-                            }
-                        })();
-                        const successExitCode = execaConfig.successExitCode ?? 0;
-
-                        const cmd = await execa(args, options);
-                        if (cmd.exitCode === successExitCode) { // Success
-                            logLintSuccess(toolName, file);
-                        } else { // Fail
-                            this.foundProblems += 1;
-                            logLintFail(toolName, file, cmd);
-                        }
-                    };
-                }
-                await options.lintFile(file, options.linterName);
-            } else if (this.mode === 'fmt' && options.fmtFile) {
-                if (typeof options.fmtFile === 'object') {
-                    const execaConfig = options.fmtFile;
-                    options.fmtFile = async (file: string, toolName: string) => {
-                        const args: string[] = await (async () => {
-                            if (Array.isArray(execaConfig.args)) {
-                                return execaConfig.args.map((el) => el.replace('#file#', file));
-                            }
-                            let args = execaConfig.args(file);
-                            return 'then' in args ? await args : args;
-                        })();
-                        const options: ExecaOptions = await (async () => {
-                            if (execaConfig.options === undefined) {
-                                return {};
-                            } else if (typeof execaConfig.options === 'object') {
-                                return execaConfig.options;
-                            } else {
-                                let options = execaConfig.options(file);
-                                return 'then' in options ? await options : options;
-                            }
-                        })();
-                        const successExitCode = execaConfig.successExitCode ?? 0;
-
-                        const originalHash = await hashFile(file);
-                        const cmd = await execa(args, options);
-                        const updatedHash = await hashFile(file);
-                        if (cmd.exitCode === successExitCode) {
-                            if (originalHash !== updatedHash) {
-                                this.foundProblems += 1;
-                                this.fixedProblems += 1;
-                                logFixingSuccess(toolName, file, cmd);
-                            } else {
-                                logFixingUnchanged(toolName, file, cmd);
-                            }
-                        } else {
-                            logFixingError(toolName, file, cmd);
-                        }
-                    };
-                }
-                await options.fmtFile(file, options.linterName);
-            }
+            await this.runLinterFile({
+                file: file,
+                ...options,
+            });
         }));
+    }
+
+    async runLinterFile(
+        options: {
+            linterName: string,
+            envName: string,
+            file: string,
+            beforeFile?: ((file: string, toolName: string) => (boolean | Promise<boolean>)) | undefined,
+            lintFile: {
+                args: string[] | ((file: string) => (string[] | Promise<string[]>)),
+                options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
+                successExitCode?: number | undefined,
+            } | ((file: string, toolName: string) => Promise<void>),
+            fmtFile?: {
+                args: string[] | ((file: string) => (string[] | Promise<string[]>)),
+                options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
+                successExitCode?: number | undefined,
+            } | ((file: string, toolName: string) => Promise<void>),
+        }
+    ): Promise<void> {
+        if (options.beforeFile) {
+            let returnValue = options.beforeFile(options.file, options.linterName);
+            if (typeof returnValue !== 'boolean') {
+                returnValue = await returnValue;
+            }
+
+            if (!returnValue) {
+                return;
+            }
+        }
+
+        if (this.mode === 'lint') {
+            if (typeof options.lintFile === 'object') {
+                const execaConfig = options.lintFile;
+                options.lintFile = async (file: string, toolName: string) => {
+                    const args: string[] = await (async () => {
+                        if (Array.isArray(execaConfig.args)) {
+                            return execaConfig.args.map((el) => el.replace('#file#', file));
+                        }
+                        let args = execaConfig.args(file);
+                        return 'then' in args ? await args : args;
+                    })();
+                    const options: ExecaOptions = await (async () => {
+                        if (execaConfig.options === undefined) {
+                            return {};
+                        } else if (typeof execaConfig.options === 'object') {
+                            return execaConfig.options;
+                        } else {
+                            let options = execaConfig.options(file);
+                            return 'then' in options ? await options : options;
+                        }
+                    })();
+                    const successExitCode = execaConfig.successExitCode ?? 0;
+
+                    const cmd = await execa(args, options);
+                    if (cmd.exitCode === successExitCode) { // Success
+                        logLintSuccess(toolName, file);
+                    } else { // Fail
+                        this.foundProblems += 1;
+                        logLintFail(toolName, file, cmd);
+                    }
+                };
+            }
+            await options.lintFile(options.file, options.linterName);
+        } else if (this.mode === 'fmt' && options.fmtFile) {
+            if (typeof options.fmtFile === 'object') {
+                const execaConfig = options.fmtFile;
+                options.fmtFile = async (file: string, toolName: string) => {
+                    const args: string[] = await (async () => {
+                        if (Array.isArray(execaConfig.args)) {
+                            return execaConfig.args.map((el) => el.replace('#file#', file));
+                        }
+                        let args = execaConfig.args(file);
+                        return 'then' in args ? await args : args;
+                    })();
+                    const options: ExecaOptions = await (async () => {
+                        if (execaConfig.options === undefined) {
+                            return {};
+                        } else if (typeof execaConfig.options === 'object') {
+                            return execaConfig.options;
+                        } else {
+                            let options = execaConfig.options(file);
+                            return 'then' in options ? await options : options;
+                        }
+                    })();
+                    const successExitCode = execaConfig.successExitCode ?? 0;
+
+                    const originalHash = await hashFile(file);
+                    const cmd = await execa(args, options);
+                    const updatedHash = await hashFile(file);
+                    if (cmd.exitCode === successExitCode) {
+                        if (originalHash !== updatedHash) {
+                            this.foundProblems += 1;
+                            this.fixedProblems += 1;
+                            logFixingSuccess(toolName, file, cmd);
+                        } else {
+                            logFixingUnchanged(toolName, file, cmd);
+                        }
+                    } else {
+                        logFixingError(toolName, file, cmd);
+                    }
+                };
+            }
+            await options.fmtFile(options.file, options.linterName);
+        }
     }
 
     async run(): Promise<boolean> {
