@@ -400,6 +400,7 @@ export class Linters {
         });
 
         // Jsonlint
+        // --config
         await this.runLinter({
             linterName: 'jsonlint',
             envName: 'JSONLINT',
@@ -419,12 +420,15 @@ export class Linters {
         });
 
         // Prettier
+        const prettierConfigArgs = configArgs('PRETTIER',
+            ['prettierrc', 'prettierrc.yml', 'prettierrc.yaml', 'prettierrc.json', 'prettierrc.js', '.prettierrc', '.prettierrc.yml', '.prettierrc.yaml', '.prettierrc.json', '.prettierrc.js'],
+            '--config');
         await this.runLinter({
             linterName: 'prettier',
             envName: 'PRETTIER',
             fileMatch: [matchers.json, matchers.yaml, '*.{html,vue,css,scss,sass,less}'],
-            lintFile: { args: ['prettier', '--list-different', '#file#'] },
-            fmtFile: { args: ['prettier', '--write', '#file#'] },
+            lintFile: { args: ['prettier', ...prettierConfigArgs, '--list-different', '#file#'] },
+            fmtFile: { args: ['prettier', ...prettierConfigArgs, '--write', '#file#'] },
         });
 
         // Package.json validator
