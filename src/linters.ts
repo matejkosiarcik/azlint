@@ -131,9 +131,9 @@ export class Linters {
 
     async runLinter(
         options: {
+            fileMatch: string | string[] | ((file: string) => boolean),
             linterName: string,
             envName: string,
-            fileMatch: string | string[] | ((file: string) => boolean), // TODO: Remove closure maybe?
             beforeAllFiles?: (toolName: string) => (boolean | Promise<boolean>),
             beforeFile?: ((file: string, toolName: string) => (boolean | Promise<boolean>)) | undefined,
             lintFile: {
@@ -159,7 +159,7 @@ export class Linters {
                 returnValue = await returnValue;
             }
 
-            if (returnValue === false) {
+            if (!returnValue) {
                 return;
             }
         }
@@ -169,6 +169,67 @@ export class Linters {
                 file: file,
                 ...options,
             });
+        }));
+    }
+
+    async runLinters(
+        commonOptions: {
+            fileMatch: string | string[] | ((file: string) => boolean),
+        },
+        individualOptions: {
+            linterName: string,
+            envName: string,
+            beforeAllFiles?: (toolName: string) => (boolean | Promise<boolean>),
+            beforeFile?: ((file: string, toolName: string) => (boolean | Promise<boolean>)) | undefined,
+            lintFile: {
+                args: string[] | ((file: string) => (string[] | Promise<string[]>)),
+                options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
+                successExitCode?: number | undefined,
+            } | ((file: string, toolName: string) => Promise<void>),
+            fmtFile?: {
+                args: string[] | ((file: string) => (string[] | Promise<string[]>)),
+                options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
+                successExitCode?: number | undefined,
+            } | ((file: string, toolName: string) => Promise<void>),
+        }[]
+    ): Promise<void> {
+        const files = this.matchFiles(commonOptions.fileMatch);
+
+        const acceptedIndividualOptions = (await Promise.all(individualOptions.map(async (options) => {
+            if (shouldSkipLinter(options.envName, options.linterName)) {
+                return {
+                    pass: false,
+                    options: options
+                };
+            }
+
+            if (options.beforeAllFiles) {
+                let returnValue = options.beforeAllFiles(options.linterName);
+                if (typeof returnValue !== 'boolean') {
+                    returnValue = await returnValue;
+                }
+
+                if (!returnValue) {
+                    return {
+                        pass: false,
+                        options: options
+                    };
+                }
+            }
+
+            return {
+                pass: true,
+                options: options
+            };
+        }))).filter((options) => options.pass).map((options) => options.options);
+
+        await Promise.all(files.map(async (file) => {
+            for (const options of acceptedIndividualOptions) {
+                await this.runLinterFile({
+                    file: file,
+                    ...options,
+                });
+            }
         }));
     }
 
@@ -428,7 +489,7 @@ export class Linters {
             },
         });
 
-        // Final work
+        // Report results
         logNormal(`Found ${this.foundProblems} problems`);
         if (this.mode === 'lint') {
             return this.foundProblems === 0;
