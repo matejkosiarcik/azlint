@@ -60,6 +60,7 @@ check_sh() {
 check_ksh() {
     ksh -n "$file"
     mksh -n "$file"
+    ksh93 -n "$file"
 }
 
 check_bash() {
