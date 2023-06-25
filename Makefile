@@ -38,14 +38,23 @@ bootstrap:
 
 	(cd dependencies && composer install --no-cache)
 
-	git clone https://github.com/mrtazz/checkmake dependencies/checkmake && \
+	rm -rf dependencies/checkmake && \
+		mkdir -p dependencies/checkmake && \
+		cd dependencies/checkmake && \
+		git clone https://github.com/mrtazz/checkmake . && \
 		BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
 
-	git clone https://github.com/editorconfig-checker/editorconfig-checker dependencies/editorconfig-checker && \
+	rm -rf dependencies/editorconfig-checker && \
+		mkdir -p dependencies/editorconfig-checker && \
+		cd dependencies/editorconfig-checker && \
+		git clone https://github.com/editorconfig-checker/editorconfig-checker . && \
 		make build
 
-	# TODO: Finish bootstrap for CircleCI CLI
-	# curl -fLsS https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh | bash
+	# TODO: Finish CircleCI bootstrap script
+	# rm -rf dependencies/circleci-cli && \
+	# 	mkdir -p dependencies/circleci-cli && \
+	# 	cd dependencies/circleci-cli && \
+	# 	DESTDIR="$$PWD" curl -fLsS https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh | bash
 
 	# TODO: Finish bootstrap for golang tools
 	# GOPATH="$$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest'
