@@ -488,14 +488,48 @@ export class Linters {
             lintFile: { args: ['svglint', '--ci', ...svglintConfigArgs, '#file#'] },
         });
 
-        /* */
-
         // Dotenv
         await this.runLinter({
             linterName: 'dotenv-linter',
             envName: 'DOTENV',
             fileMatch: matchers.envfile,
             lintFile: { args: ['dotenv-linter', '--quiet', '#file#'] },
+        });
+
+        /* Documentation (Markdown) */
+
+        // Markdownlint
+        const markdownlintConfigArgs = configArgs('MDL',
+            ['markdownlint.json', '.markdownlint.json'],
+            '--config');
+        await this.runLinter({
+            linterName: 'markdownlint',
+            envName: 'MARKDOWNLINT',
+            fileMatch: matchers.markdown,
+            lintFile: { args: ['markdownlint', ...markdownlintConfigArgs, '#file#'] },
+            fmtFile: { args: ['markdownlint', ...markdownlintConfigArgs, '--fix', '#file#'] },
+        });
+
+        // mdl
+        const mdlConfigArgs = configArgs('MDL',
+            ['.mdlrc'],
+            '--config');
+        await this.runLinter({
+            linterName: 'mdl',
+            envName: 'MDL',
+            fileMatch: matchers.markdown,
+            lintFile: { args: ['bundle', 'exec', 'mdl', ...mdlConfigArgs, '#file#'] },
+        });
+
+        // Markdown link check
+        const markdownLinkCheckConfigArgs = configArgs('MDL',
+            ['markdown-link-check.json', '.markdown-link-check.json'],
+            '--config');
+        await this.runLinter({
+            linterName: 'markdown-link-check',
+            envName: 'MARKDOWN_LINK_CHECK',
+            fileMatch: matchers.markdown,
+            lintFile: { args: ['markdown-link-check', '--quiet', ...markdownLinkCheckConfigArgs, '--retry', "#file#"] },
         });
 
         /* Package manager files */

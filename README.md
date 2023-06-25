@@ -48,7 +48,6 @@ I see it as a complement to
 These meta-linters are awesome, but are missing some linters that are bundled into
 _AZLint_.
 
-
 ### Features
 
 - 📦 Includes 39 linters
@@ -64,7 +63,9 @@ _AZLint_.
 **NOTE:** In this chapter, we will use `:latest` tag.
 It is recommended to replace `:latest` with a specific `version` when you use it.
 
-Go to dockerhub's [tags](https://hub.docker.com/r/matejkosiarcik/azlint/tags?page=1&ordering=last_updated) to see all available tags or go to github's [releases](https://github.com/matejkosiarcik/azlint/releases) for all project versions.
+Go to dockerhub's [tags](https://hub.docker.com/r/matejkosiarcik/azlint/tags?page=1&ordering=last_updated)
+to see all available tags or go to github's [releases](https://github.com/matejkosiarcik/azlint/releases)
+for all project versions.
 
 ### Locally - Linux & macOS
 

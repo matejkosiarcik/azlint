@@ -101,7 +101,6 @@ import { Linters } from './linters';
         checkmake: path.join(dependenciesDir, 'checkmake', 'bin'),
         editorconfig: path.join(dependenciesDir, 'editorconfig-checker', 'bin'),
     };
-    // process.env['PATH'] = `${binPaths.node}:${binPaths.cargo}:${binPaths.venv}:${binPaths.composer}:${binPaths.checkmake}:${binPaths.editorconfig}:${process.env['PATH']}`;
     process.env['PATH'] = `${Object.values(binPaths).join(':')}:${process.env['PATH']}`;
     process.env['BUNDLE_DISABLE_SHARED_GEMS'] = 'true';
     process.env['BUNDLE_PATH__SYSTEM'] = 'false';
