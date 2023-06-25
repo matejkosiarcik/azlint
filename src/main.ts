@@ -49,8 +49,8 @@ import { Linters } from './linters';
     // TODO: make "lint" default command
     // TODO: Handle situations when no command is supplied and directorty is supplied
 
-    if (fs.existsSync('.env')) {
-        dotenv.config({ path: '.env' });
+    if (fs.existsSync(path.join(__dirname, '..', '.env'))) {
+        dotenv.config({ path: path.join(__dirname, '..', '.env') });
     }
 
     // Shortcircuit version
