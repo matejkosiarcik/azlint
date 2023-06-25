@@ -268,7 +268,11 @@ export class Linters {
                 options.lintFile = async (file: string, toolName: string) => {
                     const args: string[] = await (async () => {
                         if (Array.isArray(execaConfig.args)) {
-                            return execaConfig.args.map((el) => el.replace('#file#', file));
+                            return execaConfig.args.map((el) => el
+                                .replace('#file#', file)
+                                .replace('#file-basename#', path.basename(file))
+                                .replace('#file-dirname#', path.dirname(file))
+                            );
                         }
                         let args = execaConfig.args(file);
                         return 'then' in args ? await args : args;
@@ -301,7 +305,11 @@ export class Linters {
                 options.fmtFile = async (file: string, toolName: string) => {
                     const args: string[] = await (async () => {
                         if (Array.isArray(execaConfig.args)) {
-                            return execaConfig.args.map((el) => el.replace('#file#', file));
+                            return execaConfig.args.map((el) => el
+                                .replace('#file#', file)
+                                .replace('#file-basename#', path.basename(file))
+                                .replace('#file-dirname#', path.dirname(file))
+                            );
                         }
                         let args = execaConfig.args(file);
                         return 'then' in args ? await args : args;
@@ -459,6 +467,37 @@ export class Linters {
             envName: 'SVGLINT',
             fileMatch: '*.svg',
             lintFile: { args: ['svglint', '--ci', ...svglintConfigArgs, '#file#'] },
+        });
+
+        // Composer validate
+        await this.runLinter({
+            linterName: 'composer-validate',
+            envName: 'COMPOSER_VALIDATE',
+            fileMatch: 'composer.json',
+            lintFile: { args: ['composer', 'validate', '--no-interaction', '--no-cache', '--ansi', '--no-check-all', '--no-check-publish', '#file#'] },
+        });
+
+        // Composer normalize
+        await this.runLinter({
+            linterName: 'composer-normalize',
+            envName: 'COMPOSER_NORMALIZE',
+            fileMatch: 'composer.json',
+            lintFile: {
+                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '--dry-run', '--diff', '#file-basename#'],
+                options: (file) => {
+                    return {
+                        cwd: path.dirname(file),
+                    }
+                },
+            },
+            fmtFile: {
+                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '#file-basename#'],
+                options: (file) => {
+                    return {
+                        cwd: path.dirname(file),
+                    }
+                },
+            }
         });
 
         // Continuos integration
