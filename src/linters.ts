@@ -53,6 +53,9 @@ function logFixingError(toolName: string, file: string, command: ExecaReturnValu
     logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`)
 }
 
+/**
+ * Custom `execa` wrapper with default options
+ */
 async function execa(command: string[], _options?: ExecaOptions<string>): Promise<ExecaReturnValue<string>> {
     const options: ExecaOptions = {
         timeout: 60_000,
@@ -70,9 +73,14 @@ async function execa(command: string[], _options?: ExecaOptions<string>): Promis
     }
 }
 
+/**
+ * Determine config file to use for linter `X`
+ * - if `X_CONFIG_FILE` is specified, returns `LINTER_RULES_PATH/X_CONFIG_FILE`
+ * - else searches `LINTER_RULES_PATH` for config files and returns first found
+ * @returns array of arguments to use in subprocess call
+ */
 function configArgs(envName: string, possibleFiles: string[], configArgName: string): string[] {
     const configDir = process.env['LINTER_RULES_PATH'] ?? '.';
-
     const configFile = (() => {
         const envValue = process.env[envName + '_CONFIG_FILE'];
         if (envValue) {
