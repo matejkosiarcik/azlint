@@ -22,13 +22,13 @@ brew "yash"
 brew "zsh"
 
 # Others
-brew "upx"
-brew "binutils"
+# brew "upx"
+# brew "binutils"
 brew "libxml2"
 brew "hadolint"
 brew "shellcheck"
-brew "shfmt"
+# brew "shfmt"
 
 # Deprecated (installed by script now)
 brew "circleci"
-brew "checkmake"
+# brew "checkmake"
