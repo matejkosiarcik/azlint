@@ -112,8 +112,8 @@ export class Linters {
             fileMatch: string | string[] | ((file: string) => boolean), // TODO: Remove closure maybe?
             beforeAllFiles?: (toolName: string) => (boolean | Promise<boolean>),
             beforeFile?: (file: string, toolName: string) => (boolean | Promise<boolean>),
-            lintFile: (file: string, toolName: string) => Promise<void>,
-            fmtFile?: (file: string, toolName: string) => Promise<void>,
+            lintFile: { args: string[], options?: ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | ExecaOptions | undefined, successExitCode?: number | undefined } | ((file: string, toolName: string) => Promise<void>),
+            fmtFile?: { args: string[], options?: ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | ExecaOptions | undefined, successExitCode?: number | undefined } | ((file: string, toolName: string) => Promise<void>),
         }
     ): Promise<void> {
         const files = (() => {
@@ -161,8 +161,71 @@ export class Linters {
             }
 
             if (this.mode === 'lint') {
+                if (typeof options.lintFile === 'object') {
+                    const execaConfig = options.lintFile;
+                    options.lintFile = async (file: string, toolName: string) => {
+                        const args = execaConfig.args.map((el) => el.replace('#file#', file));
+                        const options: ExecaOptions = await (async () => {
+                            if (execaConfig.options === undefined) {
+                                return {};
+                            } else if (typeof execaConfig.options === 'object') {
+                                return execaConfig.options;
+                            } else {
+                                let returnValue = execaConfig.options(file);
+                                if ('then' in returnValue) {
+                                    returnValue = await returnValue;
+                                }
+                                return returnValue;
+                            }
+                        })();
+                        const successExitCode = execaConfig.successExitCode ?? 0;
+
+                        const cmd = await execa(args, options);
+                        if (cmd.exitCode === successExitCode) { // Success
+                            logLintSuccess(toolName, file);
+                        } else { // Fail
+                            this.foundProblems += 1;
+                            logLintFail(toolName, file, cmd);
+                        }
+                    };
+                }
                 await options.lintFile(file, options.linterName);
             } else if (this.mode === 'fmt' && options.fmtFile) {
+                if (typeof options.fmtFile === 'object') {
+                    const execaConfig = options.fmtFile;
+                    options.fmtFile = async (file: string, toolName: string) => {
+                        const args = execaConfig.args.map((el) => el.replace('#file#', file));
+                        const options: ExecaOptions = await (async () => {
+                            if (execaConfig.options === undefined) {
+                                return {};
+                            } else if (typeof execaConfig.options === 'object') {
+                                return execaConfig.options;
+                            } else {
+                                let returnValue = execaConfig.options(file);
+                                if ('then' in returnValue) {
+                                    returnValue = await returnValue;
+                                }
+                                return returnValue;
+                            }
+                        })();
+                        const successExitCode = execaConfig.successExitCode ?? 0;
+
+                        const originalHash = await hashFile(file);
+                        const cmd = await execa(args, options);
+                        const updatedHash = await hashFile(file);
+                        if (cmd.exitCode === successExitCode) {
+                            if (originalHash !== updatedHash) {
+                                this.foundProblems += 1;
+                                this.fixedProblems += 1;
+                                logFixingSuccess(toolName, file, cmd);
+                            } else {
+                                logFixingUnchanged(toolName, file, cmd);
+                            }
+                        } else {
+                            logFixingError(toolName, file, cmd);
+                        }
+                    };
+                }
                 await options.fmtFile(file, options.linterName);
             }
         }));
@@ -191,14 +254,9 @@ export class Linters {
                 }
                 return isGit;
             },
-            lintFile: async (file: string, toolName: string) => {
-                const cmd = await execa(['git', 'check-ignore', '--no-index', file]);
-                if (cmd.exitCode !== 0) { // Success
-                    logLintSuccess(toolName, file, cmd);
-                } else { // Fail
-                    this.foundProblems += 1;
-                    logLintFail(toolName, file, cmd);
-                }
+            lintFile: {
+                args: ['git', 'check-ignore', '--no-index', '#file#'],
+                successExitCode: 1,
             },
             fmtFile: async (file: string, toolName: string) => {
                 const cmd = await execa(['git', 'check-ignore', '--no-index', file]);
@@ -222,15 +280,7 @@ export class Linters {
             linterName: 'editorconfig-checker',
             envName: 'EDITORCONFIG',
             fileMatch: '*',
-            lintFile: async (file: string, toolName: string) => {
-                const cmd = await execa(['ec', file]);
-                if (cmd.exitCode === 0) {
-                    logLintSuccess(toolName, file, cmd);
-                } else {
-                    this.foundProblems += 1;
-                    logLintFail(toolName, file, cmd);
-                }
-            },
+            lintFile: { args: ['ec', '#file#'] },
         });
 
         // Jsonlint
@@ -238,15 +288,7 @@ export class Linters {
             linterName: 'jsonlint',
             envName: 'JSONLINT',
             fileMatch: matchers.json,
-            lintFile: async (file: string, toolName: string) => {
-                const cmd = await execa(['jsonlint', '--quiet', '--comments', '--no-duplicate-keys', file]);
-                if (cmd.exitCode === 0) {
-                    logLintSuccess(toolName, file, cmd);
-                } else {
-                    this.foundProblems += 1;
-                    logLintFail(toolName, file, cmd);
-                }
-            },
+            lintFile: { args: ['jsonlint', '--quiet', '--comments', '--no-duplicate-keys', '#file#'] },
         });
 
         // Yamllint
@@ -257,15 +299,7 @@ export class Linters {
             linterName: 'yamllint',
             envName: 'YAMLLINT',
             fileMatch: matchers.yaml,
-            lintFile: async (file: string, toolName: string) => {
-                const cmd = await execa(['yamllint', '--strict', ...yamllintConfigArgs, file]);
-                if (cmd.exitCode === 0) {
-                    logLintSuccess(toolName, file, cmd);
-                } else {
-                    this.foundProblems += 1;
-                    logLintFail(toolName, file, cmd);
-                }
-            },
+            lintFile: { args: ['yamllint', '--strict', ...yamllintConfigArgs, '#file#'] },
         });
 
         // Prettier
@@ -273,31 +307,8 @@ export class Linters {
             linterName: 'prettier',
             envName: 'PRETTIER',
             fileMatch: [matchers.json, matchers.yaml, '*.{html,vue,css,scss,sass,less}'],
-            lintFile: async (file: string, toolName: string) => {
-                const cmd = await execa(['prettier', '--list-different', file]);
-                if (cmd.exitCode === 0) {
-                    logLintSuccess(toolName, file, cmd);
-                } else {
-                    this.foundProblems += 1;
-                    logLintFail(toolName, file, cmd);
-                }
-            },
-            fmtFile: async (file: string, toolName: string) => {
-                const originalHash = await hashFile(file);
-                const cmd = await execa(['prettier', '--write', file]);
-                const updatedHash = await hashFile(file);
-                if (cmd.exitCode === 0) {
-                    if (originalHash !== updatedHash) {
-                        this.foundProblems += 1;
-                        this.fixedProblems += 1;
-                        logFixingSuccess(toolName, file, cmd);
-                    } else {
-                        logFixingUnchanged(toolName, file, cmd);
-                    }
-                } else {
-                    logFixingError(toolName, file, cmd);
-                }
-            },
+            lintFile: { args: ['prettier', '--list-different', '#file#'] },
+            fmtFile: { args: ['prettier', '--write', '#file#'] },
         });
 
         // Package.json validator
@@ -313,15 +324,7 @@ export class Linters {
                 }
                 return true;
             },
-            lintFile: async (file: string, toolName: string) => {
-                const cmd = await execa(['pjv', '--warnings', '--recommendations', '--filename', file]);
-                if (cmd.exitCode === 0) { // Success
-                    logLintSuccess(toolName, file);
-                } else { // Fail
-                    this.foundProblems += 1;
-                    logLintFail(toolName, file, cmd);
-                }
-            },
+            lintFile: { args: ['pjv', '--warnings', '--recommendations', '--filename', '#file#'] },
         });
 
         // TomlJson
@@ -329,15 +332,7 @@ export class Linters {
             linterName: 'tomljson',
             envName: 'TOMLJSON',
             fileMatch: '*.toml',
-            lintFile: async (file: string, toolName: string) => {
-                const cmd = await execa(['tomljson', file]);
-                if (cmd.exitCode === 0) { // Success
-                    logLintSuccess(toolName, file);
-                } else { // Fail
-                    this.foundProblems += 1;
-                    logLintFail(toolName, file, cmd);
-                }
-            },
+            lintFile: { args: ['tomljson', '#file#'] },
         });
 
         // Dotenv
@@ -345,15 +340,7 @@ export class Linters {
             linterName: 'dotenv-linter',
             envName: 'DOTENV',
             fileMatch: matchers.envfile,
-            lintFile: async (file: string, toolName: string) => {
-                const cmd = await execa(['dotenv-linter', file]); // TODO: maybe add --quiet
-                if (cmd.exitCode === 0) { // Success
-                    logLintSuccess(toolName, file);
-                } else { // Fail
-                    this.foundProblems += 1;
-                    logLintFail(toolName, file, cmd);
-                }
-            },
+            lintFile: { args: ['dotenv-linter', '#file#'] }, // TODO: maybe add --quiet
         });
 
         // Svglint
@@ -364,15 +351,7 @@ export class Linters {
             linterName: 'svglint',
             envName: 'SVGLINT',
             fileMatch: '*.svg',
-            lintFile: async (file: string, toolName: string) => {
-                const cmd = await execa(['svglint', '--ci', ...svglintConfigArgs, file]);
-                if (cmd.exitCode === 0) { // Success
-                    logLintSuccess(toolName, file);
-                } else { // Fail
-                    this.foundProblems += 1;
-                    logLintFail(toolName, file, cmd);
-                }
-            },
+            lintFile: { args: ['svglint', '--ci', ...svglintConfigArgs, '#file#'] },
         });
 
         // Continuos integration
@@ -382,14 +361,11 @@ export class Linters {
             linterName: 'circleci-validate',
             envName: 'CIRCLECI_VALIDATE',
             fileMatch: '.circleci/config.yml',
-            lintFile: async (file: string, toolName: string) => {
-                const cmd = await execa(['circleci', '--skip-update-check', 'config', 'validate'], { cwd: path.dirname(path.dirname(file)) });
-                if (cmd.exitCode === 0) { // Success
-                    logLintSuccess(toolName, file);
-                } else { // Fail
-                    this.foundProblems += 1;
-                    logLintFail(toolName, file, cmd);
-                }
+            lintFile: {
+                args: ['circleci', '--skip-update-check', 'config', 'validate'],
+                options: (file: string) => {
+                    return { cwd: path.dirname(path.dirname(file)) };
+                },
             },
         });
 
@@ -398,14 +374,11 @@ export class Linters {
             linterName: 'travis-lint',
             envName: 'TRAVIS_LINT',
             fileMatch: '.travis.yml',
-            lintFile: async (file: string, toolName: string) => {
-                const cmd = await execa(['travis', 'lint', '--no-interactive', '--skip-version-check', '--skip-completion-check', '--exit-code', '--quiet'], { cwd: path.dirname(file) });
-                if (cmd.exitCode === 0) { // Success
-                    logLintSuccess(toolName, file);
-                } else { // Fail
-                    this.foundProblems += 1;
-                    logLintFail(toolName, file, cmd);
-                }
+            lintFile: {
+                args: ['travis', 'lint', '--no-interactive', '--skip-version-check', '--skip-completion-check', '--exit-code', '--quiet'],
+                options: (file: string) => {
+                    return { cwd: path.dirname(file) };
+                },
             },
         });
 
