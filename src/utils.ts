@@ -48,5 +48,5 @@ export function wildcard2regex(wildcard: string): RegExp {
         .replace(/\{/, "(")
         .replace(/\}/, ")")
         .replace(/,/, "|");
-    return new RegExp(`^(.*/)?${regex}$`);
+    return new RegExp(`^(.*/)?${regex}$`, 'i');
 }

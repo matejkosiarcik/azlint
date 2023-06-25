@@ -169,8 +169,15 @@ export class Linters {
     }
 
     async run(): Promise<boolean> {
-        const jsonFileMatch = '*.{json,json5,jsonl,geojson,babelrc,ecrc,htmlhintrc,htmllintrc,jscsrc,jshintrc,jslintrc,remarkrc}'
-        const yamlFileMatch = '*.{yml,yaml}';
+        const matchers = {
+            json: '*.{json,json5,jsonl,geojson,babelrc,ecrc,eslintrc,htmlhintrc,htmllintrc,jscsrc,jshintrc,jslintrc,prettierrc,remarkrc}',
+            yaml: '*.{yml,yaml}',
+            envfile: '{*.env,env.*,env}',
+            dockerfile: '{Dockerfile,*.Dockerfile,Dockerfile.*}',
+            makefile: '{Makefile,*.make}',
+            gnumakefile: '{GNU,G,}{Makefile,*.make}',
+            bsdmakefile: '{BSD,B,}{Makefile,*.make}',
+        };
 
         // Gitignore
         await this.runLinter({
@@ -230,7 +237,7 @@ export class Linters {
         await this.runLinter({
             linterName: 'jsonlint',
             envName: 'JSONLINT',
-            fileMatch: jsonFileMatch,
+            fileMatch: matchers.json,
             lintFile: async (file: string, toolName: string) => {
                 const cmd = await execa(['jsonlint', '--quiet', '--comments', '--no-duplicate-keys', file]);
                 if (cmd.exitCode === 0) {
@@ -249,7 +256,7 @@ export class Linters {
         await this.runLinter({
             linterName: 'yamllint',
             envName: 'YAMLLINT',
-            fileMatch: yamlFileMatch,
+            fileMatch: matchers.yaml,
             lintFile: async (file: string, toolName: string) => {
                 const cmd = await execa(['yamllint', '--strict', ...yamllintConfigArgs, file]);
                 if (cmd.exitCode === 0) {
@@ -265,7 +272,7 @@ export class Linters {
         await this.runLinter({
             linterName: 'prettier',
             envName: 'PRETTIER',
-            fileMatch: [jsonFileMatch, yamlFileMatch, '*.{html,vue,css,scss,sass,less}'],
+            fileMatch: [matchers.json, matchers.yaml, '*.{html,vue,css,scss,sass,less}'],
             lintFile: async (file: string, toolName: string) => {
                 const cmd = await execa(['prettier', '--list-different', file]);
                 if (cmd.exitCode === 0) {
@@ -337,7 +344,7 @@ export class Linters {
         await this.runLinter({
             linterName: 'dotenv-linter',
             envName: 'DOTENV',
-            fileMatch: '*.env',
+            fileMatch: matchers.envfile,
             lintFile: async (file: string, toolName: string) => {
                 const cmd = await execa(['dotenv-linter', file]); // TODO: maybe add --quiet
                 if (cmd.exitCode === 0) { // Success
@@ -373,7 +380,7 @@ export class Linters {
         // CircleCI validate
         await this.runLinter({
             linterName: 'circleci-validate',
-            envName: 'CIRCLECI',
+            envName: 'CIRCLECI_VALIDATE',
             fileMatch: '.circleci/config.yml',
             lintFile: async (file: string, toolName: string) => {
                 const cmd = await execa(['circleci', '--skip-update-check', 'config', 'validate'], { cwd: path.dirname(path.dirname(file)) });
