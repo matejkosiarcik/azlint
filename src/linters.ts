@@ -103,12 +103,12 @@ export class Linters {
     async runLinter(
         options: {
             linterName: string,
-            fileMatch: string | string[] | ((file: string) => boolean), // TODO: Remove closure maybe?
-            globalPreCommand?: () => (boolean | Promise<boolean>),
-            singlePreCommand?: (file: string, toolName: string) => (boolean | Promise<boolean>),
-            lintCommand: (file: string, toolName: string) => Promise<void>,
-            fmtCommand?: (file: string, toolName: string) => Promise<void>,
             envName: string,
+            fileMatch: string | string[] | ((file: string) => boolean), // TODO: Remove closure maybe?
+            beforeAllFiles?: (toolName: string) => (boolean | Promise<boolean>),
+            beforeFile?: (file: string, toolName: string) => (boolean | Promise<boolean>),
+            lintFile: (file: string, toolName: string) => Promise<void>,
+            fmtFile?: (file: string, toolName: string) => Promise<void>,
         }
     ): Promise<void> {
         const files = (() => {
@@ -132,8 +132,8 @@ export class Linters {
             return;
         }
 
-        if (options.globalPreCommand) {
-            let returnValue = options.globalPreCommand();
+        if (options.beforeAllFiles) {
+            let returnValue = options.beforeAllFiles(options.linterName);
             if (typeof returnValue !== 'boolean') {
                 returnValue = await returnValue;
             }
@@ -144,8 +144,8 @@ export class Linters {
         }
 
         await Promise.all(files.map(async (file) => {
-            if (options.singlePreCommand) {
-                let returnValue = options.singlePreCommand(file, options.linterName);
+            if (options.beforeFile) {
+                let returnValue = options.beforeFile(file, options.linterName);
                 if (typeof returnValue !== 'boolean') {
                     returnValue = await returnValue;
                 }
@@ -156,9 +156,9 @@ export class Linters {
             }
 
             if (this.mode === 'lint') {
-                await options.lintCommand(file, options.linterName);
-            } else if (this.mode === 'fmt' && options.fmtCommand) {
-                await options.fmtCommand(file, options.linterName);
+                await options.lintFile(file, options.linterName);
+            } else if (this.mode === 'fmt' && options.fmtFile) {
+                await options.fmtFile(file, options.linterName);
             }
         }));
     }
@@ -172,8 +172,14 @@ export class Linters {
             linterName: 'git-check-ignore',
             envName: 'GITIGNORE',
             fileMatch: '*',
-            globalPreCommand: async () => isProjectGitRepo(),
-            lintCommand: async (file: string, toolName: string) => {
+            beforeAllFiles: async (toolName: string) => {
+                const isGit = await isProjectGitRepo();
+                if (!isGit) {
+                    logVerbose(`⏩ Skipping ${toolName}, because it's private`);
+                }
+                return isGit;
+            },
+            lintFile: async (file: string, toolName: string) => {
                 const cmd = await execa(['git', 'check-ignore', '--no-index', file]);
                 if (cmd.exitCode !== 0) { // Success
                     logLintSuccess(toolName, file, cmd);
@@ -182,7 +188,7 @@ export class Linters {
                     logLintFail(toolName, file, cmd);
                 }
             },
-            fmtCommand: async (file: string, toolName: string) => {
+            fmtFile: async (file: string, toolName: string) => {
                 const cmd = await execa(['git', 'check-ignore', '--no-index', file]);
                 if (cmd.exitCode !== 0) { // Success
                     logLintSuccess(toolName, file, cmd);
@@ -204,7 +210,7 @@ export class Linters {
             linterName: 'editorconfig-checker',
             envName: 'EDITORCONFIG',
             fileMatch: '*',
-            lintCommand: async (file: string, toolName: string) => {
+            lintFile: async (file: string, toolName: string) => {
                 const cmd = await execa(['ec', file]);
                 if (cmd.exitCode === 0) {
                     logLintSuccess(toolName, file, cmd);
@@ -220,7 +226,7 @@ export class Linters {
             linterName: 'jsonlint',
             envName: 'JSONLINT',
             fileMatch: jsonFileMatch,
-            lintCommand: async (file: string, toolName: string) => {
+            lintFile: async (file: string, toolName: string) => {
                 const cmd = await execa(['jsonlint', '--quiet', '--comments', '--no-duplicate-keys', file]);
                 if (cmd.exitCode === 0) {
                     logLintSuccess(toolName, file, cmd);
@@ -239,7 +245,7 @@ export class Linters {
             linterName: 'yamllint',
             envName: 'YAMLLINT',
             fileMatch: yamlFileMatch,
-            lintCommand: async (file: string, toolName: string) => {
+            lintFile: async (file: string, toolName: string) => {
                 const cmd = await execa(['yamllint', '--strict', ...yamllintConfigArgs, file]);
                 if (cmd.exitCode === 0) {
                     logLintSuccess(toolName, file, cmd);
@@ -255,7 +261,7 @@ export class Linters {
             linterName: 'prettier',
             envName: 'PRETTIER',
             fileMatch: [jsonFileMatch, yamlFileMatch, '*.{html,vue,css,scss,sass,less}'],
-            lintCommand: async (file: string, toolName: string) => {
+            lintFile: async (file: string, toolName: string) => {
                 const cmd = await execa(['prettier', '--list-different', file]);
                 if (cmd.exitCode === 0) {
                     logLintSuccess(toolName, file, cmd);
@@ -264,7 +270,7 @@ export class Linters {
                     logLintFail(toolName, file, cmd);
                 }
             },
-            fmtCommand: async (file: string, toolName: string) => {
+            fmtFile: async (file: string, toolName: string) => {
                 const originalHash = await hashFile(file);
                 const cmd = await execa(['prettier', '--write', file]);
                 const updatedHash = await hashFile(file);
@@ -287,7 +293,7 @@ export class Linters {
             linterName: 'package-json-validator',
             envName: 'PACKAGE_JSON',
             fileMatch: 'package.json',
-            singlePreCommand: async (file: string, toolName: string) => {
+            beforeFile: async (file: string, toolName: string) => {
                 const packageJson = JSON.parse(await fs.readFile(file, 'utf8'));
                 if (packageJson['private'] === true) {
                     logExtraVerbose(`⏩ Skipping ${toolName} - ${file}, because it's private`);
@@ -295,7 +301,7 @@ export class Linters {
                 }
                 return true;
             },
-            lintCommand: async (file: string, toolName: string) => {
+            lintFile: async (file: string, toolName: string) => {
                 const cmd = await execa(['pjv', '--warnings', '--recommendations', '--filename', file]);
                 if (cmd.exitCode === 0) { // Success
                     logLintSuccess(toolName, file);
@@ -311,7 +317,7 @@ export class Linters {
             linterName: 'tomljson',
             envName: 'TOMLJSON',
             fileMatch: '*.toml',
-            lintCommand: async (file: string, toolName: string) => {
+            lintFile: async (file: string, toolName: string) => {
                 const cmd = await execa(['tomljson', file]);
                 if (cmd.exitCode === 0) { // Success
                     logLintSuccess(toolName, file);
@@ -327,7 +333,7 @@ export class Linters {
             linterName: 'dotenv-linter',
             envName: 'DOTENV',
             fileMatch: '*.env',
-            lintCommand: async (file: string, toolName: string) => {
+            lintFile: async (file: string, toolName: string) => {
                 const cmd = await execa(['dotenv-linter', file]); // TODO: maybe add --quiet
                 if (cmd.exitCode === 0) { // Success
                     logLintSuccess(toolName, file);
@@ -346,7 +352,7 @@ export class Linters {
             linterName: 'svglint',
             envName: 'SVGLINT',
             fileMatch: '*.svg',
-            lintCommand: async (file: string, toolName: string) => {
+            lintFile: async (file: string, toolName: string) => {
                 const cmd = await execa(['svglint', '--ci', ...svglintConfigArgs, file]);
                 if (cmd.exitCode === 0) { // Success
                     logLintSuccess(toolName, file);
