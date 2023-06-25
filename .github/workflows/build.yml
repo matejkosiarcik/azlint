@@ -21,6 +21,6 @@ jobs:
 
       - name: Build and Test
         run: |
-          make bootstrap build test
+          make build test
           find .config -type f -exec sh -c 'ln -s "$0" "$(basename "$0")"' {} \; # TODO: Remove
           make run-lint
