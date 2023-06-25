@@ -15,6 +15,7 @@ export async function isProjectGitRepo(): Promise<boolean> {
     }
 }
 
+// TODO: rewrite findFiles natively in TypeScript
 export async function findFiles(onlyChanged: boolean): Promise<string[]> {
     const isGit = await isProjectGitRepo();
 
@@ -35,9 +36,11 @@ export async function hashFile(file: string): Promise<string> {
     return sha1.update(fileContent).digest('base64');
 }
 
-// Transform wildcard to regex
-// This might not be foolproof, but should be ok for most uses
-// Handles even relatively complex things like '*.{c,h}{,pp}'
+/**
+ * Transform wildcard to regex
+ * This might not be foolproof, but should be ok for our use-case
+ * Handles even relatively complex things like '*.{c,h}{,pp}'
+ */
 export function wildcard2regex(wildcard: string): RegExp {
     const regex = wildcard.replace(/\./, "\\.")
         .replace(/\?/, ".")

@@ -373,7 +373,7 @@ export class Linters {
         // CircleCI validate
         await this.runLinter({
             linterName: 'circleci-validate',
-            envName: 'CIRCLE_VALIDATE',
+            envName: 'CIRCLECI',
             fileMatch: '.circleci/config.yml',
             lintFile: async (file: string, toolName: string) => {
                 const cmd = await execa(['circleci', '--skip-update-check', 'config', 'validate'], { cwd: path.dirname(path.dirname(file)) });

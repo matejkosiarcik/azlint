@@ -40,10 +40,14 @@ import { Linters } from './linters';
         .command('fmt', 'Format project (autofix)', (yargs) => {
             yargs.usage('Usage: azlint fmt [options...] [dir]');
         })
+        .demandCommand()
+        .strictCommands()
         .positional('dir', {
             describe: 'Path to project directory', type: 'string', default: '.',
         })
         .parse();
+    // TODO: make "lint" default command
+    // TODO: Handle situations when no command is supplied and directorty is supplied
 
     if (fs.existsSync('.env')) {
         dotenv.config({ path: '.env' });
@@ -89,17 +93,20 @@ import { Linters } from './linters';
 
     // Setup paths for dependencies
     const dependenciesDir = path.resolve(path.join(__dirname, '..', 'dependencies'));
-    const nodePath = path.join(dependenciesDir, 'node_modules', '.bin');
-    const cargoPath = path.join(dependenciesDir, '.cargo', 'bin');
-    const venvPath = path.join(dependenciesDir, 'venv', 'bin');
-    const composerPath = path.join(dependenciesDir, 'vendor', 'bin');
-    process.env['PATH'] = `${nodePath}:${cargoPath}:${venvPath}:${composerPath}:${process.env['PATH']}`;
-    const bundlePath = path.join(dependenciesDir, '.bundle');
-    const gemfilePath = path.join(dependenciesDir, 'Gemfile');
+    const binPaths = {
+        node: path.join(dependenciesDir, 'node_modules', '.bin'),
+        cargo: path.join(dependenciesDir, '.cargo', 'bin'),
+        venv: path.join(dependenciesDir, 'venv', 'bin'),
+        composer: path.join(dependenciesDir, 'vendor', 'bin'),
+        checkmake: path.join(dependenciesDir, 'checkmake', 'bin'),
+        editorconfig: path.join(dependenciesDir, 'editorconfig-checker', 'bin'),
+    };
+    // process.env['PATH'] = `${binPaths.node}:${binPaths.cargo}:${binPaths.venv}:${binPaths.composer}:${binPaths.checkmake}:${binPaths.editorconfig}:${process.env['PATH']}`;
+    process.env['PATH'] = `${Object.values(binPaths).join(':')}:${process.env['PATH']}`;
     process.env['BUNDLE_DISABLE_SHARED_GEMS'] = 'true';
     process.env['BUNDLE_PATH__SYSTEM'] = 'false';
-    process.env['BUNDLE_PATH'] = bundlePath;
-    process.env['BUNDLE_GEMFILE'] = gemfilePath;
+    process.env['BUNDLE_PATH'] = path.join(dependenciesDir, '.bundle');
+    process.env['BUNDLE_GEMFILE'] = path.join(dependenciesDir, 'Gemfile');
 
     logVerbose(`Performing: ${command}`);
     logVerbose(`Project path: ${path.resolve(process.cwd())}`);
