@@ -23,6 +23,6 @@ jobs:
           # So this workaround is needed for the time being
       - run: apk update --no-cache
       - run: apk add --no-cache alpine-sdk gcc make bash nodejs npm python3 ruby ruby-builder ruby-dev rustup
-      - run: rustup
+      - run: rustup-init -y
       - run: make bootstrap build test
       # TODO: run "run" Makefile target
