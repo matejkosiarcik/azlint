@@ -583,6 +583,41 @@ export class Linters {
             lintFile: { args: ['svglint', '--ci', ...svglintConfigArgs, '#file#'] },
         });
 
+        // Checkmake
+        const checkmakeConfigArgs = configArgs('CHECKMAKE',
+            ['chechmake.ini', '.chechmake.ini'],
+            '--config');
+        await this.runLinter({
+            linterName: 'checkmake',
+            envName: 'CHECKMAKE',
+            fileMatch: [matchers.makefile, matchers.gnumakefile, matchers.bsdmakefile],
+            lintFile: { args: ['checkmake', ...checkmakeConfigArgs, '#file#'] },
+        });
+
+        // GNU Make
+        await this.runLinter({
+            linterName: 'gmake',
+            envName: 'GMAKE',
+            fileMatch: [matchers.makefile, matchers.gnumakefile],
+            lintFile: { args: ['gmake', '--dry-run', '-f', '#file#'] },
+        });
+
+        // BMake
+        await this.runLinter({
+            linterName: 'bmake',
+            envName: 'BMAKE',
+            fileMatch: matchers.bsdmakefile,
+            lintFile: { args: ['bmake', '-n', '-f', '#file#'] },
+        });
+
+        // BSD Make
+        await this.runLinter({
+            linterName: 'bmake',
+            envName: 'BSDMAKE',
+            fileMatch: matchers.bsdmakefile,
+            lintFile: { args: ['bsdmake', '-n', '-f', '#file#'] },
+        });
+
         // Report results
         logNormal(`Found ${this.foundProblems} problems`);
         if (this.mode === 'lint') {
