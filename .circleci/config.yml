@@ -22,6 +22,6 @@ jobs:
           # But we can't downgrade to buster, because it has other issues, much older packages in general
           # So this workaround is needed for the time being
       - run: apk update --no-cache
-      - run: apk add --no-cache make
-      - run: make build test
+      - run: apk add --no-cache make nodejs npm
+      - run: make bootstrap build test
       # TODO: run "run" Makefile target
