@@ -31,14 +31,14 @@ import { Linters } from './linters';
         .option('dry-run', {
             alias: 'n', describe: 'Dry run', type: 'boolean',
         })
-        .positional('dir', {
-            describe: 'Path to project directory', type: 'string', default: '.',
-        })
         .command('lint', 'Lint project (default)', (yargs) => {
             yargs.usage('Usage: azlint lint [options...] [dir]');
         })
         .command('fmt', 'Format project (autofix)', (yargs) => {
             yargs.usage('Usage: azlint fmt [options...] [dir]');
+        })
+        .positional('dir', {
+            describe: 'Path to project directory', type: 'string', default: '.',
         })
         .parse();
 
@@ -58,7 +58,12 @@ import { Linters } from './linters';
         argv.verbose >= 2 ? LogLevel.EXTRA_VERBOSE :
         argv.verbose >= 1 ? LogLevel.VERBOSE :
         LogLevel.NORMAL; // TODO: Simplify expression
-    const directory = argv.dir;
+    const directory = (() => {
+        if (argv._.length > 1) {
+            return argv._[1].toString();
+        }
+        return argv.dir;
+    })();
     const onlyChanged = argv.onlyChanged ?? false;
     const command: 'lint' | 'fmt' = (() => {
         if (!argv._ || argv._.length === 0) {
