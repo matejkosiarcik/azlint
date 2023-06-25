@@ -200,8 +200,8 @@ Where `VALIDATE_FOO` can be found in the following section.
 | tool                                                               | disable                      | files                  | autofix |
 | ------------------------------------------------------------------ | ---------------------------- | ---------------------- | ------- |
 | [circle-ci lint](https://circleci.com/docs/2.0/local-cli)          | `VALIDATE_CIRCLECI_VALIDATE` | `.circleci/config.yml` | ❌      |
-| [gitlab-ci-lint](https://github.com/BuBuaBu/gitlab-ci-lint)        | `VALIDATE_GITLAB_LINT`       | `.gitlab-ci.yml`       | ❌      |
-| [gitlab-ci-validate](https://github.com/pradel/gitlab-ci-validate) | `VALIDATE_GITLAB_VALIDATE`   | `.gitlab-ci.yml`       | ❌      |
+| [gitlab-ci-lint](https://github.com/BuBuaBu/gitlab-ci-lint)        | `VALIDATE_GITLABCI_LINT`     | `.gitlab-ci.yml`       | ❌      |
+| [gitlab-ci-validate](https://github.com/pradel/gitlab-ci-validate) | `VALIDATE_GITLABCI_VALIDATE` | `.gitlab-ci.yml`       | ❌      |
 | [travis-lint](https://github.com/travis-ci/travis.rb#lint)         | `VALIDATE_TRAVIS_LINT`       | `.travis.yml`          | ❌      |
 
 ### Make

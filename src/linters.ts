@@ -447,7 +447,7 @@ export class Linters {
             linterName: 'dotenv-linter',
             envName: 'DOTENV',
             fileMatch: matchers.envfile,
-            lintFile: { args: ['dotenv-linter', '#file#'] }, // TODO: maybe add --quiet
+            lintFile: { args: ['dotenv-linter', '--quiet', '#file#'] },
         });
 
         // Svglint
@@ -473,6 +473,26 @@ export class Linters {
                 options: (file: string) => {
                     return { cwd: path.dirname(path.dirname(file)) };
                 },
+            },
+        });
+
+        // GitLabCI Lint
+        await this.runLinter({
+            linterName: 'gitlab-ci-lint',
+            envName: 'GITLABCI_LINT',
+            fileMatch: '.gitlab-ci.yml',
+            lintFile: {
+                args: ['gitlab-ci-lint', '#file#'],
+            },
+        });
+
+        // GitLabCI Validate
+        await this.runLinter({
+            linterName: 'gitlab-ci-lint',
+            envName: 'GITLABCI_VALIDATE',
+            fileMatch: '.gitlab-ci.yml',
+            lintFile: {
+                args: ['gitlab-ci-validate', 'validate', '#file#'],
             },
         });
 
