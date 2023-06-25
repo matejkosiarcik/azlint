@@ -22,6 +22,6 @@ jobs:
           # But we can't downgrade to buster, because it has other issues, much older packages in general
           # So this workaround is needed for the time being
       - run: apk update --no-cache
-      - run: apk add --no-cache bash make nodejs npm python3 ruby ruby-builder ruby-dev
+      - run: apk add --no-cache alpine-sdk bash make nodejs npm python3 ruby ruby-builder ruby-dev
       - run: make bootstrap build test
       # TODO: run "run" Makefile target
