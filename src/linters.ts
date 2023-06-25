@@ -359,6 +359,7 @@ export class Linters {
             bsdmakefile: '{BSD,B,}{Makefile,*.make}',
             html: '*.{html,htm,html5,xhtml}',
             shell: '*.{sh,bash,ksh,ksh93,mksh,loksh,ash,dash,zsh,yash}',
+            python: '*.{py,py3,python,python3}',
         };
 
         /* Generic linters for all files */
@@ -584,6 +585,67 @@ export class Linters {
             envName: 'SHELL_DRY',
             fileMatch: matchers.shell,
             lintFile: { args: ['sh', path.join(__dirname, 'shell-dry.sh'), "#file#"] },
+        });
+
+        /* Python */
+
+        // Autopep8
+        await this.runLinter({
+            linterName: 'autopep8',
+            envName: 'AUTOPEP8',
+            fileMatch: matchers.python,
+            lintFile: { args: ['autopep8', '--diff', "#file#"] },
+            fmtFile: { args: ['autopep8', '--in-place', "#file#"] },
+        });
+
+        // isort
+        await this.runLinter({
+            linterName: 'isort',
+            envName: 'ISORT',
+            fileMatch: matchers.python,
+            lintFile: { args: ['isort', '--honor-noqa', '--check-only', '--diff', "#file#"] },
+            fmtFile: { args: ['isort', '--honor-noqa', "#file#"] },
+        });
+
+        // Black
+        await this.runLinter({
+            linterName: 'black',
+            envName: 'BLACK',
+            fileMatch: matchers.python,
+            lintFile: { args: ['black', '--check', '--diff', '--quiet', "#file#"] },
+            fmtFile: { args: ['black', '--quiet', "#file#"] },
+        });
+
+        // Pycodestyle
+        await this.runLinter({
+            linterName: 'pycodestyle',
+            envName: 'PYCODESTYLE',
+            fileMatch: matchers.python,
+            lintFile: { args: ['pycodestyle', '--quiet', '--quiet', "#file#"] },
+        });
+
+        // Flake8
+        await this.runLinter({
+            linterName: 'flake8',
+            envName: 'FLAKE8',
+            fileMatch: matchers.python,
+            lintFile: { args: ['flake8', '--quiet', '--quiet', "#file#"] },
+        });
+
+        // Pylint
+        await this.runLinter({
+            linterName: 'pylint',
+            envName: 'PYLINT',
+            fileMatch: matchers.python,
+            lintFile: { args: ['pylint', "#file#"] },
+        });
+
+        // MyPy
+        await this.runLinter({
+            linterName: 'mypy',
+            envName: 'MYPY',
+            fileMatch: matchers.python,
+            lintFile: { args: ['mypy', '--follow-imports', 'skip', "#file#"] },
         });
 
         /* Package manager files */
