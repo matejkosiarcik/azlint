@@ -338,6 +338,25 @@ export class Linters {
             },
         });
 
+        // Svglint
+        const svglintConfigArgs = configArgs('SVGLINT',
+            ['.svglintrc.js', 'svglintrc.js'],
+            '--config');
+        await this.runLinter({
+            linterName: 'svglint',
+            envName: 'SVGLINT',
+            fileMatch: '*.svg',
+            lintCommand: async (file: string, toolName: string) => {
+                const cmd = await execa(['svglint', '--ci', ...svglintConfigArgs, file]);
+                if (cmd.exitCode === 0) { // Success
+                    logLintSuccess(toolName, file);
+                } else { // Fail
+                    this.foundProblems += 1;
+                    logLintFail(toolName, file, cmd);
+                }
+            },
+        });
+
         // Final work
         logNormal(`Found ${this.foundProblems} problems`);
         if (this.mode === 'lint') {
