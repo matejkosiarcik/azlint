@@ -144,6 +144,17 @@ export class Linters {
         }
 
         await Promise.all(files.map(async (file) => {
+            if (options.singlePreCommand) {
+                let returnValue = options.singlePreCommand(file, options.linterName);
+                if (typeof returnValue !== 'boolean') {
+                    returnValue = await returnValue;
+                }
+
+                if (!returnValue) {
+                    return;
+                }
+            }
+
             if (this.mode === 'lint') {
                 await options.lintCommand(file, options.linterName);
             } else if (this.mode === 'fmt' && options.fmtCommand) {
@@ -280,9 +291,9 @@ export class Linters {
                 const packageJson = JSON.parse(await fs.readFile(file, 'utf8'));
                 if (packageJson['private'] === true) {
                     logExtraVerbose(`⏩ Skipping ${toolName} - ${file}, because it's private`);
-                    return true;
+                    return false;
                 }
-                return false;
+                return true;
             },
             lintCommand: async (file: string, toolName: string) => {
                 const cmd = await execa(['pjv', '--warnings', '--recommendations', '--filename', file]);
