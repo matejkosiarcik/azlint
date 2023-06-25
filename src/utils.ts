@@ -4,6 +4,8 @@ import crypto from 'crypto';
 import { execa } from '@esm2cjs/execa';
 import { logVerbose } from './log';
 
+export type ColorOptions = 'auto' | 'always' | 'never';
+
 export async function isProjectGitRepo(): Promise<boolean> {
     try {
         await execa('git', ['rev-parse']);

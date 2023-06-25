@@ -3,7 +3,7 @@ import fs from 'fs';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import dotenv from 'dotenv';
-import { findFiles } from './utils';
+import { ColorOptions, findFiles } from './utils';
 import { LogLevel, logExtraExtraVerbose, logVerbose, setLogLevel } from './log';
 import { Linters } from './linters';
 
@@ -26,10 +26,13 @@ import { Linters } from './linters';
             alias: 'q', describe: 'Less logging', type: 'boolean',
         })
         .option('only-changed', {
-            alias: 'c', describe: 'Analyze only changed files (requires project to be a git directory)', type: 'boolean',
+            describe: 'Analyze only changed files (requires project to be a git directory)', type: 'boolean',
         })
         .option('dry-run', {
             alias: 'n', describe: 'Dry run', type: 'boolean',
+        })
+        .option('color', {
+            describe: 'Colored output', type: 'string', choices: ['auto', 'always', 'never'], default: 'auto',
         })
         .command('lint', 'Lint project (default)', (yargs) => {
             yargs.usage('Usage: azlint lint [options...] [dir]');
@@ -78,6 +81,7 @@ import { Linters } from './linters';
         console.error(`Unrecognized command: ${cmd}`);
         process.exit(1);
     })();
+    const color = argv.color as ColorOptions;
 
     // Set global properties
     setLogLevel(logLevel);
@@ -103,7 +107,7 @@ import { Linters } from './linters';
     const projectFiles = await findFiles(onlyChanged);
     logExtraExtraVerbose(`Found ${projectFiles.length} project files:\n${projectFiles.map((el) => `- ${el}`).join('\n')}`);
 
-    const linters = new Linters(command, projectFiles, '.');
+    const linters = new Linters(command, projectFiles, color);
     const success = await linters.run();
     process.exit(success ? 0 : 1);
 })();

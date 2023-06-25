@@ -3,7 +3,7 @@ import fsSync from 'fs';
 import path from "path";
 import { execa as baseExeca, ExecaError, Options as ExecaOptions, ExecaReturnValue } from "@esm2cjs/execa";
 import { logAlways, logExtraVerbose, logNormal, logVerbose } from "./log";
-import { hashFile, isProjectGitRepo, wildcard2regex } from "./utils";
+import { ColorOptions, hashFile, isProjectGitRepo, wildcard2regex } from "./utils";
 
 function logLintSuccess(toolName: string, file: string, command?: ExecaReturnValue<string>) {
     const color = process.stdout.isTTY ? '\x1b[32m' : '';
@@ -94,11 +94,8 @@ function configArgs(envName: string, possibleFiles: string[], configArgName: str
 export class Linters {
     foundProblems = 0;
     fixedProblems = 0;
-    configDir: string;
 
-    constructor(readonly mode: 'lint' | 'fmt', readonly files: string[], configDir?: string | undefined) {
-        this.configDir = configDir ?? '.';
-    }
+    constructor(readonly mode: 'lint' | 'fmt', readonly files: string[], readonly color: ColorOptions) {}
 
     async runLinter(
         options: {
