@@ -42,7 +42,7 @@ check_sh() {
 check_ksh() {
     ksh -n "$file"
     mksh -n "$file"
-    ksh93 -n "$file"
+    # ksh93 -n "$file" # TODO: reenable ksh93 after updating to debian12
 }
 
 check_bash() {
