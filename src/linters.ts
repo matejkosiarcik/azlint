@@ -363,6 +363,40 @@ export class Linters {
             },
         });
 
+        // Continuos integration
+
+        // CircleCI validate
+        await this.runLinter({
+            linterName: 'circleci-validate',
+            envName: 'CIRCLE_VALIDATE',
+            fileMatch: '.circleci/config.yml',
+            lintFile: async (file: string, toolName: string) => {
+                const cmd = await execa(['circleci', '--skip-update-check', 'config', 'validate'], { cwd: path.dirname(path.dirname(file)) });
+                if (cmd.exitCode === 0) { // Success
+                    logLintSuccess(toolName, file);
+                } else { // Fail
+                    this.foundProblems += 1;
+                    logLintFail(toolName, file, cmd);
+                }
+            },
+        });
+
+        // TravisLint
+        await this.runLinter({
+            linterName: 'travis-lint',
+            envName: 'TRAVIS_LINT',
+            fileMatch: '.travis.yml',
+            lintFile: async (file: string, toolName: string) => {
+                const cmd = await execa(['travis', 'lint', '--no-interactive', '--skip-version-check', '--skip-completion-check', '--exit-code', '--quiet'], { cwd: path.dirname(file) });
+                if (cmd.exitCode === 0) { // Success
+                    logLintSuccess(toolName, file);
+                } else { // Fail
+                    this.foundProblems += 1;
+                    logLintFail(toolName, file, cmd);
+                }
+            },
+        });
+
         // Final work
         logNormal(`Found ${this.foundProblems} problems`);
         if (this.mode === 'lint') {
