@@ -19,3 +19,4 @@ node_modules/
 # misc
 .env
 Brewfile.lock.json
+.mypy_cache/

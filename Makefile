@@ -33,7 +33,7 @@ bootstrap:
 		bundle install
 
 	node "cargo-packages.js" | while read package version; do \
-		cargo install "$$package" --force --root "$(PROJECT_DIR)/dependencies/.cargo" --version "$$version"; \
+		cargo install "$$package" --force --root "$(PROJECT_DIR)/dependencies/cargo" --version "$$version"; \
 	done
 
 	(cd dependencies && composer install --no-cache)

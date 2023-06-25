@@ -1,5 +1,5 @@
 .bundle/
-.cargo/
+cargo/
 composer.phar
 node_modules/
 vendor/

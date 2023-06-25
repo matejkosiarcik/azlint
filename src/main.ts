@@ -95,7 +95,7 @@ import { Linters } from './linters';
     const dependenciesDir = path.resolve(path.join(__dirname, '..', 'dependencies'));
     const binPaths = {
         node: path.join(dependenciesDir, 'node_modules', '.bin'),
-        cargo: path.join(dependenciesDir, '.cargo', 'bin'),
+        cargo: path.join(dependenciesDir, 'cargo', 'bin'),
         venv: path.join(dependenciesDir, 'venv', 'bin'),
         composer: path.join(dependenciesDir, 'vendor', 'bin'),
         go: path.join(dependenciesDir, 'go', 'bin'),
