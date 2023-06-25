@@ -272,6 +272,7 @@ export class Linters {
                                 .replace('#file#', file)
                                 .replace('#file-basename#', path.basename(file))
                                 .replace('#file-dirname#', path.dirname(file))
+                                .replace('#file-absolute#', path.resolve(file))
                             );
                         }
                         let args = execaConfig.args(file);
@@ -291,7 +292,7 @@ export class Linters {
 
                     const cmd = await execa(args, options);
                     if (cmd.exitCode === successExitCode) { // Success
-                        logLintSuccess(toolName, file);
+                        logLintSuccess(toolName, file, cmd);
                     } else { // Fail
                         this.foundProblems += 1;
                         logLintFail(toolName, file, cmd);
@@ -357,6 +358,7 @@ export class Linters {
             gnumakefile: '{GNU,G,}{Makefile,*.make}',
             bsdmakefile: '{BSD,B,}{Makefile,*.make}',
             html: '*.{html,htm,html5,xhtml}',
+            shell: '*.{sh,bash,ksh,ksh93,mksh,loksh,ash,dash,zsh,yash}',
         };
 
         /* Generic linters for all files */
@@ -530,6 +532,58 @@ export class Linters {
             envName: 'MARKDOWN_LINK_CHECK',
             fileMatch: matchers.markdown,
             lintFile: { args: ['markdown-link-check', '--quiet', ...markdownLinkCheckConfigArgs, '--retry', "#file#"] },
+        });
+
+        /* Shell */
+
+        // Shfmt
+        await this.runLinter({
+            linterName: 'shfmt',
+            envName: 'SHFMT',
+            fileMatch: matchers.shell,
+            lintFile: { args: ['shfmt', '-l', '-d', '#file#'] },
+            fmtFile: { args: ['shfmt', '-w', '#file#'] }
+        });
+
+        // Shellharden
+        await this.runLinter({
+            linterName: 'shellharden',
+            envName: 'SHELLHARDEN',
+            fileMatch: matchers.shell,
+            lintFile: { args: ['shellharden', '--check', '--suggest', '--', '#file#'] },
+            fmtFile: { args: ['shellharden', '--replace', '--', '#file#'] }
+        });
+
+        // Bashate
+        await this.runLinter({
+            linterName: 'bashate',
+            envName: 'BASHATE',
+            fileMatch: matchers.shell,
+            lintFile: { args: ['bashate', '--ignore', 'E001,E002,E003,E004,E005,E006', "#file#"] },
+        });
+
+        // Shellcheck
+        await this.runLinter({
+            linterName: 'shellcheck',
+            envName: 'SHELLCHECK',
+            fileMatch: [matchers.shell, '*.bats'],
+            lintFile: { args: ['shellcheck', '--external-sources', "#file#"] },
+        });
+
+        // Bats
+        await this.runLinter({
+            linterName: 'bats',
+            envName: 'BATS',
+            fileMatch: '*.bats',
+            lintFile: { args: ['bats', '--count', "#file#"] },
+        });
+
+        // Shell-dry
+        await this.runLinter({
+            linterName: 'shell-dry',
+            envName: 'SHELL_DRY',
+            fileMatch: matchers.shell,
+            lintFile: { args: ['sh', path.join(__dirname, 'shell-dry.sh'), "#file#"] },
         });
 
         /* Package manager files */

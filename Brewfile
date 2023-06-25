@@ -26,6 +26,8 @@ brew "upx"
 brew "binutils"
 brew "libxml2"
 brew "hadolint"
+brew "shellcheck"
+brew "shfmt"
 
 # Deprecated (installed by script now)
 brew "circleci"
