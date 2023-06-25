@@ -583,9 +583,33 @@ export class Linters {
             lintFile: { args: ['svglint', '--ci', ...svglintConfigArgs, '#file#'] },
         });
 
+        /* Docker */
+
+        const dockerfilelintConfigArgs = configArgs('DOCKERFILELINT',
+            ['.dockerfilelintrc'],
+            '--config');
+        await this.runLinter({
+            linterName: 'dockerfilelint',
+            envName: 'DOCKERFILELINT',
+            fileMatch: matchers.dockerfile,
+            lintFile: { args: ['dockerfilelint', ...dockerfilelintConfigArgs, '#file#'] },
+        });
+
+        const hadolintConfigArgs = configArgs('HADOLINT',
+            ['hadolint.yml', 'hadolint.yaml', '.hadolint.yml', '.hadolint.yaml'],
+            '--config');
+        await this.runLinter({
+            linterName: 'hadolint',
+            envName: 'HADOLINT',
+            fileMatch: matchers.dockerfile,
+            lintFile: { args: ['hadolint', ...hadolintConfigArgs, '#file#'] },
+        });
+
+        /* Makefile */
+
         // Checkmake
         const checkmakeConfigArgs = configArgs('CHECKMAKE',
-            ['chechmake.ini', '.chechmake.ini'],
+            ['checkmake.ini', '.checkmake.ini'],
             '--config');
         await this.runLinter({
             linterName: 'checkmake',
