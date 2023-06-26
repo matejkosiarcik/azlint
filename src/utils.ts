@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import crypto from 'crypto';
 import { execa } from '@esm2cjs/execa';
-import { logVerbose } from './log';
+import { logVerbose } from './log-levels';
 
 export type ColorOptions = 'auto' | 'always' | 'never';
 export type ProgressOptions = 'auto' | 'always' | 'never';

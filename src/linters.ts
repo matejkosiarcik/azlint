@@ -2,56 +2,9 @@ import fs from 'fs/promises';
 import fsSync from 'fs';
 import path from "path";
 import { execa as baseExeca, ExecaError, Options as ExecaOptions, ExecaReturnValue } from "@esm2cjs/execa";
-import { logAlways, logExtraVerbose, logNormal, logVerbose } from "./log";
+import { logExtraVerbose, logNormal, logVerbose } from "./log-levels";
 import { ColorOptions, hashFile, isProjectGitRepo, ProgressOptions, wildcard2regex } from "./utils";
-
-function logLintSuccess(toolName: string, file: string, command?: ExecaReturnValue<string>) {
-    const color = process.stdout.isTTY ? '\x1b[32m' : '';
-    const endColor = process.stdout.isTTY ? '\x1b[0m' : '';
-    logVerbose(`✅ ${color}${toolName} - ${file}${endColor}`);
-    if (command) {
-        const cmdOutput = command.all ? `:\n${command.all}` : '';
-        logExtraVerbose(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
-    }
-}
-
-function logLintFail(toolName: string, file: string, command?: ExecaReturnValue<string>) {
-    const color = process.stdout.isTTY ? '\x1b[31m' : '';
-    const endColor = process.stdout.isTTY ? '\x1b[0m' : '';
-    logAlways(`❌ ${color}${toolName} - ${file}${endColor}`);
-    if (command) {
-        const cmdOutput = command.all ? `:\n${command.all}` : '';
-        logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
-    }
-}
-
-function logFixingUnchanged(toolName: string, file: string, command?: ExecaReturnValue<string>) {
-    const color = process.stdout.isTTY ? '\x1b[32m' : '';
-    const endColor = process.stdout.isTTY ? '\x1b[0m' : '';
-    logVerbose(`💯 Unchanged: ${color}${toolName} - ${file}${endColor}`);
-    if (command) {
-        const cmdOutput = command.all ? `:\n${command.all}` : '';
-        logExtraVerbose(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
-    }
-}
-
-function logFixingSuccess(toolName: string, file: string, command?: ExecaReturnValue<string>) {
-    const color = process.stdout.isTTY ? '\x1b[32m' : '';
-    const endColor = process.stdout.isTTY ? '\x1b[0m' : '';
-    logNormal(`🛠️ Fixed: ${color}${toolName} - ${file}${endColor}`);
-    if (command) {
-        const cmdOutput = command.all ? `:\n${command.all}` : '';
-        logExtraVerbose(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
-    }
-}
-
-function logFixingError(toolName: string, file: string, command: ExecaReturnValue<string>) {
-    const color = process.stdout.isTTY ? '\x1b[32m' : '';
-    const endColor = process.stdout.isTTY ? '\x1b[0m' : '';
-    logAlways(`❗️ Error fixing: ${color}${toolName} - ${file}${endColor}`);
-    const cmdOutput = command.all ? `:\n${command.all}` : '';
-    logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`)
-}
+import { logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from './log-linters';
 
 function shouldSkipLinter(envName: string, linterName: string): boolean {
     const envEnable = 'VALIDATE_' + envName;
