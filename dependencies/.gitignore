@@ -1,0 +1,12 @@
+.bundle/
+cargo/
+composer.phar
+node_modules/
+vendor/
+venv/
+checkmake/
+editorconfig-checker/
+dist/
+target/
+go/
+circleci-cli/

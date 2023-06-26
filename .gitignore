@@ -13,16 +13,10 @@ Thumbs.db
 Package Control.*
 
 # dependencies
-.bundle/
-composer.phar
 gitman/
 node_modules/
-vendor/
-venv/
-
-# build
-dist/
-target/
 
 # misc
-report/
+.env
+Brewfile.lock.json
+.mypy_cache/

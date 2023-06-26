@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
+- Added
+  - Completely rework CLI
+    - New CLI is written in TypeScript (previously Python)
+    - Add dir positional argument to lint outside of `CWD`
+    - Improve logging output
+    - Add CLI option --color (auto|never|always), similar to grep's
+- Fixed
+  - Reenable linters `jsonlint` and `markdownlint`
+- Miscellaneous
+  - Update dependencies
+  - Add scripts for bootstraping dependencies natively/locally, outside of docker
+
 ## \[0.5.5\] - 2023-06-21
 
 - Fixed

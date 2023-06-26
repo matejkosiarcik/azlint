@@ -1,11 +1,16 @@
 #!/bin/sh
 set -euf
 
+if [ "$#" -lt 1 ]; then
+    printf 'Not enough arguments. Expected file.\n' >&2
+    exit 1
+fi
+file="$1"
+
 # extracts the shell from given file
 # uses shebang and extension
 # `bash`` is returned as fallback if neither succeed
 detect_shell() {
-    file="$1"
     shebang="$(head -n1 "$file")"
 
     if printf '%s' "$shebang" | grep -E '^#!' >/dev/null; then
@@ -26,29 +31,6 @@ detect_shell() {
     fi
 }
 
-check_file() {
-    file="$1"
-    shell="$(detect_shell "$file")"
-    printf 'Detected %s as %s\n' "$file" "$shell" >&2
-
-    if [ "$shell" = sh ] || [ "$shell" = yash ] || [ "$shell" = dash ] || [ "$shell" = ash ] || [ "$shell" = posh ] || [ "$shell" = hush ]; then
-        check_sh "$file"
-        check_dash "$file"
-        check_ksh "$file"
-        check_bash "$file"
-        check_zsh "$file"
-        check_yash "$file"
-    elif [ "$shell" = ksh ] || [ "$shell" = mksh ] || [ "$shell" = pdksh ] || [ "$shell" = oksh ] || [ "$shell" = loksh ]; then
-        check_ksh "$file"
-        check_bash "$file"
-        check_zsh "$file"
-    elif [ "$shell" = bash ] || [ "$shell" = '' ]; then
-        check_bash "$file"
-    elif [ "$shell" = zsh ]; then
-        check_zsh "$file"
-    fi
-}
-
 check_sh() {
     sh -n "$file"
     bash --posix -n "$file"
@@ -60,6 +42,7 @@ check_sh() {
 check_ksh() {
     ksh -n "$file"
     mksh -n "$file"
+    # ksh93 -n "$file" # TODO: reenable ksh93 after updating to debian12
 }
 
 check_bash() {
@@ -80,3 +63,23 @@ check_dash() {
     fi
     dash -n "$file"
 }
+
+shell="$(detect_shell "$file")"
+printf 'Detected %s as %s\n' "$file" "$shell" >&2
+
+if [ "$shell" = sh ] || [ "$shell" = yash ] || [ "$shell" = dash ] || [ "$shell" = ash ] || [ "$shell" = posh ] || [ "$shell" = hush ]; then
+    check_sh "$file"
+    check_dash "$file"
+    check_ksh "$file"
+    check_bash "$file"
+    check_zsh "$file"
+    check_yash "$file"
+elif [ "$shell" = ksh ] || [ "$shell" = mksh ] || [ "$shell" = pdksh ] || [ "$shell" = oksh ] || [ "$shell" = loksh ]; then
+    check_ksh "$file"
+    check_bash "$file"
+    check_zsh "$file"
+elif [ "$shell" = bash ] || [ "$shell" = '' ]; then
+    check_bash "$file"
+elif [ "$shell" = zsh ]; then
+    check_zsh "$file"
+fi

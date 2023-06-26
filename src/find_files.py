@@ -8,54 +8,19 @@ import pathlib
 import re
 import subprocess
 import sys
-import tempfile
 from os import path
 from typing import List, Optional
 
 
-def main(argv: Optional[List[str]]) -> int:
+def main(argv: Optional[List[str]]):
     parser = argparse.ArgumentParser()
-    parser.prog = "azlint"
-    parser.add_argument("-V", "--version", action="version", version="%(prog)s 0.5.5")
-    parser.add_argument("-c", "--only-changed", action="store_true", help="Analyze only changed files (on current git branch)")
-    subparsers = parser.add_subparsers(dest="command")
-    lint_parser = subparsers.add_parser("lint", help="Lint files (default)")
-    lint_parser.add_argument("-c", "--only-changed", action="store_true", default=argparse.SUPPRESS)
-    fmt_parser = subparsers.add_parser("fmt", help="Fix files")
-    fmt_parser.add_argument("-c", "--only-changed", action="store_true", default=argparse.SUPPRESS)
+    parser.add_argument("--only-changed", action="store_true")
     args = parser.parse_args(argv)
 
-    if args.command in ["lint", "fmt"]:
-        command = args.command
-    elif args.command is None:
-        command = "lint"
-    else:
-        print(f"Unknown command {args.command}", file=sys.stderr)
-        sys.exit(1)
-
-    # because other files are in the same directory
-    script_dirname = path.dirname(path.realpath(__file__))
-
-    # find files to validate
     only_changed = args.only_changed is True
-    project_files_tmpfile = tempfile.mktemp()
 
-    files = find_files(only_changed)
-
-    if len(files) == 0:
-        print("No files to check", file=sys.stderr)
-        sys.exit(0)
-
-    with open(project_files_tmpfile, "w", encoding="utf-8") as file:
-        print("\n".join(files), file=file)
-
-    # actually perform linting/formatting
-    try:
-        subprocess.check_call([path.join(script_dirname, "run.sh"), command, project_files_tmpfile])
-    except subprocess.CalledProcessError as error:
-        print(error, file=sys.stderr)
-        sys.exit(1)
-    return 0
+    for file in find_files(only_changed):
+        print(file)
 
 
 # Get list of all project files in current directory
