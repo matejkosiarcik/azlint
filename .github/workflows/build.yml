@@ -24,5 +24,4 @@ jobs:
           make build
 
           # TODO: Make below code work again
-          # find .config -type f -exec sh -c 'ln -s "$0" "$(basename "$0")"' {} \; # TODO: Remove
-          # make run-lint
+          # LINTER_RULES_PATH=.config/ make run-lint
