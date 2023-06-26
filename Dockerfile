@@ -112,8 +112,6 @@ COPY --from=chmod /src/glob_files.py /src/main.py /src/run.sh /src/
 
 # curl is only needed to install nodejs&composer
 FROM debian:11.7
-LABEL maintainer="matej.kosiarcik@gmail.com" \
-    repo="https://github.com/matejkosiarcik/azlint"
 WORKDIR /src
 COPY --from=aggregator1 /src/ ./
 COPY --from=hadolint /bin/hadolint /usr/bin/
