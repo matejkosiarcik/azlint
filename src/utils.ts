@@ -1,8 +1,8 @@
 import path from 'path';
 import fs from 'fs/promises';
 import crypto from 'crypto';
-import { execa } from '@esm2cjs/execa';
-import { logVerbose } from './log';
+import { execa, ExecaError, Options as ExecaOptions, ExecaReturnValue } from "@esm2cjs/execa";
+import { logVerbose } from './log-levels';
 
 export type ColorOptions = 'auto' | 'always' | 'never';
 export type ProgressOptions = 'auto' | 'always' | 'never';
@@ -50,4 +50,24 @@ export function wildcard2regex(wildcard: string): RegExp {
         .replace(/\}/, ")")
         .replace(/,/, "|");
     return new RegExp(`^(.*/)?${regex}$`, 'i');
+}
+
+/**
+ * Custom `execa` wrapper with default options
+ */
+export async function customExeca(command: string[], _options?: ExecaOptions<string>): Promise<ExecaReturnValue<string>> {
+    const options: ExecaOptions = {
+        timeout: 60_000,
+        stdio: 'pipe',
+        all: true,
+        ..._options ?? {},
+    };
+
+    try {
+        const cmd = await execa(command[0], command.slice(1), options);
+        return cmd;
+    } catch (error) {
+        const cmdError = error as ExecaError;
+        return cmdError;
+    }
 }

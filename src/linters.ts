@@ -1,57 +1,10 @@
 import fs from 'fs/promises';
 import fsSync from 'fs';
 import path from "path";
-import { execa as baseExeca, ExecaError, Options as ExecaOptions, ExecaReturnValue } from "@esm2cjs/execa";
-import { logAlways, logExtraVerbose, logNormal, logVerbose } from "./log";
-import { ColorOptions, hashFile, isProjectGitRepo, ProgressOptions, wildcard2regex } from "./utils";
-
-function logLintSuccess(toolName: string, file: string, command?: ExecaReturnValue<string>) {
-    const color = process.stdout.isTTY ? '\x1b[32m' : '';
-    const endColor = process.stdout.isTTY ? '\x1b[0m' : '';
-    logVerbose(`✅ ${color}${toolName} - ${file}${endColor}`);
-    if (command) {
-        const cmdOutput = command.all ? `:\n${command.all}` : '';
-        logExtraVerbose(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
-    }
-}
-
-function logLintFail(toolName: string, file: string, command?: ExecaReturnValue<string>) {
-    const color = process.stdout.isTTY ? '\x1b[31m' : '';
-    const endColor = process.stdout.isTTY ? '\x1b[0m' : '';
-    logAlways(`❌ ${color}${toolName} - ${file}${endColor}`);
-    if (command) {
-        const cmdOutput = command.all ? `:\n${command.all}` : '';
-        logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
-    }
-}
-
-function logFixingUnchanged(toolName: string, file: string, command?: ExecaReturnValue<string>) {
-    const color = process.stdout.isTTY ? '\x1b[32m' : '';
-    const endColor = process.stdout.isTTY ? '\x1b[0m' : '';
-    logVerbose(`💯 Unchanged: ${color}${toolName} - ${file}${endColor}`);
-    if (command) {
-        const cmdOutput = command.all ? `:\n${command.all}` : '';
-        logExtraVerbose(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
-    }
-}
-
-function logFixingSuccess(toolName: string, file: string, command?: ExecaReturnValue<string>) {
-    const color = process.stdout.isTTY ? '\x1b[32m' : '';
-    const endColor = process.stdout.isTTY ? '\x1b[0m' : '';
-    logNormal(`🛠️ Fixed: ${color}${toolName} - ${file}${endColor}`);
-    if (command) {
-        const cmdOutput = command.all ? `:\n${command.all}` : '';
-        logExtraVerbose(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
-    }
-}
-
-function logFixingError(toolName: string, file: string, command: ExecaReturnValue<string>) {
-    const color = process.stdout.isTTY ? '\x1b[32m' : '';
-    const endColor = process.stdout.isTTY ? '\x1b[0m' : '';
-    logAlways(`❗️ Error fixing: ${color}${toolName} - ${file}${endColor}`);
-    const cmdOutput = command.all ? `:\n${command.all}` : '';
-    logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`)
-}
+import { Options as ExecaOptions } from "@esm2cjs/execa";
+import { logExtraVerbose, logNormal, logVerbose } from "./log-levels";
+import { ColorOptions, customExeca, hashFile, isProjectGitRepo, ProgressOptions, wildcard2regex } from "./utils";
+import { logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from './log-linters';
 
 function shouldSkipLinter(envName: string, linterName: string): boolean {
     const envEnable = 'VALIDATE_' + envName;
@@ -64,32 +17,12 @@ function shouldSkipLinter(envName: string, linterName: string): boolean {
 }
 
 /**
- * Custom `execa` wrapper with default options
- */
-async function execa(command: string[], _options?: ExecaOptions<string>): Promise<ExecaReturnValue<string>> {
-    const options: ExecaOptions = {
-        timeout: 60_000,
-        stdio: 'pipe',
-        all: true,
-        ..._options ?? {},
-    };
-
-    try {
-        const cmd = await baseExeca(command[0], command.slice(1), options);
-        return cmd;
-    } catch (error) {
-        const cmdError = error as ExecaError;
-        return cmdError;
-    }
-}
-
-/**
  * Determine config file to use for linter `X`
  * - if `X_CONFIG_FILE` is specified, returns `LINTER_RULES_PATH/X_CONFIG_FILE`
  * - else searches `LINTER_RULES_PATH` for config files and returns first found
  * @returns array of arguments to use in subprocess call
  */
-function configArgs(envName: string, possibleFiles: string[], configArgName: string): string[] {
+function getConfigArgs(envName: string, configArgName: string, possibleFiles: string[]): string[] {
     const configDir = process.env['LINTER_RULES_PATH'] ?? '.';
     const configFile = (() => {
         const envValue = process.env[envName + '_CONFIG_FILE'];
@@ -113,25 +46,19 @@ function configArgs(envName: string, possibleFiles: string[], configArgName: str
     return configFile ? (configArgName.endsWith('=') ? [`${configArgName}${configFile}`] : [configArgName, configFile]) : [];
 }
 
-function pythonConfigArgs(envName: string, linterName: string, configArgName: string, specificFiles: string[], commonFiles: string[]): string[] {
+/**
+ * Determine config file to use for linter `X` - Python oriented
+ * Python needs specific logic, because Python tools are a little different
+ * Some have dedicated config files, but they are also configurable by shared config files, eg. setup.cfg or pyproject.toml
+ */
+function getPythonConfigArgs(envName: string, linterName: string, configArgName: string, specificFiles: string[], commonFiles: string[]): string[] {
+    const specificConfigArgs = getConfigArgs(envName, configArgName, specificFiles);
+    if (specificConfigArgs.length > 0) {
+        return specificConfigArgs;
+    }
+
     const configDir = process.env['LINTER_RULES_PATH'] ?? '.';
     const configFile = (() => {
-        const envValue = process.env[envName + '_CONFIG_FILE'];
-        if (envValue) {
-            if (fsSync.existsSync(envValue)) {
-                return envValue;
-            } else if (fsSync.existsSync(path.join(configDir, envValue))) {
-                return path.join(configDir, envValue);
-            }
-        }
-
-        const specificConfigs = specificFiles
-            .map((file) => path.join(configDir, file))
-            .filter((file) => fsSync.existsSync(file));
-        if (specificConfigs.length > 0) {
-            return specificConfigs[0];
-        }
-
         const commonConfigs = commonFiles
             .map((file) => path.join(configDir, file))
             .filter((file) => fsSync.existsSync(file))
@@ -349,7 +276,7 @@ export class Linters {
                     })();
                     const successExitCode = execaConfig.successExitCode ?? 0;
 
-                    const cmd = await execa(args, options);
+                    const cmd = await customExeca(args, options);
                     if (cmd.exitCode === successExitCode) { // Success
                         logLintSuccess(toolName, file, cmd);
                     } else { // Fail
@@ -389,7 +316,7 @@ export class Linters {
                     const successExitCode = execaConfig.successExitCode ?? 0;
 
                     const originalHash = await hashFile(file);
-                    const cmd = await execa(args, options);
+                    const cmd = await customExeca(args, options);
                     const updatedHash = await hashFile(file);
                     if (cmd.exitCode === successExitCode) {
                         if (originalHash !== updatedHash) {
@@ -442,12 +369,12 @@ export class Linters {
                 successExitCode: 1,
             },
             fmtFile: async (file: string, toolName: string) => {
-                const cmd = await execa(['git', 'check-ignore', '--no-index', file]);
+                const cmd = await customExeca(['git', 'check-ignore', '--no-index', file]);
                 if (cmd.exitCode !== 0) { // Success
                     logLintSuccess(toolName, file, cmd);
                 } else { // Fail
                     this.foundProblems += 1;
-                    const cmd2 = await execa(['git', 'rm', '--cached', file]);
+                    const cmd2 = await customExeca(['git', 'rm', '--cached', file]);
                     if (cmd2.exitCode === 0) {
                         logFixingSuccess(toolName, file);
                         this.fixedProblems += 1;
@@ -469,9 +396,8 @@ export class Linters {
         /* HTML, JSON, SVG, TOML, XML, YAML */
 
         // Prettier
-        const prettierConfigArgs = configArgs('PRETTIER',
-            ['prettierrc', 'prettierrc.yml', 'prettierrc.yaml', 'prettierrc.json', 'prettierrc.js', '.prettierrc', '.prettierrc.yml', '.prettierrc.yaml', '.prettierrc.json', '.prettierrc.js'],
-            '--config');
+        const prettierConfigArgs = getConfigArgs('PRETTIER', '--config',
+            ['prettierrc', 'prettierrc.yml', 'prettierrc.yaml', 'prettierrc.json', 'prettierrc.js', '.prettierrc', '.prettierrc.yml', '.prettierrc.yaml', '.prettierrc.json', '.prettierrc.js']);
         await this.runLinter({
             linterName: 'prettier',
             envName: 'PRETTIER',
@@ -481,9 +407,7 @@ export class Linters {
         });
 
         // Jsonlint
-        const jsonlintConfigArgs = configArgs('JSONLINT',
-            [], // TODO: Finish
-            '--config');
+        const jsonlintConfigArgs = getConfigArgs('JSONLINT', '--config', []); // TODO: Finish config files
         await this.runLinter({
             linterName: 'jsonlint',
             envName: 'JSONLINT',
@@ -492,9 +416,8 @@ export class Linters {
         });
 
         // Yamllint
-        const yamllintConfigArgs = configArgs('YAMLLINT',
-            ['yamllint.yml', 'yamllint.yaml', '.yamllint.yml', '.yamllint.yaml'],
-            '--config-file');
+        const yamllintConfigArgs = getConfigArgs('YAMLLINT', '--config-file',
+            ['yamllint.yml', 'yamllint.yaml', '.yamllint.yml', '.yamllint.yaml']);
         await this.runLinter({
             linterName: 'yamllint',
             envName: 'YAMLLINT',
@@ -520,9 +443,7 @@ export class Linters {
         });
 
         // HtmlLint
-        const htmllintConfigArgs = configArgs('HTMLLINT',
-            ['.htmllintrc'],
-            '--rc');
+        const htmllintConfigArgs = getConfigArgs('HTMLLINT', '--rc', ['.htmllintrc']);
         await this.runLinter({
             linterName: 'htmllint',
             envName: 'HTMLLINT',
@@ -531,9 +452,7 @@ export class Linters {
         });
 
         // HtmlHint
-        const htmlhintConfigArgs = configArgs('HTMLHINT',
-            ['.htmlhintrc'],
-            '--config');
+        const htmlhintConfigArgs = getConfigArgs('HTMLHINT', '--config', ['.htmlhintrc']);
         await this.runLinter({
             linterName: 'htmlhint',
             envName: 'HTMLHINT',
@@ -542,9 +461,7 @@ export class Linters {
         });
 
         // Svglint
-        const svglintConfigArgs = configArgs('SVGLINT',
-            ['.svglintrc.js', 'svglintrc.js'],
-            '--config');
+        const svglintConfigArgs = getConfigArgs('SVGLINT', '--config', ['.svglintrc.js', 'svglintrc.js']);
         await this.runLinter({
             linterName: 'svglint',
             envName: 'SVGLINT',
@@ -563,9 +480,7 @@ export class Linters {
         /* Documentation (Markdown) */
 
         // Markdownlint
-        const markdownlintConfigArgs = configArgs('MDL',
-            ['markdownlint.json', '.markdownlint.json'],
-            '--config');
+        const markdownlintConfigArgs = getConfigArgs('MDL', '--config', ['markdownlint.json', '.markdownlint.json']);
         await this.runLinter({
             linterName: 'markdownlint',
             envName: 'MARKDOWNLINT',
@@ -575,9 +490,7 @@ export class Linters {
         });
 
         // mdl
-        const mdlConfigArgs = configArgs('MDL',
-            ['.mdlrc'],
-            '--config');
+        const mdlConfigArgs = getConfigArgs('MDL', '--config', ['.mdlrc']);
         await this.runLinter({
             linterName: 'mdl',
             envName: 'MDL',
@@ -586,9 +499,7 @@ export class Linters {
         });
 
         // Markdown link check
-        const markdownLinkCheckConfigArgs = configArgs('MDL',
-            ['markdown-link-check.json', '.markdown-link-check.json'],
-            '--config');
+        const markdownLinkCheckConfigArgs = getConfigArgs('MARKDOWN_LINK_CHECK', '--config', ['markdown-link-check.json', '.markdown-link-check.json']);
         await this.runLinter({
             linterName: 'markdown-link-check',
             envName: 'MARKDOWN_LINK_CHECK',
@@ -660,7 +571,7 @@ export class Linters {
         // });
 
         // isort
-        const isortConfigArgs = pythonConfigArgs('ISORT', 'isort', '--settings-file', ['isort.cfg', '.isort.cfg'], ['pyproject.toml', 'setup.cfg', 'tox.ini']);
+        const isortConfigArgs = getPythonConfigArgs('ISORT', 'isort', '--settings-file', ['isort.cfg', '.isort.cfg'], ['pyproject.toml', 'setup.cfg', 'tox.ini']);
         await this.runLinter({
             linterName: 'isort',
             envName: 'ISORT',
@@ -670,7 +581,7 @@ export class Linters {
         });
 
         // Black
-        const blackConfigArgs = pythonConfigArgs('BLACK', 'black', '--config', ['black', '.black'], ['pyproject.toml']);
+        const blackConfigArgs = getPythonConfigArgs('BLACK', 'black', '--config', ['black', '.black'], ['pyproject.toml']);
         await this.runLinter({
             linterName: 'black',
             envName: 'BLACK',
@@ -680,7 +591,7 @@ export class Linters {
         });
 
         // Pycodestyle
-        const pycodestyleConfigArgs = pythonConfigArgs('PYCODESTYLE', 'pycodestyle', '--config', ['pycodestyle', '.pycodestyle'], ['setup.cfg', 'tox.ini']);
+        const pycodestyleConfigArgs = getPythonConfigArgs('PYCODESTYLE', 'pycodestyle', '--config', ['pycodestyle', '.pycodestyle'], ['setup.cfg', 'tox.ini']);
         await this.runLinter({
             linterName: 'pycodestyle',
             envName: 'PYCODESTYLE',
@@ -689,7 +600,7 @@ export class Linters {
         });
 
         // Flake8
-        const flake8ConfigArgs = pythonConfigArgs('FLAKE8', 'flake8', '--config', ['flake8', '.flake8'], ['setup.cfg', 'tox.ini']);
+        const flake8ConfigArgs = getPythonConfigArgs('FLAKE8', 'flake8', '--config', ['flake8', '.flake8'], ['setup.cfg', 'tox.ini']);
         await this.runLinter({
             linterName: 'flake8',
             envName: 'FLAKE8',
@@ -698,7 +609,7 @@ export class Linters {
         });
 
         // Pylint
-        const pylintConfigArgs = pythonConfigArgs('PYLINT', 'pylint', '--rcfile', ['pylintrc', '.pylintrc'], ['pyproject.toml', 'setup.cfg', 'tox.ini']);
+        const pylintConfigArgs = getPythonConfigArgs('PYLINT', 'pylint', '--rcfile', ['pylintrc', '.pylintrc'], ['pyproject.toml', 'setup.cfg', 'tox.ini']);
         await this.runLinter({
             linterName: 'pylint',
             envName: 'PYLINT',
@@ -765,9 +676,7 @@ export class Linters {
 
         /* Docker */
 
-        const dockerfilelintConfigArgs = configArgs('DOCKERFILELINT',
-            ['.dockerfilelintrc'],
-            '--config');
+        const dockerfilelintConfigArgs = getConfigArgs('DOCKERFILELINT', '--config', ['.dockerfilelintrc']);
         await this.runLinter({
             linterName: 'dockerfilelint',
             envName: 'DOCKERFILELINT',
@@ -775,9 +684,8 @@ export class Linters {
             lintFile: { args: ['dockerfilelint', ...dockerfilelintConfigArgs, '#file#'] },
         });
 
-        const hadolintConfigArgs = configArgs('HADOLINT',
-            ['hadolint.yml', 'hadolint.yaml', '.hadolint.yml', '.hadolint.yaml'],
-            '--config');
+        const hadolintConfigArgs = getConfigArgs('HADOLINT', '--config',
+            ['hadolint.yml', 'hadolint.yaml', '.hadolint.yml', '.hadolint.yaml']);
         await this.runLinter({
             linterName: 'hadolint',
             envName: 'HADOLINT',
@@ -788,9 +696,8 @@ export class Linters {
         /* Makefile */
 
         // Checkmake
-        const checkmakeConfigArgs = configArgs('CHECKMAKE',
-            ['checkmake.ini', '.checkmake.ini'],
-            '--config');
+        const checkmakeConfigArgs = getConfigArgs('CHECKMAKE', '--config',
+            ['checkmake.ini', '.checkmake.ini']);
         await this.runLinter({
             linterName: 'checkmake',
             envName: 'CHECKMAKE',
