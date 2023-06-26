@@ -37,7 +37,8 @@ bootstrap:
 		cargo install "$$package" --force --root "$(PROJECT_DIR)/dependencies/cargo" --version "$$version"; \
 	done
 
-	(cd dependencies && composer install --no-cache)
+	cd dependencies && \
+		composer install --no-cache
 
 	rm -rf dependencies/checkmake && \
 		mkdir -p dependencies/checkmake && \
