@@ -24,4 +24,4 @@ jobs:
           make build
 
           # TODO: Make below code work again
-          # LINTER_RULES_PATH=.config/ make run-lint
+          # CONFIG_DIR=.config/ make run-lint
