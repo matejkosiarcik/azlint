@@ -9,4 +9,3 @@ editorconfig-checker/
 dist/
 target/
 go/
-circleci-cli/

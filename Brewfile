@@ -25,10 +25,8 @@ brew "zsh"
 brew "libxml2"
 brew "hadolint"
 brew "shellcheck"
+brew "circleci"
 
 # Deprecated (installed by script now)
-brew "circleci"
-# brew "upx"
-# brew "binutils"
 # brew "checkmake"
 # brew "shfmt"

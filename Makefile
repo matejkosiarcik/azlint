@@ -52,12 +52,6 @@ bootstrap:
 		git clone https://github.com/editorconfig-checker/editorconfig-checker . && \
 		make build
 
-	# TODO: Finish CircleCI bootstrap script
-	# rm -rf dependencies/circleci-cli && \
-	# 	mkdir -p dependencies/circleci-cli && \
-	# 	cd dependencies/circleci-cli && \
-	# 	DESTDIR="$$PWD" curl -fLsS https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh | bash
-
 	GOPATH="$(PROJECT_DIR)/dependencies/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest'
 	GOPATH="$(PROJECT_DIR)/dependencies/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest'
 	GOPATH="$(PROJECT_DIR)/dependencies/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
