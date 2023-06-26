@@ -46,25 +46,19 @@ function configArgs(envName: string, possibleFiles: string[], configArgName: str
     return configFile ? (configArgName.endsWith('=') ? [`${configArgName}${configFile}`] : [configArgName, configFile]) : [];
 }
 
+/**
+ * Determine config file to use for linter `X` - Python oriented
+ * Python needs specific logic, because Python tools are a little different
+ * Some have dedicated config files, but they are also configurable by shared config files, eg. setup.cfg or pyproject.toml
+ */
 function pythonConfigArgs(envName: string, linterName: string, configArgName: string, specificFiles: string[], commonFiles: string[]): string[] {
+    const specificConfigArgs = configArgs(envName, specificFiles, configArgName);
+    if (specificConfigArgs.length > 0) {
+        return specificConfigArgs;
+    }
+
     const configDir = process.env['LINTER_RULES_PATH'] ?? '.';
     const configFile = (() => {
-        const envValue = process.env[envName + '_CONFIG_FILE'];
-        if (envValue) {
-            if (fsSync.existsSync(envValue)) {
-                return envValue;
-            } else if (fsSync.existsSync(path.join(configDir, envValue))) {
-                return path.join(configDir, envValue);
-            }
-        }
-
-        const specificConfigs = specificFiles
-            .map((file) => path.join(configDir, file))
-            .filter((file) => fsSync.existsSync(file));
-        if (specificConfigs.length > 0) {
-            return specificConfigs[0];
-        }
-
         const commonConfigs = commonFiles
             .map((file) => path.join(configDir, file))
             .filter((file) => fsSync.existsSync(file))
