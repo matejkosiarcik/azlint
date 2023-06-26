@@ -1,9 +1,9 @@
 import fs from 'fs/promises';
 import fsSync from 'fs';
 import path from "path";
-import { execa as baseExeca, ExecaError, Options as ExecaOptions, ExecaReturnValue } from "@esm2cjs/execa";
+import { Options as ExecaOptions } from "@esm2cjs/execa";
 import { logExtraVerbose, logNormal, logVerbose } from "./log-levels";
-import { ColorOptions, hashFile, isProjectGitRepo, ProgressOptions, wildcard2regex } from "./utils";
+import { ColorOptions, customExeca, hashFile, isProjectGitRepo, ProgressOptions, wildcard2regex } from "./utils";
 import { logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from './log-linters';
 
 function shouldSkipLinter(envName: string, linterName: string): boolean {
@@ -14,26 +14,6 @@ function shouldSkipLinter(envName: string, linterName: string): boolean {
     }
 
     return false;
-}
-
-/**
- * Custom `execa` wrapper with default options
- */
-async function execa(command: string[], _options?: ExecaOptions<string>): Promise<ExecaReturnValue<string>> {
-    const options: ExecaOptions = {
-        timeout: 60_000,
-        stdio: 'pipe',
-        all: true,
-        ..._options ?? {},
-    };
-
-    try {
-        const cmd = await baseExeca(command[0], command.slice(1), options);
-        return cmd;
-    } catch (error) {
-        const cmdError = error as ExecaError;
-        return cmdError;
-    }
 }
 
 /**
@@ -302,7 +282,7 @@ export class Linters {
                     })();
                     const successExitCode = execaConfig.successExitCode ?? 0;
 
-                    const cmd = await execa(args, options);
+                    const cmd = await customExeca(args, options);
                     if (cmd.exitCode === successExitCode) { // Success
                         logLintSuccess(toolName, file, cmd);
                     } else { // Fail
@@ -342,7 +322,7 @@ export class Linters {
                     const successExitCode = execaConfig.successExitCode ?? 0;
 
                     const originalHash = await hashFile(file);
-                    const cmd = await execa(args, options);
+                    const cmd = await customExeca(args, options);
                     const updatedHash = await hashFile(file);
                     if (cmd.exitCode === successExitCode) {
                         if (originalHash !== updatedHash) {
@@ -395,12 +375,12 @@ export class Linters {
                 successExitCode: 1,
             },
             fmtFile: async (file: string, toolName: string) => {
-                const cmd = await execa(['git', 'check-ignore', '--no-index', file]);
+                const cmd = await customExeca(['git', 'check-ignore', '--no-index', file]);
                 if (cmd.exitCode !== 0) { // Success
                     logLintSuccess(toolName, file, cmd);
                 } else { // Fail
                     this.foundProblems += 1;
-                    const cmd2 = await execa(['git', 'rm', '--cached', file]);
+                    const cmd2 = await customExeca(['git', 'rm', '--cached', file]);
                     if (cmd2.exitCode === 0) {
                         logFixingSuccess(toolName, file);
                         this.fixedProblems += 1;
