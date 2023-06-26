@@ -15,6 +15,20 @@ function shouldSkipLinter(envName: string, linterName: string): boolean {
     return false;
 }
 
+function getConfigDir(envName: string): string {
+    const linterConfigDir = process.env[`${envName}_CONFIG_DIR`];
+    if (linterConfigDir) {
+        return linterConfigDir;
+    }
+
+    const generalConfigDir = process.env['CONFIG_DIR'];
+    if (generalConfigDir) {
+        return generalConfigDir;
+    }
+
+    return '.';
+}
+
 /**
  * Determine config file to use for linter `X`
  * - if `X_CONFIG_FILE` is specified, returns `CONFIG_DIR/X_CONFIG_FILE`
@@ -22,7 +36,7 @@ function shouldSkipLinter(envName: string, linterName: string): boolean {
  * @returns array of arguments to use in subprocess call
  */
 function getConfigArgs(envName: string, configArgName: string, possibleFiles: string[]): string[] {
-    const configDir = process.env['CONFIG_DIR'] ?? '.';
+    const configDir = getConfigDir(envName);
     const configFile = (() => {
         const envValue = process.env[envName + '_CONFIG_FILE'];
         if (envValue) {
@@ -56,7 +70,7 @@ function getPythonConfigArgs(envName: string, linterName: string, configArgName:
         return specificConfigArgs;
     }
 
-    const configDir = process.env['CONFIG_DIR'] ?? '.';
+    const configDir = getConfigDir(envName);
     const configFile = (() => {
         const commonConfigs = commonFiles
             .map((file) => path.join(configDir, file))
