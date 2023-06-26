@@ -21,5 +21,7 @@ jobs:
           # This only occurs after upgrading to debian:bullseye, might be because it includes newer php versions with newer utilities https://forums.docker.com/t/multiple-projects-stopped-building-on-docker-hub-operation-not-permitted/92570/11
           # But we can't downgrade to buster, because it has other issues, much older packages in general
           # So this workaround is needed for the time being
+      - run: apk update --no-cache
+      - run: apk add --no-cache make
       - run: make build
       # TODO: run "run" Makefile target
