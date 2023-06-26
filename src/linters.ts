@@ -2,9 +2,8 @@ import fs from 'fs/promises';
 import fsSync from 'fs';
 import path from "path";
 import { Options as ExecaOptions } from "@esm2cjs/execa";
-import { logExtraVerbose, logNormal, logVerbose } from "./log-levels";
-import { ColorOptions, customExeca, hashFile, isProjectGitRepo, ProgressOptions, wildcard2regex } from "./utils";
-import { logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from './log-linters';
+import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from "./log";
+import { customExeca, hashFile, isCwdGitRepo, ProgressOptions, wildcard2regex } from "./utils";
 
 function shouldSkipLinter(envName: string, linterName: string): boolean {
     const envEnable = 'VALIDATE_' + envName;
@@ -85,18 +84,15 @@ export class Linters {
     fixedProblems = 0;
     readonly mode: 'lint' | 'fmt';
     readonly files: string[];
-    readonly color: ColorOptions;
     readonly progress: ProgressOptions;
 
     constructor(options: {
         mode: 'lint' | 'fmt',
         files: string[],
-        color: ColorOptions,
         progress: ProgressOptions
     }) {
         this.mode = options.mode;
         this.files = options.files;
-        this.color = options.color;
         this.progress = options.progress;
     }
 
@@ -358,7 +354,7 @@ export class Linters {
             envName: 'GITIGNORE',
             fileMatch: '*',
             beforeAllFiles: async (toolName: string) => {
-                const isGit = await isProjectGitRepo();
+                const isGit = await isCwdGitRepo();
                 if (!isGit) {
                     logVerbose(`⏩ Skipping ${toolName}, because it's private`);
                 }

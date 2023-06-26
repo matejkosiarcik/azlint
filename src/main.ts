@@ -4,7 +4,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import dotenv from 'dotenv';
 import { ColorOptions, ProgressOptions, findFiles } from './utils';
-import { LogLevel, logExtraExtraVerbose, logVerbose, setLogLevel } from './log-levels';
+import { LogLevel, logExtraExtraVerbose, logVerbose, setLogSettings } from './log';
 import { Linters } from './linters';
 
 (async () => {
@@ -92,7 +92,10 @@ import { Linters } from './linters';
     const progress = argv.progress as ProgressOptions;
 
     // Set global properties
-    setLogLevel(logLevel);
+    setLogSettings({
+        level: logLevel,
+        color: color,
+    });
     process.chdir(directory);
 
     // Setup paths for dependencies
@@ -121,7 +124,6 @@ import { Linters } from './linters';
     const linters = new Linters({
         mode: command,
         files: projectFiles,
-        color: color,
         progress: progress,
     });
     const success = await linters.run();
