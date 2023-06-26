@@ -3,7 +3,7 @@ import fsSync from 'fs';
 import path from "path";
 import { Options as ExecaOptions } from "@esm2cjs/execa";
 import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from "./log";
-import { ColorOptions, customExeca, hashFile, isProjectGitRepo, ProgressOptions, wildcard2regex } from "./utils";
+import { ColorOptions, customExeca, hashFile, isCwdGitRepo, ProgressOptions, wildcard2regex } from "./utils";
 
 function shouldSkipLinter(envName: string, linterName: string): boolean {
     const envEnable = 'VALIDATE_' + envName;
@@ -357,7 +357,7 @@ export class Linters {
             envName: 'GITIGNORE',
             fileMatch: '*',
             beforeAllFiles: async (toolName: string) => {
-                const isGit = await isProjectGitRepo();
+                const isGit = await isCwdGitRepo();
                 if (!isGit) {
                     logVerbose(`⏩ Skipping ${toolName}, because it's private`);
                 }
