@@ -1,7 +1,9 @@
+# TODO
+
 - Linters:
   - markdown-table-format
   - jscpd
   - checkov
   - textlint
   - proselint
-  - editorconfig via npm?
+  - another EditorConfig via npm?
