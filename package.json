@@ -3,7 +3,8 @@
   "scripts": {
     "start": "ts-node src/main.ts",
     "lint": "npm start -- lint",
-    "fmt": "npm start -- fmt"
+    "fmt": "npm start -- fmt",
+    "build": "tsc"
   },
   "dependencies": {
     "@esm2cjs/execa": "^6.1.1-cjs.1",
