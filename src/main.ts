@@ -4,7 +4,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import dotenv from 'dotenv';
 import { ColorOptions, ProgressOptions, findFiles } from './utils';
-import { LogLevel, logExtraExtraVerbose, logVerbose, setLogLevel } from './log-levels';
+import { LogLevel, logExtraExtraVerbose, logVerbose, setLogLevel } from './log';
 import { Linters } from './linters';
 
 (async () => {

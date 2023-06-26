@@ -1,5 +1,55 @@
 import { ExecaReturnValue } from "@esm2cjs/execa";
-import { logAlways, logExtraVerbose, logNormal, logVerbose } from "./log-levels";
+
+export enum LogLevel {
+    QUIET = 0,
+    NORMAL = 1,
+    VERBOSE = 2,
+    EXTRA_VERBOSE = 3,
+    EXTRA_EXTRA_VERBOSE = 4,
+};
+
+let level: LogLevel;
+
+export function setLogLevel(_level: LogLevel) {
+    level = _level;
+}
+
+export function logNormal(...args: unknown[]): boolean {
+    if (level.valueOf() >= LogLevel.NORMAL.valueOf()) {
+        console.log(...args);
+        return true;
+    }
+    return false;
+}
+
+export function logVerbose(...args: unknown[]): boolean {
+    if (level.valueOf() >= LogLevel.VERBOSE.valueOf()) {
+        console.log(...args);
+        return true;
+    }
+    return false;
+}
+
+export function logExtraVerbose(...args: unknown[]): boolean {
+    if (level.valueOf() >= LogLevel.EXTRA_VERBOSE.valueOf()) {
+        console.log(...args);
+        return true;
+    }
+    return false;
+}
+
+export function logExtraExtraVerbose(...args: unknown[]): boolean {
+    if (level.valueOf() >= LogLevel.EXTRA_EXTRA_VERBOSE.valueOf()) {
+        console.log(...args);
+        return true;
+    }
+    return false;
+}
+
+export function logAlways(...args: unknown[]): boolean {
+    console.log(...args);
+    return true;
+}
 
 export function logLintSuccess(toolName: string, file: string, command?: ExecaReturnValue<string>) {
     const color = process.stdout.isTTY ? '\x1b[32m' : '';

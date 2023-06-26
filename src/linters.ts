@@ -2,9 +2,8 @@ import fs from 'fs/promises';
 import fsSync from 'fs';
 import path from "path";
 import { Options as ExecaOptions } from "@esm2cjs/execa";
-import { logExtraVerbose, logNormal, logVerbose } from "./log-levels";
+import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from "./log";
 import { ColorOptions, customExeca, hashFile, isProjectGitRepo, ProgressOptions, wildcard2regex } from "./utils";
-import { logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from './log-linters';
 
 function shouldSkipLinter(envName: string, linterName: string): boolean {
     const envEnable = 'VALIDATE_' + envName;
