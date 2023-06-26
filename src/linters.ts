@@ -3,7 +3,7 @@ import fsSync from 'fs';
 import path from "path";
 import { execa as baseExeca, ExecaError, Options as ExecaOptions, ExecaReturnValue } from "@esm2cjs/execa";
 import { logAlways, logExtraVerbose, logNormal, logVerbose } from "./log";
-import { ColorOptions, hashFile, isProjectGitRepo, wildcard2regex } from "./utils";
+import { ColorOptions, hashFile, isProjectGitRepo, ProgressOptions, wildcard2regex } from "./utils";
 
 function logLintSuccess(toolName: string, file: string, command?: ExecaReturnValue<string>) {
     const color = process.stdout.isTTY ? '\x1b[32m' : '';
@@ -156,8 +156,22 @@ function pythonConfigArgs(envName: string, linterName: string, configArgName: st
 export class Linters {
     foundProblems = 0;
     fixedProblems = 0;
+    readonly mode: 'lint' | 'fmt';
+    readonly files: string[];
+    readonly color: ColorOptions;
+    readonly progress: ProgressOptions;
 
-    constructor(readonly mode: 'lint' | 'fmt', readonly files: string[], readonly color: ColorOptions) {}
+    constructor(options: {
+        mode: 'lint' | 'fmt',
+        files: string[],
+        color: ColorOptions,
+        progress: ProgressOptions
+    }) {
+        this.mode = options.mode;
+        this.files = options.files;
+        this.color = options.color;
+        this.progress = options.progress;
+    }
 
     matchFiles(fileMatch: string | string[] | ((file: string) => boolean)): string[] {
         if (typeof fileMatch === 'string') {
@@ -314,9 +328,10 @@ export class Linters {
                         if (Array.isArray(execaConfig.args)) {
                             return execaConfig.args.map((el) => el
                                 .replace('#file#', file)
-                                .replace('#file-basename#', path.basename(file))
-                                .replace('#file-dirname#', path.dirname(file))
-                                .replace('#file-absolute#', path.resolve(file))
+                                .replace('#filename#', path.basename(file))
+                                .replace('#directory#', path.dirname(file))
+                                .replace('#file[abs]#', path.resolve(file))
+                                .replace('#directory[abs]#', path.resolve(path.dirname(file)))
                             );
                         }
                         let args = execaConfig.args(file);
@@ -351,10 +366,11 @@ export class Linters {
                     const args: string[] = await (async () => {
                         if (Array.isArray(execaConfig.args)) {
                             return execaConfig.args.map((el) => el
-                                .replace('#file#', file)
-                                .replace('#file-basename#', path.basename(file))
-                                .replace('#file-dirname#', path.dirname(file))
-                                .replace('#file-absolute#', path.resolve(file))
+                            .replace('#file#', file)
+                            .replace('#filename#', path.basename(file))
+                            .replace('#directory#', path.dirname(file))
+                            .replace('#file[abs]#', path.resolve(file))
+                            .replace('#directory[abs]#', path.resolve(path.dirname(file)))
                             );
                         }
                         let args = execaConfig.args(file);
@@ -730,7 +746,7 @@ export class Linters {
             envName: 'COMPOSER_NORMALIZE',
             fileMatch: 'composer.json',
             lintFile: {
-                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '--dry-run', '--diff', '#file-basename#'],
+                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '--dry-run', '--diff', '#filename#'],
                 options: (file) => {
                     return {
                         cwd: path.dirname(file),
@@ -738,7 +754,7 @@ export class Linters {
                 },
             },
             fmtFile: {
-                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '#file-basename#'],
+                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '#filename#'],
                 options: (file) => {
                     return {
                         cwd: path.dirname(file),
