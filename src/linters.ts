@@ -314,9 +314,10 @@ export class Linters {
                         if (Array.isArray(execaConfig.args)) {
                             return execaConfig.args.map((el) => el
                                 .replace('#file#', file)
-                                .replace('#file-basename#', path.basename(file))
-                                .replace('#file-dirname#', path.dirname(file))
-                                .replace('#file-absolute#', path.resolve(file))
+                                .replace('#filename#', path.basename(file))
+                                .replace('#directory#', path.dirname(file))
+                                .replace('#file[abs]#', path.resolve(file))
+                                .replace('#directory[abs]#', path.resolve(path.dirname(file)))
                             );
                         }
                         let args = execaConfig.args(file);
@@ -351,10 +352,11 @@ export class Linters {
                     const args: string[] = await (async () => {
                         if (Array.isArray(execaConfig.args)) {
                             return execaConfig.args.map((el) => el
-                                .replace('#file#', file)
-                                .replace('#file-basename#', path.basename(file))
-                                .replace('#file-dirname#', path.dirname(file))
-                                .replace('#file-absolute#', path.resolve(file))
+                            .replace('#file#', file)
+                            .replace('#filename#', path.basename(file))
+                            .replace('#directory#', path.dirname(file))
+                            .replace('#file[abs]#', path.resolve(file))
+                            .replace('#directory[abs]#', path.resolve(path.dirname(file)))
                             );
                         }
                         let args = execaConfig.args(file);
@@ -730,7 +732,7 @@ export class Linters {
             envName: 'COMPOSER_NORMALIZE',
             fileMatch: 'composer.json',
             lintFile: {
-                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '--dry-run', '--diff', '#file-basename#'],
+                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '--dry-run', '--diff', '#filename#'],
                 options: (file) => {
                     return {
                         cwd: path.dirname(file),
@@ -738,7 +740,7 @@ export class Linters {
                 },
             },
             fmtFile: {
-                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '#file-basename#'],
+                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '#filename#'],
                 options: (file) => {
                     return {
                         cwd: path.dirname(file),
