@@ -22,7 +22,7 @@ function shouldSkipLinter(envName: string, linterName: string): boolean {
  * - else searches `LINTER_RULES_PATH` for config files and returns first found
  * @returns array of arguments to use in subprocess call
  */
-function getConfigArgs(envName: string, possibleFiles: string[], configArgName: string): string[] {
+function getConfigArgs(envName: string, configArgName: string, possibleFiles: string[]): string[] {
     const configDir = process.env['LINTER_RULES_PATH'] ?? '.';
     const configFile = (() => {
         const envValue = process.env[envName + '_CONFIG_FILE'];
@@ -52,7 +52,7 @@ function getConfigArgs(envName: string, possibleFiles: string[], configArgName: 
  * Some have dedicated config files, but they are also configurable by shared config files, eg. setup.cfg or pyproject.toml
  */
 function getPythonConfigArgs(envName: string, linterName: string, configArgName: string, specificFiles: string[], commonFiles: string[]): string[] {
-    const specificConfigArgs = getConfigArgs(envName, specificFiles, configArgName);
+    const specificConfigArgs = getConfigArgs(envName, configArgName, specificFiles);
     if (specificConfigArgs.length > 0) {
         return specificConfigArgs;
     }
@@ -396,9 +396,8 @@ export class Linters {
         /* HTML, JSON, SVG, TOML, XML, YAML */
 
         // Prettier
-        const prettierConfigArgs = getConfigArgs('PRETTIER',
-            ['prettierrc', 'prettierrc.yml', 'prettierrc.yaml', 'prettierrc.json', 'prettierrc.js', '.prettierrc', '.prettierrc.yml', '.prettierrc.yaml', '.prettierrc.json', '.prettierrc.js'],
-            '--config');
+        const prettierConfigArgs = getConfigArgs('PRETTIER', '--config',
+            ['prettierrc', 'prettierrc.yml', 'prettierrc.yaml', 'prettierrc.json', 'prettierrc.js', '.prettierrc', '.prettierrc.yml', '.prettierrc.yaml', '.prettierrc.json', '.prettierrc.js']);
         await this.runLinter({
             linterName: 'prettier',
             envName: 'PRETTIER',
@@ -408,9 +407,7 @@ export class Linters {
         });
 
         // Jsonlint
-        const jsonlintConfigArgs = getConfigArgs('JSONLINT',
-            [], // TODO: Finish
-            '--config');
+        const jsonlintConfigArgs = getConfigArgs('JSONLINT', '--config', []); // TODO: Finish config files
         await this.runLinter({
             linterName: 'jsonlint',
             envName: 'JSONLINT',
@@ -419,9 +416,8 @@ export class Linters {
         });
 
         // Yamllint
-        const yamllintConfigArgs = getConfigArgs('YAMLLINT',
-            ['yamllint.yml', 'yamllint.yaml', '.yamllint.yml', '.yamllint.yaml'],
-            '--config-file');
+        const yamllintConfigArgs = getConfigArgs('YAMLLINT', '--config-file',
+            ['yamllint.yml', 'yamllint.yaml', '.yamllint.yml', '.yamllint.yaml']);
         await this.runLinter({
             linterName: 'yamllint',
             envName: 'YAMLLINT',
@@ -447,9 +443,7 @@ export class Linters {
         });
 
         // HtmlLint
-        const htmllintConfigArgs = getConfigArgs('HTMLLINT',
-            ['.htmllintrc'],
-            '--rc');
+        const htmllintConfigArgs = getConfigArgs('HTMLLINT', '--rc', ['.htmllintrc']);
         await this.runLinter({
             linterName: 'htmllint',
             envName: 'HTMLLINT',
@@ -458,9 +452,7 @@ export class Linters {
         });
 
         // HtmlHint
-        const htmlhintConfigArgs = getConfigArgs('HTMLHINT',
-            ['.htmlhintrc'],
-            '--config');
+        const htmlhintConfigArgs = getConfigArgs('HTMLHINT', '--config', ['.htmlhintrc']);
         await this.runLinter({
             linterName: 'htmlhint',
             envName: 'HTMLHINT',
@@ -469,9 +461,7 @@ export class Linters {
         });
 
         // Svglint
-        const svglintConfigArgs = getConfigArgs('SVGLINT',
-            ['.svglintrc.js', 'svglintrc.js'],
-            '--config');
+        const svglintConfigArgs = getConfigArgs('SVGLINT', '--config', ['.svglintrc.js', 'svglintrc.js']);
         await this.runLinter({
             linterName: 'svglint',
             envName: 'SVGLINT',
@@ -490,9 +480,7 @@ export class Linters {
         /* Documentation (Markdown) */
 
         // Markdownlint
-        const markdownlintConfigArgs = getConfigArgs('MDL',
-            ['markdownlint.json', '.markdownlint.json'],
-            '--config');
+        const markdownlintConfigArgs = getConfigArgs('MDL', '--config', ['markdownlint.json', '.markdownlint.json']);
         await this.runLinter({
             linterName: 'markdownlint',
             envName: 'MARKDOWNLINT',
@@ -502,9 +490,7 @@ export class Linters {
         });
 
         // mdl
-        const mdlConfigArgs = getConfigArgs('MDL',
-            ['.mdlrc'],
-            '--config');
+        const mdlConfigArgs = getConfigArgs('MDL', '--config', ['.mdlrc']);
         await this.runLinter({
             linterName: 'mdl',
             envName: 'MDL',
@@ -513,9 +499,7 @@ export class Linters {
         });
 
         // Markdown link check
-        const markdownLinkCheckConfigArgs = getConfigArgs('MDL',
-            ['markdown-link-check.json', '.markdown-link-check.json'],
-            '--config');
+        const markdownLinkCheckConfigArgs = getConfigArgs('MARKDOWN_LINK_CHECK', '--config', ['markdown-link-check.json', '.markdown-link-check.json']);
         await this.runLinter({
             linterName: 'markdown-link-check',
             envName: 'MARKDOWN_LINK_CHECK',
@@ -692,9 +676,7 @@ export class Linters {
 
         /* Docker */
 
-        const dockerfilelintConfigArgs = getConfigArgs('DOCKERFILELINT',
-            ['.dockerfilelintrc'],
-            '--config');
+        const dockerfilelintConfigArgs = getConfigArgs('DOCKERFILELINT', '--config', ['.dockerfilelintrc']);
         await this.runLinter({
             linterName: 'dockerfilelint',
             envName: 'DOCKERFILELINT',
@@ -702,9 +684,8 @@ export class Linters {
             lintFile: { args: ['dockerfilelint', ...dockerfilelintConfigArgs, '#file#'] },
         });
 
-        const hadolintConfigArgs = getConfigArgs('HADOLINT',
-            ['hadolint.yml', 'hadolint.yaml', '.hadolint.yml', '.hadolint.yaml'],
-            '--config');
+        const hadolintConfigArgs = getConfigArgs('HADOLINT', '--config',
+            ['hadolint.yml', 'hadolint.yaml', '.hadolint.yml', '.hadolint.yaml']);
         await this.runLinter({
             linterName: 'hadolint',
             envName: 'HADOLINT',
@@ -715,9 +696,8 @@ export class Linters {
         /* Makefile */
 
         // Checkmake
-        const checkmakeConfigArgs = getConfigArgs('CHECKMAKE',
-            ['checkmake.ini', '.checkmake.ini'],
-            '--config');
+        const checkmakeConfigArgs = getConfigArgs('CHECKMAKE', '--config',
+            ['checkmake.ini', '.checkmake.ini']);
         await this.runLinter({
             linterName: 'checkmake',
             envName: 'CHECKMAKE',
