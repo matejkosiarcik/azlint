@@ -15,14 +15,28 @@ function shouldSkipLinter(envName: string, linterName: string): boolean {
     return false;
 }
 
+function getConfigDir(envName: string): string {
+    const linterConfigDir = process.env[`${envName}_CONFIG_DIR`];
+    if (linterConfigDir) {
+        return linterConfigDir;
+    }
+
+    const generalConfigDir = process.env['CONFIG_DIR'];
+    if (generalConfigDir) {
+        return generalConfigDir;
+    }
+
+    return '.';
+}
+
 /**
  * Determine config file to use for linter `X`
- * - if `X_CONFIG_FILE` is specified, returns `LINTER_RULES_PATH/X_CONFIG_FILE`
- * - else searches `LINTER_RULES_PATH` for config files and returns first found
+ * - if `X_CONFIG_FILE` is specified, returns `CONFIG_DIR/X_CONFIG_FILE`
+ * - else searches `CONFIG_DIR` for config files and returns first found
  * @returns array of arguments to use in subprocess call
  */
 function getConfigArgs(envName: string, configArgName: string, possibleFiles: string[]): string[] {
-    const configDir = process.env['LINTER_RULES_PATH'] ?? '.';
+    const configDir = getConfigDir(envName);
     const configFile = (() => {
         const envValue = process.env[envName + '_CONFIG_FILE'];
         if (envValue) {
@@ -56,7 +70,7 @@ function getPythonConfigArgs(envName: string, linterName: string, configArgName:
         return specificConfigArgs;
     }
 
-    const configDir = process.env['LINTER_RULES_PATH'] ?? '.';
+    const configDir = getConfigDir(envName);
     const configFile = (() => {
         const commonConfigs = commonFiles
             .map((file) => path.join(configDir, file))
@@ -80,11 +94,12 @@ function getPythonConfigArgs(envName: string, linterName: string, configArgName:
 }
 
 export class Linters {
-    foundProblems = 0;
-    fixedProblems = 0;
     readonly mode: 'lint' | 'fmt';
     readonly files: string[];
     readonly progress: ProgressOptions;
+
+    foundProblems = 0;
+    fixedProblems = 0;
 
     constructor(options: {
         mode: 'lint' | 'fmt',
