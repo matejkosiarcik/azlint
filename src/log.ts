@@ -1,4 +1,5 @@
 import { ExecaReturnValue } from "@esm2cjs/execa";
+import { ColorOptions } from "./utils";
 
 export enum LogLevel {
     QUIET = 0,
@@ -9,9 +10,14 @@ export enum LogLevel {
 };
 
 let level: LogLevel;
+let color: ColorOptions;
 
-export function setLogLevel(_level: LogLevel) {
-    level = _level;
+export function setLogSettings(options: {
+    level: LogLevel,
+    color: ColorOptions
+}) {
+    level = options.level;
+    color = options.color;
 }
 
 export function logNormal(...args: unknown[]): boolean {
