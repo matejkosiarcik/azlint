@@ -10,14 +10,31 @@ export enum LogLevel {
 };
 
 let level: LogLevel;
-let color: ColorOptions;
+
+let greenColor = '\x1b[32m';
+let redColor = '\x1b[31m';
+let endColor = '\x1b[0m';
 
 export function setLogSettings(options: {
     level: LogLevel,
     color: ColorOptions
 }) {
     level = options.level;
-    color = options.color;
+    const color = (() => {
+        if (options.color === 'always') {
+            return true;
+        } else if (options.color === 'never') {
+            return false;
+        } else {
+            return process.stdout.isTTY;
+        }
+    })();
+
+    if (!color) {
+        greenColor = '';
+        redColor = '';
+        endColor = '';
+    }
 }
 
 export function logNormal(...args: unknown[]): boolean {
@@ -58,9 +75,7 @@ export function logAlways(...args: unknown[]): boolean {
 }
 
 export function logLintSuccess(toolName: string, file: string, command?: ExecaReturnValue<string>) {
-    const color = process.stdout.isTTY ? '\x1b[32m' : '';
-    const endColor = process.stdout.isTTY ? '\x1b[0m' : '';
-    logVerbose(`✅ ${color}${toolName} - ${file}${endColor}`);
+    logVerbose(`✅ ${greenColor}${toolName} - ${file}${endColor}`);
     if (command) {
         const cmdOutput = command.all ? `:\n${command.all}` : '';
         logExtraVerbose(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
@@ -68,9 +83,7 @@ export function logLintSuccess(toolName: string, file: string, command?: ExecaRe
 }
 
 export function logLintFail(toolName: string, file: string, command?: ExecaReturnValue<string>) {
-    const color = process.stdout.isTTY ? '\x1b[31m' : '';
-    const endColor = process.stdout.isTTY ? '\x1b[0m' : '';
-    logAlways(`❌ ${color}${toolName} - ${file}${endColor}`);
+    logAlways(`❌ ${redColor}${toolName} - ${file}${endColor}`);
     if (command) {
         const cmdOutput = command.all ? `:\n${command.all}` : '';
         logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
@@ -78,9 +91,7 @@ export function logLintFail(toolName: string, file: string, command?: ExecaRetur
 }
 
 export function logFixingUnchanged(toolName: string, file: string, command?: ExecaReturnValue<string>) {
-    const color = process.stdout.isTTY ? '\x1b[32m' : '';
-    const endColor = process.stdout.isTTY ? '\x1b[0m' : '';
-    logVerbose(`💯 Unchanged: ${color}${toolName} - ${file}${endColor}`);
+    logVerbose(`💯 Unchanged: ${greenColor}${toolName} - ${file}${endColor}`);
     if (command) {
         const cmdOutput = command.all ? `:\n${command.all}` : '';
         logExtraVerbose(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
@@ -88,9 +99,7 @@ export function logFixingUnchanged(toolName: string, file: string, command?: Exe
 }
 
 export function logFixingSuccess(toolName: string, file: string, command?: ExecaReturnValue<string>) {
-    const color = process.stdout.isTTY ? '\x1b[32m' : '';
-    const endColor = process.stdout.isTTY ? '\x1b[0m' : '';
-    logNormal(`🛠️ Fixed: ${color}${toolName} - ${file}${endColor}`);
+    logNormal(`🛠️ Fixed: ${greenColor}${toolName} - ${file}${endColor}`);
     if (command) {
         const cmdOutput = command.all ? `:\n${command.all}` : '';
         logExtraVerbose(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
@@ -98,9 +107,7 @@ export function logFixingSuccess(toolName: string, file: string, command?: Execa
 }
 
 export function logFixingError(toolName: string, file: string, command: ExecaReturnValue<string>) {
-    const color = process.stdout.isTTY ? '\x1b[32m' : '';
-    const endColor = process.stdout.isTTY ? '\x1b[0m' : '';
-    logAlways(`❗️ Error fixing: ${color}${toolName} - ${file}${endColor}`);
+    logAlways(`❗️ Error fixing: ${greenColor}${toolName} - ${file}${endColor}`);
     const cmdOutput = command.all ? `:\n${command.all}` : '';
     logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`)
 }
