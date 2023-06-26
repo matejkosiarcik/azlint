@@ -1,11 +1,10 @@
 .bundle/
 cargo/
-composer.phar
 node_modules/
+composer.phar
 vendor/
 venv/
 checkmake/
 editorconfig-checker/
-dist/
 target/
 go/
