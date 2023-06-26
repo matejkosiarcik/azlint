@@ -5,6 +5,7 @@ import { execa } from '@esm2cjs/execa';
 import { logVerbose } from './log';
 
 export type ColorOptions = 'auto' | 'always' | 'never';
+export type ProgressOptions = 'auto' | 'always' | 'never';
 
 export async function isProjectGitRepo(): Promise<boolean> {
     try {

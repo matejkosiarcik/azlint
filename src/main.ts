@@ -3,7 +3,7 @@ import fs from 'fs';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import dotenv from 'dotenv';
-import { ColorOptions, findFiles } from './utils';
+import { ColorOptions, ProgressOptions, findFiles } from './utils';
 import { LogLevel, logExtraExtraVerbose, logVerbose, setLogLevel } from './log';
 import { Linters } from './linters';
 
@@ -33,6 +33,9 @@ import { Linters } from './linters';
         })
         .option('color', {
             describe: 'Colored output', type: 'string', choices: ['auto', 'always', 'never'], default: 'auto',
+        })
+        .option('progress', {
+            describe: 'Display progress', type: 'string', choices: ['auto', 'always', 'never'], default: 'auto',
         })
         .command('lint', 'Lint project (default)', (yargs) => {
             yargs.usage('Usage: azlint lint [options...] [dir]');
@@ -86,6 +89,7 @@ import { Linters } from './linters';
         process.exit(1);
     })();
     const color = argv.color as ColorOptions;
+    const progress = argv.progress as ProgressOptions;
 
     // Set global properties
     setLogLevel(logLevel);
@@ -114,7 +118,12 @@ import { Linters } from './linters';
     const projectFiles = await findFiles(onlyChanged);
     logExtraExtraVerbose(`Found ${projectFiles.length} project files:\n${projectFiles.map((el) => `- ${el}`).join('\n')}`);
 
-    const linters = new Linters(command, projectFiles, color);
+    const linters = new Linters({
+        mode: command,
+        files: projectFiles,
+        color: color,
+        progress: progress,
+    });
     const success = await linters.run();
     process.exit(success ? 0 : 1);
 })();
