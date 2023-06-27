@@ -54,9 +54,15 @@ RUN apt-get update && \
 # Rust/Cargo #
 FROM rust:1.70.0-bullseye AS rust
 WORKDIR /src
-COPY dependencies/Cargo.toml ./
-COPY --from=go /src/bin/stoml /usr/bin/stoml
-RUN stoml 'Cargo.toml' dev-dependencies | tr ' ' '\n' | xargs --no-run-if-empty cargo install --force
+COPY package.json package-lock.json cargo-packages.js ./
+COPY dependencies/Cargo.toml ./dependencies/
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs npm && \
+    rm -rf /var/lib/apt/lists/* && \
+    npm ci --unsafe-perm && \
+    node "cargo-packages.js" | while read package version; do \
+        cargo install "$package" --force --version "$version"; \
+    done
 
 # CircleCI #
 # it has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
