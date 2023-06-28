@@ -23,8 +23,10 @@ bootstrap:
 		|| python -m venv dependencies/venv \
 		|| virtualenv dependencies/venv \
 		|| mkvirtualenv dependencies/venv
-	# install dependencies
-	PATH="$(PROJECT_DIR)/dependencies/venv/bin:$(PATH)" pip install --requirement dependencies/requirements.txt
+
+	PATH="$(PROJECT_DIR)/dependencies/venv/bin:$(PATH)" \
+	PYTHONPATH="$(PROJECT_DIR)/dependencies/python" \
+		pip install --requirement dependencies/requirements.txt --target dependencies/python
 
 	gem install bundler
 	BUNDLE_DISABLE_SHARED_GEMS=true \
