@@ -9,13 +9,9 @@ WORKDIR /cwd
 RUN GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
     GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
     GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
-
-FROM golang:1.20.5-bullseye AS editorconfig-checker
 WORKDIR /cwd/editorconfig-checker
 RUN git clone https://github.com/editorconfig-checker/editorconfig-checker . && \
     make build
-
-FROM golang:1.20.5-bullseye AS checkmake
 WORKDIR /cwd/checkmake
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends pandoc && \
@@ -94,9 +90,7 @@ FROM koalaman/shellcheck:v0.9.0 AS shellcheck
 FROM ubuntu:22.10 AS upx
 WORKDIR /cwd
 COPY --from=circleci /usr/local/bin/circleci ./
-COPY --from=go /cwd/go/bin/shfmt /cwd/go/bin/stoml /cwd/go/bin/tomljson ./
-COPY --from=checkmake /cwd/checkmake/checkmake ./
-COPY --from=editorconfig-checker /cwd/editorconfig-checker/bin/ec ./
+COPY --from=go /cwd/checkmake/checkmake /cwd/editorconfig-checker/bin/ec /cwd/go/bin/shfmt /cwd/go/bin/stoml /cwd/go/bin/tomljson ./
 COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter ./
 COPY --from=shellcheck /bin/shellcheck ./
 RUN apt-get update && \
@@ -119,14 +113,6 @@ WORKDIR /cwd
 COPY src/glob_files.py src/main.py src/run.sh ./
 RUN chmod a+x glob_files.py main.py run.sh
 
-# TODO: Remove curl stage
-FROM debian:12.0 AS curl
-WORKDIR /cwd
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl && \
-    rm -rf /var/lib/apt/lists/* && \
-    curl -fLsS https://getcomposer.org/installer -o composer-setup.php
-
 FROM debian:12.0 AS python
 WORKDIR /cwd
 COPY linters/requirements.txt ./
@@ -148,6 +134,14 @@ RUN apt-get update && \
 WORKDIR /cwd/linters
 COPY linters/composer.json linters/composer.lock ./
 RUN PATH="/cwd/linters/composer/bin:$PATH" composer install --no-cache
+
+# TODO: Remove curl stage
+FROM debian:12.0 AS curl
+WORKDIR /cwd
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl && \
+    rm -rf /var/lib/apt/lists/* && \
+    curl -fLsS https://getcomposer.org/installer -o composer-setup.php
 
 FROM debian:12.0-slim AS aggregator1
 WORKDIR /cwd
