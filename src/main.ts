@@ -62,6 +62,11 @@ import { Linters } from './linters';
         return;
     }
 
+    if (argv.quiet && argv.verbose > 0) {
+        console.error("Can't combine quiet and verbose!");
+        process.exit(1);
+    }
+
     // Extract arguments
     const logLevel = argv.quiet ? LogLevel.QUIET :
         argv.verbose >= 3 ? LogLevel.EXTRA_EXTRA_VERBOSE :

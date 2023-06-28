@@ -33,7 +33,7 @@ bootstrap:
 	BUNDLE_GEMFILE="$(PROJECT_DIR)/dependencies/Gemfile" \
 		bundle install
 
-	node "cargo-packages.js" | while read package version; do \
+	node "cargo-packages.js" | while read -r package version; do \
 		cargo install "$$package" --force --root "$(PROJECT_DIR)/dependencies/cargo" --version "$$version"; \
 	done
 

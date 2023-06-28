@@ -6,7 +6,7 @@ updates:
     directory: /
     schedule:
       interval: daily
-      time: "00:30"
+      time: "01:00"
       timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
@@ -26,6 +26,30 @@ updates:
     assignees:
       - matejkosiarcik
     open-pull-requests-limit: 1
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: daily
+      time: "01:00"
+      timezone: Europe/Bratislava
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+    open-pull-requests-limit: 1
+
+  # Tests
+  - package-ecosystem: npm
+    directory: /tests-cli
+    schedule:
+      interval: daily
+      time: "01:00"
+      timezone: Europe/Bratislava
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+    open-pull-requests-limit: 1
 
   # Dependencies
   - package-ecosystem: npm
@@ -33,7 +57,7 @@ updates:
     versioning-strategy: increase
     schedule:
       interval: daily
-      time: "01:30"
+      time: "01:00"
       timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
@@ -45,7 +69,7 @@ updates:
     versioning-strategy: increase
     schedule:
       interval: daily
-      time: "01:30"
+      time: "01:00"
       timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
@@ -56,7 +80,7 @@ updates:
     directory: /dependencies
     schedule:
       interval: daily
-      time: "02:00"
+      time: "01:00"
       timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
@@ -67,7 +91,7 @@ updates:
     directory: /dependencies
     schedule:
       interval: daily
-      time: "02:30"
+      time: "01:00"
       timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
@@ -78,7 +102,7 @@ updates:
     directory: /dependencies
     schedule:
       interval: daily
-      time: "03:00"
+      time: "01:00"
       timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
@@ -92,7 +116,7 @@ updates:
     versioning-strategy: increase
     schedule:
       interval: daily
-      time: "03:30"
+      time: "01:00"
       timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
@@ -103,7 +127,7 @@ updates:
     directory: /doc/record
     schedule:
       interval: daily
-      time: "04:00"
+      time: "01:00"
       timezone: Europe/Bratislava
     reviewers:
       - matejkosiarcik
