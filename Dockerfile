@@ -60,7 +60,7 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs npm && \
     rm -rf /var/lib/apt/lists/* && \
     npm ci --unsafe-perm && \
-    node "cargo-packages.js" | while read -r package version; do \
+    node cargo-packages.js | while read -r package version; do \
         cargo install "$package" --force --version "$version"; \
     done
 
@@ -86,7 +86,7 @@ FROM koalaman/shellcheck:v0.9.0 AS shellcheck
 # Single stage to compress all executables from multiple components
 FROM debian:11.7 AS upx
 COPY --from=circleci /usr/local/bin/circleci /usr/bin/
-COPY --from=go /src/bin/shfmt /src/bin/tomljson /usr/bin/
+COPY --from=go /src/bin/shfmt /src/bin/stoml /src/bin/tomljson /usr/bin/
 COPY --from=checkmake /src/checkmake/checkmake /usr/bin/
 COPY --from=editorconfig-checker /src/editorconfig-checker/bin/ec /usr/bin/
 COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter /usr/bin/
@@ -99,6 +99,7 @@ RUN apt-get update && \
     upx --best /usr/bin/dotenv-linter && \
     upx --best /usr/bin/shellcheck && \
     upx --best /usr/bin/shellharden && \
+    upx --best /usr/bin/stoml && \
     upx --best /usr/bin/tomljson
 
 # Prepare executable files
@@ -132,7 +133,7 @@ COPY --from=aggregator1 /src/ ./
 COPY --from=hadolint /bin/hadolint /usr/bin/
 COPY --from=node /src/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
-COPY --from=upx /usr/bin/checkmake /usr/bin/circleci /usr/bin/dotenv-linter /usr/bin/ec /usr/bin/shellcheck /usr/bin/shellharden /usr/bin/shfmt /usr/bin/tomljson /usr/bin/
+COPY --from=upx /usr/bin/checkmake /usr/bin/circleci /usr/bin/dotenv-linter /usr/bin/ec /usr/bin/shellcheck /usr/bin/shellharden /usr/bin/shfmt /usr/bin/stoml /usr/bin/tomljson /usr/bin/
 COPY --from=azlint-cli /src/cli /src/cli
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ash bash bmake curl dash git jq ksh libxml2-utils make mksh nodejs php php-cli php-common php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
