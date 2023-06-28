@@ -104,21 +104,23 @@ import { Linters } from './linters';
     process.chdir(directory);
 
     // Setup paths for dependencies
-    const dependenciesDir = path.resolve(path.join(__dirname, '..', 'linters'));
+    const lintersDir = path.resolve(path.join(__dirname, '..', 'linters'));
     const binPaths = {
-        node: path.join(dependenciesDir, 'node_modules', '.bin'),
-        cargo: path.join(dependenciesDir, 'cargo', 'bin'),
-        venv: path.join(dependenciesDir, 'venv', 'bin'),
-        composer: path.join(dependenciesDir, 'vendor', 'bin'),
-        go: path.join(dependenciesDir, 'go', 'bin'),
-        checkmake: path.join(dependenciesDir, 'checkmake'),
-        ec: path.join(dependenciesDir, 'editorconfig-checker', 'bin'),
+        node: path.join(lintersDir, 'node_modules', '.bin'),
+        cargo: path.join(lintersDir, 'cargo', 'bin'),
+        venv: path.join(lintersDir, 'venv', 'bin'),
+        python: path.join(lintersDir, 'python', 'bin'),
+        composer: path.join(lintersDir, 'vendor', 'bin'),
+        go: path.join(lintersDir, 'go', 'bin'),
+        checkmake: path.join(lintersDir, 'checkmake'),
+        ec: path.join(lintersDir, 'editorconfig-checker', 'bin'),
     };
     process.env['PATH'] = `${Object.values(binPaths).join(':')}:${process.env['PATH']}`;
+    process.env['PYTHONPATH'] = `${path.join(lintersDir, 'python')}`;
     process.env['BUNDLE_DISABLE_SHARED_GEMS'] = 'true';
     process.env['BUNDLE_PATH__SYSTEM'] = 'false';
-    process.env['BUNDLE_PATH'] = path.join(dependenciesDir, '.bundle');
-    process.env['BUNDLE_GEMFILE'] = path.join(dependenciesDir, 'Gemfile');
+    process.env['BUNDLE_PATH'] = path.join(lintersDir, '.bundle');
+    process.env['BUNDLE_GEMFILE'] = path.join(lintersDir, 'Gemfile');
 
     logVerbose(`Performing: ${command}`);
     logVerbose(`Project path: ${path.resolve(process.cwd())}`);
