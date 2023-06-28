@@ -6,9 +6,9 @@
 # GoLang #
 FROM golang:1.20.5-bullseye AS go
 WORKDIR /cwd
-RUN GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
-    GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
-    GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
+RUN GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
+    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
+    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
 
 FROM golang:1.20.5-bullseye AS checkmake
 WORKDIR /cwd/checkmake
@@ -92,8 +92,9 @@ FROM koalaman/shellcheck:v0.9.0 AS shellcheck
 # Upx #
 # Single stage to compress all executables from multiple components
 FROM debian:11.7 AS upx
+WORKDIR /cwd
 COPY --from=circleci /usr/local/bin/circleci /usr/bin/
-COPY --from=go /cwd/bin/shfmt /cwd/bin/stoml /cwd/bin/tomljson /usr/bin/
+COPY --from=go /cwd/go/bin/shfmt /cwd/go/bin/stoml /cwd/go/bin/tomljson /usr/bin/
 COPY --from=checkmake /cwd/checkmake/checkmake /usr/bin/
 COPY --from=editorconfig-checker /cwd/editorconfig-checker/bin/ec /usr/bin/
 COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter /usr/bin/
@@ -118,11 +119,7 @@ WORKDIR /cwd
 COPY src/glob_files.py src/main.py src/run.sh ./
 RUN chmod a+x glob_files.py main.py run.sh
 
-FROM debian:12.0-slim AS aggregator1
-WORKDIR /cwd
-COPY linters/composer.json linters/composer.lock linters/requirements.txt src/shell-dry.sh ./
-COPY --from=chmod /cwd/glob_files.py /cwd/main.py /cwd/run.sh ./
-
+# TODO: Remove curl stage
 FROM debian:12.0 AS curl
 WORKDIR /cwd
 RUN apt-get update && \
@@ -138,11 +135,27 @@ ENV PYTHONDONTWRITEBYTECODE=1
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-dev python3-pip && \
     rm -rf /var/lib/apt/lists/* && \
-    python3 -m pip install --requirement requirements.txt --target install --no-cache-dir
+    python3 -m pip install --no-cache-dir --requirement requirements.txt --target install
+
+FROM debian:12.0 AS composer
+WORKDIR /cwd
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl php php-cli php-common php-mbstring php-zip && \
+    curl -fLsS https://getcomposer.org/installer -o composer-setup.php && \
+    mkdir -p /cwd/linters/composer/bin && \
+    php composer-setup.php --install-dir=/cwd/linters/composer/bin --filename=composer && \
+    rm -rf /var/lib/apt/lists/* composer-setup.php
+WORKDIR /cwd/linters
+COPY linters/composer.json linters/composer.lock ./
+RUN PATH="/cwd/linters/composer/bin:$PATH" composer install --no-cache
+
+FROM debian:12.0-slim AS aggregator1
+WORKDIR /cwd
+COPY linters/composer.json linters/composer.lock linters/requirements.txt src/shell-dry.sh ./
+COPY --from=chmod /cwd/glob_files.py /cwd/main.py /cwd/run.sh ./
 
 ### Main runner ###
 
-# curl is only needed to install nodejs&composer
 FROM debian:11.7
 WORKDIR /src
 COPY --from=aggregator1 /cwd/ ./

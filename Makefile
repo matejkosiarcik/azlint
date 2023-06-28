@@ -41,7 +41,7 @@ bootstrap:
 	done
 
 	cd linters && \
-		composer install --no-cache
+		composer install
 
 	rm -rf linters/checkmake && \
 		mkdir -p linters/checkmake && \
