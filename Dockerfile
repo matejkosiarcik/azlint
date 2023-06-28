@@ -87,7 +87,7 @@ FROM koalaman/shellcheck:v0.9.0 AS shellcheck
 
 # Upx #
 # Single stage to compress all executables from multiple components
-FROM ubuntu:22.10 AS upx
+FROM ubuntu:23.10 AS upx
 WORKDIR /cwd
 COPY --from=circleci /usr/local/bin/circleci ./
 COPY --from=go /cwd/checkmake/checkmake /cwd/editorconfig-checker/bin/ec /cwd/go/bin/shfmt /cwd/go/bin/stoml /cwd/go/bin/tomljson ./
