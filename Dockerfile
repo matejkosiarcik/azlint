@@ -130,6 +130,16 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     curl -fLsS https://getcomposer.org/installer -o composer-setup.php
 
+FROM debian:12.0 AS python
+WORKDIR /cwd
+COPY dependencies/requirements.txt ./
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+ENV PYTHONDONTWRITEBYTECODE=1
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-dev python3-pip && \
+    rm -rf /var/lib/apt/lists/* && \
+    python3 -m pip install --requirement requirements.txt --target install
+
 ### Main runner ###
 
 # curl is only needed to install nodejs&composer
@@ -142,6 +152,7 @@ COPY --from=node /cwd/dependencies/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
 COPY --from=upx /usr/bin/checkmake /usr/bin/circleci /usr/bin/dotenv-linter /usr/bin/ec /usr/bin/shellcheck /usr/bin/shellharden /usr/bin/shfmt /usr/bin/stoml /usr/bin/tomljson /usr/bin/
 COPY --from=curl /cwd/composer-setup.php ./
+# TODO: ENV PYTHONPATH=/app/dependencies/python
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ash bash bmake dash git jq ksh libxml2-utils make mksh nodejs php php-cli php-common php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
     php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
