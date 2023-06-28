@@ -33,8 +33,8 @@ RUN npm ci --unsafe-perm && \
     npm run build && \
     npx node-prune && \
     npm prune --production
-WORKDIR /cwd/dependencies
-COPY dependencies/package.json dependencies/package-lock.json ./
+WORKDIR /cwd/linters
+COPY linters/package.json linters/package-lock.json ./
 RUN npm ci --unsafe-perm && \
     npx node-prune && \
     npm prune --production
@@ -45,7 +45,7 @@ RUN npm ci --unsafe-perm && \
 # second stage reinstalls these gems to the (almost) same container as our production one (without this stage we get warnings for gems with native extensions in production)
 FROM ruby:3.2.2 AS pre-ruby
 WORKDIR /cwd
-COPY dependencies/Gemfile dependencies/Gemfile.lock ./
+COPY linters/Gemfile linters/Gemfile.lock ./
 RUN gem install bundler && \
     gem update --system && \
     bundle install
@@ -62,7 +62,7 @@ RUN apt-get update && \
 FROM rust:1.70.0-bullseye AS rust
 WORKDIR /cwd
 COPY package.json package-lock.json cargo-packages.js ./
-COPY dependencies/Cargo.toml ./dependencies/
+COPY linters/Cargo.toml ./linters/
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs npm && \
     rm -rf /var/lib/apt/lists/* && \
@@ -120,7 +120,7 @@ RUN chmod a+x glob_files.py main.py run.sh
 
 FROM debian:12.0-slim AS aggregator1
 WORKDIR /cwd
-COPY dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt src/shell-dry.sh ./
+COPY linters/composer.json linters/composer.lock linters/requirements.txt src/shell-dry.sh ./
 COPY --from=chmod /cwd/glob_files.py /cwd/main.py /cwd/run.sh ./
 
 FROM debian:12.0 AS curl
@@ -132,7 +132,7 @@ RUN apt-get update && \
 
 FROM debian:12.0 AS python
 WORKDIR /cwd
-COPY dependencies/requirements.txt ./
+COPY linters/requirements.txt ./
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PYTHONDONTWRITEBYTECODE=1
 RUN apt-get update && \
@@ -148,11 +148,11 @@ WORKDIR /src
 COPY --from=aggregator1 /cwd/ ./
 COPY --from=hadolint /bin/hadolint /usr/bin/
 COPY --from=node /cwd/cli /src/cli
-COPY --from=node /cwd/dependencies/node_modules node_modules/
+COPY --from=node /cwd/linters/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
 COPY --from=upx /usr/bin/checkmake /usr/bin/circleci /usr/bin/dotenv-linter /usr/bin/ec /usr/bin/shellcheck /usr/bin/shellharden /usr/bin/shfmt /usr/bin/stoml /usr/bin/tomljson /usr/bin/
 COPY --from=curl /cwd/composer-setup.php ./
-# TODO: ENV PYTHONPATH=/app/dependencies/python
+# TODO: ENV PYTHONPATH=/app/linters/python
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ash bash bmake dash git jq ksh libxml2-utils make mksh nodejs php php-cli php-common php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
     php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \

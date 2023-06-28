@@ -15,48 +15,48 @@ all: bootstrap build test run
 bootstrap:
 	npm ci
 	npm ci --prefix tests-cli
-	npm ci --prefix dependencies
+	npm ci --prefix linters
 
 	# check if virtual environment exists or create it
-	[ -n "$${VIRTUAL_ENV+x}" ] || [ -d dependencies/venv ] \
-		|| python3 -m venv dependencies/venv \
-		|| python -m venv dependencies/venv \
-		|| virtualenv dependencies/venv \
-		|| mkvirtualenv dependencies/venv
+	[ -n "$${VIRTUAL_ENV+x}" ] || [ -d linters/venv ] \
+		|| python3 -m venv linters/venv \
+		|| python -m venv linters/venv \
+		|| virtualenv linters/venv \
+		|| mkvirtualenv linters/venv
 
-	PATH="$(PROJECT_DIR)/dependencies/venv/bin:$(PATH)" \
-	PYTHONPATH="$(PROJECT_DIR)/dependencies/python" \
-		pip install --requirement dependencies/requirements.txt --target dependencies/python
+	PATH="$(PROJECT_DIR)/linters/venv/bin:$(PATH)" \
+	PYTHONPATH="$(PROJECT_DIR)/linters/python" \
+		pip install --requirement linters/requirements.txt --target linters/python
 
 	gem install bundler
 	BUNDLE_DISABLE_SHARED_GEMS=true \
 	BUNDLE_PATH__SYSTEM=false \
-	BUNDLE_PATH="$(PROJECT_DIR)/dependencies/.bundle" \
-	BUNDLE_GEMFILE="$(PROJECT_DIR)/dependencies/Gemfile" \
+	BUNDLE_PATH="$(PROJECT_DIR)/linters/.bundle" \
+	BUNDLE_GEMFILE="$(PROJECT_DIR)/linters/Gemfile" \
 		bundle install
 
 	node "cargo-packages.js" | while read -r package version; do \
-		cargo install "$$package" --force --root "$(PROJECT_DIR)/dependencies/cargo" --version "$$version"; \
+		cargo install "$$package" --force --root "$(PROJECT_DIR)/linters/cargo" --version "$$version"; \
 	done
 
-	cd dependencies && \
+	cd linters && \
 		composer install --no-cache
 
-	rm -rf dependencies/checkmake && \
-		mkdir -p dependencies/checkmake && \
-		cd dependencies/checkmake && \
+	rm -rf linters/checkmake && \
+		mkdir -p linters/checkmake && \
+		cd linters/checkmake && \
 		git clone https://github.com/mrtazz/checkmake . && \
 		BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
 
-	rm -rf dependencies/editorconfig-checker && \
-		mkdir -p dependencies/editorconfig-checker && \
-		cd dependencies/editorconfig-checker && \
+	rm -rf linters/editorconfig-checker && \
+		mkdir -p linters/editorconfig-checker && \
+		cd linters/editorconfig-checker && \
 		git clone https://github.com/editorconfig-checker/editorconfig-checker . && \
 		make build
 
-	GOPATH="$(PROJECT_DIR)/dependencies/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest'
-	GOPATH="$(PROJECT_DIR)/dependencies/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest'
-	GOPATH="$(PROJECT_DIR)/dependencies/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
+	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest'
+	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest'
+	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
 
 	# TODO: Bootstrap hadolint
 	# TODO: Bootstrap shellcheck
