@@ -138,7 +138,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-dev python3-pip && \
     rm -rf /var/lib/apt/lists/* && \
-    python3 -m pip install --requirement requirements.txt --target install
+    python3 -m pip install --requirement requirements.txt --target install --no-cache-dir
 
 ### Main runner ###
 

@@ -36,7 +36,7 @@ bootstrap:
 	BUNDLE_GEMFILE="$(PROJECT_DIR)/linters/Gemfile" \
 		bundle install
 
-	node "cargo-packages.js" | while read -r package version; do \
+	node cargo-packages.js | while read -r package version; do \
 		cargo install "$$package" --force --root "$(PROJECT_DIR)/linters/cargo" --version "$$version"; \
 	done
 
