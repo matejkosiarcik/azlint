@@ -4,7 +4,7 @@
 ### Components ###
 
 # GoLang #
-FROM golang:1.20.5-bullseye AS go
+FROM golang:1.20.5-bookworm AS go
 WORKDIR /cwd
 RUN GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
     GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
