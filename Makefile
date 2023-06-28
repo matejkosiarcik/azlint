@@ -28,7 +28,7 @@ bootstrap:
 	PYTHONPATH="$(PROJECT_DIR)/linters/python" \
 		pip install --requirement linters/requirements.txt --target linters/python
 
-	gem install bundler
+	command -v bundle >/dev/null 2>&1 || gem install bundler
 	BUNDLE_DISABLE_SHARED_GEMS=true \
 	BUNDLE_PATH__SYSTEM=false \
 	BUNDLE_PATH="$(PROJECT_DIR)/linters/.bundle" \
