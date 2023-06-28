@@ -122,6 +122,13 @@ FROM debian:12.0-slim AS aggregator1
 COPY dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt src/shell-dry.sh /src/
 COPY --from=chmod /src/glob_files.py /src/main.py /src/run.sh /src/
 
+FROM debian:12.0 AS curl
+WORKDIR /cwd
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl && \
+    rm -rf /var/lib/apt/lists/* && \
+    curl -fLsS https://getcomposer.org/installer -o composer-setup.php
+
 ### Main runner ###
 
 # curl is only needed to install nodejs&composer
@@ -133,13 +140,11 @@ COPY --from=node /cwd/cli /src/cli
 COPY --from=node /cwd/dependencies/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
 COPY --from=upx /usr/bin/checkmake /usr/bin/circleci /usr/bin/dotenv-linter /usr/bin/ec /usr/bin/shellcheck /usr/bin/shellharden /usr/bin/shfmt /usr/bin/stoml /usr/bin/tomljson /usr/bin/
+COPY --from=curl /cwd/composer-setup.php ./
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ash bash bmake curl dash git jq ksh libxml2-utils make mksh nodejs php php-cli php-common php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
-    curl -fLsSo composer-setup.php https://getcomposer.org/installer && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ash bash bmake dash git jq ksh libxml2-utils make mksh nodejs php php-cli php-common php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
     php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
-    rm -f composer-setup.php && \
-    apt-get remove --purge --yes curl && \
-    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /var/lib/apt/lists/* composer-setup.php && \
     composer install && \
     python3 -m pip install --no-cache-dir --requirement requirements.txt && \
     ln -s /src/main.py /usr/bin/azlint && \
