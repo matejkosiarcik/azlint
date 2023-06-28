@@ -15,9 +15,11 @@ Package Control.*
 # dependencies
 gitman/
 node_modules/
+Brewfile.lock.json
+
+# build artifacts
+.mypy_cache/
 /cli/
 
 # misc
 .env
-Brewfile.lock.json
-.mypy_cache/
