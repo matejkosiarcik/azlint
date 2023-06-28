@@ -5,13 +5,13 @@
 
 # GoLang #
 FROM golang:1.20.5-bullseye AS go
-WORKDIR /src
+WORKDIR /cwd
 RUN GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
     GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
     GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
 
 FROM golang:1.20.5-bullseye AS checkmake
-WORKDIR /src/checkmake
+WORKDIR /cwd/checkmake
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends git pandoc && \
     rm -rf /var/lib/apt/lists/* && \
@@ -19,7 +19,7 @@ RUN apt-get update && \
     BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
 
 FROM golang:1.20.5-bullseye AS editorconfig-checker
-WORKDIR /src/editorconfig-checker
+WORKDIR /cwd/editorconfig-checker
 RUN git clone https://github.com/editorconfig-checker/editorconfig-checker . && \
     make build
 
@@ -44,14 +44,14 @@ RUN npm ci --unsafe-perm && \
 # first stage installs all gems with bundler
 # second stage reinstalls these gems to the (almost) same container as our production one (without this stage we get warnings for gems with native extensions in production)
 FROM ruby:3.2.2 AS pre-ruby
-WORKDIR /src
+WORKDIR /cwd
 COPY dependencies/Gemfile dependencies/Gemfile.lock ./
 RUN gem install bundler && \
     gem update --system && \
     bundle install
 
 FROM debian:11.7 AS ruby
-WORKDIR /src
+WORKDIR /cwd
 COPY --from=pre-ruby /usr/local/bundle/ /usr/local/bundle/
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ruby ruby-build ruby-dev && \
@@ -60,7 +60,7 @@ RUN apt-get update && \
 
 # Rust/Cargo #
 FROM rust:1.70.0-bullseye AS rust
-WORKDIR /src
+WORKDIR /cwd
 COPY package.json package-lock.json cargo-packages.js ./
 COPY dependencies/Cargo.toml ./dependencies/
 RUN apt-get update && \
@@ -93,9 +93,9 @@ FROM koalaman/shellcheck:v0.9.0 AS shellcheck
 # Single stage to compress all executables from multiple components
 FROM debian:11.7 AS upx
 COPY --from=circleci /usr/local/bin/circleci /usr/bin/
-COPY --from=go /src/bin/shfmt /src/bin/stoml /src/bin/tomljson /usr/bin/
-COPY --from=checkmake /src/checkmake/checkmake /usr/bin/
-COPY --from=editorconfig-checker /src/editorconfig-checker/bin/ec /usr/bin/
+COPY --from=go /cwd/bin/shfmt /cwd/bin/stoml /cwd/bin/tomljson /usr/bin/
+COPY --from=checkmake /cwd/checkmake/checkmake /usr/bin/
+COPY --from=editorconfig-checker /cwd/editorconfig-checker/bin/ec /usr/bin/
 COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter /usr/bin/
 COPY --from=shellcheck /bin/shellcheck /usr/bin/
 RUN apt-get update && \
@@ -114,13 +114,14 @@ RUN apt-get update && \
 # But doing it before the final stage is potentilly better (saves layer space)
 # As the final stage only copies these files and does not modify them further
 FROM debian:12.0 AS chmod
-WORKDIR /src
+WORKDIR /cwd
 COPY src/glob_files.py src/main.py src/run.sh ./
 RUN chmod a+x glob_files.py main.py run.sh
 
 FROM debian:12.0-slim AS aggregator1
-COPY dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt src/shell-dry.sh /src/
-COPY --from=chmod /src/glob_files.py /src/main.py /src/run.sh /src/
+WORKDIR /cwd
+COPY dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt src/shell-dry.sh ./
+COPY --from=chmod /cwd/glob_files.py /cwd/main.py /cwd/run.sh ./
 
 FROM debian:12.0 AS curl
 WORKDIR /cwd
@@ -134,7 +135,7 @@ RUN apt-get update && \
 # curl is only needed to install nodejs&composer
 FROM debian:11.7
 WORKDIR /src
-COPY --from=aggregator1 /src/ ./
+COPY --from=aggregator1 /cwd/ ./
 COPY --from=hadolint /bin/hadolint /usr/bin/
 COPY --from=node /cwd/cli /src/cli
 COPY --from=node /cwd/dependencies/node_modules node_modules/
