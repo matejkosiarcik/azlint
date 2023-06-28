@@ -13,11 +13,13 @@ Thumbs.db
 Package Control.*
 
 # dependencies
+Brewfile.lock.json
 gitman/
 node_modules/
+
+# build artifacts
+.mypy_cache/
 /cli/
 
 # misc
 .env
-Brewfile.lock.json
-.mypy_cache/

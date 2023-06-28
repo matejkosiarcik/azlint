@@ -1,0 +1,12 @@
+.bundle/
+cargo/
+checkmake/
+composer.phar
+editorconfig-checker/
+go/
+node_modules/
+python/
+ruby/
+target/
+vendor/
+venv/
