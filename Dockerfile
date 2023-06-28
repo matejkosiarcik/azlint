@@ -140,6 +140,18 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     python3 -m pip install --requirement requirements.txt --target install --no-cache-dir
 
+FROM debian:12.0 AS composer
+WORKDIR /cwd
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl php php-cli php-common php-mbstring php-zip && \
+    curl -fLsS https://getcomposer.org/installer -o composer-setup.php && \
+    mkdir -p /app/linters/composer/bin && \
+    php composer-setup.php --install-dir=/app/linters/composer/bin --filename=composer && \
+    rm -rf /var/lib/apt/lists/* composer-setup.php
+WORKDIR /cwd/linters
+COPY linters/composer.json linters/composer.lock ./
+RUN PATH="/app/linters/composer/bin:$PATH" composer install --no-cache
+
 ### Main runner ###
 
 # curl is only needed to install nodejs&composer
