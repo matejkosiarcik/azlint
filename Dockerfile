@@ -153,14 +153,13 @@ COPY --from=chmod /cwd/glob_files.py /cwd/main.py /cwd/run.sh ./
 ### Main runner ###
 
 FROM debian:11.7
-WORKDIR /src
+WORKDIR /app
 COPY --from=aggregator1 /cwd/ ./
-COPY --from=node /cwd/cli /src/cli
+COPY --from=node /cwd/cli ./cli
 COPY --from=node /cwd/linters/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
 COPY --from=upx /cwd/checkmake /cwd/circleci /cwd/dotenv-linter /cwd/ec /cwd/hadolint /cwd/shellcheck /cwd/shellharden /cwd/shfmt /cwd/stoml /cwd/tomljson /usr/bin/
 COPY --from=curl /cwd/composer-setup.php ./
-# TODO: ENV PYTHONPATH=/app/linters/python
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
         ash bash bmake dash git jq ksh libxml2-utils make mksh nodejs php php-cli php-common php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
@@ -168,7 +167,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* composer-setup.php && \
     composer install && \
     python3 -m pip install --no-cache-dir --requirement requirements.txt && \
-    ln -s /src/main.py /usr/bin/azlint && \
+    ln -s /app/main.py /usr/bin/azlint && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >/usr/bin/fmt && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint lint $@' >/usr/bin/lint && \
     chmod a+x /usr/bin/lint /usr/bin/fmt && \
