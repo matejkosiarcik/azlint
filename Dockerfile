@@ -60,7 +60,7 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs npm && \
     rm -rf /var/lib/apt/lists/* && \
     npm ci --unsafe-perm && \
-    node "cargo-packages.js" | while read package version; do \
+    node "cargo-packages.js" | while read -r package version; do \
         cargo install "$package" --force --version "$version"; \
     done
 
