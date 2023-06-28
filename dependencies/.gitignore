@@ -1,10 +1,11 @@
 .bundle/
 cargo/
-node_modules/
+checkmake/
 composer.phar
+editorconfig-checker/
+go/
+node_modules/
+python/
+target/
 vendor/
 venv/
-checkmake/
-editorconfig-checker/
-target/
-go/
