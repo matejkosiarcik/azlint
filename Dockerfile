@@ -10,6 +10,11 @@ RUN GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/fres
     GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
     GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
 
+FROM golang:1.20.5-bullseye AS editorconfig-checker
+WORKDIR /cwd/editorconfig-checker
+RUN git clone https://github.com/editorconfig-checker/editorconfig-checker . && \
+    make build
+
 FROM golang:1.20.5-bullseye AS checkmake
 WORKDIR /cwd/checkmake
 RUN apt-get update && \
@@ -17,11 +22,6 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     git clone https://github.com/mrtazz/checkmake . && \
     BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
-
-FROM golang:1.20.5-bullseye AS editorconfig-checker
-WORKDIR /cwd/editorconfig-checker
-RUN git clone https://github.com/editorconfig-checker/editorconfig-checker . && \
-    make build
 
 # NodeJS/NPM #
 FROM node:20.3.1-slim AS node
@@ -91,24 +91,24 @@ FROM koalaman/shellcheck:v0.9.0 AS shellcheck
 
 # Upx #
 # Single stage to compress all executables from multiple components
-FROM debian:11.7 AS upx
+FROM ubuntu:22.10 AS upx
 WORKDIR /cwd
-COPY --from=circleci /usr/local/bin/circleci /usr/bin/
-COPY --from=go /cwd/go/bin/shfmt /cwd/go/bin/stoml /cwd/go/bin/tomljson /usr/bin/
-COPY --from=checkmake /cwd/checkmake/checkmake /usr/bin/
-COPY --from=editorconfig-checker /cwd/editorconfig-checker/bin/ec /usr/bin/
-COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter /usr/bin/
-COPY --from=shellcheck /bin/shellcheck /usr/bin/
+COPY --from=circleci /usr/local/bin/circleci ./
+COPY --from=go /cwd/go/bin/shfmt /cwd/go/bin/stoml /cwd/go/bin/tomljson ./
+COPY --from=checkmake /cwd/checkmake/checkmake ./
+COPY --from=editorconfig-checker /cwd/editorconfig-checker/bin/ec ./
+COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter ./
+COPY --from=shellcheck /bin/shellcheck ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends upx-ucl && \
     rm -rf /var/lib/apt/lists/* && \
-    upx --best /usr/bin/checkmake && \
-    upx --best /usr/bin/circleci && \
-    upx --best /usr/bin/dotenv-linter && \
-    upx --best /usr/bin/shellcheck && \
-    upx --best /usr/bin/shellharden && \
-    upx --best /usr/bin/stoml && \
-    upx --best /usr/bin/tomljson
+    upx --best /cwd/checkmake && \
+    upx --best /cwd/circleci && \
+    upx --best /cwd/dotenv-linter && \
+    upx --best /cwd/shellcheck && \
+    upx --best /cwd/shellharden && \
+    upx --best /cwd/stoml && \
+    upx --best /cwd/tomljson
 
 # Prepare executable files
 # Well this is not strictly necessary
@@ -163,11 +163,12 @@ COPY --from=hadolint /bin/hadolint /usr/bin/
 COPY --from=node /cwd/cli /src/cli
 COPY --from=node /cwd/linters/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
-COPY --from=upx /usr/bin/checkmake /usr/bin/circleci /usr/bin/dotenv-linter /usr/bin/ec /usr/bin/shellcheck /usr/bin/shellharden /usr/bin/shfmt /usr/bin/stoml /usr/bin/tomljson /usr/bin/
+COPY --from=upx /cwd/checkmake /cwd/circleci /cwd/dotenv-linter /cwd/ec /cwd/shellcheck /cwd/shellharden /cwd/shfmt /cwd/stoml /cwd/tomljson /usr/bin/
 COPY --from=curl /cwd/composer-setup.php ./
 # TODO: ENV PYTHONPATH=/app/linters/python
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ash bash bmake dash git jq ksh libxml2-utils make mksh nodejs php php-cli php-common php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
+        ash bash bmake dash git jq ksh libxml2-utils make mksh nodejs php php-cli php-common php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
     php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
     rm -rf /var/lib/apt/lists/* composer-setup.php && \
     composer install && \
