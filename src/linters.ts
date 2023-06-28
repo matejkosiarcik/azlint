@@ -440,7 +440,7 @@ export class Linters {
         await this.runLinter({
             linterName: 'tomljson',
             envName: 'TOMLJSON',
-            fileMatch: '*.toml',
+            fileMatch: ['*.toml', 'tox.ini', 'setup.cfg'],
             lintFile: { args: ['tomljson', '#file#'] },
         });
 

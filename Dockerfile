@@ -25,9 +25,16 @@ RUN git clone https://github.com/editorconfig-checker/editorconfig-checker . && 
 
 # NodeJS/NPM #
 FROM node:20.3.1-slim AS node
-WORKDIR /src
-COPY dependencies/package.json dependencies/package-lock.json ./
 ENV NODE_OPTIONS=--dns-result-order=ipv4first
+WORKDIR /cwd
+COPY package.json package-lock.json tsconfig.json ./
+COPY src/ ./src/
+RUN npm ci --unsafe-perm && \
+    npm run build && \
+    npx node-prune && \
+    npm prune --production
+WORKDIR /cwd/dependencies
+COPY dependencies/package.json dependencies/package-lock.json ./
 RUN npm ci --unsafe-perm && \
     npx node-prune && \
     npm prune --production
@@ -60,7 +67,7 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs npm && \
     rm -rf /var/lib/apt/lists/* && \
     npm ci --unsafe-perm && \
-    node "cargo-packages.js" | while read -r package version; do \
+    node cargo-packages.js | while read -r package version; do \
         cargo install "$package" --force --version "$version"; \
     done
 
@@ -86,7 +93,7 @@ FROM koalaman/shellcheck:v0.9.0 AS shellcheck
 # Single stage to compress all executables from multiple components
 FROM debian:11.7 AS upx
 COPY --from=circleci /usr/local/bin/circleci /usr/bin/
-COPY --from=go /src/bin/shfmt /src/bin/tomljson /usr/bin/
+COPY --from=go /src/bin/shfmt /src/bin/stoml /src/bin/tomljson /usr/bin/
 COPY --from=checkmake /src/checkmake/checkmake /usr/bin/
 COPY --from=editorconfig-checker /src/editorconfig-checker/bin/ec /usr/bin/
 COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter /usr/bin/
@@ -99,6 +106,7 @@ RUN apt-get update && \
     upx --best /usr/bin/dotenv-linter && \
     upx --best /usr/bin/shellcheck && \
     upx --best /usr/bin/shellharden && \
+    upx --best /usr/bin/stoml && \
     upx --best /usr/bin/tomljson
 
 # Prepare executable files
@@ -114,14 +122,12 @@ FROM debian:12.0-slim AS aggregator1
 COPY dependencies/composer.json dependencies/composer.lock dependencies/requirements.txt src/shell-dry.sh /src/
 COPY --from=chmod /src/glob_files.py /src/main.py /src/run.sh /src/
 
-FROM node:20.3.1 AS azlint-cli
-WORKDIR /src
-COPY package.json package-lock.json tsconfig.json ./
-COPY src/ ./src/
-RUN npm ci --unsafe-perm && \
-    npm run build && \
-    npx node-prune && \
-    npm prune --production
+FROM debian:12.0 AS curl
+WORKDIR /cwd
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl && \
+    rm -rf /var/lib/apt/lists/* && \
+    curl -fLsS https://getcomposer.org/installer -o composer-setup.php
 
 ### Main runner ###
 
@@ -130,17 +136,15 @@ FROM debian:11.7
 WORKDIR /src
 COPY --from=aggregator1 /src/ ./
 COPY --from=hadolint /bin/hadolint /usr/bin/
-COPY --from=node /src/node_modules node_modules/
+COPY --from=node /cwd/cli /src/cli
+COPY --from=node /cwd/dependencies/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
-COPY --from=upx /usr/bin/checkmake /usr/bin/circleci /usr/bin/dotenv-linter /usr/bin/ec /usr/bin/shellcheck /usr/bin/shellharden /usr/bin/shfmt /usr/bin/tomljson /usr/bin/
-COPY --from=azlint-cli /src/cli /src/cli
+COPY --from=upx /usr/bin/checkmake /usr/bin/circleci /usr/bin/dotenv-linter /usr/bin/ec /usr/bin/shellcheck /usr/bin/shellharden /usr/bin/shfmt /usr/bin/stoml /usr/bin/tomljson /usr/bin/
+COPY --from=curl /cwd/composer-setup.php ./
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ash bash bmake curl dash git jq ksh libxml2-utils make mksh nodejs php php-cli php-common php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
-    curl -fLsSo composer-setup.php https://getcomposer.org/installer && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ash bash bmake dash git jq ksh libxml2-utils make mksh nodejs php php-cli php-common php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
     php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
-    rm -f composer-setup.php && \
-    apt-get remove --purge --yes curl && \
-    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /var/lib/apt/lists/* composer-setup.php && \
     composer install && \
     python3 -m pip install --no-cache-dir --requirement requirements.txt && \
     ln -s /src/main.py /usr/bin/azlint && \
