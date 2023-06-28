@@ -6,9 +6,9 @@
 # GoLang #
 FROM golang:1.20.5-bullseye AS go
 WORKDIR /cwd
-RUN GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
-    GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
-    GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
+RUN GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
+    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
+    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
 
 FROM golang:1.20.5-bullseye AS checkmake
 WORKDIR /cwd/checkmake
@@ -94,7 +94,7 @@ FROM koalaman/shellcheck:v0.9.0 AS shellcheck
 FROM debian:11.7 AS upx
 WORKDIR /cwd
 COPY --from=circleci /usr/local/bin/circleci /usr/bin/
-COPY --from=go /cwd/bin/shfmt /cwd/bin/stoml /cwd/bin/tomljson /usr/bin/
+COPY --from=go /cwd/go/bin/shfmt /cwd/go/bin/stoml /cwd/go/bin/tomljson /usr/bin/
 COPY --from=checkmake /cwd/checkmake/checkmake /usr/bin/
 COPY --from=editorconfig-checker /cwd/editorconfig-checker/bin/ec /usr/bin/
 COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter /usr/bin/
@@ -156,7 +156,6 @@ COPY --from=chmod /cwd/glob_files.py /cwd/main.py /cwd/run.sh ./
 
 ### Main runner ###
 
-# curl is only needed to install nodejs&composer
 FROM debian:11.7
 WORKDIR /src
 COPY --from=aggregator1 /cwd/ ./
