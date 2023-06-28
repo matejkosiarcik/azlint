@@ -32,7 +32,7 @@ bootstrap:
 	PATH="$(PROJECT_DIR)/linters/ruby/bin:$(PATH)" \
 	BUNDLE_DISABLE_SHARED_GEMS=true \
 	BUNDLE_PATH__SYSTEM=false \
-	BUNDLE_PATH="$(PROJECT_DIR)/linters/.bundle" \
+	BUNDLE_PATH="$(PROJECT_DIR)/linters/bundle" \
 	BUNDLE_GEMFILE="$(PROJECT_DIR)/linters/Gemfile" \
 		bundle install
 
