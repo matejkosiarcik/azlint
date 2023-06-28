@@ -93,12 +93,14 @@ COPY --from=circleci /usr/local/bin/circleci ./
 COPY --from=go /cwd/checkmake/checkmake /cwd/editorconfig-checker/bin/ec /cwd/bin/shfmt /cwd/bin/stoml /cwd/bin/tomljson ./
 COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter ./
 COPY --from=shellcheck /bin/shellcheck ./
+COPY --from=hadolint /bin/hadolint ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends upx-ucl && \
     rm -rf /var/lib/apt/lists/* && \
     upx /cwd/checkmake && \
     upx /cwd/circleci && \
     upx /cwd/dotenv-linter && \
+    upx /cwd/hadolint && \
     upx /cwd/shellcheck && \
     upx /cwd/shellharden && \
     upx /cwd/stoml && \
@@ -153,11 +155,10 @@ COPY --from=chmod /cwd/glob_files.py /cwd/main.py /cwd/run.sh ./
 FROM debian:11.7
 WORKDIR /src
 COPY --from=aggregator1 /cwd/ ./
-COPY --from=hadolint /bin/hadolint /usr/bin/
 COPY --from=node /cwd/cli /src/cli
 COPY --from=node /cwd/linters/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
-COPY --from=upx /cwd/checkmake /cwd/circleci /cwd/dotenv-linter /cwd/ec /cwd/shellcheck /cwd/shellharden /cwd/shfmt /cwd/stoml /cwd/tomljson /usr/bin/
+COPY --from=upx /cwd/checkmake /cwd/circleci /cwd/dotenv-linter /cwd/ec /cwd/hadolint /cwd/shellcheck /cwd/shellharden /cwd/shfmt /cwd/stoml /cwd/tomljson /usr/bin/
 COPY --from=curl /cwd/composer-setup.php ./
 # TODO: ENV PYTHONPATH=/app/linters/python
 RUN apt-get update && \
