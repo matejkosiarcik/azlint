@@ -18,7 +18,7 @@ RUN git clone https://github.com/editorconfig-checker/editorconfig-checker . && 
 FROM golang:1.20.5-bullseye AS checkmake
 WORKDIR /cwd/checkmake
 RUN apt-get update && \
-    apt-get install --yes --no-install-recommends git pandoc && \
+    apt-get install --yes --no-install-recommends pandoc && \
     rm -rf /var/lib/apt/lists/* && \
     git clone https://github.com/mrtazz/checkmake . && \
     BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
@@ -102,13 +102,13 @@ COPY --from=shellcheck /bin/shellcheck ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends upx-ucl && \
     rm -rf /var/lib/apt/lists/* && \
-    upx --best /cwd/checkmake && \
-    upx --best /cwd/circleci && \
-    upx --best /cwd/dotenv-linter && \
-    upx --best /cwd/shellcheck && \
-    upx --best /cwd/shellharden && \
-    upx --best /cwd/stoml && \
-    upx --best /cwd/tomljson
+    upx /cwd/checkmake && \
+    upx /cwd/circleci && \
+    upx /cwd/dotenv-linter && \
+    upx /cwd/shellcheck && \
+    upx /cwd/shellharden && \
+    upx /cwd/stoml && \
+    upx /cwd/tomljson
 
 # Prepare executable files
 # Well this is not strictly necessary
