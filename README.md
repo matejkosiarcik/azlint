@@ -240,14 +240,14 @@ Where `VALIDATE_FOO` can be found in the following section.
 
 ### Shell
 
-| tool                                                  | disable                | files       | autofix |
-| ----------------------------------------------------- | ---------------------- | ----------- | ------- |
-| [bashate](https://github.com/openstack/bashate)       | `VALIDATE_BASHATE`     | `*.sh` etc. | ❌      |
-| [bats-core](https://github.com/bats-core/bats-core)   | `VALIDATE_BATS`        | `*.bats`    | ❌      |
-| [shellcheck](https://github.com/koalaman/shellcheck)  | `VALIDATE_SHELLCHECK`  | `*.sh` etc. | ❌      |
-| [shellharden](https://github.com/anordal/shellharden) | `VALIDATE_SHELLHARDEN` | `*.sh` etc. | ✅      |
-| [shfmt](https://github.com/mvdan/sh)                  | `VALIDATE_SHFMT`       | `*.sh` etc. | ✅      |
-| custom dry runner                                     | `VALIDATE_SHELL_DRY`   | `*.sh` etc. | ❌      |
+| tool                                                  | disable                  | files       | autofix |
+| ----------------------------------------------------- | ------------------------ | ----------- | ------- |
+| [bashate](https://github.com/openstack/bashate)       | `VALIDATE_BASHATE`       | `*.sh` etc. | ❌      |
+| [bats-core](https://github.com/bats-core/bats-core)   | `VALIDATE_BATS`          | `*.bats`    | ❌      |
+| [shellcheck](https://github.com/koalaman/shellcheck)  | `VALIDATE_SHELLCHECK`    | `*.sh` etc. | ❌      |
+| [shellharden](https://github.com/anordal/shellharden) | `VALIDATE_SHELLHARDEN`   | `*.sh` etc. | ✅      |
+| [shfmt](https://github.com/mvdan/sh)                  | `VALIDATE_SHFMT`         | `*.sh` etc. | ✅      |
+| custom dry runner                                     | `VALIDATE_SHELL_DRY_RUN` | `*.sh` etc. | ❌      |
 
 ### Python
 

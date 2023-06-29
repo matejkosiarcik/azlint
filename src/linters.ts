@@ -574,8 +574,8 @@ export class Linters {
 
         // Shell-dry
         await this.runLinter({
-            linterName: 'shell-dry',
-            envName: 'SHELL_DRY',
+            linterName: 'shell-dry-run',
+            envName: 'SHELL_DRY_RUN',
             fileMatch: matchers.shell,
             lintFile: { args: ['sh', path.join(__dirname, 'shell-dry.sh'), "#file#"] },
         });
