@@ -46,7 +46,7 @@ RUN gem install bundler && \
     gem update --system && \
     bundle install
 
-FROM debian:11.7 AS ruby
+FROM debian:12.0 AS ruby
 WORKDIR /cwd
 COPY --from=pre-ruby /usr/local/bundle/ /usr/local/bundle/
 RUN apt-get update && \
