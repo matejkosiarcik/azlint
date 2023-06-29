@@ -46,7 +46,7 @@ RUN gem install bundler && \
     gem update --system && \
     bundle install
 
-FROM debian:11.7 AS ruby
+FROM debian:12.0 AS ruby
 WORKDIR /cwd
 COPY --from=pre-ruby /usr/local/bundle/ /usr/local/bundle/
 RUN apt-get update && \
@@ -55,10 +55,11 @@ RUN apt-get update && \
     GEM_HOME=/usr/local/bundle gem pristine --all
 
 # Rust/Cargo #
-FROM rust:1.70.0-bullseye AS rust
+FROM rust:1.70.0-bookworm AS rust
 WORKDIR /cwd
 COPY package.json package-lock.json cargo-packages.js ./
 COPY linters/Cargo.toml ./linters/
+ENV NODE_OPTIONS=--dns-result-order=ipv4first
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs npm && \
     rm -rf /var/lib/apt/lists/* && \
@@ -66,6 +67,30 @@ RUN apt-get update && \
     node cargo-packages.js | while read -r package version; do \
         cargo install "$package" --force --version "$version"; \
     done
+
+# Python #
+FROM debian:12.0 AS python
+WORKDIR /cwd
+COPY linters/requirements.txt ./
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+ENV PYTHONDONTWRITEBYTECODE=1
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-dev python3-pip && \
+    rm -rf /var/lib/apt/lists/* && \
+    python3 -m pip install --no-cache-dir --requirement requirements.txt --target install
+
+# PHP/Composer #
+FROM debian:12.0 AS composer
+WORKDIR /cwd
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl php php-cli php-common php-mbstring php-zip && \
+    curl -fLsS https://getcomposer.org/installer -o composer-setup.php && \
+    mkdir -p /cwd/linters/composer/bin && \
+    php composer-setup.php --install-dir=/cwd/linters/composer/bin --filename=composer && \
+    rm -rf /var/lib/apt/lists/* composer-setup.php
+WORKDIR /cwd/linters
+COPY linters/composer.json linters/composer.lock ./
+RUN PATH="/cwd/linters/composer/bin:$PATH" composer install --no-cache
 
 # CircleCI #
 # it has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
@@ -104,6 +129,7 @@ RUN apt-get update && \
     upx /cwd/shellharden && \
     upx /cwd/stoml && \
     upx /cwd/tomljson
+# hadolint is skipped, because it's already packed #
 
 # Prepare executable files
 # Well this is not strictly necessary
@@ -114,36 +140,6 @@ WORKDIR /cwd
 COPY src/glob_files.py src/main.py src/run.sh ./
 RUN chmod a+x glob_files.py main.py run.sh
 
-FROM debian:12.0 AS python
-WORKDIR /cwd
-COPY linters/requirements.txt ./
-ENV PIP_DISABLE_PIP_VERSION_CHECK=1
-ENV PYTHONDONTWRITEBYTECODE=1
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-dev python3-pip && \
-    rm -rf /var/lib/apt/lists/* && \
-    python3 -m pip install --no-cache-dir --requirement requirements.txt --target install
-
-FROM debian:12.0 AS composer
-WORKDIR /cwd
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl php php-cli php-common php-mbstring php-zip && \
-    curl -fLsS https://getcomposer.org/installer -o composer-setup.php && \
-    mkdir -p /cwd/linters/composer/bin && \
-    php composer-setup.php --install-dir=/cwd/linters/composer/bin --filename=composer && \
-    rm -rf /var/lib/apt/lists/* composer-setup.php
-WORKDIR /cwd/linters
-COPY linters/composer.json linters/composer.lock ./
-RUN PATH="/cwd/linters/composer/bin:$PATH" composer install --no-cache
-
-# TODO: Remove curl stage
-FROM debian:12.0 AS curl
-WORKDIR /cwd
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl && \
-    rm -rf /var/lib/apt/lists/* && \
-    curl -fLsS https://getcomposer.org/installer -o composer-setup.php
-
 FROM debian:12.0-slim AS aggregator1
 WORKDIR /cwd
 COPY linters/composer.json linters/composer.lock linters/requirements.txt src/shell-dry.sh ./
@@ -151,21 +147,21 @@ COPY --from=chmod /cwd/glob_files.py /cwd/main.py /cwd/run.sh ./
 
 ### Main runner ###
 
-FROM debian:11.7
+FROM debian:12.0
 WORKDIR /app
 COPY --from=aggregator1 /cwd/ ./
 COPY --from=node /cwd/cli ./cli
 COPY --from=node /cwd/linters/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
 COPY --from=upx /cwd/checkmake /cwd/circleci /cwd/dotenv-linter /cwd/ec /cwd/hadolint /cwd/shellcheck /cwd/shellharden /cwd/shfmt /cwd/stoml /cwd/tomljson /usr/bin/
-COPY --from=curl /cwd/composer-setup.php ./
+COPY --from=composer /cwd/linters/composer/bin/composer /app/bin/
+COPY --from=composer /cwd/linters/vendor /app/linters/vendor
+COPY --from=python /cwd/install /app/linters/python
+ENV PATH="$PATH:/app/bin"
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
         ash bash bmake dash git jq ksh libxml2-utils make mksh nodejs php php-cli php-common php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
-    php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
-    rm -rf /var/lib/apt/lists/* composer-setup.php && \
-    composer install && \
-    python3 -m pip install --no-cache-dir --requirement requirements.txt && \
+    rm -rf /var/lib/apt/lists/* && \
     ln -s /app/main.py /usr/bin/azlint && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >/usr/bin/fmt && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint lint $@' >/usr/bin/lint && \
