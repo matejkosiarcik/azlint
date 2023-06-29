@@ -22,6 +22,9 @@ jobs:
       - name: Build and Test
         run: |
           make build
-
-          # TODO: Make below code work again
-          # CONFIG_DIR=.config/ make run-lint
+          docker run --interactive --rm \
+            --volume "$(PROJECT_DIR):/project:ro" \
+            --env CONFIG_DIR=.config \
+            --env VALIDATE_MDL=false \
+            --env VALIDATE_MARKDOWN_LINK_CHECK=false \
+            matejkosiarcik/azlint:dev lint

@@ -9,7 +9,7 @@ file="$1"
 
 # extracts the shell from given file
 # uses shebang and extension
-# `bash`` is returned as fallback if neither succeed
+# `bash` is returned as fallback if neither succeed
 detect_shell() {
     shebang="$(head -n1 "$file")"
 

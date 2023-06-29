@@ -49,8 +49,6 @@ import { Linters } from './linters';
             describe: 'Path to project directory', type: 'string', default: '.',
         })
         .parse();
-    // TODO: make "lint" default command
-    // TODO: Handle situations when no command is supplied and directorty is supplied
 
     if (fs.existsSync(path.join(__dirname, '..', '.env'))) {
         dotenv.config({ path: path.join(__dirname, '..', '.env') });
@@ -72,7 +70,7 @@ import { Linters } from './linters';
         argv.verbose >= 3 ? LogLevel.EXTRA_EXTRA_VERBOSE :
         argv.verbose >= 2 ? LogLevel.EXTRA_VERBOSE :
         argv.verbose >= 1 ? LogLevel.VERBOSE :
-        LogLevel.NORMAL; // TODO: Simplify expression
+        LogLevel.NORMAL;
     const directory = (() => {
         if (argv._.length > 1) {
             return argv._[1].toString();
@@ -112,8 +110,6 @@ import { Linters } from './linters';
         python: path.join(lintersDir, 'python', 'bin'),
         composer: path.join(lintersDir, 'vendor', 'bin'),
         go: path.join(lintersDir, 'go', 'bin'),
-        checkmake: path.join(lintersDir, 'checkmake'),
-        ec: path.join(lintersDir, 'editorconfig-checker', 'bin'),
         bin: path.join(lintersDir, 'bin'),
     };
     process.env['PATH'] = `${Object.values(binPaths).join(':')}:${process.env['PATH']}`;

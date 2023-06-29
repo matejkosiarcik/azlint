@@ -55,6 +55,10 @@ bootstrap:
 		git clone https://github.com/editorconfig-checker/editorconfig-checker . && \
 		make build
 
+	mkdir linters/bin && \
+		cp linters/checkmake/checkmake linters/bin/ && \
+		cp linters/editorconfig-checker/bin/ec linters/bin/
+
 	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest'
 	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest'
 	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
@@ -78,7 +82,6 @@ run-lint:
 	docker run --interactive --tty --rm \
 		--volume "$(PROJECT_DIR):/project:ro" \
 		--env CONFIG_DIR=.config \
-		--env VALIDATE_TOMLJSON=false \
 		--env VALIDATE_MDL=false \
 		--env VALIDATE_MARKDOWN_LINK_CHECK=false \
 		matejkosiarcik/azlint:dev lint
@@ -88,7 +91,6 @@ run-fmt:
 	docker run --interactive --tty --rm \
 		--volume "$(PROJECT_DIR):/project" \
 		--env CONFIG_DIR=.config \
-		--env VALIDATE_TOMLJSON=false \
 		--env VALIDATE_MDL=false \
 		--env VALIDATE_MARKDOWN_LINK_CHECK=false \
 		matejkosiarcik/azlint:dev fmt

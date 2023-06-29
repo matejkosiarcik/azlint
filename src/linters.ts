@@ -418,7 +418,9 @@ export class Linters {
         });
 
         // Jsonlint
-        const jsonlintConfigArgs = getConfigArgs('JSONLINT', '--config', []); // TODO: Finish config files
+        const jsonlintConfigArgs = getConfigArgs('JSONLINT', '--config',
+            ['jsonlintrc', 'jsonlintrc.json', 'jsonlintrc.yml', 'jsonlintrc.yaml', 'jsonlintrc.js', 'jsonlintrc.mjs', 'jsonlintrc.cjs'].flatMap((el) => [`${el}`, `.${el}`])
+        );
         await this.runLinter({
             linterName: 'jsonlint',
             envName: 'JSONLINT',
@@ -428,7 +430,7 @@ export class Linters {
 
         // Yamllint
         const yamllintConfigArgs = getConfigArgs('YAMLLINT', '--config-file',
-            ['yamllint.yml', 'yamllint.yaml', '.yamllint.yml', '.yamllint.yaml']);
+            ['yamllint.yml', 'yamllint.yaml'].flatMap((el) => [`${el}`, `.${el}`]));
         await this.runLinter({
             linterName: 'yamllint',
             envName: 'YAMLLINT',
@@ -440,9 +442,10 @@ export class Linters {
         await this.runLinter({
             linterName: 'tomljson',
             envName: 'TOMLJSON',
-            fileMatch: ['*.toml', 'tox.ini', 'setup.cfg'],
+            fileMatch: '*.toml',
             lintFile: { args: ['tomljson', '#file#'] },
         });
+        // TODO: try STOML for toml files
 
         // XmlLint
         await this.runLinter({
