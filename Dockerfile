@@ -4,11 +4,11 @@
 ### Components ###
 
 # GoLang #
-FROM golang:1.20.5-bullseye AS go
+FROM golang:1.20.5-bookworm AS go
 WORKDIR /cwd
-RUN GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
-    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
-    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
+RUN GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
+    GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
+    GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
 WORKDIR /cwd/editorconfig-checker
 RUN git clone https://github.com/editorconfig-checker/editorconfig-checker . && \
     make build
@@ -90,9 +90,10 @@ FROM koalaman/shellcheck:v0.9.0 AS shellcheck
 FROM ubuntu:23.10 AS upx
 WORKDIR /cwd
 COPY --from=circleci /usr/local/bin/circleci ./
-COPY --from=go /cwd/checkmake/checkmake /cwd/editorconfig-checker/bin/ec /cwd/go/bin/shfmt /cwd/go/bin/stoml /cwd/go/bin/tomljson ./
+COPY --from=go /cwd/checkmake/checkmake /cwd/editorconfig-checker/bin/ec /cwd/bin/shfmt /cwd/bin/stoml /cwd/bin/tomljson ./
 COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter ./
 COPY --from=shellcheck /bin/shellcheck ./
+COPY --from=hadolint /bin/hadolint ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends upx-ucl && \
     rm -rf /var/lib/apt/lists/* && \
@@ -151,15 +152,13 @@ COPY --from=chmod /cwd/glob_files.py /cwd/main.py /cwd/run.sh ./
 ### Main runner ###
 
 FROM debian:11.7
-WORKDIR /src
+WORKDIR /app
 COPY --from=aggregator1 /cwd/ ./
-COPY --from=hadolint /bin/hadolint /usr/bin/
-COPY --from=node /cwd/cli /src/cli
+COPY --from=node /cwd/cli ./cli
 COPY --from=node /cwd/linters/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
-COPY --from=upx /cwd/checkmake /cwd/circleci /cwd/dotenv-linter /cwd/ec /cwd/shellcheck /cwd/shellharden /cwd/shfmt /cwd/stoml /cwd/tomljson /usr/bin/
+COPY --from=upx /cwd/checkmake /cwd/circleci /cwd/dotenv-linter /cwd/ec /cwd/hadolint /cwd/shellcheck /cwd/shellharden /cwd/shfmt /cwd/stoml /cwd/tomljson /usr/bin/
 COPY --from=curl /cwd/composer-setup.php ./
-# TODO: ENV PYTHONPATH=/app/linters/python
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
         ash bash bmake dash git jq ksh libxml2-utils make mksh nodejs php php-cli php-common php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
@@ -167,7 +166,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* composer-setup.php && \
     composer install && \
     python3 -m pip install --no-cache-dir --requirement requirements.txt && \
-    ln -s /src/main.py /usr/bin/azlint && \
+    ln -s /app/main.py /usr/bin/azlint && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >/usr/bin/fmt && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint lint $@' >/usr/bin/lint && \
     chmod a+x /usr/bin/lint /usr/bin/fmt && \

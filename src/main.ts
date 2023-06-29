@@ -119,7 +119,7 @@ import { Linters } from './linters';
     process.env['PYTHONPATH'] = `${path.join(lintersDir, 'python')}`;
     process.env['BUNDLE_DISABLE_SHARED_GEMS'] = 'true';
     process.env['BUNDLE_PATH__SYSTEM'] = 'false';
-    process.env['BUNDLE_PATH'] = path.join(lintersDir, '.bundle');
+    process.env['BUNDLE_PATH'] = path.join(lintersDir, 'bundle');
     process.env['BUNDLE_GEMFILE'] = path.join(lintersDir, 'Gemfile');
 
     logVerbose(`Performing: ${command}`);
