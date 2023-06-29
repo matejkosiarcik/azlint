@@ -154,6 +154,7 @@ RUN apt-get update && \
     git config --system --add safe.directory '*' && \
     useradd --create-home --no-log-init --shell /usr/bin/bash --user-group --system azlint && \
     su - azlint -c "git config --global --add safe.directory '*'"
+ENV NODE_OPTIONS=--dns-result-order=ipv4first
 
 USER azlint
 WORKDIR /project
