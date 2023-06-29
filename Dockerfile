@@ -168,10 +168,8 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
         ash bash bmake dash git jq ksh libxml2-utils make mksh nodejs php php-cli php-common php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
     rm -rf /var/lib/apt/lists/* && \
-    git config --system --add safe.directory /project && \
+    git config --system --add safe.directory '*' && \
     useradd --create-home --no-log-init --shell /bin/sh --user-group --system azlint && \
-    git config --global --add safe.directory '*' && \
-    su - root -c "git config --global --add safe.directory '*'" && \
     su - azlint -c "git config --global --add safe.directory '*'"
 
 USER azlint
