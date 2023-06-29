@@ -114,6 +114,7 @@ import { Linters } from './linters';
         go: path.join(lintersDir, 'go', 'bin'),
         checkmake: path.join(lintersDir, 'checkmake'),
         ec: path.join(lintersDir, 'editorconfig-checker', 'bin'),
+        bin: path.join(lintersDir, 'bin'),
     };
     process.env['PATH'] = `${Object.values(binPaths).join(':')}:${process.env['PATH']}`;
     process.env['PYTHONPATH'] = `${path.join(lintersDir, 'python')}`;
