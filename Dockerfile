@@ -1,5 +1,4 @@
 # checkov:skip=CKV_DOCKER_2:Disable HEALTHCHECK
-# TODO: Update debian 11 (bullseye) to 12 (bookworm)
 
 ### Components ###
 
@@ -68,7 +67,7 @@ RUN apt-get update && \
         cargo install "$package" --force --version "$version"; \
     done
 
-# Python #
+# Python/Pip #
 FROM debian:12.0 AS python
 WORKDIR /cwd
 COPY linters/requirements.txt ./
@@ -118,7 +117,6 @@ COPY --from=circleci /usr/local/bin/circleci ./
 COPY --from=go /cwd/checkmake/checkmake /cwd/editorconfig-checker/bin/ec /cwd/bin/shfmt /cwd/bin/stoml /cwd/bin/tomljson ./
 COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter ./
 COPY --from=shellcheck /bin/shellcheck ./
-COPY --from=hadolint /bin/hadolint ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends upx-ucl && \
     rm -rf /var/lib/apt/lists/* && \
@@ -129,47 +127,41 @@ RUN apt-get update && \
     upx /cwd/shellharden && \
     upx /cwd/stoml && \
     upx /cwd/tomljson
-# hadolint is skipped, because it's already packed #
 
-# Prepare executable files
-# Well this is not strictly necessary
-# But doing it before the final stage is potentilly better (saves layer space)
-# As the final stage only copies these files and does not modify them further
-FROM debian:12.0 AS chmod
-WORKDIR /cwd
-COPY src/glob_files.py src/main.py src/run.sh ./
-RUN chmod a+x glob_files.py main.py run.sh
-
-FROM debian:12.0-slim AS aggregator1
-WORKDIR /cwd
-COPY linters/composer.json linters/composer.lock linters/requirements.txt src/shell-dry.sh ./
-COPY --from=chmod /cwd/glob_files.py /cwd/main.py /cwd/run.sh ./
+# Pre-Final #
+FROM debian:12.0-slim AS pre-final
+WORKDIR /app/cli
+COPY --from=node /cwd/cli ./
+COPY --from=node /cwd/node_modules ./node_modules
+COPY src/shell-dry.sh src/find_files.py ./
+WORKDIR /app/bin
+RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azlint && \
+    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >fmt && \
+    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint lint $@' >lint && \
+    chmod a+x azlint fmt lint
+WORKDIR /app/linters
+COPY --from=composer /cwd/linters/vendor ./vendor
+COPY --from=node /cwd/linters/node_modules ./node_modules
+COPY --from=python /cwd/install ./python
+WORKDIR /app/linters/bin
+COPY --from=composer /cwd/linters/composer/bin/composer ./
+COPY --from=hadolint /bin/hadolint ./
+COPY --from=upx /cwd/checkmake /cwd/circleci /cwd/dotenv-linter /cwd/ec /cwd/shellcheck /cwd/shellharden /cwd/shfmt /cwd/stoml /cwd/tomljson ./
 
 ### Main runner ###
 
 FROM debian:12.0
 WORKDIR /app
-COPY --from=aggregator1 /cwd/ ./
-COPY --from=node /cwd/cli ./cli
-COPY --from=node /cwd/linters/node_modules node_modules/
+COPY --from=pre-final /app/ ./
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
-COPY --from=upx /cwd/checkmake /cwd/circleci /cwd/dotenv-linter /cwd/ec /cwd/hadolint /cwd/shellcheck /cwd/shellharden /cwd/shfmt /cwd/stoml /cwd/tomljson /usr/bin/
-COPY --from=composer /cwd/linters/composer/bin/composer /app/bin/
-COPY --from=composer /cwd/linters/vendor /app/linters/vendor
-COPY --from=python /cwd/install /app/linters/python
 ENV PATH="$PATH:/app/bin"
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
-        ash bash bmake dash git jq ksh libxml2-utils make mksh nodejs php php-cli php-common php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
+        bmake git jq libxml2-utils make nodejs php php-cli php-common php-mbstring php-zip python3 python3-pip ruby unzip \
+        ash bash dash ksh ksh93u+m mksh posh yash zsh && \
     rm -rf /var/lib/apt/lists/* && \
-    ln -s /app/main.py /usr/bin/azlint && \
-    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >/usr/bin/fmt && \
-    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint lint $@' >/usr/bin/lint && \
-    chmod a+x /usr/bin/lint /usr/bin/fmt && \
-    git config --system --add safe.directory /project && \
-    useradd --create-home --no-log-init --shell /bin/sh --user-group --system azlint && \
-    git config --global --add safe.directory '*' && \
-    su - root -c "git config --global --add safe.directory '*'" && \
+    git config --system --add safe.directory '*' && \
+    useradd --create-home --no-log-init --shell /usr/bin/bash --user-group --system azlint && \
     su - azlint -c "git config --global --add safe.directory '*'"
 
 USER azlint

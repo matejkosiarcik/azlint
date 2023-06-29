@@ -75,11 +75,23 @@ run: run-fmt run-lint
 
 .PHONY: run-lint
 run-lint:
-	docker run --interactive --volume "$(PROJECT_DIR):/project:ro" matejkosiarcik/azlint:dev lint
+	docker run --interactive --tty --rm \
+		--volume "$(PROJECT_DIR):/project:ro" \
+		--env CONFIG_DIR=.config \
+		--env VALIDATE_TOMLJSON=false \
+		--env VALIDATE_MDL=false \
+		--env VALIDATE_MARKDOWN_LINK_CHECK=false \
+		matejkosiarcik/azlint:dev lint
 
 .PHONY: run-fmt
 run-fmt:
-	docker run --interactive --volume "$(PROJECT_DIR):/project" matejkosiarcik/azlint:dev fmt
+	docker run --interactive --tty --rm \
+		--volume "$(PROJECT_DIR):/project" \
+		--env CONFIG_DIR=.config \
+		--env VALIDATE_TOMLJSON=false \
+		--env VALIDATE_MDL=false \
+		--env VALIDATE_MARKDOWN_LINK_CHECK=false \
+		matejkosiarcik/azlint:dev fmt
 
 .PHONY: doc
 doc:

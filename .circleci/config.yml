@@ -23,5 +23,4 @@ jobs:
           # So this workaround is needed for the time being
       - run: apk update --no-cache
       - run: apk add --no-cache make
-      - run: make build
-      # TODO: run "run" Makefile target
+      - run: make build run-lint
