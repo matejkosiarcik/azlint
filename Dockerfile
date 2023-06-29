@@ -55,10 +55,11 @@ RUN apt-get update && \
     GEM_HOME=/usr/local/bundle gem pristine --all
 
 # Rust/Cargo #
-FROM rust:1.70.0-bullseye AS rust
+FROM rust:1.70.0-bookworm AS rust
 WORKDIR /cwd
 COPY package.json package-lock.json cargo-packages.js ./
 COPY linters/Cargo.toml ./linters/
+ENV NODE_OPTIONS=--dns-result-order=ipv4first
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs npm && \
     rm -rf /var/lib/apt/lists/* && \
@@ -104,6 +105,7 @@ RUN apt-get update && \
     upx /cwd/shellharden && \
     upx /cwd/stoml && \
     upx /cwd/tomljson
+# hadolint is skipped, because it's already packed #
 
 # Prepare executable files
 # Well this is not strictly necessary
