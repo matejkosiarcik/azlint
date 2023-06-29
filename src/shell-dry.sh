@@ -48,6 +48,7 @@ check_ksh() {
 
 check_bash() {
     bash -n "$file"
+    zsh -n "$file"
 }
 
 check_zsh() {
