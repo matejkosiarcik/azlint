@@ -156,12 +156,12 @@ COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
 COPY --from=upx /cwd/checkmake /cwd/circleci /cwd/dotenv-linter /cwd/ec /cwd/hadolint /cwd/shellcheck /cwd/shellharden /cwd/shfmt /cwd/stoml /cwd/tomljson /usr/bin/
 COPY --from=composer /cwd/linters/composer/bin/composer /app/bin/
 COPY --from=composer /cwd/linters/vendor /app/linters/vendor
+COPY --from=python /cwd/install /app/linters/python
 ENV PATH="$PATH:/app/bin"
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
         ash bash bmake dash git jq ksh libxml2-utils make mksh nodejs php php-cli php-common php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
     rm -rf /var/lib/apt/lists/* && \
-    python3 -m pip install --no-cache-dir --requirement requirements.txt && \
     ln -s /app/main.py /usr/bin/azlint && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >/usr/bin/fmt && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint lint $@' >/usr/bin/lint && \
