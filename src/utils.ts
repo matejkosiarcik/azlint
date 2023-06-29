@@ -4,8 +4,8 @@ import crypto from 'crypto';
 import { execa, ExecaError, Options as ExecaOptions, ExecaReturnValue } from "@esm2cjs/execa";
 import { logVerbose } from './log';
 
-export type ColorOptions = 'auto' | 'always' | 'never';
-export type ProgressOptions = 'auto' | 'always' | 'never';
+export type ColorOptions = 'auto' | 'never' | 'always';
+export type ProgressOptions = 'no' | 'yes';
 
 /**
  * Check if `cwd` is a git repository
