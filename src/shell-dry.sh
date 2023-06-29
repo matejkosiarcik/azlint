@@ -43,10 +43,12 @@ check_ksh() {
     ksh -n "$file"
     mksh -n "$file"
     ksh93 -n "$file"
+    # loksh -n "$file" # TODO: Enable loksh
 }
 
 check_bash() {
     bash -n "$file"
+    zsh -n "$file"
 }
 
 check_zsh() {
