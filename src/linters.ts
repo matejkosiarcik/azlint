@@ -700,7 +700,7 @@ export class Linters {
             linterName: 'pip-dry-run',
             envName: 'PIP_DRY_RUN',
         fileMatch: ['requirements.txt', 'requirements-*.txt', 'requirements_*.txt', '*-requirements.txt', '*_requirements.txt'],
-            lintFile: { args: ['python3', '-m', 'pip', 'install', '--dry-run', '--ignore-installed', '--requirement', '#file#'] },
+            lintFile: { args: ['python3', '-m', 'pip', 'install', '--dry-run', '--ignore-installed', '--break-system-packages', '--requirement', '#file#'] },
         });
 
         /* Docker */
