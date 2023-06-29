@@ -117,7 +117,6 @@ COPY --from=circleci /usr/local/bin/circleci ./
 COPY --from=go /cwd/checkmake/checkmake /cwd/editorconfig-checker/bin/ec /cwd/bin/shfmt /cwd/bin/stoml /cwd/bin/tomljson ./
 COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter ./
 COPY --from=shellcheck /bin/shellcheck ./
-COPY --from=hadolint /bin/hadolint ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends upx-ucl && \
     rm -rf /var/lib/apt/lists/* && \
@@ -128,7 +127,6 @@ RUN apt-get update && \
     upx /cwd/shellharden && \
     upx /cwd/stoml && \
     upx /cwd/tomljson
-# hadolint is skipped, because it's already packed #
 
 # Prepare executable files
 # Well this is not strictly necessary
@@ -155,7 +153,8 @@ COPY --from=node /cwd/linters/node_modules ./node_modules
 COPY --from=python /cwd/install ./python
 WORKDIR /app/linters/bin
 COPY --from=composer /cwd/linters/composer/bin/composer ./
-COPY --from=upx /cwd/checkmake /cwd/circleci /cwd/dotenv-linter /cwd/ec /cwd/hadolint /cwd/shellcheck /cwd/shellharden /cwd/shfmt /cwd/stoml /cwd/tomljson ./
+COPY --from=hadolint /bin/hadolint ./
+COPY --from=upx /cwd/checkmake /cwd/circleci /cwd/dotenv-linter /cwd/ec /cwd/shellcheck /cwd/shellharden /cwd/shfmt /cwd/stoml /cwd/tomljson ./
 
 ### Main runner ###
 
@@ -166,10 +165,11 @@ COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
 ENV PATH="$PATH:/app/bin"
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
-        ash bash bmake dash git jq ksh libxml2-utils make mksh nodejs php php-cli php-common php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
+        bmake git jq libxml2-utils make nodejs php php-cli php-common php-mbstring php-zip python3 python3-pip ruby unzip \
+        ash bash dash ksh ksh93u+m mksh posh yash zsh && \
     rm -rf /var/lib/apt/lists/* && \
     git config --system --add safe.directory '*' && \
-    useradd --create-home --no-log-init --shell /bin/sh --user-group --system azlint && \
+    useradd --create-home --no-log-init --shell /usr/bin/bash --user-group --system azlint && \
     su - azlint -c "git config --global --add safe.directory '*'"
 
 USER azlint
