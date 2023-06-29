@@ -140,14 +140,6 @@ WORKDIR /cwd
 COPY src/glob_files.py src/main.py src/run.sh ./
 RUN chmod a+x glob_files.py main.py run.sh
 
-# TODO: Remove curl stage
-FROM debian:12.0 AS curl
-WORKDIR /cwd
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl && \
-    rm -rf /var/lib/apt/lists/* && \
-    curl -fLsS https://getcomposer.org/installer -o composer-setup.php
-
 FROM debian:12.0-slim AS aggregator1
 WORKDIR /cwd
 COPY linters/composer.json linters/composer.lock linters/requirements.txt src/shell-dry.sh ./
@@ -162,12 +154,12 @@ COPY --from=node /cwd/cli ./cli
 COPY --from=node /cwd/linters/node_modules node_modules/
 COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
 COPY --from=upx /cwd/checkmake /cwd/circleci /cwd/dotenv-linter /cwd/ec /cwd/hadolint /cwd/shellcheck /cwd/shellharden /cwd/shfmt /cwd/stoml /cwd/tomljson /usr/bin/
-COPY --from=curl /cwd/composer-setup.php ./
+COPY --from=composer /cwd/linters/composer/bin/composer /app/bin/
+ENV PATH="$PATH:/app/bin"
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
         ash bash bmake dash git jq ksh libxml2-utils make mksh nodejs php php-cli php-common php-mbstring php-zip posh python3 python3-pip ruby unzip yash zsh && \
-    php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
-    rm -rf /var/lib/apt/lists/* composer-setup.php && \
+    rm -rf /var/lib/apt/lists/* && \
     composer install && \
     python3 -m pip install --no-cache-dir --requirement requirements.txt && \
     ln -s /app/main.py /usr/bin/azlint && \
