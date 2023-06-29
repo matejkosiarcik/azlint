@@ -13,3 +13,6 @@
   - Research how to pass config file to autopep8
   - loksh shell
   - hush shell
+
+- Add documentation
+  - Stoml

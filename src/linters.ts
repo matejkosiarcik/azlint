@@ -445,7 +445,14 @@ export class Linters {
             fileMatch: '*.toml',
             lintFile: { args: ['tomljson', '#file#'] },
         });
-        // TODO: try STOML for toml files
+
+        // Stoml
+        await this.runLinter({
+            linterName: 'stoml',
+            envName: 'STOML',
+            fileMatch: ['*.toml', '*.cfg', '*.ini'],
+            lintFile: { args: ['stoml', '#file#', '.'] },
+        });
 
         // XmlLint
         await this.runLinter({
