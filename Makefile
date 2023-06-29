@@ -78,7 +78,6 @@ run-lint:
 	docker run --interactive --tty --rm \
 		--volume "$(PROJECT_DIR):/project:ro" \
 		--env CONFIG_DIR=.config \
-		--env VALIDATE_TOMLJSON=false \
 		--env VALIDATE_MDL=false \
 		--env VALIDATE_MARKDOWN_LINK_CHECK=false \
 		matejkosiarcik/azlint:dev lint
@@ -88,7 +87,6 @@ run-fmt:
 	docker run --interactive --tty --rm \
 		--volume "$(PROJECT_DIR):/project" \
 		--env CONFIG_DIR=.config \
-		--env VALIDATE_TOMLJSON=false \
 		--env VALIDATE_MDL=false \
 		--env VALIDATE_MARKDOWN_LINK_CHECK=false \
 		matejkosiarcik/azlint:dev fmt
