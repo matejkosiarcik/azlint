@@ -35,23 +35,13 @@ RUN npm ci --unsafe-perm && \
     npm prune --production
 
 # Ruby/Gem #
-# confusingly it has 2 stages
-# first stage installs all gems with bundler
-# second stage reinstalls these gems to the (almost) same container as our production one (without this stage we get warnings for gems with native extensions in production)
-FROM ruby:3.2.2 AS pre-ruby
-WORKDIR /cwd
-COPY linters/Gemfile linters/Gemfile.lock ./
-RUN gem install bundler && \
-    gem update --system && \
-    bundle install
-
 FROM debian:12.0 AS ruby
 WORKDIR /cwd
-COPY --from=pre-ruby /usr/local/bundle/ /usr/local/bundle/
+COPY linters/Gemfile linters/Gemfile.lock ./
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ruby ruby-build ruby-dev && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bundler ruby ruby-build ruby-dev && \
     rm -rf /var/lib/apt/lists/* && \
-    GEM_HOME=/usr/local/bundle gem pristine --all
+    BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install
 
 # Rust/Cargo #
 FROM rust:1.70.0-bookworm AS rust
@@ -140,9 +130,11 @@ RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azl
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint lint $@' >lint && \
     chmod a+x azlint fmt lint
 WORKDIR /app/linters
+COPY linters/Gemfile linters/Gemfile.lock ./
 COPY --from=composer /cwd/linters/vendor ./vendor
 COPY --from=node /cwd/linters/node_modules ./node_modules
 COPY --from=python /cwd/install ./python
+COPY --from=ruby /cwd/bundle ./bundle
 WORKDIR /app/linters/bin
 COPY --from=composer /cwd/linters/composer/bin/composer ./
 COPY --from=hadolint /bin/hadolint ./
@@ -153,11 +145,10 @@ COPY --from=upx /cwd/checkmake /cwd/circleci /cwd/dotenv-linter /cwd/ec /cwd/she
 FROM debian:12.0
 WORKDIR /app
 COPY --from=pre-final /app/ ./
-COPY --from=ruby /usr/local/bundle/ /usr/local/bundle/
 ENV PATH="$PATH:/app/bin"
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
-        bmake git jq libxml2-utils make nodejs php php-cli php-common php-mbstring php-zip python3 python3-pip ruby unzip \
+        bmake bundler git jq libxml2-utils make nodejs php php-cli php-common php-mbstring php-zip python3 python3-pip ruby unzip \
         ash bash dash ksh ksh93u+m mksh posh yash zsh && \
     rm -rf /var/lib/apt/lists/* && \
     git config --system --add safe.directory '*' && \
