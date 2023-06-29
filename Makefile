@@ -55,7 +55,7 @@ bootstrap:
 		git clone https://github.com/editorconfig-checker/editorconfig-checker . && \
 		make build
 
-	mkdir linters/bin && \
+	mkdir -p linters/bin && \
 		cp linters/checkmake/checkmake linters/bin/ && \
 		cp linters/editorconfig-checker/bin/ec linters/bin/
 
