@@ -147,7 +147,7 @@ COPY --from=chmod /cwd/glob_files.py /cwd/main.py /cwd/run.sh ./
 
 ### Main runner ###
 
-FROM debian:11.7
+FROM debian:12.0
 WORKDIR /app
 COPY --from=aggregator1 /cwd/ ./
 COPY --from=node /cwd/cli ./cli
