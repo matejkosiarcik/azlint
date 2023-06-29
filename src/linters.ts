@@ -412,7 +412,7 @@ export class Linters {
         await this.runLinter({
             linterName: 'prettier',
             envName: 'PRETTIER',
-            fileMatch: [matchers.json, matchers.yaml, '*.{html,vue,css,scss,sass,less}'],
+            fileMatch: [matchers.json, matchers.yaml, '*.{json,yml,yaml,html,vue,css,scss,sass,less}'],
             lintFile: { args: ['prettier', ...prettierConfigArgs, '--list-different', '#file#'] },
             fmtFile: { args: ['prettier', ...prettierConfigArgs, '--write', '#file#'] },
         });
