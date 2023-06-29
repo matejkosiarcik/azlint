@@ -100,7 +100,6 @@ RUN apt-get update && \
     upx /cwd/checkmake && \
     upx /cwd/circleci && \
     upx /cwd/dotenv-linter && \
-    upx /cwd/hadolint && \
     upx /cwd/shellcheck && \
     upx /cwd/shellharden && \
     upx /cwd/stoml && \
