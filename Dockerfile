@@ -128,15 +128,7 @@ RUN apt-get update && \
     upx /cwd/stoml && \
     upx /cwd/tomljson
 
-# Prepare executable files
-# Well this is not strictly necessary
-# But doing it before the final stage is potentilly better (saves layer space)
-# As the final stage only copies these files and does not modify them further
-FROM debian:12.0 AS chmod
-WORKDIR /cwd
-COPY src/glob_files.py src/main.py src/run.sh ./
-RUN chmod a+x glob_files.py main.py run.sh
-
+# Pre-Final #
 FROM debian:12.0-slim AS pre-final
 WORKDIR /app/cli
 COPY --from=node /cwd/cli ./
