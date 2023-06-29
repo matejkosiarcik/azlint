@@ -574,8 +574,8 @@ export class Linters {
 
         // Shell-dry
         await this.runLinter({
-            linterName: 'shell-dry',
-            envName: 'SHELL_DRY',
+            linterName: 'shell-dry-run',
+            envName: 'SHELL_DRY_RUN',
             fileMatch: matchers.shell,
             lintFile: { args: ['sh', path.join(__dirname, 'shell-dry.sh'), "#file#"] },
         });
@@ -693,6 +693,14 @@ export class Linters {
                     }
                 },
             }
+        });
+
+        // Pip dry-run
+        await this.runLinter({
+            linterName: 'pip-dry-run',
+            envName: 'PIP_DRY_RUN',
+        fileMatch: ['requirements.txt', 'requirements-*.txt', 'requirements_*.txt', '*-requirements.txt', '*_requirements.txt'],
+            lintFile: { args: ['python3', '-m', 'pip', 'install', '--dry-run', '--ignore-installed', '--break-system-packages', '--requirement', '#file#'] },
         });
 
         /* Docker */

@@ -191,7 +191,7 @@ Where `VALIDATE_FOO` can be found in the following section.
 | [composer-normalize](https://github.com/ergebnis/composer-normalize)             | `VALIDATE_COMPOSER_NORMALIZE` | `composer.json`         | ✅      |
 | [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)              | `VALIDATE_COMPOSER_VALIDATE`  | `composer.json`         | ❌      |
 | [dotenv-linter](https://github.com/dotenv-linter/dotenv-linter)                  | `VALIDATE_DOTENV`             | `*.env`                 | ❌      |
-| [jsonlint](https://github.com/prantlf/jsonlint)                                  | `VALIDATE_JSONLINT`           | `*.json` etc.           | ✅      |
+| [jsonlint](https://github.com/prantlf/jsonlint)                                  | `VALIDATE_JSONLINT`           | `*.json` etc.           | ❌      |
 | [package-json-validator](https://github.com/gorillamania/package.json-validator) | `VALIDATE_PACKAGE_JSON`       | `package.json`          | ❌      |
 | [prettier](https://github.com/prettier/prettier)                                 | `VALIDATE_PRETTIER`           | `*.{json,yml,css,html}` | ✅      |
 | [tomljson](https://github.com/pelletier/go-toml)                                 | `VALIDATE_TOMLJSON`           | `*.toml`                | ❌      |
@@ -240,14 +240,14 @@ Where `VALIDATE_FOO` can be found in the following section.
 
 ### Shell
 
-| tool                                                  | disable                | files       | autofix |
-| ----------------------------------------------------- | ---------------------- | ----------- | ------- |
-| [bashate](https://github.com/openstack/bashate)       | `VALIDATE_BASHATE`     | `*.sh` etc. | ❌      |
-| [bats-core](https://github.com/bats-core/bats-core)   | `VALIDATE_BATS`        | `*.bats`    | ❌      |
-| [shellcheck](https://github.com/koalaman/shellcheck)  | `VALIDATE_SHELLCHECK`  | `*.sh` etc. | ❌      |
-| [shellharden](https://github.com/anordal/shellharden) | `VALIDATE_SHELLHARDEN` | `*.sh` etc. | ✅      |
-| [shfmt](https://github.com/mvdan/sh)                  | `VALIDATE_SHFMT`       | `*.sh` etc. | ✅      |
-| custom dry runner                                     | `VALIDATE_SHELL_DRY`   | `*.sh` etc. | ❌      |
+| tool                                                  | disable                  | files       | autofix |
+| ----------------------------------------------------- | ------------------------ | ----------- | ------- |
+| [bashate](https://github.com/openstack/bashate)       | `VALIDATE_BASHATE`       | `*.sh` etc. | ❌      |
+| [bats-core](https://github.com/bats-core/bats-core)   | `VALIDATE_BATS`          | `*.bats`    | ❌      |
+| [shellcheck](https://github.com/koalaman/shellcheck)  | `VALIDATE_SHELLCHECK`    | `*.sh` etc. | ❌      |
+| [shellharden](https://github.com/anordal/shellharden) | `VALIDATE_SHELLHARDEN`   | `*.sh` etc. | ✅      |
+| [shfmt](https://github.com/mvdan/sh)                  | `VALIDATE_SHFMT`         | `*.sh` etc. | ✅      |
+| custom dry runner                                     | `VALIDATE_SHELL_DRY_RUN` | `*.sh` etc. | ❌      |
 
 ### Python
 
