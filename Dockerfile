@@ -68,6 +68,30 @@ RUN apt-get update && \
         cargo install "$package" --force --version "$version"; \
     done
 
+# Python #
+FROM debian:12.0 AS python
+WORKDIR /cwd
+COPY linters/requirements.txt ./
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+ENV PYTHONDONTWRITEBYTECODE=1
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-dev python3-pip && \
+    rm -rf /var/lib/apt/lists/* && \
+    python3 -m pip install --no-cache-dir --requirement requirements.txt --target install
+
+# PHP/Composer #
+FROM debian:12.0 AS composer
+WORKDIR /cwd
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl php php-cli php-common php-mbstring php-zip && \
+    curl -fLsS https://getcomposer.org/installer -o composer-setup.php && \
+    mkdir -p /cwd/linters/composer/bin && \
+    php composer-setup.php --install-dir=/cwd/linters/composer/bin --filename=composer && \
+    rm -rf /var/lib/apt/lists/* composer-setup.php
+WORKDIR /cwd/linters
+COPY linters/composer.json linters/composer.lock ./
+RUN PATH="/cwd/linters/composer/bin:$PATH" composer install --no-cache
+
 # CircleCI #
 # it has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
 # this script builds the executable and optimizes with https://upx.github.io
@@ -115,28 +139,6 @@ FROM debian:12.0 AS chmod
 WORKDIR /cwd
 COPY src/glob_files.py src/main.py src/run.sh ./
 RUN chmod a+x glob_files.py main.py run.sh
-
-FROM debian:12.0 AS python
-WORKDIR /cwd
-COPY linters/requirements.txt ./
-ENV PIP_DISABLE_PIP_VERSION_CHECK=1
-ENV PYTHONDONTWRITEBYTECODE=1
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-dev python3-pip && \
-    rm -rf /var/lib/apt/lists/* && \
-    python3 -m pip install --no-cache-dir --requirement requirements.txt --target install
-
-FROM debian:12.0 AS composer
-WORKDIR /cwd
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl php php-cli php-common php-mbstring php-zip && \
-    curl -fLsS https://getcomposer.org/installer -o composer-setup.php && \
-    mkdir -p /cwd/linters/composer/bin && \
-    php composer-setup.php --install-dir=/cwd/linters/composer/bin --filename=composer && \
-    rm -rf /var/lib/apt/lists/* composer-setup.php
-WORKDIR /cwd/linters
-COPY linters/composer.json linters/composer.lock ./
-RUN PATH="/cwd/linters/composer/bin:$PATH" composer install --no-cache
 
 # TODO: Remove curl stage
 FROM debian:12.0 AS curl
