@@ -153,8 +153,9 @@ WORKDIR /app/linters
 COPY --from=composer /cwd/linters/vendor ./vendor
 COPY --from=node /cwd/linters/node_modules ./node_modules
 COPY --from=python /cwd/install ./python
-COPY --from=composer /cwd/linters/composer/bin/composer ./bin/
-COPY --from=upx /cwd/checkmake /cwd/circleci /cwd/dotenv-linter /cwd/ec /cwd/hadolint /cwd/shellcheck /cwd/shellharden /cwd/shfmt /cwd/stoml /cwd/tomljson ./bin/
+WORKDIR /app/linters/bin
+COPY --from=composer /cwd/linters/composer/bin/composer ./
+COPY --from=upx /cwd/checkmake /cwd/circleci /cwd/dotenv-linter /cwd/ec /cwd/hadolint /cwd/shellcheck /cwd/shellharden /cwd/shfmt /cwd/stoml /cwd/tomljson ./
 
 ### Main runner ###
 
