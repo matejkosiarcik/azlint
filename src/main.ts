@@ -32,10 +32,7 @@ import { Linters } from './linters';
             alias: 'n', describe: 'Dry run', type: 'boolean',
         })
         .option('color', {
-            describe: 'Colored output', type: 'string', choices: ['auto', 'always', 'never'], default: 'auto',
-        })
-        .option('progress', {
-            describe: 'Display progress', type: 'string', choices: ['auto', 'always', 'never'], default: 'auto',
+            describe: 'Colored output', type: 'string', choices: ['auto', 'never', 'always'], default: 'auto',
         })
         .command('lint', 'Lint project (default)', (yargs) => {
             yargs.usage('Usage: azlint lint [options...] [dir]');
@@ -92,7 +89,7 @@ import { Linters } from './linters';
         process.exit(1);
     })();
     const color = argv.color as ColorOptions;
-    const progress = argv.progress as ProgressOptions;
+    const progress: ProgressOptions = 'no'; // = argv.progress as ProgressOptions;
 
     // Set global properties
     setLogSettings({
