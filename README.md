@@ -197,11 +197,13 @@ Where `VALIDATE_FOO` can be found in the following section.
 | [composer-normalize](https://github.com/ergebnis/composer-normalize)             | `VALIDATE_COMPOSER_NORMALIZE` | `composer.json`         | ✅      |
 | [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)              | `VALIDATE_COMPOSER_VALIDATE`  | `composer.json`         | ❌      |
 | [dotenv-linter](https://github.com/dotenv-linter/dotenv-linter)                  | `VALIDATE_DOTENV`             | `*.env`                 | ❌      |
-| [jsonlint](https://github.com/prantlf/jsonlint)                                  | `VALIDATE_JSONLINT`           | `*.json`                | ❌      |
+| [jsonlint](https://github.com/prantlf/jsonlint)                                  | `VALIDATE_JSONLINT`           | `*.json`                | ❌*     |
 | [package-json-validator](https://github.com/gorillamania/package.json-validator) | `VALIDATE_PACKAGE_JSON`       | `package.json`          | ❌      |
 | [prettier](https://github.com/prettier/prettier)                                 | `VALIDATE_PRETTIER`           | `*.{json,yml,css,html}` | ✅      |
 | [tomljson](https://github.com/pelletier/go-toml)                                 | `VALIDATE_TOMLJSON`           | `*.toml`                | ❌      |
 | [yamllint](https://github.com/adrienverge/yamllint)                              | `VALIDATE_YAMLLINT`           | `*.{yml,yaml}`          | ❌      |
+
+_Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 
 ### CI
 
@@ -259,13 +261,15 @@ Where `VALIDATE_FOO` can be found in the following section.
 
 | tool                                                | disable                | files  | autofix |
 | --------------------------------------------------- | ---------------------- | ------ | ------- |
-| [autopep8](https://github.com/hhatto/autopep8)      | `VALIDATE_AUTOPEP8`    | `*.py` | ✅      |
+| [autopep8](https://github.com/hhatto/autopep8)      | `VALIDATE_AUTOPEP8`    | `*.py` | ❌*     |
 | [black](https://github.com/psf/black)               | `VALIDATE_BLACK`       | `*.py` | ✅      |
 | [flake8](https://github.com/PyCQA/flake8)           | `VALIDATE_FLAKE8`      | `*.py` | ❌      |
 | [isort](https://github.com/PyCQA/isort)             | `VALIDATE_ISORT`       | `*.py` | ✅      |
 | [pycodestyle](https://github.com/PyCQA/pycodestyle) | `VALIDATE_PYCODESTYLE` | `*.py` | ❌      |
 | [pylint](https://github.com/PyCQA/pylint/)          | `VALIDATE_PYLINT`      | `*.py` | ❌      |
 | [mypy](https://github.com/python/mypy)              | `VALIDATE_MYPY`        | `*.py` | ❌      |
+
+_Autopep8*_ - Formatting conflicts with black, so it is turned off.
 
 <!-- List of unsuitable tools -->
 <!-- [stoml](https://github.com/freshautomations/stoml) - Can't deal with "'" in toml section headings (sometimes used in Cargo.toml) -->
