@@ -723,12 +723,20 @@ export class Linters {
             }
         });
 
-        // Pip dry-run
+        // Pip install dry-run
         await this.runLinter({
-            linterName: 'pip-dry-run',
-            envName: 'PIP_DRY_RUN',
-        fileMatch: ['requirements.txt', 'requirements-*.txt', 'requirements_*.txt', '*-requirements.txt', '*_requirements.txt'],
+            linterName: 'pip-install-dry-run',
+            envName: 'PIP_INSTALL_DRY_RUN',
+            fileMatch: ['requirements.txt', 'requirements-*.txt', 'requirements_*.txt', '*-requirements.txt', '*_requirements.txt'],
             lintFile: { args: ['python3', '-m', 'pip', 'install', '--dry-run', '--ignore-installed', '--break-system-packages', '--requirement', '#file#'] },
+        });
+
+        // NPM install dry-run
+        await this.runLinter({
+            linterName: 'npm-install-dry-run',
+            envName: 'NPM_INSTALL_DRY_RUN',
+            fileMatch: ['package.json'],
+            lintFile: { args: ['npm', 'install', '--dry-run', '--prefix', '#directory#'] },
         });
 
         /* Docker */
