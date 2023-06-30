@@ -46,14 +46,15 @@ RUN apt-get update && \
 # Rust/Cargo #
 FROM rust:1.70.0-slim-bookworm AS rust
 WORKDIR /cwd
-COPY package.json package-lock.json cargo-packages.js ./
+COPY package.json package-lock.json ./
+COPY utils/cargo-packages.js ./utils/
 COPY linters/Cargo.toml ./linters/
 ENV NODE_OPTIONS=--dns-result-order=ipv4first
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs npm && \
     rm -rf /var/lib/apt/lists/* && \
     npm ci --unsafe-perm && \
-    node cargo-packages.js | while read -r package version; do \
+    node utils/cargo-packages.js | while read -r package version; do \
         cargo install "$package" --force --version "$version"; \
     done
 
@@ -114,10 +115,12 @@ RUN apt-get update && \
 
 # Pre-Final #
 FROM debian:12.0-slim AS pre-final
+WORKDIR /app
+COPY VERSION.txt ./
 WORKDIR /app/cli
 COPY --from=node /cwd/cli ./
 COPY --from=node /cwd/node_modules ./node_modules
-COPY src/shell-dry.sh src/find_files.py ./
+COPY src/shell-dry-run.sh src/find_files.py ./
 WORKDIR /app/bin
 RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azlint && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >fmt && \

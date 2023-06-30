@@ -40,7 +40,6 @@ import { Linters } from './linters';
         .command('fmt', 'Format project (autofix)', (yargs) => {
             yargs.usage('Usage: azlint fmt [options...] [dir]');
         })
-        .demandCommand()
         .strictCommands()
         .positional('dir', {
             describe: 'Path to project directory', type: 'string', default: '.',
@@ -51,10 +50,11 @@ import { Linters } from './linters';
         dotenv.config({ path: path.join(__dirname, '..', '.env') });
     }
 
-    // Shortcircuit version
+    // Output `version` if requested
     if (argv.version) {
-        console.log(`${argv.$0} 1.2.3`); // TODO: load version dynamically
-        return;
+        const version = fs.readFileSync(path.join(__dirname, '..', 'VERSION.txt'), 'utf8').trim();
+        console.log(`${argv.$0} ${version}`);
+        process.exit(0);
     }
 
     if (argv.quiet && argv.verbose > 0) {
