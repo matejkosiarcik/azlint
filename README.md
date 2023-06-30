@@ -189,7 +189,9 @@ Where `VALIDATE_FOO` can be found in the following section.
 | tool                                                                                 | disable                         | files | autofix |
 |--------------------------------------------------------------------------------------|---------------------------------|-------|---------|
 | [editorconfig-checker](https://github.com/editorconfig-checker/editorconfig-checker) | `VALIDATE_EDITORCONFIG_CHECKER` | `*`   | ❌       |
+| [eclint](https://github.com/jednano/eclint)                                          | `VALIDATE_ECLINT`               | `*`   | ❌       |
 | git check-ignore                                                                     | `VALIDATE_GITIGNORE`            | `*`   | ✅       |
+| [jscpd](https://github.com/kucherenko/jscpd)                                         | `VALIDATE_JSCPD`                | `*`   | ❌       |
 
 ### General configs
 
@@ -198,6 +200,7 @@ Where `VALIDATE_FOO` can be found in the following section.
 | [dotenv-linter](https://github.com/dotenv-linter/dotenv-linter) | `VALIDATE_DOTENV`   | `*.env`                 | ❌       |
 | [jsonlint](https://github.com/prantlf/jsonlint)                 | `VALIDATE_JSONLINT` | `*.json`                | ❌*      |
 | [prettier](https://github.com/prettier/prettier)                | `VALIDATE_PRETTIER` | `*.{json,yml,css,html}` | ✅       |
+| [stoml](https://github.com/freshautomations/stoml)              | `VALIDATE_STOML`    | `*.{cfg,ini,toml}`      | ❌       |
 | [tomljson](https://github.com/pelletier/go-toml)                | `VALIDATE_TOMLJSON` | `*.toml`                | ❌       |
 | [yamllint](https://github.com/adrienverge/yamllint)             | `VALIDATE_YAMLLINT` | `*.{yml,yaml}`          | ❌       |
 
@@ -205,11 +208,14 @@ _Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 
 ### Package managers
 
-| tool                                                                             | disable                       | files           | autofix |
-|----------------------------------------------------------------------------------|-------------------------------|-----------------|---------|
-| [composer-normalize](https://github.com/ergebnis/composer-normalize)             | `VALIDATE_COMPOSER_NORMALIZE` | `composer.json` | ✅       |
-| [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)              | `VALIDATE_COMPOSER_VALIDATE`  | `composer.json` | ❌       |
-| [package-json-validator](https://github.com/gorillamania/package.json-validator) | `VALIDATE_PACKAGE_JSON`       | `package.json`  | ❌       |
+| tool                                                                             | disable                       | files              | autofix |
+|----------------------------------------------------------------------------------|-------------------------------|--------------------|---------|
+| [composer-normalize](https://github.com/ergebnis/composer-normalize)             | `VALIDATE_COMPOSER_NORMALIZE` | `composer.json`    | ✅       |
+| [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)              | `VALIDATE_COMPOSER_VALIDATE`  | `composer.json`    | ❌       |
+| [composer-install](https://getcomposer.org)                                      | `VALIDATE_COMPOSER_INSTALL`   | `composer.json`    | ❌       |
+| [npm-install](https://docs.npmjs.com/cli/v6/commands/npm-install)                | `VALIDATE_NPM_INSTALL`        | `package.json`     | ❌       |
+| [package-json-validator](https://github.com/gorillamania/package.json-validator) | `VALIDATE_PACKAGE_JSON`       | `package.json`     | ❌       |
+| [pip-install](https://pip.pypa.io/en/stable/cli/pip_install)                     | `VALIDATE_PIP_INSTALL`        | `requirements.txt` | ❌       |
 
 ### CI/CD services
 
@@ -226,7 +232,7 @@ _Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 |--------------------------------------------------|----------------------|-----------------|---------|
 | [bmake](https://man.netbsd.org/make.1)           | `VALIDATE_BMAKE`     | `Makefile` etc. | ❌       |
 | [checkmake](https://github.com/mrtazz/checkmake) | `VALIDATE_CHECKMAKE` | `Makefile` etc. | ❌       |
-| [gmake](https://www.gnu.org/software/make/)      | `VALIDATE_GMAKE`     | `Makefile` etc. | ❌       |
+| [gmake](https://www.gnu.org/software/make)       | `VALIDATE_GMAKE`     | `Makefile` etc. | ❌       |
 
 ### Dockerfile
 
@@ -246,11 +252,12 @@ _Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 
 ### Documentation
 
-| tool                                                                | disable                        | files  | autofix |
-|---------------------------------------------------------------------|--------------------------------|--------|---------|
-| [markdown-link-check](https://github.com/tcort/markdown-link-check) | `VALIDATE_MARKDOWN_LINK_CHECK` | `*.md` | ❌       |
-| [markdownlint](https://github.com/DavidAnson/markdownlint)          | `VALIDATE_MARKDOWNLINT`        | `*.md` | ✅       |
-| [mdl](https://github.com/markdownlint/markdownlint)                 | `VALIDATE_MDL`                 | `*.md` | ❌       |
+| tool                                                                | disable                        | files        | autofix |
+|---------------------------------------------------------------------|--------------------------------|--------------|---------|
+| [markdown-link-check](https://github.com/tcort/markdown-link-check) | `VALIDATE_MARKDOWN_LINK_CHECK` | `*.md`       | ❌       |
+| [markdownlint](https://github.com/DavidAnson/markdownlint)          | `VALIDATE_MARKDOWNLINT`        | `*.md`       | ✅       |
+| [mdl](https://github.com/markdownlint/markdownlint)                 | `VALIDATE_MDL`                 | `*.md`       | ❌       |
+| [proselint](https://github.com/amperser/proselint)                  | `VALIDATE_PROSELINT`           | `*.{md,txt}` | ❌       |
 
 ### Shells
 
@@ -272,7 +279,7 @@ _Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 | [flake8](https://github.com/PyCQA/flake8)           | `VALIDATE_FLAKE8`      | `*.py` | ❌       |
 | [isort](https://github.com/PyCQA/isort)             | `VALIDATE_ISORT`       | `*.py` | ✅       |
 | [pycodestyle](https://github.com/PyCQA/pycodestyle) | `VALIDATE_PYCODESTYLE` | `*.py` | ❌       |
-| [pylint](https://github.com/PyCQA/pylint/)          | `VALIDATE_PYLINT`      | `*.py` | ❌       |
+| [pylint](https://github.com/PyCQA/pylint)           | `VALIDATE_PYLINT`      | `*.py` | ❌       |
 | [mypy](https://github.com/python/mypy)              | `VALIDATE_MYPY`        | `*.py` | ❌       |
 
 _Autopep8*_ - Formatting conflicts with black, so it is turned off.
