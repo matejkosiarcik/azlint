@@ -11,7 +11,7 @@ date="$(date +'%Y-%m-%d')"
 # mv "$tmpfile" package.json
 
 # CHANGELOG
-cat CHANGELOG.md | sed "s~## \\\\\\[Unreleased\\\\\\]~## \\\\[Unreleased\\\\]\n\n## \\\\[$version\\\\] - $date~g" >"$tmpfile"
+sed "s~## \\\\\\[Unreleased\\\\\\]~## \\\\[Unreleased\\\\]\n\n## \\\\[$version\\\\] - $date~g" <CHANGELOG.md >"$tmpfile"
 mv "$tmpfile" CHANGELOG.md
 
 rm -f "$tmpfile"
