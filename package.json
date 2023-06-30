@@ -1,5 +1,6 @@
 {
   "private": true,
+  "version": "0.6.0",
   "scripts": {
     "start": "ts-node src/main.ts",
     "lint": "npm start -- lint",
