@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `pip install --dry-run` for `requirements.txt` files
     - `eclint` for all files
     - `stoml` for `*.{toml,svg,ini}` files
+    - `proselint` for `*.{md,txt}` files
 - Fixed
   - Reenable linters `jsonlint` and `markdownlint`
 - Miscellaneous
