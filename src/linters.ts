@@ -706,35 +706,39 @@ export class Linters {
             envName: 'COMPOSER_NORMALIZE',
             fileMatch: 'composer.json',
             lintFile: {
-                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '--dry-run', '--diff', '#filename#'],
-                options: (file) => {
-                    return {
-                        cwd: path.dirname(file),
-                    }
+                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '--dry-run', '--diff', '#file[abs]#'],
+                options: {
+                    cwd: path.resolve(path.join(__dirname, '..', 'linters')),
                 },
             },
             fmtFile: {
-                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '#filename#'],
-                options: (file) => {
-                    return {
-                        cwd: path.dirname(file),
-                    }
+                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '#file[abs]#'],
+                options: {
+                    cwd: path.resolve(path.join(__dirname, '..', 'linters')),
                 },
             }
         });
 
-        // Pip install dry-run
+        // Composer install
         await this.runLinter({
-            linterName: 'pip-install-dry-run',
-            envName: 'PIP_INSTALL_DRY_RUN',
+            linterName: 'composer-install',
+            envName: 'COMPOSER_INSTALL',
+            fileMatch: 'composer.json',
+            lintFile: { args: ['composer', 'install', '--dry-run', '--working-dir=#directory#'], },
+        });
+
+        // Pip install
+        await this.runLinter({
+            linterName: 'pip-install',
+            envName: 'PIP_INSTALL',
             fileMatch: ['requirements.txt', 'requirements-*.txt', 'requirements_*.txt', '*-requirements.txt', '*_requirements.txt'],
             lintFile: { args: ['python3', '-m', 'pip', 'install', '--dry-run', '--ignore-installed', '--break-system-packages', '--requirement', '#file#'] },
         });
 
-        // NPM install dry-run
+        // NPM install
         await this.runLinter({
-            linterName: 'npm-install-dry-run',
-            envName: 'NPM_INSTALL_DRY_RUN',
+            linterName: 'npm-install',
+            envName: 'NPM_INSTALL',
             fileMatch: ['package.json'],
             lintFile: { args: ['npm', 'install', '--dry-run', '--prefix', '#directory#'] },
         });
