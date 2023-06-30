@@ -6,7 +6,7 @@ function setup() {
     # if [ -z "${COMMAND+x}" ]; then exit 1; fi
     tmpdir="$(mktemp -d)"
     export tmpdir
-    . src/shell-dry.sh # source main script to verify functions
+    . src/shell-dry-run.sh # source main script to verify functions
 }
 
 function extension_test() {

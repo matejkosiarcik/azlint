@@ -14,7 +14,7 @@ brew "make"
 brew "bmake"
 brew "bsdmake"
 
-# Shells for shell-dry
+# Shells for shell-dry-run
 brew "bash"
 brew "dash"
 brew "ksh93"

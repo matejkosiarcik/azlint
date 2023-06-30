@@ -572,12 +572,12 @@ export class Linters {
             lintFile: { args: ['bats', '--count', "#file#"] },
         });
 
-        // Shell-dry
+        // Shell dry-run
         await this.runLinter({
             linterName: 'shell-dry-run',
             envName: 'SHELL_DRY_RUN',
             fileMatch: matchers.shell,
-            lintFile: { args: ['sh', path.join(__dirname, 'shell-dry.sh'), "#file#"] },
+            lintFile: { args: ['sh', path.join(__dirname, 'shell-dry-run.sh'), "#file#"] },
         });
 
         /* Python */

@@ -120,7 +120,7 @@ COPY VERSION.txt ./
 WORKDIR /app/cli
 COPY --from=node /cwd/cli ./
 COPY --from=node /cwd/node_modules ./node_modules
-COPY src/shell-dry.sh src/find_files.py ./
+COPY src/shell-dry-run.sh src/find_files.py ./
 WORKDIR /app/bin
 RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azlint && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >fmt && \
