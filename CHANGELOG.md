@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `markdown-table-formatter` for `*.md` files
     - `pip install --dry-run` for `requirements.txt` files
     - `npm install --dry-run` for `package.json` files
+    - `composer install --dry-run` for `composer.json` files
 - Fixed
   - Reenable linters `jsonlint` and `markdownlint`
 - Miscellaneous
