@@ -828,7 +828,7 @@ export class Linters {
             linterName: 'jscpd',
             envName: 'JSCPD',
             fileMatch: '*',
-            lintFile: { args: ['jscpd', ...jscpdConfigArgs, '--output', jscpdTmpdir, '#file#'] },
+            lintFile: { args: ['exitzero', 'jscpd', ...jscpdConfigArgs, '--output', jscpdTmpdir, '#file#'] },
         });
         await fs.rm(jscpdTmpdir, { force: true, recursive: true });
 
