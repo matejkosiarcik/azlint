@@ -6,6 +6,8 @@ brew "node"
 brew "python3"
 brew "ruby"
 brew "ruby-build"
+brew "ghc"
+brew "cabal-install"
 
 # Makes
 brew "make"
@@ -23,10 +25,12 @@ brew "zsh"
 
 # Others
 brew "libxml2"
-brew "hadolint"
-brew "shellcheck"
 brew "circleci"
 
-# Deprecated (installed by script now)
+# Haskell
+brew "hadolint"
+
+# No longer necessary below
 # brew "checkmake"
+# brew "shellcheck"
 # brew "shfmt"

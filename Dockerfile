@@ -1,6 +1,6 @@
 # checkov:skip=CKV_DOCKER_2:Disable HEALTHCHECK
 
-### Components ###
+### Linters ###
 
 # GoLang #
 FROM golang:1.20.5-bookworm AS go
@@ -35,7 +35,7 @@ RUN npm ci --unsafe-perm && \
     npm prune --production
 
 # Ruby/Gem #
-FROM debian:12.0 AS ruby
+FROM debian:12.0-slim AS ruby
 WORKDIR /cwd
 COPY linters/Gemfile linters/Gemfile.lock ./
 RUN apt-get update && \
@@ -44,7 +44,7 @@ RUN apt-get update && \
     BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install
 
 # Rust/Cargo #
-FROM rust:1.70.0-bookworm AS rust
+FROM rust:1.70.0-slim-bookworm AS rust
 WORKDIR /cwd
 COPY package.json package-lock.json cargo-packages.js ./
 COPY linters/Cargo.toml ./linters/
@@ -58,7 +58,7 @@ RUN apt-get update && \
     done
 
 # Python/Pip #
-FROM debian:12.0 AS python
+FROM debian:12.0-slim AS python
 WORKDIR /cwd
 COPY linters/requirements.txt ./
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
@@ -69,7 +69,7 @@ RUN apt-get update && \
     python3 -m pip install --no-cache-dir --requirement requirements.txt --target install
 
 # PHP/Composer #
-FROM debian:12.0 AS composer
+FROM debian:12.0-slim AS composer
 WORKDIR /cwd
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl php php-cli php-common php-mbstring php-zip && \
@@ -108,15 +108,9 @@ COPY --from=go /cwd/checkmake/checkmake /cwd/editorconfig-checker/bin/ec /cwd/bi
 COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter ./
 COPY --from=shellcheck /bin/shellcheck ./
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends upx-ucl && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends parallel upx-ucl && \
     rm -rf /var/lib/apt/lists/* && \
-    upx /cwd/checkmake && \
-    upx /cwd/circleci && \
-    upx /cwd/dotenv-linter && \
-    upx /cwd/shellcheck && \
-    upx /cwd/shellharden && \
-    upx /cwd/stoml && \
-    upx /cwd/tomljson
+    parallel upx --best ::: /cwd/*
 
 # Pre-Final #
 FROM debian:12.0-slim AS pre-final
@@ -142,7 +136,7 @@ COPY --from=upx /cwd/checkmake /cwd/circleci /cwd/dotenv-linter /cwd/ec /cwd/she
 
 ### Main runner ###
 
-FROM debian:12.0
+FROM debian:12.0-slim
 WORKDIR /app
 COPY --from=pre-final /app/ ./
 ENV PATH="$PATH:/app/bin"
