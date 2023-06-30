@@ -515,8 +515,8 @@ export class Linters {
             linterName: 'markdown-table-formatter',
             envName: 'MARKDOWN_TABLE_FORMATTER',
             fileMatch: matchers.markdown,
-            lintFile: { args: ['markdown-table-formatter', '--columnpadding', '1', '--check', '#file#'] },
-            fmtFile: { args: ['markdown-table-formatter', '--columnpadding', '1', '#file#'] },
+            lintFile: { args: ['markdown-table-formatter', '--check', '#file#'] },
+            fmtFile: { args: ['markdown-table-formatter', '#file#'] },
         });
 
         // Markdownlint
