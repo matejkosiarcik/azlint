@@ -115,8 +115,14 @@ export function logFixingSuccess(toolName: string, file: string, command?: Execa
     }
 }
 
+export function logFixingWarning(toolName: string, file: string, command: ExecaReturnValue<string>) {
+    logAlways(`⚠️ Warning fixing: ${greenColor}${toolName} - ${file}${endColor}`);
+    const cmdOutput = command.all ? `:\n${command.all}` : '';
+    logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`)
+}
+
 export function logFixingError(toolName: string, file: string, command: ExecaReturnValue<string>) {
-    logAlways(`❗️ Error fixing: ${greenColor}${toolName} - ${file}${endColor}`);
+    logAlways(`❌ Error fixing: ${greenColor}${toolName} - ${file}${endColor}`);
     const cmdOutput = command.all ? `:\n${command.all}` : '';
     logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`)
 }
