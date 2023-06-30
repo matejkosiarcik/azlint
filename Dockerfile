@@ -114,6 +114,8 @@ RUN apt-get update && \
 
 # Pre-Final #
 FROM debian:12.0-slim AS pre-final
+WORKDIR /app
+COPY VERSION.txt ./
 WORKDIR /app/cli
 COPY --from=node /cwd/cli ./
 COPY --from=node /cwd/node_modules ./node_modules

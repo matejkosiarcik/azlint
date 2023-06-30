@@ -52,11 +52,8 @@ import { Linters } from './linters';
 
     // Output `version` if requested
     if (argv.version) {
-        const packageJsonFile = [path.join(__dirname, 'package.json'), path.join(__dirname, '..', 'package.json')]
-            .find((file) => fs.existsSync(file))!;
-        const packageJsonText = fs.readFileSync(packageJsonFile, 'utf8');
-        const packageJsonObj = JSON.parse(packageJsonText);
-        console.log(`${argv.$0} ${packageJsonObj.version}`);
+        const version = fs.readFileSync(path.join(__dirname, '..', 'VERSION.txt'), 'utf8').trim();
+        console.log(`${argv.$0} ${version}`);
         process.exit(0);
     }
 
