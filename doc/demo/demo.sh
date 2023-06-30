@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 set -euf
 
-cd "$(dirname "$0")"
-# shellcheck disable=SC1091
-. ./gitman/demo-magic/demo-magic.sh
-# shellcheck disable=SC2034
-TYPE_SPEED=7
+cd "$(git rev-parse --show-toplevel)"
 
-cd '../..' # cd to project root
+# shellcheck source=doc/demo/gitman/demo-magic/demo-magic.sh
+. ./doc/demo/gitman/demo-magic/demo-magic.sh
+
+TYPE_SPEED=7
+export TYPE_SPEED
 
 clear
 pei 'docker run -itv "$PWD:/project:ro" matejkosiarcik/azlint:dev'
