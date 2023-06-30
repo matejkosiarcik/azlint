@@ -1,6 +1,5 @@
 {
   "private": true,
-  "name": "example",
   "dependencies": {
     "asciicast2gif": "^0.2.1"
   }

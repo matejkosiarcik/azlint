@@ -18,6 +18,7 @@ gitman/
 node_modules/
 dist-newstyle/
 .mypy_cache/
+venv/
 
 # build artifacts
 /cli/

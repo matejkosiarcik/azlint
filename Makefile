@@ -67,31 +67,19 @@ bootstrap:
 		# cabal install hadolint-2.12.0 && \
 		# cabal install ShellCheck-0.9.0
 
+	$(MAKE) -C doc/demo bootstrap
+
 .PHONY: build
 build:
 	docker build . --tag matejkosiarcik/azlint:dev
 
-.PHONY: test
-test:
-	npm test --prefix tests
-
 .PHONY: run
-run: run-fmt run-lint
-
-.PHONY: run-lint
-run-lint:
+run:
 	docker run --interactive --tty --rm \
 		--volume "$(PROJECT_DIR):/project:ro" \
 		--env CONFIG_DIR=.config \
 		matejkosiarcik/azlint:dev lint
 
-.PHONY: run-fmt
-run-fmt:
-	docker run --interactive --tty --rm \
-		--volume "$(PROJECT_DIR):/project" \
-		--env CONFIG_DIR=.config \
-		matejkosiarcik/azlint:dev fmt
-
-.PHONY: doc
-doc:
-	@$(MAKE) -C$(PROJECT_DIR)/doc/demo bootstrap record
+.PHONY: test
+test:
+	npm test --prefix tests
