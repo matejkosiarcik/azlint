@@ -14,11 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Improve logging output
     - Add CLI option --color (auto|never|always), similar to grep's
   - Add new linters
-    - `pip install --dry-run` for `requirements.txt` files
     - `eclint` for all files
     - `stoml` for `*.{toml,svg,ini}` files
     - `proselint` for `*.{md,txt}` files
     - `markdown-table-formatter` for `*.md` files
+    - `pip install --dry-run` for `requirements.txt` files
+    - `npm install --dry-run` for `package.json` files
 - Fixed
   - Reenable linters `jsonlint` and `markdownlint`
 - Miscellaneous
