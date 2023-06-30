@@ -14,4 +14,5 @@
 - Add documentation for new linters:
   - eclint
   - pip --dry-run
+  - proselint
   - stoml

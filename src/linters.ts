@@ -536,6 +536,15 @@ export class Linters {
             lintFile: { args: ['markdown-link-check', '--quiet', ...markdownLinkCheckConfigArgs, '--retry', "#file#"] },
         });
 
+        // Markdown link check
+        const proselintConfigArgs = getConfigArgs('PROSELINT', '--config', ['proselintrc', '.proselintrc']);
+        await this.runLinter({
+            linterName: 'proselint',
+            envName: 'PROSELINT',
+            fileMatch: [matchers.markdown, '*.txt'],
+            lintFile: { args: ['proselint', ...proselintConfigArgs, "#file#"] },
+        });
+
         /* Shell */
 
         // Shfmt
