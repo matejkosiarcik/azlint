@@ -252,11 +252,11 @@ _Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 
 ### Documentation
 
-| tool                                                       | disable                 | files  | autofix |
-|------------------------------------------------------------|-------------------------|--------|---------|
+| tool                                                                | disable                        | files        | autofix |
+|---------------------------------------------------------------------|--------------------------------|--------------|---------|
 | [markdown-link-check](https://github.com/tcort/markdown-link-check) | `VALIDATE_MARKDOWN_LINK_CHECK` | `*.md`       | ❌       |
-| [markdownlint](https://github.com/DavidAnson/markdownlint) | `VALIDATE_MARKDOWNLINT` | `*.md` | ✅       |
-| [mdl](https://github.com/markdownlint/markdownlint)        | `VALIDATE_MDL`          | `*.md` | ❌       |
+| [markdownlint](https://github.com/DavidAnson/markdownlint)          | `VALIDATE_MARKDOWNLINT`        | `*.md`       | ✅       |
+| [mdl](https://github.com/markdownlint/markdownlint)                 | `VALIDATE_MDL`                 | `*.md`       | ❌       |
 | [proselint](https://github.com/amperser/proselint)                  | `VALIDATE_PROSELINT`           | `*.{md,txt}` | ❌       |
 
 ### Shells
