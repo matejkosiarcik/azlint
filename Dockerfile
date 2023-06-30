@@ -1,6 +1,6 @@
 # checkov:skip=CKV_DOCKER_2:Disable HEALTHCHECK
 
-### Components ###
+### Linters ###
 
 # GoLang #
 FROM golang:1.20.5-bookworm AS go
@@ -108,15 +108,9 @@ COPY --from=go /cwd/checkmake/checkmake /cwd/editorconfig-checker/bin/ec /cwd/bi
 COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter ./
 COPY --from=shellcheck /bin/shellcheck ./
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends upx-ucl && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends parallel upx-ucl && \
     rm -rf /var/lib/apt/lists/* && \
-    upx /cwd/checkmake && \
-    upx /cwd/circleci && \
-    upx /cwd/dotenv-linter && \
-    upx /cwd/shellcheck && \
-    upx /cwd/shellharden && \
-    upx /cwd/stoml && \
-    upx /cwd/tomljson
+    parallel upx --best ::: /cwd/*
 
 # Pre-Final #
 FROM debian:12.0-slim AS pre-final
