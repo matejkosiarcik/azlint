@@ -31,7 +31,6 @@ RUN npm ci --unsafe-perm && \
 WORKDIR /cwd/linters
 COPY linters/package.json linters/package-lock.json ./
 RUN npm ci --unsafe-perm && \
-    npx node-prune && \
     npm prune --production
 
 # Ruby/Gem #
@@ -127,7 +126,7 @@ RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azl
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint lint $@' >lint && \
     chmod a+x azlint fmt lint
 WORKDIR /app/linters
-COPY linters/Gemfile linters/Gemfile.lock ./
+COPY linters/Gemfile linters/Gemfile.lock linters/composer.json ./
 COPY --from=composer /cwd/linters/vendor ./vendor
 COPY --from=node /cwd/linters/node_modules ./node_modules
 COPY --from=python /cwd/install ./python
@@ -145,7 +144,7 @@ COPY --from=pre-final /app/ ./
 ENV PATH="$PATH:/app/bin"
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
-        bmake bundler git libxml2-utils make nodejs npm php python3 python3-pip ruby \
+        bmake bundler git libxml2-utils make nodejs npm php php-mbstring python3 python3-pip ruby \
         ash bash dash ksh ksh93u+m mksh posh yash zsh && \
     rm -rf /var/lib/apt/lists/* && \
     git config --system --add safe.directory '*' && \

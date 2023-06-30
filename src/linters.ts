@@ -539,22 +539,25 @@ export class Linters {
         });
 
         // Markdown link check
-        const markdownLinkCheckConfigArgs = getConfigArgs('MARKDOWN_LINK_CHECK', '--config', ['markdown-link-check.json', '.markdown-link-check.json']);
-        await this.runLinter({
-            linterName: 'markdown-link-check',
-            envName: 'MARKDOWN_LINK_CHECK',
-            fileMatch: matchers.markdown,
-            lintFile: { args: ['markdown-link-check', '--quiet', ...markdownLinkCheckConfigArgs, '--retry', "#file#"] },
-        });
+        // TODO: Execute markdown-link-check sequentially (because it can overwhelm network)
+        // TODO: Add retry mechanism for markdown-link-check (and other linters which rely on network)
+        // const markdownLinkCheckConfigArgs = getConfigArgs('MARKDOWN_LINK_CHECK', '--config', ['markdown-link-check.json', '.markdown-link-check.json']);
+        // await this.runLinter({
+        //     linterName: 'markdown-link-check',
+        //     envName: 'MARKDOWN_LINK_CHECK',
+        //     fileMatch: matchers.markdown,
+        //     lintFile: { args: ['markdown-link-check', '--quiet', ...markdownLinkCheckConfigArgs, '--retry', '--verbose', "#file#"] },
+        // });
 
-        // Markdown link check
-        const proselintConfigArgs = getConfigArgs('PROSELINT', '--config', ['proselintrc', '.proselintrc']);
-        await this.runLinter({
-            linterName: 'proselint',
-            envName: 'PROSELINT',
-            fileMatch: [matchers.markdown, '*.txt'],
-            lintFile: { args: ['proselint', ...proselintConfigArgs, "#file#"] },
-        });
+        // Proselint
+        // TODO: Execute proselint sequentially (because it has shared cache file)
+        // const proselintConfigArgs = getConfigArgs('PROSELINT', '--config', ['proselintrc', '.proselintrc']);
+        // await this.runLinter({
+        //     linterName: 'proselint',
+        //     envName: 'PROSELINT',
+        //     fileMatch: [matchers.markdown, '*.txt'],
+        //     lintFile: { args: ['proselint', ...proselintConfigArgs, '--clean', "#file#"] },
+        // });
 
         /* Shell */
 
@@ -735,13 +738,14 @@ export class Linters {
             lintFile: { args: ['python3', '-m', 'pip', 'install', '--dry-run', '--ignore-installed', '--break-system-packages', '--requirement', '#file#'] },
         });
 
+        // TODO: Execute npm outside of project directory, because it can be readonly and fails
         // NPM install
-        await this.runLinter({
-            linterName: 'npm-install',
-            envName: 'NPM_INSTALL',
-            fileMatch: ['package.json'],
-            lintFile: { args: ['npm', 'install', '--dry-run', '--prefix', '#directory#'] },
-        });
+        // await this.runLinter({
+        //     linterName: 'npm-install',
+        //     envName: 'NPM_INSTALL',
+        //     fileMatch: ['package.json'],
+        //     lintFile: { args: ['npm', 'install', '--dry-run', '--prefix', '#directory#'] },
+        // });
 
         /* Docker */
 
