@@ -183,29 +183,34 @@ Where `VALIDATE_FOO` can be found in the following section.
 
 ## Included linters
 
-### General
+### All files
 
 | tool                                                                                 | disable                         | files | autofix |
 |--------------------------------------------------------------------------------------|---------------------------------|-------|---------|
 | [editorconfig-checker](https://github.com/editorconfig-checker/editorconfig-checker) | `VALIDATE_EDITORCONFIG_CHECKER` | `*`   | ❌       |
 | git check-ignore                                                                     | `VALIDATE_GITIGNORE`            | `*`   | ✅       |
 
-### Configs
+### General configs
 
-| tool                                                                             | disable                       | files                   | autofix |
-|----------------------------------------------------------------------------------|-------------------------------|-------------------------|---------|
-| [composer-normalize](https://github.com/ergebnis/composer-normalize)             | `VALIDATE_COMPOSER_NORMALIZE` | `composer.json`         | ✅       |
-| [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)              | `VALIDATE_COMPOSER_VALIDATE`  | `composer.json`         | ❌       |
-| [dotenv-linter](https://github.com/dotenv-linter/dotenv-linter)                  | `VALIDATE_DOTENV`             | `*.env`                 | ❌       |
-| [jsonlint](https://github.com/prantlf/jsonlint)                                  | `VALIDATE_JSONLINT`           | `*.json`                | ❌*      |
-| [package-json-validator](https://github.com/gorillamania/package.json-validator) | `VALIDATE_PACKAGE_JSON`       | `package.json`          | ❌       |
-| [prettier](https://github.com/prettier/prettier)                                 | `VALIDATE_PRETTIER`           | `*.{json,yml,css,html}` | ✅       |
-| [tomljson](https://github.com/pelletier/go-toml)                                 | `VALIDATE_TOMLJSON`           | `*.toml`                | ❌       |
-| [yamllint](https://github.com/adrienverge/yamllint)                              | `VALIDATE_YAMLLINT`           | `*.{yml,yaml}`          | ❌       |
+| tool                                                            | disable             | files                   | autofix |
+|-----------------------------------------------------------------|---------------------|-------------------------|---------|
+| [dotenv-linter](https://github.com/dotenv-linter/dotenv-linter) | `VALIDATE_DOTENV`   | `*.env`                 | ❌       |
+| [jsonlint](https://github.com/prantlf/jsonlint)                 | `VALIDATE_JSONLINT` | `*.json`                | ❌*      |
+| [prettier](https://github.com/prettier/prettier)                | `VALIDATE_PRETTIER` | `*.{json,yml,css,html}` | ✅       |
+| [tomljson](https://github.com/pelletier/go-toml)                | `VALIDATE_TOMLJSON` | `*.toml`                | ❌       |
+| [yamllint](https://github.com/adrienverge/yamllint)             | `VALIDATE_YAMLLINT` | `*.{yml,yaml}`          | ❌       |
 
 _Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 
-### CI
+### Package managers
+
+| tool                                                                             | disable                       | files           | autofix |
+|----------------------------------------------------------------------------------|-------------------------------|-----------------|---------|
+| [composer-normalize](https://github.com/ergebnis/composer-normalize)             | `VALIDATE_COMPOSER_NORMALIZE` | `composer.json` | ✅       |
+| [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)              | `VALIDATE_COMPOSER_VALIDATE`  | `composer.json` | ❌       |
+| [package-json-validator](https://github.com/gorillamania/package.json-validator) | `VALIDATE_PACKAGE_JSON`       | `package.json`  | ❌       |
+
+### CI/CD services
 
 | tool                                                               | disable                      | files                  | autofix |
 |--------------------------------------------------------------------|------------------------------|------------------------|---------|
@@ -214,7 +219,7 @@ _Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 | [gitlab-ci-validate](https://github.com/pradel/gitlab-ci-validate) | `VALIDATE_GITLABCI_VALIDATE` | `.gitlab-ci.yml`       | ❌       |
 | [travis-lint](https://github.com/travis-ci/travis.rb#lint)         | `VALIDATE_TRAVIS_LINT`       | `.travis.yml`          | ❌       |
 
-### Make
+### Makefile
 
 | tool                                             | disable              | files           | autofix |
 |--------------------------------------------------|----------------------|-----------------|---------|
@@ -222,14 +227,14 @@ _Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 | [checkmake](https://github.com/mrtazz/checkmake) | `VALIDATE_CHECKMAKE` | `Makefile` etc. | ❌       |
 | [gmake](https://www.gnu.org/software/make/)      | `VALIDATE_GMAKE`     | `Makefile` etc. | ❌       |
 
-### Docker
+### Dockerfile
 
 | tool                                                             | disable                   | files             | autofix |
 |------------------------------------------------------------------|---------------------------|-------------------|---------|
 | [dockerfilelint](https://github.com/replicatedhq/dockerfilelint) | `VALIDATE_DOCKERFILELINT` | `Dockerfile` etc. | ❌       |
 | [hadolint](https://github.com/hadolint/hadolint)                 | `VALIDATE_HADOLINT`       | `Dockerfile` etc. | ❌       |
 
-### Markup
+### XML derivations
 
 | tool                                             | disable             | files          | autofix |
 |--------------------------------------------------|---------------------|----------------|---------|
@@ -246,7 +251,7 @@ _Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 | [markdownlint](https://github.com/DavidAnson/markdownlint)          | `VALIDATE_MARKDOWNLINT`        | `*.md` | ✅       |
 | [mdl](https://github.com/markdownlint/markdownlint)                 | `VALIDATE_MDL`                 | `*.md` | ❌       |
 
-### Shell
+### Shells
 
 | tool                                                  | disable                  | files       | autofix |
 |-------------------------------------------------------|--------------------------|-------------|---------|
