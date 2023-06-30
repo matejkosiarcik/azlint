@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Add CLI option --color (auto|never|always), similar to grep's
   - Add new linters
     - `pip install --dry-run` for `requirements.txt` files
-    - `eclint` (editorconfig) for all files
+    - `eclint` for all files
     - `stoml` for `*.{toml,svg,ini}` files
 - Fixed
   - Reenable linters `jsonlint` and `markdownlint`
