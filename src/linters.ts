@@ -458,7 +458,7 @@ export class Linters {
         await this.runLinter({
             linterName: 'stoml',
             envName: 'STOML',
-            fileMatch: ['*.toml', '*.cfg', '*.ini'],
+            fileMatch: '*.{toml,cfg,ini}',
             lintFile: { args: ['stoml', '#file#', '.'] },
         });
 
