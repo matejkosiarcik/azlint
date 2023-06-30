@@ -179,10 +179,10 @@ Where `VALIDATE_FOO` can be found in the following section.
 
 ### General
 
-| tool                                                                                 | disable                 | files | autofix |
-| ------------------------------------------------------------------------------------ | ----------------------- | ----- | ------- |
-| [editorconfig-checker](https://github.com/editorconfig-checker/editorconfig-checker) | `VALIDATE_EDITORCONFIG` | `*`   | ❌      |
-| git check-ignore                                                                     | `VALIDATE_GITIGNORE`    | `*`   | ✅      |
+| tool                                                                                 | disable                         | files | autofix |
+| ------------------------------------------------------------------------------------ | ------------------------------- | ----- | ------- |
+| [editorconfig-checker](https://github.com/editorconfig-checker/editorconfig-checker) | `VALIDATE_EDITORCONFIG_CHECKER` | `*`   | ❌      |
+| git check-ignore                                                                     | `VALIDATE_GITIGNORE`            | `*`   | ✅      |
 
 ### Configs
 
