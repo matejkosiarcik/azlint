@@ -9,6 +9,7 @@
     "gitlab-ci-validate": "^0.5.0",
     "htmlhint": "^1.1.4",
     "htmllint-cli": "^0.0.7",
+    "jscpd": "^3.5.9",
     "markdown-link-check": "^3.11.2",
     "markdownlint-cli": "^0.35.0",
     "package-json-validator": "^0.6.3",
