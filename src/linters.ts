@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import fsSync from 'fs';
 import path from "path";
+import os from 'os';
 import { Options as ExecaOptions } from "@esm2cjs/execa";
 import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from "./log";
 import { customExeca, hashFile, isCwdGitRepo, ProgressOptions, wildcard2regex } from "./utils";
@@ -404,6 +405,14 @@ export class Linters {
             lintFile: { args: ['ec', '#file#'] },
         });
 
+        // ECLint
+        await this.runLinter({
+            linterName: 'eclint',
+            envName: 'ECLINT',
+            fileMatch: '*',
+            lintFile: { args: ['eclint', '#file#'] },
+        });
+
         /* HTML, JSON, SVG, TOML, XML, YAML */
 
         // Prettier
@@ -426,6 +435,7 @@ export class Linters {
             envName: 'JSONLINT',
             fileMatch: matchers.json,
             lintFile: { args: ['jsonlint', ...jsonlintConfigArgs, '--quiet', '--comments', '--no-duplicate-keys', '#file#'] },
+            // fmtFile: { args: ['jsonlint', ...jsonlintConfigArgs, '--quiet', '--comments', '--no-duplicate-keys', '--in-place', '--pretty-print', '#file#'] }, // NOTE: Conflicts with prettier
         });
 
         // Yamllint
@@ -450,7 +460,7 @@ export class Linters {
         await this.runLinter({
             linterName: 'stoml',
             envName: 'STOML',
-            fileMatch: ['*.toml', '*.cfg', '*.ini'],
+            fileMatch: '*.{toml,cfg,ini}',
             lintFile: { args: ['stoml', '#file#', '.'] },
         });
 
@@ -528,6 +538,15 @@ export class Linters {
             lintFile: { args: ['markdown-link-check', '--quiet', ...markdownLinkCheckConfigArgs, '--retry', "#file#"] },
         });
 
+        // Markdown link check
+        const proselintConfigArgs = getConfigArgs('PROSELINT', '--config', ['proselintrc', '.proselintrc']);
+        await this.runLinter({
+            linterName: 'proselint',
+            envName: 'PROSELINT',
+            fileMatch: [matchers.markdown, '*.txt'],
+            lintFile: { args: ['proselint', ...proselintConfigArgs, "#file#"] },
+        });
+
         /* Shell */
 
         // Shfmt
@@ -583,13 +602,13 @@ export class Linters {
         /* Python */
 
         // Autopep8
-        // await this.runLinter({
-        //     linterName: 'autopep8',
-        //     envName: 'AUTOPEP8',
-        //     fileMatch: matchers.python,
-        //     lintFile: { args: ['autopep8', '--diff', "#file#"], },
-        //     fmtFile: { args: ['autopep8', '--in-place', "#file#"], },
-        // });
+        await this.runLinter({
+            linterName: 'autopep8',
+            envName: 'AUTOPEP8',
+            fileMatch: matchers.python,
+            lintFile: { args: ['autopep8', '--diff', "#file#"], },
+            // fmtFile: { args: ['autopep8', '--in-place', "#file#"], }, // NOTE: Conflicts with black
+        });
 
         // isort
         const isortConfigArgs = getPythonConfigArgs('ISORT', 'isort', '--settings-file', ['isort.cfg', '.isort.cfg'], ['pyproject.toml', 'setup.cfg', 'tox.ini']);
@@ -801,6 +820,18 @@ export class Linters {
                 },
             },
         });
+
+        // jscpd
+        const jscpdConfigArgs = getConfigArgs('JSCPD', '--config',
+            ['jscpd.json', '.jscpd.json']);
+        const jscpdTmpdir = await fs.mkdtemp(path.join(os.tmpdir(), 'azlint-jscpd-'));
+        await this.runLinter({
+            linterName: 'jscpd',
+            envName: 'JSCPD',
+            fileMatch: '*',
+            lintFile: { args: ['exitzero', 'jscpd', ...jscpdConfigArgs, '--output', jscpdTmpdir, '#file#'] },
+        });
+        await fs.rm(jscpdTmpdir, { force: true, recursive: true });
 
         /* End of linters */
 

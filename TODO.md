@@ -1,4 +1,4 @@
-# TODO
+# Todo
 
 - Linters:
   - markdown-table-format
@@ -11,6 +11,8 @@
   - Research how to pass config file to autopep8
   - More shells: loksh, oksh, hush
 
-- Add documentation
-  - Stoml
-  - Pip dry-run
+- Add documentation for new linters:
+  - eclint
+  - pip --dry-run
+  - proselint
+  - stoml

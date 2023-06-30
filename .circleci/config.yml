@@ -4,10 +4,19 @@ workflows:
   version: 2
   circleci:
     jobs:
-      - build
+      - test
+      - docker-build
 
 jobs:
-  build:
+  test:
+    docker:
+      - image: node:20.3.1
+    steps:
+      - checkout
+      - run: npm ci --prefix tests
+      - run: make test
+
+  docker-build:
     docker:
       - image: docker:24.0.2
     steps:
@@ -23,4 +32,5 @@ jobs:
           # So this workaround is needed for the time being
       - run: apk update --no-cache
       - run: apk add --no-cache make
-      - run: make build run-lint
+      - run: make build
+      - run: make run

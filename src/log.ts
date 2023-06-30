@@ -13,6 +13,7 @@ let level: LogLevel;
 
 let greenColor = '\x1b[32m';
 let redColor = '\x1b[31m';
+let yellowColor = '\x1b[93m';
 let endColor = '\x1b[0m';
 
 export function setLogSettings(options: {
@@ -82,6 +83,14 @@ export function logLintSuccess(toolName: string, file: string, command?: ExecaRe
     }
 }
 
+export function logLintWarning(toolName: string, file: string, command?: ExecaReturnValue<string>) {
+    logAlways(`⚠️ ${yellowColor}${toolName} - ${file}${endColor}`);
+    if (command) {
+        const cmdOutput = command.all ? `:\n${command.all}` : '';
+        logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
+    }
+}
+
 export function logLintFail(toolName: string, file: string, command?: ExecaReturnValue<string>) {
     logAlways(`❌ ${redColor}${toolName} - ${file}${endColor}`);
     if (command) {
@@ -106,8 +115,14 @@ export function logFixingSuccess(toolName: string, file: string, command?: Execa
     }
 }
 
+export function logFixingWarning(toolName: string, file: string, command: ExecaReturnValue<string>) {
+    logAlways(`⚠️ Warning fixing: ${greenColor}${toolName} - ${file}${endColor}`);
+    const cmdOutput = command.all ? `:\n${command.all}` : '';
+    logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`)
+}
+
 export function logFixingError(toolName: string, file: string, command: ExecaReturnValue<string>) {
-    logAlways(`❗️ Error fixing: ${greenColor}${toolName} - ${file}${endColor}`);
+    logAlways(`❌ Error fixing: ${greenColor}${toolName} - ${file}${endColor}`);
     const cmdOutput = command.all ? `:\n${command.all}` : '';
     logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`)
 }

@@ -8,11 +8,11 @@ import { LogLevel, logExtraExtraVerbose, logVerbose, setLogSettings } from './lo
 import { Linters } from './linters';
 
 (async () => {
-    const argv = await yargs(hideBin(process.argv))
+    let argumentParser = yargs(hideBin(process.argv))
         .scriptName('azlint')
         .help(true)
         .version(false)
-        .usage('Usage: azlint <command> [options...] [dir]')
+        .usage('Usage: azlint <command> [options…] [dir]')
         .option('help', {
             alias: 'h', describe: 'Show usage', type: 'boolean',
         })
@@ -43,44 +43,47 @@ import { Linters } from './linters';
         .strictCommands()
         .positional('dir', {
             describe: 'Path to project directory', type: 'string', default: '.',
-        })
-        .parse();
+        });
+    if (process.env['NOWRAP'] === '1') {
+        argumentParser = argumentParser.wrap(null);
+    }
+    const args = await argumentParser.parse();
 
     if (fs.existsSync(path.join(__dirname, '..', '.env'))) {
         dotenv.config({ path: path.join(__dirname, '..', '.env') });
     }
 
     // Output `version` if requested
-    if (argv.version) {
+    if (args.version) {
         const version = fs.readFileSync(path.join(__dirname, '..', 'VERSION.txt'), 'utf8').trim();
-        console.log(`${argv.$0} ${version}`);
+        console.log(`${args.$0} ${version}`);
         process.exit(0);
     }
 
-    if (argv.quiet && argv.verbose > 0) {
+    if (args.quiet && args.verbose > 0) {
         console.error("Can't combine quiet and verbose!");
         process.exit(1);
     }
 
     // Extract arguments
-    const logLevel = argv.quiet ? LogLevel.QUIET :
-        argv.verbose >= 3 ? LogLevel.EXTRA_EXTRA_VERBOSE :
-        argv.verbose >= 2 ? LogLevel.EXTRA_VERBOSE :
-        argv.verbose >= 1 ? LogLevel.VERBOSE :
+    const logLevel = args.quiet ? LogLevel.QUIET :
+        args.verbose >= 3 ? LogLevel.EXTRA_EXTRA_VERBOSE :
+        args.verbose >= 2 ? LogLevel.EXTRA_VERBOSE :
+        args.verbose >= 1 ? LogLevel.VERBOSE :
         LogLevel.NORMAL;
     const directory = (() => {
-        if (argv._.length > 1) {
-            return argv._[1].toString();
+        if (args._.length > 1) {
+            return args._[1].toString();
         }
-        return argv.dir;
+        return args.dir;
     })();
-    const onlyChanged = argv.onlyChanged ?? false;
+    const onlyChanged = args.onlyChanged ?? false;
     const command: 'lint' | 'fmt' = (() => {
-        if (!argv._ || argv._.length === 0) {
+        if (!args._ || args._.length === 0) {
             return 'lint';
         }
 
-        const cmd = argv._[0].toString();
+        const cmd = args._[0].toString();
         if (['lint', 'fmt'].includes(cmd)) {
             return cmd as 'lint' | 'fmt';
         }
@@ -88,7 +91,7 @@ import { Linters } from './linters';
         console.error(`Unrecognized command: ${cmd}`);
         process.exit(1);
     })();
-    const color = argv.color as ColorOptions;
+    const color = args.color as ColorOptions;
     const progress: ProgressOptions = 'no'; // = argv.progress as ProgressOptions;
 
     // Set global properties

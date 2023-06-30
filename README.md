@@ -10,8 +10,8 @@
 - [About](#about)
   - [Features](#features)
 - [Usage](#usage)
-  - [Locally - Linux & macOS](#locally---linux--macos)
-  - [Locally - Windows](#locally---windows)
+  - [Local - Linux & macOS](#local---linux--macos)
+  - [Local - Windows](#local---windows)
   - [GitLabCI](#gitlabci)
   - [CircleCI](#circleci)
   - [GitHub Actions](#github-actions)
@@ -41,7 +41,7 @@ _AZLint_ has an optional **format** mode 🤯 \(also called **autofix**\),
 which applies suggested fixes \(from supported linters\) to your files.
 
 All that said, AZLint is mostly for my personal usage.
-But feel free to use it and report any found issues 😉.
+However feel free to use it and report any found issues 😉.
 
 I see it as a complement to
 [SuperLinter](https://github.com/github/super-linter) and
@@ -68,7 +68,7 @@ Go to dockerhub's [tags](https://hub.docker.com/r/matejkosiarcik/azlint/tags?pag
 to see all available tags or go to github's [releases](https://github.com/matejkosiarcik/azlint/releases)
 for all project versions.
 
-### Locally - Linux & macOS
+### Local - Linux & macOS
 
 To **lint** files in current folder:
 
@@ -86,20 +86,26 @@ When in doubt, print help:
 
 ```sh
 $ docker run matejkosiarcik/azlint:latest --help
-usage: azlint [-h] [-V] [-c] {lint,fmt} ...
+Usage: azlint <command> [options…] [dir]
 
-positional arguments:
-  {lint,fmt}
-    lint              Lint files (default)
-    fmt               Fix files
+Commands:
+  azlint lint  Lint project (default)
+  azlint fmt   Format project (autofix)
 
-optional arguments:
-  -h, --help          show this help message and exit
-  -V, --version       show program's version number and exit
-  -c, --only-changed  Analyze only changed files (on current git branch)
+Positionals:
+  dir  Path to project directory  [string] [default: "."]
+
+Options:
+  -h, --help          Show usage  [boolean]
+  -V, --version       Show version  [boolean]
+  -v, --verbose       Verbose logging (stackable, max: -vvv)  [count]
+  -q, --quiet         Less logging  [boolean]
+      --only-changed  Analyze only changed files (requires project to be a git directory)  [boolean]
+  -n, --dry-run       Dry run  [boolean]
+      --color         Colored output  [string] [choices: "auto", "never", "always"] [default: "auto"]
 ```
 
-### Locally - Windows
+### Local - Windows
 
 Refer to _Linux & macOS_ examples above, just swap `$PWD` to `%cd%`, for example:
 
@@ -191,11 +197,13 @@ Where `VALIDATE_FOO` can be found in the following section.
 | [composer-normalize](https://github.com/ergebnis/composer-normalize)             | `VALIDATE_COMPOSER_NORMALIZE` | `composer.json`         | ✅      |
 | [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)              | `VALIDATE_COMPOSER_VALIDATE`  | `composer.json`         | ❌      |
 | [dotenv-linter](https://github.com/dotenv-linter/dotenv-linter)                  | `VALIDATE_DOTENV`             | `*.env`                 | ❌      |
-| [jsonlint](https://github.com/prantlf/jsonlint)                                  | `VALIDATE_JSONLINT`           | `*.json` etc.           | ❌      |
+| [jsonlint](https://github.com/prantlf/jsonlint)                                  | `VALIDATE_JSONLINT`           | `*.json`                | ❌*     |
 | [package-json-validator](https://github.com/gorillamania/package.json-validator) | `VALIDATE_PACKAGE_JSON`       | `package.json`          | ❌      |
 | [prettier](https://github.com/prettier/prettier)                                 | `VALIDATE_PRETTIER`           | `*.{json,yml,css,html}` | ✅      |
 | [tomljson](https://github.com/pelletier/go-toml)                                 | `VALIDATE_TOMLJSON`           | `*.toml`                | ❌      |
 | [yamllint](https://github.com/adrienverge/yamllint)                              | `VALIDATE_YAMLLINT`           | `*.{yml,yaml}`          | ❌      |
+
+_Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 
 ### CI
 
@@ -253,13 +261,15 @@ Where `VALIDATE_FOO` can be found in the following section.
 
 | tool                                                | disable                | files  | autofix |
 | --------------------------------------------------- | ---------------------- | ------ | ------- |
-| [autopep8](https://github.com/hhatto/autopep8)      | `VALIDATE_AUTOPEP8`    | `*.py` | ✅      |
+| [autopep8](https://github.com/hhatto/autopep8)      | `VALIDATE_AUTOPEP8`    | `*.py` | ❌*     |
 | [black](https://github.com/psf/black)               | `VALIDATE_BLACK`       | `*.py` | ✅      |
 | [flake8](https://github.com/PyCQA/flake8)           | `VALIDATE_FLAKE8`      | `*.py` | ❌      |
 | [isort](https://github.com/PyCQA/isort)             | `VALIDATE_ISORT`       | `*.py` | ✅      |
 | [pycodestyle](https://github.com/PyCQA/pycodestyle) | `VALIDATE_PYCODESTYLE` | `*.py` | ❌      |
 | [pylint](https://github.com/PyCQA/pylint/)          | `VALIDATE_PYLINT`      | `*.py` | ❌      |
 | [mypy](https://github.com/python/mypy)              | `VALIDATE_MYPY`        | `*.py` | ❌      |
+
+_Autopep8*_ - Formatting conflicts with black, so it is turned off.
 
 <!-- List of unsuitable tools -->
 <!-- [stoml](https://github.com/freshautomations/stoml) - Can't deal with "'" in toml section headings (sometimes used in Cargo.toml) -->
@@ -270,7 +280,13 @@ Typical workflow is as follows:
 
 ```sh
 $ make bootstrap
-# ... make some changes ...
+
+# Make some changes…
+
+# Run locally:
+$ npm start -- lint
+
+# Run in docker:
 $ make build run
 ```
 

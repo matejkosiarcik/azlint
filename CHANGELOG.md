@@ -13,11 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Add dir positional argument to lint outside of `CWD`
     - Improve logging output
     - Add CLI option --color (auto|never|always), similar to grep's
+  - Add new linters
+    - `pip install --dry-run` for `requirements.txt` files
+    - `eclint` for all files
+    - `stoml` for `*.{toml,svg,ini}` files
+    - `proselint` for `*.{md,txt}` files
 - Fixed
   - Reenable linters `jsonlint` and `markdownlint`
 - Miscellaneous
   - Update dependencies
   - Add scripts for bootstraping dependencies natively/locally, outside of docker
+  - Temporary disable `autopep8`
 
 ## \[0.5.5\] - 2023-06-21
 
