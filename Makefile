@@ -63,8 +63,9 @@ bootstrap:
 	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest'
 	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
 
-	# TODO: Bootstrap hadolint
-	# TODO: Bootstrap shellcheck
+	cabal update
+		# cabal install hadolint-2.12.0 && \
+		# cabal install ShellCheck-0.9.0
 
 .PHONY: build
 build:
