@@ -1,0 +1,19 @@
+name: Test
+
+permissions: read-all
+
+on:
+  pull_request:
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.3
+
+      - name: Test
+        run: |
+          npm ci --prefix tests-cli
+          make test
