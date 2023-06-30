@@ -601,13 +601,13 @@ export class Linters {
         /* Python */
 
         // Autopep8
-        // await this.runLinter({
-        //     linterName: 'autopep8',
-        //     envName: 'AUTOPEP8',
-        //     fileMatch: matchers.python,
-        //     lintFile: { args: ['autopep8', '--diff', "#file#"], },
-        //     fmtFile: { args: ['autopep8', '--in-place', "#file#"], },
-        // });
+        await this.runLinter({
+            linterName: 'autopep8',
+            envName: 'AUTOPEP8',
+            fileMatch: matchers.python,
+            lintFile: { args: ['autopep8', '--diff', "#file#"], },
+            // fmtFile: { args: ['autopep8', '--in-place', "#file#"], }, // NOTE: Conflicts with black
+        });
 
         // isort
         const isortConfigArgs = getPythonConfigArgs('ISORT', 'isort', '--settings-file', ['isort.cfg', '.isort.cfg'], ['pyproject.toml', 'setup.cfg', 'tox.ini']);
