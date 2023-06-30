@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import fsSync from 'fs';
 import path from "path";
+import os from 'os';
 import { Options as ExecaOptions } from "@esm2cjs/execa";
 import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from "./log";
 import { customExeca, hashFile, isCwdGitRepo, ProgressOptions, wildcard2regex } from "./utils";
@@ -818,6 +819,18 @@ export class Linters {
                 },
             },
         });
+
+        // jscpd
+        const jscpdConfigArgs = getConfigArgs('JSCPD', '--config',
+            ['jscpd.json', '.jscpd.json']);
+        const jscpdTmpdir = await fs.mkdtemp(path.join(os.tmpdir(), 'azlint-jscpd-'));
+        await this.runLinter({
+            linterName: 'jscpd',
+            envName: 'JSCPD',
+            fileMatch: '*',
+            lintFile: { args: ['jscpd', ...jscpdConfigArgs, '--output', jscpdTmpdir, '#file#'] },
+        });
+        await fs.rm(jscpdTmpdir, { force: true, recursive: true });
 
         /* End of linters */
 

@@ -13,6 +13,7 @@ let level: LogLevel;
 
 let greenColor = '\x1b[32m';
 let redColor = '\x1b[31m';
+let yellowColor = '\x1b[93m';
 let endColor = '\x1b[0m';
 
 export function setLogSettings(options: {
@@ -79,6 +80,14 @@ export function logLintSuccess(toolName: string, file: string, command?: ExecaRe
     if (command) {
         const cmdOutput = command.all ? `:\n${command.all}` : '';
         logExtraVerbose(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
+    }
+}
+
+export function logLintWarning(toolName: string, file: string, command?: ExecaReturnValue<string>) {
+    logAlways(`⚠️ ${yellowColor}${toolName} - ${file}${endColor}`);
+    if (command) {
+        const cmdOutput = command.all ? `:\n${command.all}` : '';
+        logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
     }
 }
 
