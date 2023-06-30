@@ -215,8 +215,7 @@ _Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 | [composer-install](https://getcomposer.org)                                      | `VALIDATE_COMPOSER_INSTALL`   | `composer.json`    | ❌       |
 | [package-json-validator](https://github.com/gorillamania/package.json-validator) | `VALIDATE_PACKAGE_JSON`       | `package.json`     | ❌       |
 | [pip-install](https://pip.pypa.io/en/stable/cli/pip_install)                     | `VALIDATE_PIP_INSTALL`        | `requirements.txt` | ❌       |
-
-<!-- | [npm-install](https://docs.npmjs.com/cli/v6/commands/npm-install)                | `VALIDATE_NPM_INSTALL`        | `package.json`     | ❌       | -->
+| [npm-install](https://docs.npmjs.com/cli/v6/commands/npm-install)                | `VALIDATE_NPM_INSTALL`        | `package.json`     | ❌       |
 
 ### CI/CD services
 
@@ -253,13 +252,12 @@ _Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 
 ### Documentation
 
-| tool                                                       | disable                 | files  | autofix |
-|------------------------------------------------------------|-------------------------|--------|---------|
-| [markdownlint](https://github.com/DavidAnson/markdownlint) | `VALIDATE_MARKDOWNLINT` | `*.md` | ✅       |
-| [mdl](https://github.com/markdownlint/markdownlint)        | `VALIDATE_MDL`          | `*.md` | ❌       |
-
-<!-- | [markdown-link-check](https://github.com/tcort/markdown-link-check) | `VALIDATE_MARKDOWN_LINK_CHECK` | `*.md`       | ❌       | -->
-<!-- | [proselint](https://github.com/amperser/proselint)                  | `VALIDATE_PROSELINT`           | `*.{md,txt}` | ❌       | -->
+| tool                                                                | disable                        | files        | autofix |
+|---------------------------------------------------------------------|--------------------------------|--------------|---------|
+| [markdown-link-check](https://github.com/tcort/markdown-link-check) | `VALIDATE_MARKDOWN_LINK_CHECK` | `*.md`       | ❌       |
+| [markdownlint](https://github.com/DavidAnson/markdownlint)          | `VALIDATE_MARKDOWNLINT`        | `*.md`       | ✅       |
+| [mdl](https://github.com/markdownlint/markdownlint)                 | `VALIDATE_MDL`                 | `*.md`       | ❌       |
+| [proselint](https://github.com/amperser/proselint)                  | `VALIDATE_PROSELINT`           | `*.{md,txt}` | ❌       |
 
 ### Shells
 
@@ -285,9 +283,6 @@ _Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 | [mypy](https://github.com/python/mypy)              | `VALIDATE_MYPY`        | `*.py` | ❌       |
 
 _Autopep8*_ - Formatting conflicts with black, so it is turned off.
-
-<!-- List of unsuitable tools -->
-<!-- [stoml](https://github.com/freshautomations/stoml) - Can't deal with "'" in toml section headings (sometimes used in Cargo.toml) -->
 
 ## Development
 
