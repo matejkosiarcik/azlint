@@ -399,7 +399,7 @@ export class Linters {
         // Editorconfig-checker
         await this.runLinter({
             linterName: 'editorconfig-checker',
-            envName: 'EDITORCONFIG',
+            envName: 'EDITORCONFIG_CHECKER',
             fileMatch: '*',
             lintFile: { args: ['ec', '#file#'] },
         });

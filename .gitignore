@@ -16,9 +16,10 @@ Package Control.*
 Brewfile.lock.json
 gitman/
 node_modules/
+dist-newstyle/
+.mypy_cache/
 
 # build artifacts
-.mypy_cache/
 /cli/
 
 # misc
