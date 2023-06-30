@@ -510,6 +510,15 @@ export class Linters {
 
         /* Documentation (Markdown) */
 
+        // Markdown-table-formatter
+        await this.runLinter({
+            linterName: 'markdown-table-formatter',
+            envName: 'MARKDOWN_TABLE_FORMATTER',
+            fileMatch: matchers.markdown,
+            lintFile: { args: ['markdown-table-formatter', '--check', '#file#'] },
+            fmtFile: { args: ['markdown-table-formatter', '#file#'] },
+        });
+
         // Markdownlint
         const markdownlintConfigArgs = getConfigArgs('MDL', '--config', ['markdownlint.json', '.markdownlint.json']);
         await this.runLinter({
