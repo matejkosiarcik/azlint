@@ -404,6 +404,14 @@ export class Linters {
             lintFile: { args: ['ec', '#file#'] },
         });
 
+        // ECLint
+        await this.runLinter({
+            linterName: 'eclint',
+            envName: 'ECLINT',
+            fileMatch: '*',
+            lintFile: { args: ['eclint', '#file#'] },
+        });
+
         /* HTML, JSON, SVG, TOML, XML, YAML */
 
         // Prettier
