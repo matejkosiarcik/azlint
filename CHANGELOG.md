@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `eclint` for all files
     - `stoml` for `*.{toml,svg,ini}` files
     - `proselint` for `*.{md,txt}` files
+    - `markdown-table-formatter` for `*.md` files
 - Fixed
   - Reenable linters `jsonlint` and `markdownlint`
 - Miscellaneous
