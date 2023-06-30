@@ -40,7 +40,7 @@ updates:
 
   # Tests
   - package-ecosystem: npm
-    directory: /tests-cli
+    directory: /tests
     schedule:
       interval: daily
       time: "01:00"

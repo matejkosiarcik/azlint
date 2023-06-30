@@ -14,7 +14,7 @@ all: bootstrap build test run
 .PHONY: bootstrap
 bootstrap:
 	npm ci
-	npm ci --prefix tests-cli
+	npm ci --prefix tests
 	npm ci --prefix linters
 
 	# check if virtual environment exists or create it
@@ -73,7 +73,7 @@ build:
 
 .PHONY: test
 test:
-	npm test --prefix tests-cli
+	npm test --prefix tests
 
 .PHONY: run
 run: run-fmt run-lint

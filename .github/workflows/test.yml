@@ -15,5 +15,5 @@ jobs:
 
       - name: Test
         run: |
-          npm ci --prefix tests-cli
+          npm ci --prefix tests
           make test
