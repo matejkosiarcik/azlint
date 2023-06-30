@@ -145,7 +145,7 @@ COPY --from=pre-final /app/ ./
 ENV PATH="$PATH:/app/bin"
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
-        bmake bundler git libxml2-utils make nodejs php python3 python3-pip ruby \
+        bmake bundler git libxml2-utils make nodejs npm php python3 python3-pip ruby \
         ash bash dash ksh ksh93u+m mksh posh yash zsh && \
     rm -rf /var/lib/apt/lists/* && \
     git config --system --add safe.directory '*' && \
