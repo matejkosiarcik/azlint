@@ -3,7 +3,7 @@ set -euf
 
 cd "$(git rev-parse --show-toplevel)"
 
-# shellcheck source=doc/demo/gitman/demo-magic/demo-magic.sh
+# shellcheck source=./doc/demo/gitman/demo-magic/demo-magic.sh
 . ./doc/demo/gitman/demo-magic/demo-magic.sh
 
 TYPE_SPEED=7
