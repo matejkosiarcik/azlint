@@ -706,19 +706,15 @@ export class Linters {
             envName: 'COMPOSER_NORMALIZE',
             fileMatch: 'composer.json',
             lintFile: {
-                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '--dry-run', '--diff', '#filename#'],
-                options: (file) => {
-                    return {
-                        cwd: path.dirname(file),
-                    }
+                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '--dry-run', '--diff', '#file[abs]#'],
+                options: {
+                    cwd: path.resolve(path.join(__dirname, '..', 'linters')),
                 },
             },
             fmtFile: {
-                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '#filename#'],
-                options: (file) => {
-                    return {
-                        cwd: path.dirname(file),
-                    }
+                args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '#file[abs]#'],
+                options: {
+                    cwd: path.resolve(path.join(__dirname, '..', 'linters')),
                 },
             }
         });
@@ -728,7 +724,7 @@ export class Linters {
             linterName: 'composer-install',
             envName: 'COMPOSER_INSTALL',
             fileMatch: 'composer.json',
-            lintFile: { args: ['composer', 'install', '--dry-run', '--working-dir', '#directory#'], },
+            lintFile: { args: ['composer', 'install', '--dry-run', '--working-dir=#directory#'], },
         });
 
         // Pip install
