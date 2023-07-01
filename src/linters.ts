@@ -542,13 +542,13 @@ export class Linters {
         // Markdown link check
         // TODO: Execute markdown-link-check sequentially (because it can overwhelm network)
         // TODO: Add retry mechanism for markdown-link-check (and other linters which rely on network)
-        // const markdownLinkCheckConfigArgs = getConfigArgs('MARKDOWN_LINK_CHECK', '--config', ['markdown-link-check.json', '.markdown-link-check.json']);
-        // await this.runLinter({
-        //     linterName: 'markdown-link-check',
-        //     envName: 'MARKDOWN_LINK_CHECK',
-        //     fileMatch: matchers.markdown,
-        //     lintFile: { args: ['markdown-link-check', '--quiet', ...markdownLinkCheckConfigArgs, '--retry', '--verbose', "#file#"] },
-        // });
+        const markdownLinkCheckConfigArgs = getConfigArgs('MARKDOWN_LINK_CHECK', '--config', ['markdown-link-check.json', '.markdown-link-check.json']);
+        await this.runLinter({
+            linterName: 'markdown-link-check',
+            envName: 'MARKDOWN_LINK_CHECK',
+            fileMatch: matchers.markdown,
+            lintFile: { args: ['markdown-link-check', '--quiet', ...markdownLinkCheckConfigArgs, '--retry', '--verbose', "#file#"] },
+        });
 
         // Proselint
         const proselintConfigArgs = getConfigArgs('PROSELINT', '--config', ['proselintrc', '.proselintrc']);
