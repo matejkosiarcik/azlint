@@ -550,14 +550,13 @@ export class Linters {
         // });
 
         // Proselint
-        // TODO: Execute proselint sequentially (because it has shared cache file)
-        // const proselintConfigArgs = getConfigArgs('PROSELINT', '--config', ['proselintrc', '.proselintrc']);
-        // await this.runLinter({
-        //     linterName: 'proselint',
-        //     envName: 'PROSELINT',
-        //     fileMatch: [matchers.markdown, '*.txt'],
-        //     lintFile: { args: ['proselint', ...proselintConfigArgs, '--clean', "#file#"] },
-        // });
+        const proselintConfigArgs = getConfigArgs('PROSELINT', '--config', ['proselintrc', '.proselintrc']);
+        await this.runLinter({
+            linterName: 'proselint',
+            envName: 'PROSELINT',
+            fileMatch: [matchers.markdown, '*.txt'],
+            lintFile: { args: ['proselint', ...proselintConfigArgs, "#file#"] },
+        });
 
         /* Shell */
 

@@ -59,14 +59,14 @@ RUN apt-get update && \
 
 # Python/Pip #
 FROM debian:12.0-slim AS python
-WORKDIR /cwd
+WORKDIR /cwd/linters
 COPY linters/requirements.txt ./
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PYTHONDONTWRITEBYTECODE=1
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-dev python3-pip && \
     rm -rf /var/lib/apt/lists/* && \
-    python3 -m pip install --no-cache-dir --requirement requirements.txt --target install
+    python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
 
 # PHP/Composer #
 FROM debian:12.0-slim AS composer
@@ -129,7 +129,7 @@ WORKDIR /app/linters
 COPY linters/Gemfile linters/Gemfile.lock linters/composer.json ./
 COPY --from=composer /cwd/linters/vendor ./vendor
 COPY --from=node /cwd/linters/node_modules ./node_modules
-COPY --from=python /cwd/install ./python
+COPY --from=python /cwd/linters/python ./python
 COPY --from=ruby /cwd/bundle ./bundle
 WORKDIR /app/linters/bin
 COPY --from=composer /cwd/linters/composer/bin/composer ./
@@ -149,7 +149,8 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     git config --system --add safe.directory '*' && \
     useradd --create-home --no-log-init --shell /usr/bin/bash --user-group --system azlint && \
-    su - azlint -c "git config --global --add safe.directory '*'"
+    su - azlint -c "git config --global --add safe.directory '*'" && \
+    mkdir -p /home/azlint/.cache/proselint
 ENV NODE_OPTIONS=--dns-result-order=ipv4first
 
 USER azlint

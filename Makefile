@@ -27,6 +27,7 @@ bootstrap:
 	PATH="$(PROJECT_DIR)/linters/venv/bin:$(PATH)" \
 	PYTHONPATH="$(PROJECT_DIR)/linters/python" \
 		pip install --requirement linters/requirements.txt --target linters/python
+	mkdir -p "$$HOME/.cache/proselint"
 
 	gem install bundler --install-dir linters/ruby
 	PATH="$(PROJECT_DIR)/linters/ruby/bin:$(PATH)" \
