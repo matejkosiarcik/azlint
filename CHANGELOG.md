@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Add new linters
     - `proselint` for `*.{md,txt}` files
     - `npm install --dry-run` for `package.json` files
+  - Enable existing linters:
+    - `markdown-link-checker`
 
 ## \[0.6.1\] - 2023-06-30
 

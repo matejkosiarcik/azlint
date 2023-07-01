@@ -143,6 +143,7 @@ export class Linters {
                 options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
                 successExitCode?: number | undefined,
             } | ((file: string, toolName: string) => Promise<void>),
+            jobs?: number | undefined,
         }
     ): Promise<void> {
         const files = this.matchFiles(options.fileMatch);
@@ -351,7 +352,7 @@ export class Linters {
         const matchers = {
             json: '*.{json,json5,jsonl,geojson,babelrc,ecrc,eslintrc,htmlhintrc,htmllintrc,jscsrc,jshintrc,jslintrc,prettierrc,remarkrc}',
             yaml: '*.{yml,yaml}',
-            envfile: '{*.env,env.*,env}',
+            env: '{*.env,env.*,env}',
             dockerfile: '{Dockerfile,*.Dockerfile,Dockerfile.*}',
             markdown: '*.{md,mdown,markdown}',
             makefile: '{Makefile,*.make}',
@@ -504,7 +505,7 @@ export class Linters {
         await this.runLinter({
             linterName: 'dotenv-linter',
             envName: 'DOTENV',
-            fileMatch: matchers.envfile,
+            fileMatch: matchers.env,
             lintFile: { args: ['dotenv-linter', '--quiet', '#file#'] },
         });
 
@@ -541,23 +542,22 @@ export class Linters {
         // Markdown link check
         // TODO: Execute markdown-link-check sequentially (because it can overwhelm network)
         // TODO: Add retry mechanism for markdown-link-check (and other linters which rely on network)
-        // const markdownLinkCheckConfigArgs = getConfigArgs('MARKDOWN_LINK_CHECK', '--config', ['markdown-link-check.json', '.markdown-link-check.json']);
-        // await this.runLinter({
-        //     linterName: 'markdown-link-check',
-        //     envName: 'MARKDOWN_LINK_CHECK',
-        //     fileMatch: matchers.markdown,
-        //     lintFile: { args: ['markdown-link-check', '--quiet', ...markdownLinkCheckConfigArgs, '--retry', '--verbose', "#file#"] },
-        // });
+        const markdownLinkCheckConfigArgs = getConfigArgs('MARKDOWN_LINK_CHECK', '--config', ['markdown-link-check.json', '.markdown-link-check.json']);
+        await this.runLinter({
+            linterName: 'markdown-link-check',
+            envName: 'MARKDOWN_LINK_CHECK',
+            fileMatch: matchers.markdown,
+            lintFile: { args: ['markdown-link-check', '--quiet', ...markdownLinkCheckConfigArgs, '--retry', '--verbose', "#file#"] },
+        });
 
         // Proselint
-        // TODO: Execute proselint sequentially (because it has shared cache file)
-        // const proselintConfigArgs = getConfigArgs('PROSELINT', '--config', ['proselintrc', '.proselintrc']);
-        // await this.runLinter({
-        //     linterName: 'proselint',
-        //     envName: 'PROSELINT',
-        //     fileMatch: [matchers.markdown, '*.txt'],
-        //     lintFile: { args: ['proselint', ...proselintConfigArgs, '--clean', "#file#"] },
-        // });
+        const proselintConfigArgs = getConfigArgs('PROSELINT', '--config', ['proselintrc', '.proselintrc']);
+        await this.runLinter({
+            linterName: 'proselint',
+            envName: 'PROSELINT',
+            fileMatch: [matchers.markdown, '*.txt'],
+            lintFile: { args: ['proselint', ...proselintConfigArgs, "#file#"] },
+        });
 
         /* Shell */
 
