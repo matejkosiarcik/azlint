@@ -143,6 +143,7 @@ export class Linters {
                 options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
                 successExitCode?: number | undefined,
             } | ((file: string, toolName: string) => Promise<void>),
+            jobs?: number | undefined,
         }
     ): Promise<void> {
         const files = this.matchFiles(options.fileMatch);
