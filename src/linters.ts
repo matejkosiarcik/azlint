@@ -351,7 +351,7 @@ export class Linters {
         const matchers = {
             json: '*.{json,json5,jsonl,geojson,babelrc,ecrc,eslintrc,htmlhintrc,htmllintrc,jscsrc,jshintrc,jslintrc,prettierrc,remarkrc}',
             yaml: '*.{yml,yaml}',
-            envfile: '{*.env,env.*,env}',
+            env: '{*.env,env.*,env}',
             dockerfile: '{Dockerfile,*.Dockerfile,Dockerfile.*}',
             markdown: '*.{md,mdown,markdown}',
             makefile: '{Makefile,*.make}',
@@ -504,7 +504,7 @@ export class Linters {
         await this.runLinter({
             linterName: 'dotenv-linter',
             envName: 'DOTENV',
-            fileMatch: matchers.envfile,
+            fileMatch: matchers.env,
             lintFile: { args: ['dotenv-linter', '--quiet', '#file#'] },
         });
 
