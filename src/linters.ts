@@ -4,7 +4,7 @@ import path from "path";
 import os from 'os';
 import { Options as ExecaOptions } from "@esm2cjs/execa";
 import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from "./log";
-import { customExeca, getConfigArgs, getPythonConfigArgs, hashFile, isCwdGitRepo, matchFiles, ProgressOptions, resolveLintArgs, resolveLintOptions, resolveLintSuccessExitCode } from "./utils";
+import { customExeca, getConfigArgs, getPythonConfigArgs, hashFile, isCwdGitRepo, matchFiles, ProgressOptions, resolveLintArgs, resolveLintOptions, resolveLintSuccessExitCode, resolvePromiseOrValue } from "./utils";
 
 function shouldSkipLinter(envName: string, linterName: string): boolean {
     const envEnable = 'VALIDATE_' + envName;
@@ -40,7 +40,9 @@ export class Linters {
             linterName: string,
             envName: string,
             beforeAllFiles?: (toolName: string) => (boolean | Promise<boolean>),
-            beforeFile?: ((file: string, toolName: string) => (boolean | Promise<boolean>)) | undefined,
+            beforeFile?: ((file: string, toolName: string) => (void | Promise<void>)) | undefined,
+            shouldSkipFile?: ((file: string, toolName: string) => (boolean | Promise<boolean>)) | undefined,
+            afterFile?: ((file: string, toolName: string) => (void | Promise<void>)) | undefined,
             lintFile: {
                 args: string[] | ((file: string) => (string[] | Promise<string[]>)),
                 options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
@@ -83,7 +85,9 @@ export class Linters {
             linterName: string,
             envName: string,
             file: string,
-            beforeFile?: ((file: string, toolName: string) => (boolean | Promise<boolean>)) | undefined,
+            beforeFile?: ((file: string, toolName: string) => (void | Promise<void>)) | undefined,
+            shouldSkipFile?: ((file: string, toolName: string) => (boolean | Promise<boolean>)) | undefined,
+            afterFile?: ((file: string, toolName: string) => (void | Promise<void>)) | undefined,
             lintFile: {
                 args: string[] | ((file: string) => (string[] | Promise<string[]>)),
                 options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
@@ -96,15 +100,16 @@ export class Linters {
             } | ((file: string, toolName: string) => Promise<void>),
         }
     ): Promise<void> {
-        if (options.beforeFile) {
-            let returnValue = options.beforeFile(options.file, options.linterName);
-            if (typeof returnValue !== 'boolean') {
-                returnValue = await returnValue;
-            }
+        if (options.shouldSkipFile) {
+            const returnValue = await resolvePromiseOrValue(options.shouldSkipFile(options.file, options.linterName));
 
             if (!returnValue) {
                 return;
             }
+        }
+
+        if (options.beforeFile) {
+            options.beforeFile(options.file, options.linterName);
         }
 
         if (this.mode === 'lint') {
@@ -150,6 +155,10 @@ export class Linters {
                 };
             }
             await options.fmtFile(options.file, options.linterName);
+        }
+
+        if (options.afterFile) {
+            options.afterFile(options.file, options.linterName);
         }
     }
 
@@ -489,7 +498,7 @@ export class Linters {
             linterName: 'package-json-validator',
             envName: 'PACKAGE_JSON',
             fileMatch: 'package.json',
-            beforeFile: async (file: string, toolName: string) => {
+            shouldSkipFile: async (file: string, toolName: string) => {
                 const packageJson = JSON.parse(await fs.readFile(file, 'utf8'));
                 if (packageJson['private'] === true) {
                     logExtraVerbose(`⏩ Skipping ${toolName} - ${file}, because it's private`);
