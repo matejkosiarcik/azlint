@@ -34,7 +34,7 @@ export class Linters {
         this.progress = options.progress;
     }
 
-    async runLinter(
+    private async runLinter(
         options: {
             fileMatch: string | string[] | ((file: string) => boolean),
             linterName: string,
@@ -78,7 +78,7 @@ export class Linters {
         }));
     }
 
-    async runLinterFile(
+    private async runLinterFile(
         options: {
             linterName: string,
             envName: string,
