@@ -557,14 +557,24 @@ export class Linters {
             lintFile: { args: ['python3', '-m', 'pip', 'install', '--dry-run', '--ignore-installed', '--break-system-packages', '--requirement', '#file#'] },
         });
 
-        // TODO: Execute npm outside of project directory, because it can be readonly and fails
         // NPM install
-        // await this.runLinter({
-        //     linterName: 'npm-install',
-        //     envName: 'NPM_INSTALL',
-        //     fileMatch: ['package.json'],
-        //     lintFile: { args: ['npm', 'install', '--dry-run', '--prefix', '#directory#'] },
-        // });
+        const randomDir = await fs.mkdtemp(path.join(os.tmpdir(), 'azlint-npm-'));
+        await this.runLinter({
+            linterName: 'npm-install',
+            envName: 'NPM_INSTALL',
+            fileMatch: ['package.json'],
+            lintFile: {
+                args: ['npm', 'install', '--dry-run'],
+                options: async (file) => {
+                    const workdir = await fs.mkdtemp(path.join(randomDir, Buffer.from(file).toString('base64url')));
+                    await fs.copyFile(file, path.join(workdir, path.basename(file)));
+                    return {
+                        cwd: workdir,
+                    };
+                }
+            },
+        });
+        await fs.rm( randomDir, { force: true, recursive: true });
 
         /* Docker */
 
