@@ -1,10 +1,10 @@
 import fs from 'fs/promises';
-import fsSync from 'fs';
+
 import path from "path";
 import os from 'os';
 import { Options as ExecaOptions } from "@esm2cjs/execa";
 import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from "./log";
-import { customExeca, hashFile, isCwdGitRepo, ProgressOptions, wildcard2regex } from "./utils";
+import { customExeca, getConfigArgs, getPythonConfigArgs, hashFile, isCwdGitRepo, ProgressOptions, wildcard2regex } from "./utils";
 
 function shouldSkipLinter(envName: string, linterName: string): boolean {
     const envEnable = 'VALIDATE_' + envName;
@@ -14,84 +14,6 @@ function shouldSkipLinter(envName: string, linterName: string): boolean {
     }
 
     return false;
-}
-
-function getConfigDir(envName: string): string {
-    const linterConfigDir = process.env[`${envName}_CONFIG_DIR`];
-    if (linterConfigDir) {
-        return linterConfigDir;
-    }
-
-    const generalConfigDir = process.env['CONFIG_DIR'];
-    if (generalConfigDir) {
-        return generalConfigDir;
-    }
-
-    return '.';
-}
-
-/**
- * Determine config file to use for linter `X`
- * - if `X_CONFIG_FILE` is specified, returns `CONFIG_DIR/X_CONFIG_FILE`
- * - else searches `CONFIG_DIR` for config files and returns first found
- * @returns array of arguments to use in subprocess call
- */
-function getConfigArgs(envName: string, configArgName: string, possibleFiles: string[]): string[] {
-    const configDir = getConfigDir(envName);
-    const configFile = (() => {
-        const envValue = process.env[envName + '_CONFIG_FILE'];
-        if (envValue) {
-            if (fsSync.existsSync(envValue)) {
-                return envValue;
-            } else if (fsSync.existsSync(path.join(configDir, envValue))) {
-                return path.join(configDir, envValue);
-            }
-        }
-
-        const potentialConfigs = possibleFiles
-            .map((file) => path.join(configDir, file))
-            .filter((file) => fsSync.existsSync(file));
-        if (potentialConfigs.length === 0) {
-            return;
-        }
-        return potentialConfigs[0];
-    })();
-
-    return configFile ? (configArgName.endsWith('=') ? [`${configArgName}${configFile}`] : [configArgName, configFile]) : [];
-}
-
-/**
- * Determine config file to use for linter `X` - Python oriented
- * Python needs specific logic, because Python tools are a little different
- * Some have dedicated config files, but they are also configurable by shared config files, eg. setup.cfg or pyproject.toml
- */
-function getPythonConfigArgs(envName: string, linterName: string, configArgName: string, specificFiles: string[], commonFiles: string[]): string[] {
-    const specificConfigArgs = getConfigArgs(envName, configArgName, specificFiles);
-    if (specificConfigArgs.length > 0) {
-        return specificConfigArgs;
-    }
-
-    const configDir = getConfigDir(envName);
-    const configFile = (() => {
-        const commonConfigs = commonFiles
-            .map((file) => path.join(configDir, file))
-            .filter((file) => fsSync.existsSync(file))
-            .filter((file) => {
-                const configContent = fsSync.readFileSync(file, 'utf8');
-                return configContent.split('\n')
-                    .some((line) => line.includes(`[${linterName}]`) ||
-                        line.includes(`[tool.${linterName}]`) ||
-                        line.includes(`[tool.${linterName}.`)
-                    );
-            });
-        if (commonConfigs.length > 0) {
-            return commonConfigs[0];
-        }
-
-        return;
-    })();
-
-    return configFile ? (configArgName.endsWith('=') ? [`${configArgName}${configFile}`] : [configArgName, configFile]) : [];
 }
 
 export class Linters {
