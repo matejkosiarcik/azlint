@@ -78,6 +78,38 @@ export async function customExeca(command: string[], _options?: ExecaOptions<str
     }
 }
 
+/**
+ * Match list of files agains a given wildcards or predicates
+ */
+export function matchFiles(allFiles: string[], fileMatch: string | string[] | ((file: string) => boolean) | ((file: string) => boolean)[]): string[] {
+    if (typeof fileMatch === 'string') {
+        const regex = wildcard2regex(fileMatch);
+        return allFiles.filter((file) => regex.test(file));
+    }
+
+    if (Array.isArray(fileMatch)) {
+        if (fileMatch.length === 0) {
+            return [];
+        }
+
+        if (typeof fileMatch[0] === 'string') {
+            const regexes = (fileMatch as string[]).map((wildcard) => wildcard2regex(wildcard));
+            return allFiles.filter((file) => regexes.some((regex) => regex.test(file)));
+        }
+
+        return allFiles.filter((file) => (fileMatch as ((file: string) => boolean)[]).some((predicate) => predicate(file)));
+    }
+
+    return allFiles.filter((file) => fileMatch(file));
+}
+
+/**
+ * Returns config directories in the following order:
+ * - FOO_CONFIG_DIR
+ * - CONFIG_DIR
+ * - . (cwd)
+ * - ./.config
+ */
 function getConfigDirs(envName: string): string[] {
     const output: string[] = [];
 

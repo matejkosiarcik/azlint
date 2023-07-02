@@ -34,20 +34,6 @@ export class Linters {
         this.progress = options.progress;
     }
 
-    matchFiles(fileMatch: string | string[] | ((file: string) => boolean)): string[] {
-        if (typeof fileMatch === 'string') {
-            const regex = wildcard2regex(fileMatch);
-            return this.files.filter((file) => regex.test(file));
-        }
-
-        if (Array.isArray(fileMatch)) {
-            const regexes = fileMatch.map((wildcard) => wildcard2regex(wildcard));
-            return this.files.filter((file) => regexes.some((regex) => regex.test(file)));
-        }
-
-        return this.files.filter((file) => fileMatch(file));
-    }
-
     async runLinter(
         options: {
             fileMatch: string | string[] | ((file: string) => boolean),
@@ -68,7 +54,7 @@ export class Linters {
             jobs?: number | undefined,
         }
     ): Promise<void> {
-        const files = this.matchFiles(options.fileMatch);
+        const files = matchFiles(this.files, options.fileMatch);
         if (shouldSkipLinter(options.envName, options.linterName)) {
             return;
         }
