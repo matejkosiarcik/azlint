@@ -30,6 +30,30 @@ export async function resolvePromiseOrValue<T>(value: T | Promise<T>): Promise<T
     return value;
 }
 
+export async function resolveLintArgs(args: string[] | ((file: string) => (string[] | Promise<string[]>)), file: string): Promise<string[]> {
+    if (Array.isArray(args)) {
+        return args.map((el) => el
+            .replace('#file#', file)
+            .replace('#filename#', path.basename(file))
+            .replace('#directory#', path.dirname(file))
+            .replace('#file[abs]#', path.resolve(file))
+            .replace('#directory[abs]#', path.resolve(path.dirname(file)))
+        );
+    }
+
+    return resolvePromiseOrValue(args(file));
+}
+
+export async function resolveLintOptions(options: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined, file: string): Promise<ExecaOptions> {
+    if (options === undefined) {
+        return {};
+    } else if (typeof options === 'object') {
+        return options;
+    } else {
+        return resolvePromiseOrValue(options(file));
+    }
+}
+
 // TODO: rewrite findFiles natively in TypeScript
 export async function findFiles(onlyChanged: boolean): Promise<string[]> {
     const isGit = await isCwdGitRepo();
