@@ -20,6 +20,40 @@ export async function isCwdGitRepo(): Promise<boolean> {
     }
 }
 
+/**
+ * Turn sync value into async value
+ */
+export async function resolvePromiseOrValue<T>(value: T | Promise<T>): Promise<T> {
+    if (value && typeof value === 'object') {
+        return 'then' in value ? await value : value;
+    }
+    return value;
+}
+
+export async function resolveLintArgs(args: string[] | ((file: string) => (string[] | Promise<string[]>)), file: string): Promise<string[]> {
+    if (Array.isArray(args)) {
+        return args.map((el) => el
+            .replace('#file#', file)
+            .replace('#filename#', path.basename(file))
+            .replace('#directory#', path.dirname(file))
+            .replace('#file[abs]#', path.resolve(file))
+            .replace('#directory[abs]#', path.resolve(path.dirname(file)))
+        );
+    }
+
+    return resolvePromiseOrValue(args(file));
+}
+
+export async function resolveLintOptions(options: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined, file: string): Promise<ExecaOptions> {
+    if (options === undefined) {
+        return {};
+    } else if (typeof options === 'object') {
+        return options;
+    } else {
+        return resolvePromiseOrValue(options(file));
+    }
+}
+
 // TODO: rewrite findFiles natively in TypeScript
 export async function findFiles(onlyChanged: boolean): Promise<string[]> {
     const isGit = await isCwdGitRepo();
@@ -78,6 +112,38 @@ export async function customExeca(command: string[], _options?: ExecaOptions<str
     }
 }
 
+/**
+ * Match list of files agains a given wildcards or predicates
+ */
+export function matchFiles(allFiles: string[], fileMatch: string | string[] | ((file: string) => boolean) | ((file: string) => boolean)[]): string[] {
+    if (typeof fileMatch === 'string') {
+        const regex = wildcard2regex(fileMatch);
+        return allFiles.filter((file) => regex.test(file));
+    }
+
+    if (Array.isArray(fileMatch)) {
+        if (fileMatch.length === 0) {
+            return [];
+        }
+
+        if (typeof fileMatch[0] === 'string') {
+            const regexes = (fileMatch as string[]).map((wildcard) => wildcard2regex(wildcard));
+            return allFiles.filter((file) => regexes.some((regex) => regex.test(file)));
+        }
+
+        return allFiles.filter((file) => (fileMatch as ((file: string) => boolean)[]).some((predicate) => predicate(file)));
+    }
+
+    return allFiles.filter((file) => fileMatch(file));
+}
+
+/**
+ * Returns config directories in the following order:
+ * - FOO_CONFIG_DIR
+ * - CONFIG_DIR
+ * - . (cwd)
+ * - ./.config
+ */
 function getConfigDirs(envName: string): string[] {
     const output: string[] = [];
 

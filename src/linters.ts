@@ -4,7 +4,7 @@ import path from "path";
 import os from 'os';
 import { Options as ExecaOptions } from "@esm2cjs/execa";
 import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from "./log";
-import { customExeca, getConfigArgs, getPythonConfigArgs, hashFile, isCwdGitRepo, ProgressOptions, wildcard2regex } from "./utils";
+import { customExeca, getConfigArgs, getPythonConfigArgs, hashFile, isCwdGitRepo, matchFiles, ProgressOptions, resolveLintArgs, resolveLintOptions } from "./utils";
 
 function shouldSkipLinter(envName: string, linterName: string): boolean {
     const envEnable = 'VALIDATE_' + envName;
@@ -34,21 +34,7 @@ export class Linters {
         this.progress = options.progress;
     }
 
-    matchFiles(fileMatch: string | string[] | ((file: string) => boolean)): string[] {
-        if (typeof fileMatch === 'string') {
-            const regex = wildcard2regex(fileMatch);
-            return this.files.filter((file) => regex.test(file));
-        }
-
-        if (Array.isArray(fileMatch)) {
-            const regexes = fileMatch.map((wildcard) => wildcard2regex(wildcard));
-            return this.files.filter((file) => regexes.some((regex) => regex.test(file)));
-        }
-
-        return this.files.filter((file) => fileMatch(file));
-    }
-
-    async runLinter(
+    private async runLinter(
         options: {
             fileMatch: string | string[] | ((file: string) => boolean),
             linterName: string,
@@ -68,7 +54,7 @@ export class Linters {
             jobs?: number | undefined,
         }
     ): Promise<void> {
-        const files = this.matchFiles(options.fileMatch);
+        const files = matchFiles(this.files, options.fileMatch);
         if (shouldSkipLinter(options.envName, options.linterName)) {
             return;
         }
@@ -92,68 +78,7 @@ export class Linters {
         }));
     }
 
-    async runLinters(
-        commonOptions: {
-            fileMatch: string | string[] | ((file: string) => boolean),
-        },
-        individualOptions: {
-            linterName: string,
-            envName: string,
-            beforeAllFiles?: (toolName: string) => (boolean | Promise<boolean>),
-            beforeFile?: ((file: string, toolName: string) => (boolean | Promise<boolean>)) | undefined,
-            lintFile: {
-                args: string[] | ((file: string) => (string[] | Promise<string[]>)),
-                options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
-                successExitCode?: number | undefined,
-            } | ((file: string, toolName: string) => Promise<void>),
-            fmtFile?: {
-                args: string[] | ((file: string) => (string[] | Promise<string[]>)),
-                options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
-                successExitCode?: number | undefined,
-            } | ((file: string, toolName: string) => Promise<void>),
-        }[]
-    ): Promise<void> {
-        const files = this.matchFiles(commonOptions.fileMatch);
-
-        const acceptedIndividualOptions = (await Promise.all(individualOptions.map(async (options) => {
-            if (shouldSkipLinter(options.envName, options.linterName)) {
-                return {
-                    pass: false,
-                    options: options
-                };
-            }
-
-            if (options.beforeAllFiles) {
-                let returnValue = options.beforeAllFiles(options.linterName);
-                if (typeof returnValue !== 'boolean') {
-                    returnValue = await returnValue;
-                }
-
-                if (!returnValue) {
-                    return {
-                        pass: false,
-                        options: options
-                    };
-                }
-            }
-
-            return {
-                pass: true,
-                options: options
-            };
-        }))).filter((options) => options.pass).map((options) => options.options);
-
-        await Promise.all(files.map(async (file) => {
-            for (const options of acceptedIndividualOptions) {
-                await this.runLinterFile({
-                    file: file,
-                    ...options,
-                });
-            }
-        }));
-    }
-
-    async runLinterFile(
+    private async runLinterFile(
         options: {
             linterName: string,
             envName: string,
@@ -186,29 +111,8 @@ export class Linters {
             if (typeof options.lintFile === 'object') {
                 const execaConfig = options.lintFile;
                 options.lintFile = async (file: string, toolName: string) => {
-                    const args: string[] = await (async () => {
-                        if (Array.isArray(execaConfig.args)) {
-                            return execaConfig.args.map((el) => el
-                                .replace('#file#', file)
-                                .replace('#filename#', path.basename(file))
-                                .replace('#directory#', path.dirname(file))
-                                .replace('#file[abs]#', path.resolve(file))
-                                .replace('#directory[abs]#', path.resolve(path.dirname(file)))
-                            );
-                        }
-                        let args = execaConfig.args(file);
-                        return 'then' in args ? await args : args;
-                    })();
-                    const options: ExecaOptions = await (async () => {
-                        if (execaConfig.options === undefined) {
-                            return {};
-                        } else if (typeof execaConfig.options === 'object') {
-                            return execaConfig.options;
-                        } else {
-                            let options = execaConfig.options(file);
-                            return 'then' in options ? await options : options;
-                        }
-                    })();
+                    const args = await resolveLintArgs(execaConfig.args, file);
+                    const options = await resolveLintOptions(execaConfig.options, file);
                     const successExitCode = execaConfig.successExitCode ?? 0;
 
                     const cmd = await customExeca(args, options);
@@ -225,29 +129,8 @@ export class Linters {
             if (typeof options.fmtFile === 'object') {
                 const execaConfig = options.fmtFile;
                 options.fmtFile = async (file: string, toolName: string) => {
-                    const args: string[] = await (async () => {
-                        if (Array.isArray(execaConfig.args)) {
-                            return execaConfig.args.map((el) => el
-                            .replace('#file#', file)
-                            .replace('#filename#', path.basename(file))
-                            .replace('#directory#', path.dirname(file))
-                            .replace('#file[abs]#', path.resolve(file))
-                            .replace('#directory[abs]#', path.resolve(path.dirname(file)))
-                            );
-                        }
-                        let args = execaConfig.args(file);
-                        return 'then' in args ? await args : args;
-                    })();
-                    const options: ExecaOptions = await (async () => {
-                        if (execaConfig.options === undefined) {
-                            return {};
-                        } else if (typeof execaConfig.options === 'object') {
-                            return execaConfig.options;
-                        } else {
-                            let options = execaConfig.options(file);
-                            return 'then' in options ? await options : options;
-                        }
-                    })();
+                    const args = await resolveLintArgs(execaConfig.args, file);
+                    const options = await resolveLintOptions(execaConfig.options, file);
                     const successExitCode = execaConfig.successExitCode ?? 0;
 
                     const originalHash = await hashFile(file);
