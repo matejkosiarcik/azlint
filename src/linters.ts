@@ -257,7 +257,6 @@ export class Linters {
             envName: 'JSONLINT',
             fileMatch: matchers.json,
             lintFile: { args: ['jsonlint', ...jsonlintConfigArgs, '--quiet', '--comments', '--no-duplicate-keys', '#file#'] },
-            // fmtFile: { args: ['jsonlint', ...jsonlintConfigArgs, '--quiet', '--comments', '--no-duplicate-keys', '--in-place', '--pretty-print', '#file#'] }, // NOTE: Conflicts with prettier
         });
 
         // Yamllint
@@ -440,7 +439,6 @@ export class Linters {
             envName: 'AUTOPEP8',
             fileMatch: matchers.python,
             lintFile: { args: ['autopep8', '--diff', "#file#"], },
-            // fmtFile: { args: ['autopep8', '--in-place', "#file#"], }, // NOTE: Conflicts with black
         });
 
         // isort
