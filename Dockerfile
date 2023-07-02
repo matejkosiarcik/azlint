@@ -94,7 +94,7 @@ RUN apt-get update && \
 # Hadolint #
 FROM hadolint/hadolint:v2.12.0 AS hadolint
 
-# Shellcheck #
+# ShellCheck #
 FROM koalaman/shellcheck:v0.9.0 AS shellcheck
 
 ### Helpers ###
