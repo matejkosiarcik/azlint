@@ -20,6 +20,16 @@ export async function isCwdGitRepo(): Promise<boolean> {
     }
 }
 
+/**
+ * Turn sync value into async value
+ */
+export async function resolvePromiseOrValue<T>(value: T | Promise<T>): Promise<T> {
+    if (value && typeof value === 'object') {
+        return 'then' in value ? await value : value;
+    }
+    return value;
+}
+
 // TODO: rewrite findFiles natively in TypeScript
 export async function findFiles(onlyChanged: boolean): Promise<string[]> {
     const isGit = await isCwdGitRepo();
