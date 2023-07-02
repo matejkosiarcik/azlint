@@ -39,7 +39,9 @@ export class Linters {
             fileMatch: string | string[] | ((file: string) => boolean),
             linterName: string,
             envName: string,
-            beforeAllFiles?: (toolName: string) => (boolean | Promise<boolean>),
+            beforeAllFiles?: (toolName: string) => (void | Promise<void>),
+            afterAllFiles?: (toolName: string) => (void | Promise<void>),
+            shouldSkipAllFiles?: (toolName: string) => (boolean | Promise<boolean>),
             beforeFile?: ((file: string, toolName: string) => (void | Promise<void>)) | undefined,
             shouldSkipFile?: ((file: string, toolName: string) => (boolean | Promise<boolean>)) | undefined,
             afterFile?: ((file: string, toolName: string) => (void | Promise<void>)) | undefined,
@@ -61,15 +63,16 @@ export class Linters {
             return;
         }
 
-        if (options.beforeAllFiles) {
-            let returnValue = options.beforeAllFiles(options.linterName);
-            if (typeof returnValue !== 'boolean') {
-                returnValue = await returnValue;
-            }
+        if (options.shouldSkipAllFiles) {
+            const returnValue = await resolvePromiseOrValue(options.shouldSkipAllFiles(options.linterName));
 
             if (!returnValue) {
                 return;
             }
+        }
+
+        if (options.beforeAllFiles) {
+            await resolvePromiseOrValue(options.beforeAllFiles(options.linterName));
         }
 
         await Promise.all(files.map(async (file) => {
@@ -78,6 +81,10 @@ export class Linters {
                 ...options,
             });
         }));
+
+        if (options.afterAllFiles) {
+            await resolvePromiseOrValue(options.afterAllFiles(options.linterName));
+        }
     }
 
     private async runLinterFile(
@@ -184,10 +191,10 @@ export class Linters {
             linterName: 'git-check-ignore',
             envName: 'GITIGNORE',
             fileMatch: '*',
-            beforeAllFiles: async (toolName: string) => {
+            shouldSkipAllFiles: async (toolName: string) => {
                 const isGit = await isCwdGitRepo();
                 if (!isGit) {
-                    logVerbose(`⏩ Skipping ${toolName}, because it's private`);
+                    logVerbose(`⏩ Skipping ${toolName}, not a git repository`);
                 }
                 return isGit;
             },
