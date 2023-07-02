@@ -54,6 +54,28 @@ export async function resolveLintOptions(options: ExecaOptions | ((file: string)
     }
 }
 
+export function resolveLintSuccessExitCode(successExitCode: number | number[] | ((status: number) => boolean) |  undefined): ((status: number) => boolean) {
+    if (successExitCode === undefined) {
+        successExitCode = 0;
+    }
+
+    if (typeof successExitCode === 'number') {
+        const staticSuccessExitCode = successExitCode;
+        successExitCode = (success: number) => {
+            return success === staticSuccessExitCode;
+        }
+    }
+
+    if (Array.isArray(successExitCode)) {
+        const staticSuccessExitCodes = successExitCode;
+        successExitCode = (success: number) => {
+            return staticSuccessExitCodes.includes(success);
+        }
+    }
+
+    return successExitCode;
+}
+
 // TODO: rewrite findFiles natively in TypeScript
 export async function findFiles(onlyChanged: boolean): Promise<string[]> {
     const isGit = await isCwdGitRepo();

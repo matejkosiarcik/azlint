@@ -4,7 +4,7 @@ import path from "path";
 import os from 'os';
 import { Options as ExecaOptions } from "@esm2cjs/execa";
 import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from "./log";
-import { customExeca, getConfigArgs, getPythonConfigArgs, hashFile, isCwdGitRepo, matchFiles, ProgressOptions, resolveLintArgs, resolveLintOptions } from "./utils";
+import { customExeca, getConfigArgs, getPythonConfigArgs, hashFile, isCwdGitRepo, matchFiles, ProgressOptions, resolveLintArgs, resolveLintOptions, resolveLintSuccessExitCode, resolvePromiseOrValue } from "./utils";
 
 function shouldSkipLinter(envName: string, linterName: string): boolean {
     const envEnable = 'VALIDATE_' + envName;
@@ -39,17 +39,21 @@ export class Linters {
             fileMatch: string | string[] | ((file: string) => boolean),
             linterName: string,
             envName: string,
-            beforeAllFiles?: (toolName: string) => (boolean | Promise<boolean>),
-            beforeFile?: ((file: string, toolName: string) => (boolean | Promise<boolean>)) | undefined,
+            beforeAllFiles?: (toolName: string) => (void | Promise<void>),
+            afterAllFiles?: (toolName: string) => (void | Promise<void>),
+            shouldSkipAllFiles?: (toolName: string) => (boolean | Promise<boolean>),
+            beforeFile?: ((file: string, toolName: string) => (void | Promise<void>)) | undefined,
+            shouldSkipFile?: ((file: string, toolName: string) => (boolean | Promise<boolean>)) | undefined,
+            afterFile?: ((file: string, toolName: string) => (void | Promise<void>)) | undefined,
             lintFile: {
                 args: string[] | ((file: string) => (string[] | Promise<string[]>)),
                 options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
-                successExitCode?: number | undefined,
+                successExitCode?: number | number[] | ((status: number) => boolean) |  undefined,
             } | ((file: string, toolName: string) => Promise<void>),
             fmtFile?: {
                 args: string[] | ((file: string) => (string[] | Promise<string[]>)),
                 options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
-                successExitCode?: number | undefined,
+                successExitCode?: number | number[] | ((status: number) => boolean) |  undefined,
             } | ((file: string, toolName: string) => Promise<void>),
             jobs?: number | undefined,
         }
@@ -59,15 +63,16 @@ export class Linters {
             return;
         }
 
-        if (options.beforeAllFiles) {
-            let returnValue = options.beforeAllFiles(options.linterName);
-            if (typeof returnValue !== 'boolean') {
-                returnValue = await returnValue;
-            }
+        if (options.shouldSkipAllFiles) {
+            const returnValue = await resolvePromiseOrValue(options.shouldSkipAllFiles(options.linterName));
 
             if (!returnValue) {
                 return;
             }
+        }
+
+        if (options.beforeAllFiles) {
+            await resolvePromiseOrValue(options.beforeAllFiles(options.linterName));
         }
 
         await Promise.all(files.map(async (file) => {
@@ -76,6 +81,10 @@ export class Linters {
                 ...options,
             });
         }));
+
+        if (options.afterAllFiles) {
+            await resolvePromiseOrValue(options.afterAllFiles(options.linterName));
+        }
     }
 
     private async runLinterFile(
@@ -83,28 +92,31 @@ export class Linters {
             linterName: string,
             envName: string,
             file: string,
-            beforeFile?: ((file: string, toolName: string) => (boolean | Promise<boolean>)) | undefined,
+            beforeFile?: ((file: string, toolName: string) => (void | Promise<void>)) | undefined,
+            shouldSkipFile?: ((file: string, toolName: string) => (boolean | Promise<boolean>)) | undefined,
+            afterFile?: ((file: string, toolName: string) => (void | Promise<void>)) | undefined,
             lintFile: {
                 args: string[] | ((file: string) => (string[] | Promise<string[]>)),
                 options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
-                successExitCode?: number | undefined,
+                successExitCode?: number | number[] | ((status: number) => boolean) |  undefined,
             } | ((file: string, toolName: string) => Promise<void>),
             fmtFile?: {
                 args: string[] | ((file: string) => (string[] | Promise<string[]>)),
                 options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
-                successExitCode?: number | undefined,
+                successExitCode?: number | number[] | ((status: number) => boolean) |  undefined,
             } | ((file: string, toolName: string) => Promise<void>),
         }
     ): Promise<void> {
-        if (options.beforeFile) {
-            let returnValue = options.beforeFile(options.file, options.linterName);
-            if (typeof returnValue !== 'boolean') {
-                returnValue = await returnValue;
-            }
+        if (options.shouldSkipFile) {
+            const returnValue = await resolvePromiseOrValue(options.shouldSkipFile(options.file, options.linterName));
 
             if (!returnValue) {
                 return;
             }
+        }
+
+        if (options.beforeFile) {
+            options.beforeFile(options.file, options.linterName);
         }
 
         if (this.mode === 'lint') {
@@ -113,10 +125,10 @@ export class Linters {
                 options.lintFile = async (file: string, toolName: string) => {
                     const args = await resolveLintArgs(execaConfig.args, file);
                     const options = await resolveLintOptions(execaConfig.options, file);
-                    const successExitCode = execaConfig.successExitCode ?? 0;
+                    const isExitCodeSuccess = resolveLintSuccessExitCode(execaConfig.successExitCode);
 
                     const cmd = await customExeca(args, options);
-                    if (cmd.exitCode === successExitCode) { // Success
+                    if (isExitCodeSuccess(cmd.exitCode)) { // Success
                         logLintSuccess(toolName, file, cmd);
                     } else { // Fail
                         this.foundProblems += 1;
@@ -131,12 +143,12 @@ export class Linters {
                 options.fmtFile = async (file: string, toolName: string) => {
                     const args = await resolveLintArgs(execaConfig.args, file);
                     const options = await resolveLintOptions(execaConfig.options, file);
-                    const successExitCode = execaConfig.successExitCode ?? 0;
+                    const isExitCodeSuccess = resolveLintSuccessExitCode(execaConfig.successExitCode);
 
                     const originalHash = await hashFile(file);
                     const cmd = await customExeca(args, options);
                     const updatedHash = await hashFile(file);
-                    if (cmd.exitCode === successExitCode) {
+                    if (isExitCodeSuccess(cmd.exitCode)) {
                         if (originalHash !== updatedHash) {
                             this.foundProblems += 1;
                             this.fixedProblems += 1;
@@ -150,6 +162,10 @@ export class Linters {
                 };
             }
             await options.fmtFile(options.file, options.linterName);
+        }
+
+        if (options.afterFile) {
+            options.afterFile(options.file, options.linterName);
         }
     }
 
@@ -175,10 +191,10 @@ export class Linters {
             linterName: 'git-check-ignore',
             envName: 'GITIGNORE',
             fileMatch: '*',
-            beforeAllFiles: async (toolName: string) => {
+            shouldSkipAllFiles: async (toolName: string) => {
                 const isGit = await isCwdGitRepo();
                 if (!isGit) {
-                    logVerbose(`⏩ Skipping ${toolName}, because it's private`);
+                    logVerbose(`⏩ Skipping ${toolName}, not a git repository`);
                 }
                 return isGit;
             },
@@ -241,7 +257,6 @@ export class Linters {
             envName: 'JSONLINT',
             fileMatch: matchers.json,
             lintFile: { args: ['jsonlint', ...jsonlintConfigArgs, '--quiet', '--comments', '--no-duplicate-keys', '#file#'] },
-            // fmtFile: { args: ['jsonlint', ...jsonlintConfigArgs, '--quiet', '--comments', '--no-duplicate-keys', '--in-place', '--pretty-print', '#file#'] }, // NOTE: Conflicts with prettier
         });
 
         // Yamllint
@@ -424,7 +439,6 @@ export class Linters {
             envName: 'AUTOPEP8',
             fileMatch: matchers.python,
             lintFile: { args: ['autopep8', '--diff', "#file#"], },
-            // fmtFile: { args: ['autopep8', '--in-place', "#file#"], }, // NOTE: Conflicts with black
         });
 
         // isort
@@ -489,7 +503,7 @@ export class Linters {
             linterName: 'package-json-validator',
             envName: 'PACKAGE_JSON',
             fileMatch: 'package.json',
-            beforeFile: async (file: string, toolName: string) => {
+            shouldSkipFile: async (file: string, toolName: string) => {
                 const packageJson = JSON.parse(await fs.readFile(file, 'utf8'));
                 if (packageJson['private'] === true) {
                     logExtraVerbose(`⏩ Skipping ${toolName} - ${file}, because it's private`);
@@ -543,14 +557,24 @@ export class Linters {
             lintFile: { args: ['python3', '-m', 'pip', 'install', '--dry-run', '--ignore-installed', '--break-system-packages', '--requirement', '#file#'] },
         });
 
-        // TODO: Execute npm outside of project directory, because it can be readonly and fails
         // NPM install
-        // await this.runLinter({
-        //     linterName: 'npm-install',
-        //     envName: 'NPM_INSTALL',
-        //     fileMatch: ['package.json'],
-        //     lintFile: { args: ['npm', 'install', '--dry-run', '--prefix', '#directory#'] },
-        // });
+        const randomDir = await fs.mkdtemp(path.join(os.tmpdir(), 'azlint-npm-'));
+        await this.runLinter({
+            linterName: 'npm-install',
+            envName: 'NPM_INSTALL',
+            fileMatch: ['package.json'],
+            lintFile: {
+                args: ['npm', 'install', '--dry-run'],
+                options: async (file) => {
+                    const workdir = await fs.mkdtemp(path.join(randomDir, Buffer.from(file).toString('base64url')));
+                    await fs.copyFile(file, path.join(workdir, path.basename(file)));
+                    return {
+                        cwd: workdir,
+                    };
+                }
+            },
+        });
+        await fs.rm( randomDir, { force: true, recursive: true });
 
         /* Docker */
 
