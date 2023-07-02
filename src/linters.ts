@@ -4,7 +4,7 @@ import path from "path";
 import os from 'os';
 import { Options as ExecaOptions } from "@esm2cjs/execa";
 import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from "./log";
-import { customExeca, getConfigArgs, getPythonConfigArgs, hashFile, isCwdGitRepo, matchFiles, ProgressOptions, resolveLintArgs, resolveLintOptions } from "./utils";
+import { customExeca, getConfigArgs, getPythonConfigArgs, hashFile, isCwdGitRepo, matchFiles, ProgressOptions, resolveLintArgs, resolveLintOptions, resolveLintSuccessExitCode } from "./utils";
 
 function shouldSkipLinter(envName: string, linterName: string): boolean {
     const envEnable = 'VALIDATE_' + envName;
@@ -44,12 +44,12 @@ export class Linters {
             lintFile: {
                 args: string[] | ((file: string) => (string[] | Promise<string[]>)),
                 options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
-                successExitCode?: number | undefined,
+                successExitCode?: number | number[] | ((status: number) => boolean) |  undefined,
             } | ((file: string, toolName: string) => Promise<void>),
             fmtFile?: {
                 args: string[] | ((file: string) => (string[] | Promise<string[]>)),
                 options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
-                successExitCode?: number | undefined,
+                successExitCode?: number | number[] | ((status: number) => boolean) |  undefined,
             } | ((file: string, toolName: string) => Promise<void>),
             jobs?: number | undefined,
         }
@@ -87,12 +87,12 @@ export class Linters {
             lintFile: {
                 args: string[] | ((file: string) => (string[] | Promise<string[]>)),
                 options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
-                successExitCode?: number | undefined,
+                successExitCode?: number | number[] | ((status: number) => boolean) |  undefined,
             } | ((file: string, toolName: string) => Promise<void>),
             fmtFile?: {
                 args: string[] | ((file: string) => (string[] | Promise<string[]>)),
                 options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
-                successExitCode?: number | undefined,
+                successExitCode?: number | number[] | ((status: number) => boolean) |  undefined,
             } | ((file: string, toolName: string) => Promise<void>),
         }
     ): Promise<void> {
@@ -113,10 +113,10 @@ export class Linters {
                 options.lintFile = async (file: string, toolName: string) => {
                     const args = await resolveLintArgs(execaConfig.args, file);
                     const options = await resolveLintOptions(execaConfig.options, file);
-                    const successExitCode = execaConfig.successExitCode ?? 0;
+                    const isExitCodeSuccess = resolveLintSuccessExitCode(execaConfig.successExitCode);
 
                     const cmd = await customExeca(args, options);
-                    if (cmd.exitCode === successExitCode) { // Success
+                    if (isExitCodeSuccess(cmd.exitCode)) { // Success
                         logLintSuccess(toolName, file, cmd);
                     } else { // Fail
                         this.foundProblems += 1;
@@ -131,12 +131,12 @@ export class Linters {
                 options.fmtFile = async (file: string, toolName: string) => {
                     const args = await resolveLintArgs(execaConfig.args, file);
                     const options = await resolveLintOptions(execaConfig.options, file);
-                    const successExitCode = execaConfig.successExitCode ?? 0;
+                    const isExitCodeSuccess = resolveLintSuccessExitCode(execaConfig.successExitCode);
 
                     const originalHash = await hashFile(file);
                     const cmd = await customExeca(args, options);
                     const updatedHash = await hashFile(file);
-                    if (cmd.exitCode === successExitCode) {
+                    if (isExitCodeSuccess(cmd.exitCode)) {
                         if (originalHash !== updatedHash) {
                             this.foundProblems += 1;
                             this.fixedProblems += 1;
