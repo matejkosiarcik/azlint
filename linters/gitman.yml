@@ -1,0 +1,46 @@
+location: gitman/
+sources:
+  - repo: https://github.com/mrtazz/checkmake
+    name: checkmake
+    rev: main
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker
+    name: editorconfig-checker
+    rev: main
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+sources_locked:
+  - repo: https://github.com/mrtazz/checkmake
+    name: checkmake
+    rev: 48ab7819837d1bdfcbac58e301478a06efebf4a8
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker
+    name: editorconfig-checker
+    rev: a49a2ff72e0d15e57ca40956a504ad6132dbfada
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+default_group: ""
+groups:
+  -
