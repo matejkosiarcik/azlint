@@ -44,21 +44,18 @@ bootstrap:
 	cd linters && \
 		composer install
 
-	rm -rf linters/checkmake && \
-		mkdir -p linters/checkmake && \
-		cd linters/checkmake && \
-		git clone https://github.com/mrtazz/checkmake . && \
+	cd linters && \
+		gitman install # TODO: use locally installed gitman (not system one)
+
+	cd linters/gitman/checkmake && \
 		BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
 
-	rm -rf linters/editorconfig-checker && \
-		mkdir -p linters/editorconfig-checker && \
-		cd linters/editorconfig-checker && \
-		git clone https://github.com/editorconfig-checker/editorconfig-checker . && \
+	cd linters/gitman/editorconfig-checker && \
 		make build
 
 	mkdir -p linters/bin && \
-		cp linters/checkmake/checkmake linters/bin/ && \
-		cp linters/editorconfig-checker/bin/ec linters/bin/
+		cp linters/gitman/checkmake/checkmake linters/bin/ && \
+		cp linters/gitman/editorconfig-checker/bin/ec linters/bin/
 
 	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest'
 	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest'
