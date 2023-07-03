@@ -155,5 +155,5 @@ ENV NODE_OPTIONS=--dns-result-order=ipv4first
 
 USER azlint
 WORKDIR /project
-ENTRYPOINT [ "azlint" ]
+ENTRYPOINT ["azlint"]
 CMD []
