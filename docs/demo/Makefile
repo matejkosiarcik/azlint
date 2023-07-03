@@ -23,7 +23,7 @@ bootstrap:
 		|| virtualenv venv \
 		|| mkvirtualenv venv
 
-	pip install --requirement requirements.txt
+	python3 -m pip install --requirement requirements.txt
 	gitman install
 
 .PHONY: record
