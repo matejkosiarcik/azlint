@@ -18,8 +18,5 @@
     "prettier": "^2.8.8",
     "sql-lint": "^1.0.0",
     "svglint": "^2.4.0"
-  },
-  "devDependencies": {
-    "node-prune": "^1.0.2"
   }
 }
