@@ -4,11 +4,10 @@
 
 # GoLang #
 FROM golang:1.20.5-bookworm AS go
-WORKDIR /cwd
+WORKDIR /app
 RUN GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
     GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
     GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
-WORKDIR /cwd
 COPY requirements.txt ./
 COPY linters/gitman.yml ./linters/
 RUN apt-get update && \
@@ -16,30 +15,30 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     python3 -m pip install --no-cache-dir --requirement requirements.txt --target python && \
     cd linters && \
-    PYTHONPATH=/cwd/python PATH="/cwd/python/bin:$PATH" gitman install && \
-    cd /cwd/linters/gitman/editorconfig-checker && \
+    PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install && \
+    cd /app/linters/gitman/editorconfig-checker && \
     make build && \
-    cd /cwd/linters/gitman/checkmake && \
+    cd /app/linters/gitman/checkmake && \
     BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
 
 # NodeJS/NPM #
 FROM node:20.3.1-slim AS node
 ENV NODE_OPTIONS=--dns-result-order=ipv4first
-WORKDIR /cwd
+WORKDIR /app
 COPY package.json package-lock.json tsconfig.json ./
 COPY src/ ./src/
 RUN npm ci --unsafe-perm && \
     npm run build && \
     npx node-prune && \
     npm prune --production
-WORKDIR /cwd/linters
+WORKDIR /app/linters
 COPY linters/package.json linters/package-lock.json ./
 RUN npm ci --unsafe-perm && \
     npm prune --production
 
 # Ruby/Gem #
 FROM debian:12.0-slim AS ruby
-WORKDIR /cwd
+WORKDIR /app
 COPY linters/Gemfile linters/Gemfile.lock ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bundler ruby ruby-build ruby-dev && \
@@ -48,7 +47,7 @@ RUN apt-get update && \
 
 # Rust/Cargo #
 FROM rust:1.70.0-slim-bookworm AS rust
-WORKDIR /cwd
+WORKDIR /app
 COPY package.json package-lock.json ./
 COPY utils/cargo-packages.js ./utils/
 COPY linters/Cargo.toml ./linters/
@@ -63,7 +62,7 @@ RUN apt-get update && \
 
 # Python/Pip #
 FROM debian:12.0-slim AS python
-WORKDIR /cwd/linters
+WORKDIR /app/linters
 COPY linters/requirements.txt ./
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -74,16 +73,16 @@ RUN apt-get update && \
 
 # PHP/Composer #
 FROM debian:12.0-slim AS composer
-WORKDIR /cwd
+WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl php php-cli php-common php-mbstring php-zip && \
     curl -fLsS https://getcomposer.org/installer -o composer-setup.php && \
-    mkdir -p /cwd/linters/composer/bin && \
-    php composer-setup.php --install-dir=/cwd/linters/composer/bin --filename=composer && \
+    mkdir -p /app/linters/composer/bin && \
+    php composer-setup.php --install-dir=/app/linters/composer/bin --filename=composer && \
     rm -rf /var/lib/apt/lists/* composer-setup.php
-WORKDIR /cwd/linters
+WORKDIR /app/linters
 COPY linters/composer.json linters/composer.lock ./
-RUN PATH="/cwd/linters/composer/bin:$PATH" composer install --no-cache
+RUN PATH="/app/linters/composer/bin:$PATH" composer install --no-cache
 
 # CircleCI #
 # it has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
@@ -123,15 +122,15 @@ RUN find / >before.txt 2>/dev/null && \
 # Upx #
 # Single stage to compress all executables from multiple components
 FROM ubuntu:23.10 AS upx
-WORKDIR /cwd
+WORKDIR /app
 COPY --from=circleci /usr/local/bin/circleci ./
-COPY --from=go /cwd/linters/gitman/checkmake/checkmake /cwd/linters/gitman/editorconfig-checker/bin/ec /cwd/bin/shfmt /cwd/bin/stoml /cwd/bin/tomljson ./
+COPY --from=go /app/linters/gitman/checkmake/checkmake /app/linters/gitman/editorconfig-checker/bin/ec /app/bin/shfmt /app/bin/stoml /app/bin/tomljson ./
 COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter ./
 COPY --from=shellcheck /bin/shellcheck ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends parallel upx-ucl && \
     rm -rf /var/lib/apt/lists/* && \
-    parallel upx --best ::: /cwd/*
+    parallel upx --best ::: /app/*
 
 # Pre-Final #
 FROM debian:12.0-slim AS pre-final
@@ -141,8 +140,8 @@ RUN rm foo.txt
 WORKDIR /app
 COPY VERSION.txt ./
 WORKDIR /app/cli
-COPY --from=node /cwd/cli ./
-COPY --from=node /cwd/node_modules ./node_modules
+COPY --from=node /app/cli ./
+COPY --from=node /app/node_modules ./node_modules
 COPY src/shell-dry-run.sh src/shell-dry-run-utils.sh src/find_files.py ./
 WORKDIR /app/bin
 RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azlint && \
@@ -151,14 +150,14 @@ RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azl
     chmod a+x azlint fmt lint
 WORKDIR /app/linters
 COPY linters/Gemfile linters/Gemfile.lock linters/composer.json ./
-COPY --from=composer /cwd/linters/vendor ./vendor
-COPY --from=node /cwd/linters/node_modules ./node_modules
-COPY --from=python /cwd/linters/python ./python
-COPY --from=ruby /cwd/bundle ./bundle
+COPY --from=composer /app/linters/vendor ./vendor
+COPY --from=node /app/linters/node_modules ./node_modules
+COPY --from=python /app/linters/python ./python
+COPY --from=ruby /app/bundle ./bundle
 WORKDIR /app/linters/bin
-COPY --from=composer /cwd/linters/composer/bin/composer ./
+COPY --from=composer /app/linters/composer/bin/composer ./
 COPY --from=hadolint /bin/hadolint ./
-COPY --from=upx /cwd/checkmake /cwd/circleci /cwd/dotenv-linter /cwd/ec /cwd/shellcheck /cwd/shellharden /cwd/shfmt /cwd/stoml /cwd/tomljson ./
+COPY --from=upx /app/checkmake /app/circleci /app/dotenv-linter /app/ec /app/shellcheck /app/shellharden /app/shfmt /app/stoml /app/tomljson ./
 
 ### Main runner ###
 
