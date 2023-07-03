@@ -8,14 +8,18 @@ WORKDIR /cwd
 RUN GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
     GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
     GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
-WORKDIR /cwd/editorconfig-checker
-RUN git clone https://github.com/editorconfig-checker/editorconfig-checker . && \
-    make build
-WORKDIR /cwd/checkmake
+WORKDIR /cwd
+COPY requirements.txt ./
+COPY linters/gitman.yml ./linters/
 RUN apt-get update && \
-    apt-get install --yes --no-install-recommends pandoc && \
+    apt-get install --yes --no-install-recommends pandoc python3 python3-pip git && \
     rm -rf /var/lib/apt/lists/* && \
-    git clone https://github.com/mrtazz/checkmake . && \
+    python3 -m pip install --no-cache-dir --requirement requirements.txt --target python && \
+    cd linters && \
+    PYTHONPATH=/cwd/python PATH="/cwd/python/bin:$PATH" gitman install && \
+    cd /cwd/linters/gitman/editorconfig-checker && \
+    make build && \
+    cd /cwd/linters/gitman/checkmake && \
     BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
 
 # NodeJS/NPM #
@@ -116,7 +120,7 @@ FROM koalaman/shellcheck:v0.9.0 AS shellcheck
 FROM ubuntu:23.10 AS upx
 WORKDIR /cwd
 COPY --from=circleci /usr/local/bin/circleci ./
-COPY --from=go /cwd/checkmake/checkmake /cwd/editorconfig-checker/bin/ec /cwd/bin/shfmt /cwd/bin/stoml /cwd/bin/tomljson ./
+COPY --from=go /cwd/linters/gitman/checkmake/checkmake /cwd/linters/gitman/editorconfig-checker/bin/ec /cwd/bin/shfmt /cwd/bin/stoml /cwd/bin/tomljson ./
 COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter ./
 COPY --from=shellcheck /bin/shellcheck ./
 RUN apt-get update && \
