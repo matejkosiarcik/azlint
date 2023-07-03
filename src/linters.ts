@@ -176,13 +176,16 @@ export class Linters {
             env: '{*.env,env.*,env}',
             dockerfile: '{Dockerfile,*.Dockerfile,Dockerfile.*}',
             markdown: '*.{md,mdown,markdown}',
+            text: '*.{txt, text}',
             makefile: '{Makefile,*.make}',
             gnumakefile: '{GNU,G,}{Makefile,*.make}',
             bsdmakefile: '{BSD,B,}{Makefile,*.make}',
             html: '*.{html,htm,html5,xhtml}',
             shell: '*.{sh,bash,ksh,ksh93,mksh,loksh,ash,dash,zsh,yash}',
             python: '*.{py,py3,python,python3}',
+            allText: [] as string[],
         };
+        matchers.allText = [matchers.markdown, matchers.text, 'README', 'LICENSE'];
 
         /* Generic linters for all files */
 
@@ -375,7 +378,7 @@ export class Linters {
         await this.runLinter({
             linterName: 'proselint',
             envName: 'PROSELINT',
-            fileMatch: [matchers.markdown, '*.txt'],
+            fileMatch: matchers.allText,
             lintFile: { args: ['proselint', ...proselintConfigArgs, "#file#"] },
         });
 
