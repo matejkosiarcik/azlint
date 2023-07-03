@@ -101,12 +101,17 @@ FROM hadolint/hadolint:v2.12.0 AS hadolint
 # ShellCheck #
 FROM koalaman/shellcheck:v0.9.0 AS shellcheck
 
-# # LinuxBrew #
-# FROM debian:12.0 AS brew
-# WORKDIR /app
-# RUN find / >before.txt 2>/dev/null && \
-#     apt-get update && \
-#     dpkg --add-architecture amd64 && \
+# LinuxBrew #
+FROM debian:12.0 AS brew
+WORKDIR /app
+RUN find / >before.txt 2>/dev/null && \
+    apt-get update && \
+    apt-get install --yes --no-install-recommends ca-certificates curl ruby ruby-build qemu-user && \
+    if [ "$(uname -m)" != x86_64 ]; then \
+        dpkg --add-architecture amd64; \
+    fi && \
+    touch foo.txt
+
 #     apt-get update -o APT::Architecture="amd64" -o APT::Architectures="amd64" && \
 #     apt-get install --yes --no-install-recommends ca-certificates curl:amd64 qemu-user ruby ruby-build && \
 #     rm -rf /var/lib/apt/lists/* && \
@@ -130,6 +135,9 @@ RUN apt-get update && \
 
 # Pre-Final #
 FROM debian:12.0-slim AS pre-final
+WORKDIR /
+COPY --from=brew /app/foo.txt ./
+RUN rm foo.txt
 WORKDIR /app
 COPY VERSION.txt ./
 WORKDIR /app/cli
