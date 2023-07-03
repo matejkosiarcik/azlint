@@ -60,7 +60,7 @@ _AZLint_.
 
 ## Usage
 
-![azlint demo](./doc/demo.gif)
+![azlint demo](./docs/demo.gif)
 
 **NOTE:** In this chapter, we will use `:latest` tag.
 It is recommended to replace `:latest` with a specific `version` when you use it.

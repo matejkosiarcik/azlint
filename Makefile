@@ -68,7 +68,7 @@ bootstrap:
 		# cabal install hadolint-2.12.0 && \
 		# cabal install ShellCheck-0.9.0
 
-	$(MAKE) -C doc/demo bootstrap
+	$(MAKE) -C docs/demo bootstrap
 
 .PHONY: build
 build:
