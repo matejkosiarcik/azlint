@@ -13,13 +13,11 @@ COPY linters/gitman.yml ./linters/
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends pandoc python3 python3-pip git && \
     rm -rf /var/lib/apt/lists/* && \
-    python3 -m pip install --no-cache-dir --requirement requirements.txt --target python && \
-    cd linters && \
-    PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install && \
-    cd /app/linters/gitman/editorconfig-checker && \
-    make build && \
-    cd /app/linters/gitman/checkmake && \
-    BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
+    python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
+WORKDIR /app/linters
+RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install && \
+    make -C /app/linters/gitman/editorconfig-checker build && \
+    BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make -C /app/linters/gitman/checkmake
 
 # NodeJS/NPM #
 FROM node:20.3.1-slim AS node
