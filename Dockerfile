@@ -109,6 +109,7 @@ RUN find / >before.txt 2>/dev/null && \
     if [ "$(uname -m)" != x86_64 ]; then \
         dpkg --add-architecture amd64; \
     fi && \
+    rm -rf /var/lib/apt/lists/* && \
     touch foo.txt
 
 #     apt-get update -o APT::Architecture="amd64" -o APT::Architectures="amd64" && \
