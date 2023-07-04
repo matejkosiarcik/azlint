@@ -5,6 +5,8 @@ import crypto from 'crypto';
 import { execa, ExecaError, Options as ExecaOptions, ExecaReturnValue } from "@esm2cjs/execa";
 import { logVerbose } from './log';
 
+export type OneOrArray<T> = T | T[];
+
 export type ColorOptions = 'auto' | 'never' | 'always';
 export type ProgressOptions = 'no' | 'yes';
 
@@ -137,26 +139,21 @@ export async function customExeca(command: string[], _options?: ExecaOptions<str
 /**
  * Match list of files agains a given wildcards or predicates
  */
-export function matchFiles(allFiles: string[], fileMatch: string | string[] | ((file: string) => boolean) | ((file: string) => boolean)[]): string[] {
-    if (typeof fileMatch === 'string') {
-        const regex = wildcard2regex(fileMatch);
-        return allFiles.filter((file) => regex.test(file));
-    }
+export function matchFiles(allFiles: string[], fileMatch: OneOrArray<string | RegExp | ((file: string) => boolean)>): string[] {
+    fileMatch = Array.isArray(fileMatch) ? fileMatch : [fileMatch];
 
-    if (Array.isArray(fileMatch)) {
-        if (fileMatch.length === 0) {
-            return [];
+    const predicates = fileMatch.map((fileMatchEntry) => {
+        if (typeof fileMatchEntry === 'string') {
+            const regex = wildcard2regex(fileMatchEntry);
+            return (file: string) => regex.test(file);
+        } else if (fileMatchEntry instanceof RegExp) {
+            return (file: string) => fileMatchEntry.test(file);
+        } else {
+            return fileMatchEntry;
         }
+    });
 
-        if (typeof fileMatch[0] === 'string') {
-            const regexes = (fileMatch as string[]).map((wildcard) => wildcard2regex(wildcard));
-            return allFiles.filter((file) => regexes.some((regex) => regex.test(file)));
-        }
-
-        return allFiles.filter((file) => (fileMatch as ((file: string) => boolean)[]).some((predicate) => predicate(file)));
-    }
-
-    return allFiles.filter((file) => fileMatch(file));
+    return allFiles.filter((file) => predicates.some((predicate) => predicate(file)));
 }
 
 /**
