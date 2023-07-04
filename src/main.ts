@@ -34,16 +34,16 @@ import { Linters } from './linters';
         .option('color', {
             describe: 'Colored output', type: 'string', choices: ['auto', 'never', 'always'], default: 'auto',
         })
+        .option('dir', {
+            describe: 'Path to project directory', type: 'string', default: '.',
+        })
         .command('lint', 'Lint project (default)', (yargs) => {
             yargs.usage('Usage: azlint lint [options...] [dir]');
         })
         .command('fmt', 'Format project (autofix)', (yargs) => {
             yargs.usage('Usage: azlint fmt [options...] [dir]');
         })
-        .strictCommands()
-        .positional('dir', {
-            describe: 'Path to project directory', type: 'string', default: '.',
-        });
+        .strictCommands();
     if (process.env['NOWRAP'] === '1') {
         argumentParser = argumentParser.wrap(null);
     }
