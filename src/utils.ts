@@ -23,6 +23,15 @@ export async function isCwdGitRepo(): Promise<boolean> {
 }
 
 /**
+ * Just delay for specified timeout (ms)
+ */
+export async function delay(timeout: number) {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(true), timeout);
+    });
+}
+
+/**
  * Turn sync value into async value
  */
 export async function resolvePromiseOrValue<T>(value: T | Promise<T>): Promise<T> {
