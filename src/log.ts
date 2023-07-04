@@ -11,10 +11,12 @@ export enum LogLevel {
 
 let level: LogLevel;
 
-let greenColor = '\x1b[32m';
-let redColor = '\x1b[31m';
-let yellowColor = '\x1b[93m';
-let endColor = '\x1b[0m';
+export const TerminalColors = {
+    green: '\x1b[32m',
+    red: '\x1b[31m',
+    yellow: '\x1b[93m',
+    end: '\x1b[0m',
+}
 
 export function setLogSettings(options: {
     level: LogLevel,
@@ -32,9 +34,9 @@ export function setLogSettings(options: {
     })();
 
     if (!color) {
-        greenColor = '';
-        redColor = '';
-        endColor = '';
+        TerminalColors.green = '';
+        TerminalColors.red = '';
+        TerminalColors.end = '';
     }
 }
 
@@ -76,7 +78,7 @@ export function logAlways(...args: unknown[]): boolean {
 }
 
 export function logLintSuccess(toolName: string, file: string, command?: ExecaReturnValue<string>) {
-    logVerbose(`✅ ${greenColor}${toolName} - ${file}${endColor}`);
+    logVerbose(`✅ ${TerminalColors.green}${toolName} - ${file}${TerminalColors.end}`);
     if (command) {
         const cmdOutput = command.all ? `:\n${command.all}` : '';
         logExtraVerbose(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
@@ -84,7 +86,7 @@ export function logLintSuccess(toolName: string, file: string, command?: ExecaRe
 }
 
 export function logLintWarning(toolName: string, file: string, command?: ExecaReturnValue<string>) {
-    logAlways(`⚠️ ${yellowColor}${toolName} - ${file}${endColor}`);
+    logAlways(`⚠️ ${TerminalColors.yellow}${toolName} - ${file}${TerminalColors.end}`);
     if (command) {
         const cmdOutput = command.all ? `:\n${command.all}` : '';
         logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
@@ -92,7 +94,7 @@ export function logLintWarning(toolName: string, file: string, command?: ExecaRe
 }
 
 export function logLintFail(toolName: string, file: string, command?: ExecaReturnValue<string>) {
-    logAlways(`❌ ${redColor}${toolName} - ${file}${endColor}`);
+    logAlways(`❌ ${TerminalColors.red}${toolName} - ${file}${TerminalColors.end}`);
     if (command) {
         const cmdOutput = command.all ? `:\n${command.all}` : '';
         logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
@@ -100,7 +102,7 @@ export function logLintFail(toolName: string, file: string, command?: ExecaRetur
 }
 
 export function logFixingUnchanged(toolName: string, file: string, command?: ExecaReturnValue<string>) {
-    logVerbose(`💯 Unchanged: ${greenColor}${toolName} - ${file}${endColor}`);
+    logVerbose(`💯 Unchanged: ${TerminalColors.green}${toolName} - ${file}${TerminalColors.end}`);
     if (command) {
         const cmdOutput = command.all ? `:\n${command.all}` : '';
         logExtraVerbose(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
@@ -108,7 +110,7 @@ export function logFixingUnchanged(toolName: string, file: string, command?: Exe
 }
 
 export function logFixingSuccess(toolName: string, file: string, command?: ExecaReturnValue<string>) {
-    logNormal(`🛠️ Fixed: ${greenColor}${toolName} - ${file}${endColor}`);
+    logNormal(`🛠️ Fixed: ${TerminalColors.green}${toolName} - ${file}${TerminalColors.end}`);
     if (command) {
         const cmdOutput = command.all ? `:\n${command.all}` : '';
         logExtraVerbose(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
@@ -116,13 +118,13 @@ export function logFixingSuccess(toolName: string, file: string, command?: Execa
 }
 
 export function logFixingWarning(toolName: string, file: string, command: ExecaReturnValue<string>) {
-    logAlways(`⚠️ Warning fixing: ${yellowColor}${toolName} - ${file}${endColor}`);
+    logAlways(`⚠️ Warning fixing: ${TerminalColors.yellow}${toolName} - ${file}${TerminalColors.end}`);
     const cmdOutput = command.all ? `:\n${command.all}` : '';
     logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`)
 }
 
 export function logFixingError(toolName: string, file: string, command: ExecaReturnValue<string>) {
-    logAlways(`❗️ Error fixing: ${redColor}${toolName} - ${file}${endColor}`);
+    logAlways(`❗️ Error fixing: ${TerminalColors.red}${toolName} - ${file}${TerminalColors.end}`);
     const cmdOutput = command.all ? `:\n${command.all}` : '';
     logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`)
 }
