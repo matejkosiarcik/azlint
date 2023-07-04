@@ -65,8 +65,6 @@ bootstrap:
 		# cabal install hadolint-2.12.0 && \
 		# cabal install ShellCheck-0.9.0
 
-	$(MAKE) -C docs/demo bootstrap
-
 .PHONY: build
 build:
 	docker build . --tag matejkosiarcik/azlint:dev
@@ -81,3 +79,7 @@ run:
 .PHONY: test
 test:
 	npm test --prefix tests
+
+.PHONY: demo
+demo:
+	$(MAKE) -C docs/demo bootstrap record
