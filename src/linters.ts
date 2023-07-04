@@ -238,7 +238,7 @@ export class Linters {
             lintFile: { args: ['eclint', '#file#'] },
         });
 
-        /* HTML, JSON, SVG, TOML, XML, YAML */
+        /* Prettier - MultiLang */
 
         // Prettier
         const prettierConfigArgs = getConfigArgs('PRETTIER', '--config',
@@ -250,6 +250,8 @@ export class Linters {
             lintFile: { args: ['prettier', ...prettierConfigArgs, '--list-different', '#file#'] },
             fmtFile: { args: ['prettier', ...prettierConfigArgs, '--write', '#file#'] },
         });
+
+        /* JSON, YAML, TOML */
 
         // Jsonlint
         const jsonlintConfigArgs = getConfigArgs('JSONLINT', '--config',
@@ -288,6 +290,8 @@ export class Linters {
             lintFile: { args: ['stoml', '#file#', '.'] },
         });
 
+        /* HTML, XML, SVG */
+
         // XmlLint
         await this.runLinter({
             linterName: 'xmllint',
@@ -324,15 +328,7 @@ export class Linters {
             lintFile: { args: ['svglint', '--ci', ...svglintConfigArgs, '#file#'] },
         });
 
-        // Dotenv
-        await this.runLinter({
-            linterName: 'dotenv-linter',
-            envName: 'DOTENV',
-            fileMatch: matchers.env,
-            lintFile: { args: ['dotenv-linter', '--quiet', '#file#'] },
-        });
-
-        /* Documentation (Markdown) */
+        /* Markdown, Text */
 
         // Markdown-table-formatter
         await this.runLinter({
@@ -689,6 +685,16 @@ export class Linters {
             lintFile: { args: ['exitzero', 'jscpd', ...jscpdConfigArgs, '--output', jscpdTmpdir, '#file#'] },
         });
         await fs.rm(jscpdTmpdir, { force: true, recursive: true });
+
+        /* Other */
+
+        // Dotenv
+        await this.runLinter({
+            linterName: 'dotenv-linter',
+            envName: 'DOTENV',
+            fileMatch: matchers.env,
+            lintFile: { args: ['dotenv-linter', '--quiet', '#file#'] },
+        });
 
         /* End of linters */
 
