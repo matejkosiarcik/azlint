@@ -359,14 +359,34 @@ export class Linters {
         });
 
         // Markdown link check
-        // TODO: Execute markdown-link-check sequentially (because it can overwhelm network)
-        // TODO: Add retry mechanism for markdown-link-check (and other linters which rely on network)
         const markdownLinkCheckConfigArgs = getConfigArgs('MARKDOWN_LINK_CHECK', '--config', ['markdown-link-check.json', '.markdown-link-check.json']);
         await this.runLinter({
             linterName: 'markdown-link-check',
             envName: 'MARKDOWN_LINK_CHECK',
             fileMatch: matchers.markdown,
-            lintFile: { args: ['markdown-link-check', '--quiet', ...markdownLinkCheckConfigArgs, '--retry', '--verbose', "#file#"] },
+            lintFile: { args: ['markdown-link-check', ...markdownLinkCheckConfigArgs, '--retry', '--verbose', "#file#"] },
+            // lintFile: async (file: string, toolName: string) => {
+            //     let attempt = 0;
+            //     const self = this;
+            //     async function run() {
+            //         attempt += 1;
+            //         const cmd = await customExeca(['markdown-link-check', ...markdownLinkCheckConfigArgs, '--retry', '--verbose', file]);
+            //         if (cmd.exitCode === 0) { // Success
+            //             logLintSuccess(toolName, file, cmd);
+            //         } else { // Fail
+            //             if (attempt < 3 && cmd.all?.includes(' → Status: 0')) {
+            //                 logLintWarning(toolName, file);
+            //                 await delay(1000);
+            //                 await run();
+            //             } else {
+            //                 logLintFail(toolName, file, cmd);
+            //                 self.foundProblems += 1;
+            //             }
+            //         }
+            //     }
+
+            //     await run();
+            // },
         });
 
         // Proselint
