@@ -170,7 +170,7 @@ RUN apt-get update && \
         ash bash dash ksh ksh93u+m mksh posh yash zsh && \
     rm -rf /var/lib/apt/lists/* && \
     git config --system --add safe.directory '*' && \
-    useradd --create-home --no-log-init --shell /usr/bin/bash --user-group --system azlint && \
+    useradd --create-home --no-log-init --shell /bin/sh --user-group --system azlint && \
     su - azlint -c "git config --global --add safe.directory '*'" && \
     mkdir -p /home/azlint/.cache/proselint
 ENV NODE_OPTIONS=--dns-result-order=ipv4first
