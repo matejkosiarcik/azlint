@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import fsSync from 'fs';
 import crypto from 'crypto';
 import { execa, ExecaError, Options as ExecaOptions, ExecaReturnValue } from "@esm2cjs/execa";
-import { logVerbose } from './log';
+import { logNormal, logVerbose, TerminalColors } from './log';
 
 export type OneOrArray<T> = T | T[];
 
@@ -41,6 +41,10 @@ export async function resolvePromiseOrValue<T>(value: T | Promise<T>): Promise<T
     return value;
 }
 
+/**
+ * Turn arguments into executable command
+ * Replace occurences of #file# and similar with actual filepaths
+ */
 export async function resolveLintArgs(args: string[] | ((file: string) => (string[] | Promise<string[]>)), file: string): Promise<string[]> {
     if (Array.isArray(args)) {
         return args.map((el) => el
@@ -55,6 +59,9 @@ export async function resolveLintArgs(args: string[] | ((file: string) => (strin
     return resolvePromiseOrValue(args(file));
 }
 
+/**
+ * Turn arguments into Execa options
+ */
 export async function resolveLintOptions(options: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined, file: string): Promise<ExecaOptions> {
     if (options === undefined) {
         return {};
@@ -65,6 +72,9 @@ export async function resolveLintOptions(options: ExecaOptions | ((file: string)
     }
 }
 
+/**
+ * Turn arguments into a predicate
+ */
 export function resolveLintSuccessExitCode(successExitCode: number | number[] | ((status: number) => boolean) |  undefined): ((status: number) => boolean) {
     if (successExitCode === undefined) {
         successExitCode = 0;
@@ -87,10 +97,19 @@ export function resolveLintSuccessExitCode(successExitCode: number | number[] | 
     return successExitCode;
 }
 
-// TODO: rewrite findFiles natively in TypeScript
+/**
+ * Return a list of files in current project
+ */
 export async function findFiles(onlyChanged: boolean): Promise<string[]> {
     const isGit = await isCwdGitRepo();
     logVerbose(`Project is git repository: ${isGit ? 'yes' : 'no'}`);
+
+    if (!isGit) {
+        if (onlyChanged) {
+            logNormal(`${TerminalColors.yellow}Could not get only changed files (not a git repository), linting all found files${TerminalColors.end}`);
+        }
+        return findFilesRaw();
+    }
 
     const listArguments = [path.join(__dirname, 'find_files.py')];
     if (onlyChanged) {
@@ -99,6 +118,14 @@ export async function findFiles(onlyChanged: boolean): Promise<string[]> {
 
     const listCommand = await execa('python3', listArguments, { stdio: 'pipe' });
     return listCommand.stdout.split('\n').filter((file) => file);
+}
+
+/**
+ * Get all files on filesystem
+ */
+export async function findFilesRaw(): Promise<string[]> {
+    const list = await fs.readdir('.', { recursive: true });
+    return list;
 }
 
 /**
