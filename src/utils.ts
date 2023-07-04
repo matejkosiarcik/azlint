@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import fsSync from 'fs';
 import crypto from 'crypto';
 import { execa, ExecaError, Options as ExecaOptions, ExecaReturnValue } from "@esm2cjs/execa";
-import { logLintWarning, logNormal, logVerbose, TerminalColors } from './log';
+import { logNormal, logVerbose, TerminalColors } from './log';
 
 export type OneOrArray<T> = T | T[];
 
