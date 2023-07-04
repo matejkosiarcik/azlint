@@ -4,7 +4,7 @@ import path from "path";
 import os from 'os';
 import { Options as ExecaOptions } from "@esm2cjs/execa";
 import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from "./log";
-import { customExeca, getConfigArgs, getPythonConfigArgs, hashFile, isCwdGitRepo, matchFiles, ProgressOptions, resolveLintArgs, resolveLintOptions, resolveLintSuccessExitCode, resolvePromiseOrValue } from "./utils";
+import { customExeca, getConfigArgs, getPythonConfigArgs, hashFile, isCwdGitRepo, matchFiles, OneOrArray, ProgressOptions, resolveLintArgs, resolveLintOptions, resolveLintSuccessExitCode, resolvePromiseOrValue } from "./utils";
 
 function shouldSkipLinter(envName: string, linterName: string): boolean {
     const envEnable = 'VALIDATE_' + envName;
@@ -36,7 +36,7 @@ export class Linters {
 
     private async runLinter(
         options: {
-            fileMatch: string | string[] | ((file: string) => boolean),
+            fileMatch: OneOrArray<string | RegExp | ((file: string) => boolean)>,
             linterName: string,
             envName: string,
             beforeAllFiles?: (toolName: string) => (void | Promise<void>),
@@ -238,7 +238,7 @@ export class Linters {
             lintFile: { args: ['eclint', '#file#'] },
         });
 
-        /* HTML, JSON, SVG, TOML, XML, YAML */
+        /* Prettier - MultiLang */
 
         // Prettier
         const prettierConfigArgs = getConfigArgs('PRETTIER', '--config',
@@ -250,6 +250,8 @@ export class Linters {
             lintFile: { args: ['prettier', ...prettierConfigArgs, '--list-different', '#file#'] },
             fmtFile: { args: ['prettier', ...prettierConfigArgs, '--write', '#file#'] },
         });
+
+        /* JSON, YAML, TOML */
 
         // Jsonlint
         const jsonlintConfigArgs = getConfigArgs('JSONLINT', '--config',
@@ -288,6 +290,8 @@ export class Linters {
             lintFile: { args: ['stoml', '#file#', '.'] },
         });
 
+        /* HTML, XML, SVG */
+
         // XmlLint
         await this.runLinter({
             linterName: 'xmllint',
@@ -324,15 +328,7 @@ export class Linters {
             lintFile: { args: ['svglint', '--ci', ...svglintConfigArgs, '#file#'] },
         });
 
-        // Dotenv
-        await this.runLinter({
-            linterName: 'dotenv-linter',
-            envName: 'DOTENV',
-            fileMatch: matchers.env,
-            lintFile: { args: ['dotenv-linter', '--quiet', '#file#'] },
-        });
-
-        /* Documentation (Markdown) */
+        /* Markdown, Text */
 
         // Markdown-table-formatter
         await this.runLinter({
@@ -689,6 +685,16 @@ export class Linters {
             lintFile: { args: ['exitzero', 'jscpd', ...jscpdConfigArgs, '--output', jscpdTmpdir, '#file#'] },
         });
         await fs.rm(jscpdTmpdir, { force: true, recursive: true });
+
+        /* Other */
+
+        // Dotenv
+        await this.runLinter({
+            linterName: 'dotenv-linter',
+            envName: 'DOTENV',
+            fileMatch: matchers.env,
+            lintFile: { args: ['dotenv-linter', '--quiet', '#file#'] },
+        });
 
         /* End of linters */
 

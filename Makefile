@@ -18,15 +18,21 @@ bootstrap:
 	npm ci --prefix linters
 
 	# check if virtual environment exists or create it
-	[ -n "$${VIRTUAL_ENV+x}" ] || [ -d linters/venv ] \
-		|| python3 -m venv linters/venv \
-		|| python -m venv linters/venv \
-		|| virtualenv linters/venv \
-		|| mkvirtualenv linters/venv
+	[ -n "$${VIRTUAL_ENV+x}" ] || [ -d venv ] \
+		|| python3 -m venv venv \
+		|| python -m venv venv \
+		|| virtualenv venv \
+		|| mkvirtualenv venv
 
-	PATH="$(PROJECT_DIR)/linters/venv/bin:$(PATH)" \
+	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
+	PYTHONPATH="$(PROJECT_DIR)/python" \
+		pip install --requirement requirements.txt --target python
+
+	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
 	PYTHONPATH="$(PROJECT_DIR)/linters/python" \
 		pip install --requirement linters/requirements.txt --target linters/python
+
+	# Create cache ahead of time, because it can fail when creating during runtime
 	mkdir -p "$$HOME/.cache/proselint"
 
 	gem install bundler --install-dir linters/ruby
@@ -45,7 +51,9 @@ bootstrap:
 		composer install
 
 	cd linters && \
-		gitman install # TODO: use locally installed gitman (not system one)
+		PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
+		PYTHONPATH="$(PROJECT_DIR)/python" \
+			gitman install
 
 	cd linters/gitman/checkmake && \
 		BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
@@ -61,11 +69,9 @@ bootstrap:
 	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest'
 	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
 
-	cabal update
+	cabal update # && \
 		# cabal install hadolint-2.12.0 && \
 		# cabal install ShellCheck-0.9.0
-
-	$(MAKE) -C docs/demo bootstrap
 
 .PHONY: build
 build:
@@ -81,3 +87,7 @@ run:
 .PHONY: test
 test:
 	npm test --prefix tests
+
+.PHONY: demo
+demo:
+	$(MAKE) -C docs/demo bootstrap record

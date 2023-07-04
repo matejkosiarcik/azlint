@@ -109,7 +109,7 @@ import { Linters } from './linters';
     const binPaths = {
         node: path.join(lintersDir, 'node_modules', '.bin'),
         cargo: path.join(lintersDir, 'cargo', 'bin'),
-        venv: path.join(lintersDir, 'venv', 'bin'),
+        venv: path.join(lintersDir, '..', 'venv', 'bin'),
         python: path.join(lintersDir, 'python', 'bin'),
         composer: path.join(lintersDir, 'vendor', 'bin'),
         go: path.join(lintersDir, 'go', 'bin'),

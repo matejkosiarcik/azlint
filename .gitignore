@@ -19,6 +19,7 @@ node_modules/
 dist-newstyle/
 .mypy_cache/
 venv/
+python/
 
 # build artifacts
 /cli/
