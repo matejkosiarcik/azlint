@@ -65,9 +65,9 @@ bootstrap:
 		cp linters/gitman/checkmake/checkmake linters/bin/ && \
 		cp linters/gitman/editorconfig-checker/bin/ec linters/bin/
 
-	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest'
-	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest'
-	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
+	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' 'github.com/freshautomations/stoml@latest'
+	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest'
+	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
 
 	cabal update # && \
 		# cabal install hadolint-2.12.0 && \
@@ -87,6 +87,11 @@ run:
 .PHONY: test
 test:
 	npm test --prefix tests
+
+.PHONY: clean
+clean:
+	git clean -xdf
+	rm -rf "$(PROJECT_DIR)/linters/gitman" "$(PROJECT_DIR)/docs/demo/gitman"
 
 .PHONY: demo
 demo:
