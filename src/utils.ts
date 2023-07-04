@@ -41,6 +41,10 @@ export async function resolvePromiseOrValue<T>(value: T | Promise<T>): Promise<T
     return value;
 }
 
+/**
+ * Turn arguments into executable command
+ * Replace occurences of #file# and similar with actual filepaths
+ */
 export async function resolveLintArgs(args: string[] | ((file: string) => (string[] | Promise<string[]>)), file: string): Promise<string[]> {
     if (Array.isArray(args)) {
         return args.map((el) => el
@@ -55,6 +59,9 @@ export async function resolveLintArgs(args: string[] | ((file: string) => (strin
     return resolvePromiseOrValue(args(file));
 }
 
+/**
+ * Turn arguments into Execa options
+ */
 export async function resolveLintOptions(options: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined, file: string): Promise<ExecaOptions> {
     if (options === undefined) {
         return {};
@@ -65,6 +72,9 @@ export async function resolveLintOptions(options: ExecaOptions | ((file: string)
     }
 }
 
+/**
+ * Turn arguments into a predicate
+ */
 export function resolveLintSuccessExitCode(successExitCode: number | number[] | ((status: number) => boolean) |  undefined): ((status: number) => boolean) {
     if (successExitCode === undefined) {
         successExitCode = 0;
@@ -88,6 +98,9 @@ export function resolveLintSuccessExitCode(successExitCode: number | number[] | 
 }
 
 // TODO: rewrite findFiles natively in TypeScript
+/**
+ * Return a list of files in current project
+ */
 export async function findFiles(onlyChanged: boolean): Promise<string[]> {
     const isGit = await isCwdGitRepo();
     logVerbose(`Project is git repository: ${isGit ? 'yes' : 'no'}`);
