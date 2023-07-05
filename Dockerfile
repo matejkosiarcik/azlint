@@ -1,21 +1,30 @@
 # checkov:skip=CKV_DOCKER_2:Disable HEALTHCHECK
 
-### Linters ###
+### Components/Linters ###
+
+# Gitman #
+FROM node:20.3.1-slim AS gitman
+WORKDIR /app
+COPY requirements.txt ./
+RUN apt-get update && \
+    apt-get install --yes --no-install-recommends python3 python3-pip git && \
+    rm -rf /var/lib/apt/lists/* && \
+    python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
+WORKDIR /app/linters
+COPY linters/gitman.yml ./
+RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 
 # GoLang #
 FROM golang:1.20.5-bookworm AS go
 WORKDIR /app
-RUN GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
-    GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
-    GOPATH="$PWD" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
-COPY requirements.txt ./
-COPY linters/gitman.yml ./linters/
-RUN apt-get update && \
-    apt-get install --yes --no-install-recommends pandoc python3 python3-pip git && \
-    rm -rf /var/lib/apt/lists/* && \
-    python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
+RUN GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
+    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
+    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
 WORKDIR /app/linters
-RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install && \
+COPY --from=gitman /app/linters/gitman ./gitman
+RUN apt-get update && \
+    apt-get install --yes --no-install-recommends pandoc && \
+    rm -rf /var/lib/apt/lists/* && \
     make -C /app/linters/gitman/editorconfig-checker build && \
     BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make -C /app/linters/gitman/checkmake
 
@@ -55,7 +64,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     npm ci --unsafe-perm && \
     node utils/cargo-packages.js | while read -r package version; do \
-        cargo install "$package" --force --version "$version"; \
+        cargo install "$package" --force --version "$version" --root "$PWD/cargo"; \
     done
 
 # Python/Pip #
@@ -111,7 +120,7 @@ RUN apt-get update && \
     touch linuxbrew-placeholder.txt
 
 # apt-get update -o APT::Architecture="amd64" -o APT::Architectures="amd64"
-# bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+# NONINTERACTIVE=1 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 ### Helpers ###
 
@@ -120,8 +129,8 @@ RUN apt-get update && \
 FROM ubuntu:23.10 AS upx
 WORKDIR /app
 COPY --from=circleci /usr/local/bin/circleci ./
-COPY --from=go /app/linters/gitman/checkmake/checkmake /app/linters/gitman/editorconfig-checker/bin/ec /app/bin/shfmt /app/bin/stoml /app/bin/tomljson ./
-COPY --from=rust /usr/local/cargo/bin/shellharden /usr/local/cargo/bin/dotenv-linter ./
+COPY --from=go /app/linters/gitman/checkmake/checkmake /app/linters/gitman/editorconfig-checker/bin/ec /app/go/bin/shfmt /app/go/bin/stoml /app/go/bin/tomljson ./
+COPY --from=rust /app/cargo/bin/shellharden /app/cargo/bin/dotenv-linter ./
 COPY --from=shellcheck /bin/shellcheck ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends parallel upx-ucl && \
@@ -155,7 +164,7 @@ COPY --from=composer /app/linters/composer/bin/composer ./
 COPY --from=hadolint /bin/hadolint ./
 COPY --from=upx /app/checkmake /app/circleci /app/dotenv-linter /app/ec /app/shellcheck /app/shellharden /app/shfmt /app/stoml /app/tomljson ./
 
-### Main runner ###
+### Final ###
 
 FROM debian:12.0-slim
 WORKDIR /app
@@ -171,7 +180,6 @@ RUN apt-get update && \
     su - azlint -c "git config --global --add safe.directory '*'" && \
     mkdir -p /home/azlint/.cache/proselint
 ENV NODE_OPTIONS=--dns-result-order=ipv4first
-
 USER azlint
 WORKDIR /project
 ENTRYPOINT ["azlint"]
