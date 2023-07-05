@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import fsSync from 'fs';
 import crypto from 'crypto';
 import { execa, ExecaError, Options as ExecaOptions, ExecaReturnValue } from "@esm2cjs/execa";
-import { logNormal, logVerbose, TerminalColors } from './log';
+import { logAlways, logVerbose } from './log';
 
 export type OneOrArray<T> = T | T[];
 
@@ -106,26 +106,68 @@ export async function findFiles(onlyChanged: boolean): Promise<string[]> {
 
     if (!isGit) {
         if (onlyChanged) {
-            logNormal(`${TerminalColors.yellow}Could not get only changed files (not a git repository), linting all found files${TerminalColors.end}`);
+            logAlways(`Could not get only-changed files - not a git repository`);
         }
-        return findFilesRaw();
+
+        const rawFileList = await fs.readdir('.', { recursive: true });
+        return rawFileList.sort();
     }
 
-    const listArguments = [path.join(__dirname, 'find_files.py')];
+    // NOTE: `git ls-files` accepts kinda non-standard globs
+    // `git ls-files *.js` does not glob *files* with a name of "*.json", it globs *PATHS* with pattern of "*.json"
+    // So if we glob literal name of certain files, such as "package.json":
+    // `git ls-files package.json` -> this will only find package.json in the root of the repository
+    // `git ls-files */package.json` -> this will find package.json anywhere except the root of the repository
+    // `git ls-files package.json */package.json` -> this will find it anywhere, which we want
+
+    // Files tracked by git (default)
+    const trackedFiles = (await customExeca(["git", "ls-files", "-z"])).stdout.split('\0').filter((el) => !!el);
+
+    // Files tracked by git, which are deleted in working tree
+    const deletedFiles = (await customExeca(["git", "ls-files", "-z", "--deleted"])).stdout.split('\0').filter((el) => !!el);
+
+    // Files which are not yet tracked/staged in git
+    // These should be in both full output and only-changed output
+    const untrackedFiles = (await customExeca(["git", "ls-files", "-z", "--others", "--exclude-standard"])).stdout.split("\0").filter((el) => !!el);
+
+    // Staged files
+    const stagedFiles = (await customExeca(["git", "diff", "--name-only", "--cached", "-z"])).stdout.split('\0').filter((el) => !!el);
+
+    // Files modified in working tree
+    const dirtyFiles = (await customExeca(["git", "diff", "--name-only", "HEAD", "-z"])).stdout.split('\0').filter((el) => !!el);
+
+    let outputFiles = [...trackedFiles, ...untrackedFiles, ...stagedFiles, ...dirtyFiles];
+
     if (onlyChanged) {
-        listArguments.push('--only-changed');
+        // Get all branches which are associated with current HEAD
+        const allCurrentBranches = (await customExeca(["git", "branch", "--contains", 'HEAD', "--format=%(refname:short)"])).stdout.split("\n").filter((el) => !!el);
+
+        // Get commit which is the point of divergence from parent branch
+        let divergentCommit = '';
+        for (let i = 1; true; i += 1) {
+            divergentCommit = `HEAD~${i}`;
+            try {
+                const commitBranches = (await customExeca(["git", "branch", "--contains", divergentCommit, "--format=%(refname:short)"])).stdout.split("\n").filter((el) => !!el).filter((el) => allCurrentBranches.includes(el));
+                if (commitBranches.length > 0) {
+                    break;
+                }
+            } catch {
+                logAlways("Could not find parent branch for list of only-changed files - azlint may skip some files because of this");
+                divergentCommit = '';
+                break;
+            }
+        }
+
+        let divergentFiles: string[] = [];
+        if (divergentCommit !== '') {
+            // Modified files between divergent-commit and HEAD
+            divergentFiles = (await customExeca(["git", "whatchanged", "--name-only", "--pretty=", `${divergentCommit}..HEAD`, "-z"])).stdout.split('\0').filter((el) => !!el);
+        }
+
+        outputFiles = [...untrackedFiles, ...stagedFiles, ...dirtyFiles, ...divergentFiles];
     }
 
-    const listCommand = await execa('python3', listArguments, { stdio: 'pipe' });
-    return listCommand.stdout.split('\n').filter((file) => file);
-}
-
-/**
- * Get all files on filesystem
- */
-export async function findFilesRaw(): Promise<string[]> {
-    const list = await fs.readdir('.', { recursive: true });
-    return list;
+    return Array.from(new Set(outputFiles)).sort().filter((el) => !deletedFiles.includes(el)).filter((el) => fsSync.existsSync(el));
 }
 
 /**

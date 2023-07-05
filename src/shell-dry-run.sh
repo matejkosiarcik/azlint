@@ -23,7 +23,7 @@ check_ksh() {
     mksh -n "$file"
     ksh93 -n "$file"
     if command -v loksh >/dev/null 2>&1; then
-        loksh -n "$file" # TODO: Enable loksh
+        loksh -n "$file"
     fi
 }
 

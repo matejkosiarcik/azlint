@@ -98,23 +98,20 @@ FROM hadolint/hadolint:v2.12.0 AS hadolint
 # ShellCheck #
 FROM koalaman/shellcheck:v0.9.0 AS shellcheck
 
+# TODO: Finish LinuxBrew setup
 # LinuxBrew #
 FROM debian:12.0 AS brew
 WORKDIR /app
-RUN find / >before.txt 2>/dev/null && \
-    apt-get update && \
+RUN apt-get update && \
     apt-get install --yes --no-install-recommends ca-certificates curl ruby ruby-build qemu-user && \
     if [ "$(uname -m)" != x86_64 ]; then \
         dpkg --add-architecture amd64; \
     fi && \
     rm -rf /var/lib/apt/lists/* && \
-    touch foo.txt
+    touch linuxbrew-placeholder.txt
 
-#     apt-get update -o APT::Architecture="amd64" -o APT::Architectures="amd64" && \
-#     apt-get install --yes --no-install-recommends ca-certificates curl:amd64 qemu-user ruby ruby-build && \
-#     rm -rf /var/lib/apt/lists/* && \
-#     find / >after.txt 2>/dev/null
-# # bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" && \
+# apt-get update -o APT::Architecture="amd64" -o APT::Architectures="amd64"
+# bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 ### Helpers ###
 
@@ -134,14 +131,14 @@ RUN apt-get update && \
 # Pre-Final #
 FROM debian:12.0-slim AS pre-final
 WORKDIR /
-COPY --from=brew /app/foo.txt ./
-RUN rm foo.txt
+COPY --from=brew /app/linuxbrew-placeholder.txt ./
+RUN rm linuxbrew-placeholder.txt
 WORKDIR /app
 COPY VERSION.txt ./
 WORKDIR /app/cli
 COPY --from=node /app/cli ./
 COPY --from=node /app/node_modules ./node_modules
-COPY src/shell-dry-run.sh src/shell-dry-run-utils.sh src/find_files.py ./
+COPY src/shell-dry-run.sh src/shell-dry-run-utils.sh ./
 WORKDIR /app/bin
 RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azlint && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >fmt && \
