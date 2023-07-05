@@ -10,9 +10,6 @@
   - sql-lint and sqlfluff
   - GitHub-actions linter: actionlint
 
-- Use gitman to manage versions of editorconfig-checker and checkmake
-- Use gitman to manage versions of LinuxBrew (mainly install script)
-
 - Useful links for LinuxBrew:
   - <https://unix.stackexchange.com/questions/115272/download-package-via-apt-for-another-architecture>
   - <https://github.com/orgs/Homebrew/discussions/3612>
