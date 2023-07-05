@@ -96,9 +96,11 @@ RUN PATH="/app/linters/composer/bin:$PATH" composer install --no-cache
 # this script builds the executable and optimizes with https://upx.github.io
 # then we just copy it to production container
 FROM debian:12.0 AS circleci
+WORKDIR /app/linters
+COPY --from=gitman /app/linters/gitman ./gitman
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl && \
-    curl -fLsS https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh | bash && \
+    bash ./gitman/circleci-cli/install.sh && \
     rm -rf /var/lib/apt/lists/*
 
 # Hadolint #
