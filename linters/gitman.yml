@@ -20,6 +20,16 @@ sources:
       -
     scripts:
       -
+  - repo: https://github.com/Homebrew/install
+    name: brew-installer
+    rev: master
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
 sources_locked:
   - repo: https://github.com/mrtazz/checkmake
     name: checkmake
@@ -34,6 +44,16 @@ sources_locked:
   - repo: https://github.com/editorconfig-checker/editorconfig-checker
     name: editorconfig-checker
     rev: a49a2ff72e0d15e57ca40956a504ad6132dbfada
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+  - repo: https://github.com/Homebrew/install
+    name: brew-installer
+    rev: 8494f72c03681700a056a209feaae76eb53f3f2d
     type: git
     sparse_paths:
       -
