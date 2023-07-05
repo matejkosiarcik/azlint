@@ -95,7 +95,7 @@ RUN PATH="/app/linters/composer/bin:$PATH" composer install --no-cache
 # it has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
 # this script builds the executable and optimizes with https://upx.github.io
 # then we just copy it to production container
-FROM debian:12.0 AS circleci
+FROM debian:12.0-slim AS circleci
 WORKDIR /app/linters
 COPY --from=gitman /app/linters/gitman ./gitman
 RUN apt-get update && \
@@ -111,7 +111,7 @@ FROM koalaman/shellcheck:v0.9.0 AS shellcheck
 
 # TODO: Finish LinuxBrew setup
 # LinuxBrew #
-FROM debian:12.0 AS brew
+FROM debian:12.0-slim AS brew
 WORKDIR /app
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends ca-certificates curl ruby ruby-build qemu-user && \
