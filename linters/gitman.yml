@@ -30,6 +30,16 @@ sources:
       -
     scripts:
       -
+  - repo: https://github.com/CircleCI-Public/circleci-cli
+    name: circleci-cli
+    rev: main
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
 sources_locked:
   - repo: https://github.com/mrtazz/checkmake
     name: checkmake
@@ -54,6 +64,16 @@ sources_locked:
   - repo: https://github.com/Homebrew/install
     name: brew-installer
     rev: 8494f72c03681700a056a209feaae76eb53f3f2d
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+  - repo: https://github.com/CircleCI-Public/circleci-cli
+    name: circleci-cli
+    rev: 68a3d97d39be29235867f926a683ab8601c48d09
     type: git
     sparse_paths:
       -
