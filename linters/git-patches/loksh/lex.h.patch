@@ -1,0 +1,13 @@
+diff --git a/lex.h b/lex.h
+index bf9072c..2b7c0e4 100644
+--- a/lex.h
++++ b/lex.h
+@@ -6,6 +6,8 @@
+ 
+ /* $From: lex.h,v 1.4 1994/05/31 13:34:34 michael Exp $ */
+ 
++#include <stdint.h>
++
+ #define	IDENT	64
+ 
+ typedef struct source Source;

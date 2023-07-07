@@ -268,7 +268,13 @@ _Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 | [shellcheck](https://github.com/koalaman/shellcheck)  | `VALIDATE_SHELLCHECK`    | `*.sh` etc. | ❌       |
 | [shellharden](https://github.com/anordal/shellharden) | `VALIDATE_SHELLHARDEN`   | `*.sh` etc. | ✅       |
 | [shfmt](https://github.com/mvdan/sh)                  | `VALIDATE_SHFMT`         | `*.sh` etc. | ✅       |
-| custom dry runner                                     | `VALIDATE_SHELL_DRY_RUN` | `*.sh` etc. | ❌       |
+| Custom dry runner                                     | `VALIDATE_SHELL_DRY_RUN` | `*.sh` etc. | ❌       |
+
+The following shells are checked in custom dry runner:
+
+| tool                                    |
+|-----------------------------------------|
+| [loksh](https://github.com/dimkr/loksh) |
 
 ### Python
 

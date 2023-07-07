@@ -1,0 +1,22 @@
+diff --git a/config.h b/config.h
+index 2bdffb9..9740bcb 100644
+--- a/config.h
++++ b/config.h
+@@ -17,6 +17,17 @@
+ /* Specify default $ENV? */
+ /* #undef DEFAULT_ENV */
+ 
++#if defined(__APPLE__) || defined(__NetBSD__)
++#define st_atim st_atimespec
++#define st_ctim st_ctimespec
++#define st_mtim st_mtimespec
++#endif
++
++#if defined(__APPLE__)
++#define setresgid(arg1, arg2, arg3)
++#define setresuid(arg1, arg2, arg3)
++#endif
++
+ /*
+  * End of configuration stuff for PD ksh.
+  */

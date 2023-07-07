@@ -8,6 +8,8 @@ brew "ruby"
 brew "ruby-build"
 brew "ghc"
 brew "cabal-install"
+brew "meson"
+brew "ninja"
 
 # Makes
 brew "make"

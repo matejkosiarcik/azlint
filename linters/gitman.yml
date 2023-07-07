@@ -40,6 +40,16 @@ sources:
       -
     scripts:
       -
+  - repo: https://github.com/dimkr/loksh
+    name: loksh
+    rev: master
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
 sources_locked:
   - repo: https://github.com/mrtazz/checkmake
     name: checkmake
@@ -74,6 +84,16 @@ sources_locked:
   - repo: https://github.com/CircleCI-Public/circleci-cli
     name: circleci-cli
     rev: 68a3d97d39be29235867f926a683ab8601c48d09
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+  - repo: https://github.com/dimkr/loksh
+    name: loksh
+    rev: e88658fefa1d1ac3cf0699a666f5f7056664089a
     type: git
     sparse_paths:
       -
