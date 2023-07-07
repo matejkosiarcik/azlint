@@ -28,6 +28,18 @@ bootstrap:
 	PYTHONPATH="$(PROJECT_DIR)/python" \
 		pip install --requirement requirements.txt --target python
 
+	rm -rf "$(PROJECT_DIR)/linters/gitman"
+	cd linters && \
+		PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
+		PYTHONPATH="$(PROJECT_DIR)/python" \
+			gitman install
+	sh utils/apply-git-patches.sh
+
+	cd linters/gitman/loksh && \
+		CC=clang meson setup --prefix="$(PROJECT_DIR)/linters/gitman/loksh/install" build && \
+		ninja -C build install
+	cp linters/gitman/loksh/install/bin/ksh linters/bin/loksh
+
 	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
 	PYTHONPATH="$(PROJECT_DIR)/linters/python" \
 		pip install --requirement linters/requirements.txt --target linters/python
@@ -49,11 +61,6 @@ bootstrap:
 
 	cd linters && \
 		composer install
-
-	cd linters && \
-		PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
-		PYTHONPATH="$(PROJECT_DIR)/python" \
-			gitman install
 
 	cd linters/gitman/checkmake && \
 		BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make

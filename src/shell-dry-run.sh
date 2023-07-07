@@ -22,9 +22,7 @@ check_ksh() {
     ksh -n "$file"
     mksh -n "$file"
     ksh93 -n "$file"
-    if command -v loksh >/dev/null 2>&1; then
-        loksh -n "$file"
-    fi
+    loksh -n "$file"
 }
 
 check_bash() {

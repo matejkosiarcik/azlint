@@ -92,9 +92,7 @@ COPY linters/composer.json linters/composer.lock ./
 RUN PATH="/app/linters/composer/bin:$PATH" composer install --no-cache
 
 # CircleCI #
-# it has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
-# this script builds the executable and optimizes with https://upx.github.io
-# then we just copy it to production container
+# It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
 FROM debian:12.0-slim AS circleci
 WORKDIR /app/linters
 COPY --from=gitman /app/linters/gitman ./gitman
@@ -123,6 +121,16 @@ RUN apt-get update && \
 
 # apt-get update -o APT::Architecture="amd64" -o APT::Architectures="amd64"
 # NONINTERACTIVE=1 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+FROM debian:12.0-slim AS loksh
+WORKDIR /app
+RUN apt-get update && \
+    apt-get install --yes --no-install-recommends ca-certificates git meson build-essential && \
+    rm -rf /var/lib/apt/lists/*
+COPY --from=gitman /app/linters/gitman ./gitman
+WORKDIR /app/gitman/loksh/
+RUN meson setup --prefix="$PWD/install" build && \
+    ninja -C build install
 
 ### Helpers ###
 
@@ -165,6 +173,7 @@ WORKDIR /app/linters/bin
 COPY --from=composer /app/linters/composer/bin/composer ./
 COPY --from=hadolint /bin/hadolint ./
 COPY --from=upx /app/checkmake /app/circleci /app/dotenv-linter /app/ec /app/shellcheck /app/shellharden /app/shfmt /app/stoml /app/tomljson ./
+COPY --from=loksh /app/gitman/loksh/install/bin/ksh ./loksh
 
 ### Final ###
 
