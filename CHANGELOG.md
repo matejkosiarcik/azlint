@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
+- Added
+  - Add new linters:
+    - `loksh`
+
 ## \[0.6.2\] - 2023-07-02
 
 - Added
