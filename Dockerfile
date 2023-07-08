@@ -7,7 +7,7 @@ FROM node:20.3.1-slim AS gitman
 WORKDIR /app
 COPY requirements.txt ./
 RUN apt-get update && \
-    apt-get install --yes --no-install-recommends python3 python3-pip git && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-pip git && \
     rm -rf /var/lib/apt/lists/* && \
     python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
 WORKDIR /app/linters
@@ -23,7 +23,7 @@ RUN GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/fres
 WORKDIR /app/linters
 COPY --from=gitman /app/linters/gitman ./gitman
 RUN apt-get update && \
-    apt-get install --yes --no-install-recommends pandoc && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends pandoc && \
     rm -rf /var/lib/apt/lists/* && \
     make -C /app/linters/gitman/editorconfig-checker build && \
     BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make -C /app/linters/gitman/checkmake
@@ -112,7 +112,7 @@ FROM koalaman/shellcheck:v0.9.0 AS shellcheck
 FROM debian:12.0-slim AS brew
 WORKDIR /app
 RUN apt-get update && \
-    apt-get install --yes --no-install-recommends ca-certificates curl ruby ruby-build qemu-user && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl ruby ruby-build qemu-user && \
     if [ "$(uname -m)" != x86_64 ]; then \
         dpkg --add-architecture amd64; \
     fi && \
@@ -125,7 +125,7 @@ RUN apt-get update && \
 FROM debian:12.0-slim AS loksh
 WORKDIR /app
 RUN apt-get update && \
-    apt-get install --yes --no-install-recommends ca-certificates git meson build-essential && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates git meson build-essential && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=gitman /app/linters/gitman ./gitman
 WORKDIR /app/gitman/loksh/
