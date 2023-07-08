@@ -3,7 +3,7 @@
 ### Components/Linters ###
 
 # Gitman #
-FROM node:20.4.1-slim AS gitman
+FROM node:20.3.1-slim AS gitman
 WORKDIR /app
 COPY requirements.txt ./
 RUN apt-get update && \
@@ -29,7 +29,7 @@ RUN apt-get update && \
     BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make -C /app/linters/gitman/checkmake
 
 # NodeJS/NPM #
-FROM node:20.4.1-slim AS node
+FROM node:20.3.1-slim AS node
 ENV NODE_OPTIONS=--dns-result-order=ipv4first
 WORKDIR /app
 COPY package.json package-lock.json tsconfig.json ./
@@ -125,7 +125,7 @@ RUN apt-get update && \
 FROM debian:12.0-slim AS loksh
 WORKDIR /app
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates git meson build-essential && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends build-essential ca-certificates git meson && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=gitman /app/linters/gitman ./gitman
 WORKDIR /app/gitman/loksh/
