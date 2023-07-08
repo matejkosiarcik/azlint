@@ -26,12 +26,11 @@ bootstrap:
 
 	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
 	PYTHONPATH="$(PROJECT_DIR)/python" \
-		pip install --requirement requirements.txt --target python
+		pip install --requirement requirements.txt
 
 	rm -rf "$(PROJECT_DIR)/linters/gitman"
 	cd linters && \
 		PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
-		PYTHONPATH="$(PROJECT_DIR)/python" \
 			gitman install
 	sh utils/apply-git-patches.sh
 
