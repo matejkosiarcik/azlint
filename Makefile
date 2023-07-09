@@ -13,6 +13,8 @@ all: bootstrap build test run
 
 .PHONY: bootstrap
 bootstrap:
+	mkdir -p linters/bin
+
 	npm ci
 	npm ci --prefix tests
 	npm ci --prefix linters
@@ -35,7 +37,7 @@ bootstrap:
 	sh utils/apply-git-patches.sh
 
 	cd linters/gitman/loksh && \
-		CC=clang meson setup --prefix="$(PROJECT_DIR)/linters/gitman/loksh/install" build && \
+		meson setup --prefix="$(PROJECT_DIR)/linters/gitman/loksh/install" build && \
 		ninja -C build install
 	cp linters/gitman/loksh/install/bin/ksh linters/bin/loksh
 
@@ -63,13 +65,11 @@ bootstrap:
 
 	cd linters/gitman/checkmake && \
 		BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
+	cp linters/gitman/checkmake/checkmake linters/bin/
 
 	cd linters/gitman/editorconfig-checker && \
 		make build
-
-	mkdir -p linters/bin && \
-		cp linters/gitman/checkmake/checkmake linters/bin/ && \
-		cp linters/gitman/editorconfig-checker/bin/ec linters/bin/
+	cp linters/gitman/editorconfig-checker/bin/ec linters/bin/
 
 	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' 'github.com/freshautomations/stoml@latest'
 	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest'
