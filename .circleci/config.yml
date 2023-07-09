@@ -22,7 +22,7 @@ jobs:
       - image: debian:12.0
     steps:
       - checkout
-      - run: apt update
+      - run: apt-get update
       - run: |
           DEBIAN_FRONTEND=noninteractive apt-get install --yes \
             ca-certificates curl git pandoc \
