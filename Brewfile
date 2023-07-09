@@ -27,12 +27,12 @@ brew "zsh"
 
 # Others
 brew "libxml2"
-brew "circleci"
 
 # Haskell
 brew "hadolint"
 
 # No longer necessary below
 # brew "checkmake"
+# brew "circleci"
 # brew "shellcheck"
 # brew "shfmt"

@@ -78,6 +78,13 @@ bootstrap:
 		# cabal install hadolint-2.12.0 && \
 		# cabal install ShellCheck-0.9.0
 
+	cd linters && \
+		if [ "$$(uname)" = Darwin ] && [ "$$(uname -m)" = arm64 ]; then \
+			DESTDIR="$$PWD/bin/" arch -x86_64 sh gitman/circleci-cli/install.sh; \
+		else \
+			DESTDIR="$$PWD/bin/" sh gitman/circleci-cli/install.sh; \
+		fi
+
 .PHONY: build
 build:
 	docker build . --tag matejkosiarcik/azlint:dev
