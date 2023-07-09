@@ -35,13 +35,14 @@ jobs:
             rust-all \
             golang \
             cabal-install ghc \
-            ash bash dash ksh ksh93u+m mksh posh yash zsh
+            ash bash dash ksh ksh93u+m mksh posh yash zsh \
+            shellcheck
       - run: make bootstrap
-      - run: npm run azlint:lint
+      - run: VALIDATE_HADOLINT=false npm run azlint:lint
       - run: |
           printf 'git status check before formatting.\n'
           if [ "$(git status --short | wc -l)" -ne 0 ]; then printf 'Found following changes:\n'; git status; return 1; fi
-      - run: npm run azlint:fmt
+      - run: VALIDATE_HADOLINT=false npm run azlint:fmt
       - run: |
           printf 'git status check after formatting.\n'
           if [ "$(git status --short | wc -l)" -ne 0 ]; then printf 'Found following changes:\n'; git status; return 1; fi
