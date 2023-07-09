@@ -74,7 +74,7 @@ COPY linters/requirements.txt ./
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PYTHONDONTWRITEBYTECODE=1
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-dev python3-pip && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-pip && \
     rm -rf /var/lib/apt/lists/* && \
     python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
 
