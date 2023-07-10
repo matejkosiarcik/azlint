@@ -121,6 +121,7 @@ RUN apt-get update && \
 
 # apt-get update -o APT::Architecture="amd64" -o APT::Architectures="amd64"
 # NONINTERACTIVE=1 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+# brew bundle --help
 
 FROM debian:12.0-slim AS loksh
 WORKDIR /app
