@@ -82,7 +82,7 @@ bootstrap:
 		if [ "$$(uname)" = Darwin ] && [ "$$(uname -m)" = arm64 ]; then \
 			DESTDIR="$$PWD/bin/" arch -x86_64 sh gitman/circleci-cli/install.sh; \
 		else \
-			DESTDIR="$$PWD/bin/" sh gitman/circleci-cli/install.sh; \
+			DESTDIR="$$PWD/bin/" bash gitman/circleci-cli/install.sh; \
 		fi
 
 .PHONY: build
