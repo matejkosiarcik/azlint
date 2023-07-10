@@ -30,10 +30,9 @@ bootstrap:
 	PYTHONPATH="$(PROJECT_DIR)/python" \
 		pip install --requirement requirements.txt
 
-	rm -rf "$(PROJECT_DIR)/linters/gitman"
 	cd linters && \
 		PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
-			gitman install
+			gitman install --force
 	sh utils/apply-git-patches.sh
 
 	cd linters/gitman/loksh && \
@@ -78,6 +77,13 @@ bootstrap:
 	cabal update # && \
 		# cabal install hadolint-2.12.0 && \
 		# cabal install ShellCheck-0.9.0
+
+	cd linters && \
+		if [ "$$(uname)" = Darwin ] && [ "$$(uname -m)" = arm64 ]; then \
+			DESTDIR="$$PWD/bin/" arch -x86_64 sh gitman/circleci-cli/install.sh; \
+		else \
+			DESTDIR="$$PWD/bin/" bash gitman/circleci-cli/install.sh; \
+		fi
 
 .PHONY: build
 build:

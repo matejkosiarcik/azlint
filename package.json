@@ -2,8 +2,8 @@
   "private": true,
   "scripts": {
     "start": "ts-node src/main.ts",
-    "lint": "npm start -- lint",
-    "fmt": "npm start -- fmt",
+    "azlint:lint": "npm start -- lint",
+    "azlint:fmt": "npm start -- fmt",
     "build": "tsc"
   },
   "dependencies": {

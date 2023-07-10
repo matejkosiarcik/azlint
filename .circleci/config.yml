@@ -22,19 +22,30 @@ jobs:
       - image: debian:12.0
     steps:
       - checkout
-      - run: apt update
+      - run: apt-get update
       - run: |
           DEBIAN_FRONTEND=noninteractive apt-get install --yes \
-            ca-certificates curl git pandoc \
+            ca-certificates curl git pandoc libxml2-utils \
             build-essential meson \
+            bmake make \
             nodejs npm \
             composer php php-cli php-common php-mbstring php-zip \
             python3 python3-pip python3-venv \
             bundler ruby ruby-build ruby-dev \
             rust-all \
             golang \
-            cabal-install ghc
+            cabal-install ghc \
+            ash bash dash ksh ksh93u+m mksh posh yash zsh \
+            shellcheck
       - run: make bootstrap
+      - run: VALIDATE_HADOLINT=false npm run azlint:lint
+      - run: |
+          printf 'git status check before formatting.\n'
+          if [ "$(git status --short | wc -l)" -ne 0 ]; then printf 'Found following changes:\n'; git status; return 1; fi
+      - run: VALIDATE_HADOLINT=false npm run azlint:fmt
+      - run: |
+          printf 'git status check after formatting.\n'
+          if [ "$(git status --short | wc -l)" -ne 0 ]; then printf 'Found following changes:\n'; git status; return 1; fi
 
   docker-build:
     docker:
