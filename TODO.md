@@ -11,6 +11,7 @@
   - Install hadolint and shellcheck with cabal
     - Do not use published official images (too few architectures)
     - Do not use debian shellcheck in CI pipelines
+    - Enable hadolint in CI pipelines
   - Research how to put .shellcheckrc into subdirectory
 
 - Useful links for LinuxBrew:
