@@ -3,7 +3,7 @@
 ### Components/Linters ###
 
 # Gitman #
-FROM node:20.3.1-slim AS gitman
+FROM node:20.4.0-slim AS gitman
 WORKDIR /app
 COPY requirements.txt ./
 RUN apt-get update && \
@@ -29,7 +29,7 @@ RUN apt-get update && \
     BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make -C /app/linters/gitman/checkmake
 
 # NodeJS/NPM #
-FROM node:20.3.1-slim AS node
+FROM node:20.4.0-slim AS node
 ENV NODE_OPTIONS=--dns-result-order=ipv4first
 WORKDIR /app
 COPY package.json package-lock.json tsconfig.json ./
