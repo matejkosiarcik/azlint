@@ -47,6 +47,7 @@ check_dash() {
 
 shell="$(detect_shell "$file")"
 printf 'Detected %s as %s\n' "$file" "$shell" >&2
+# TODO: check with posh
 
 if [ "$shell" = sh ] || [ "$shell" = yash ] || [ "$shell" = dash ] || [ "$shell" = ash ] || [ "$shell" = posh ] || [ "$shell" = hush ]; then
     check_sh "$file"
