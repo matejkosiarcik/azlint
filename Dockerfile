@@ -15,7 +15,7 @@ COPY linters/gitman.yml ./
 RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 
 # GoLang #
-FROM golang:1.20.5-bookworm AS go
+FROM golang:1.20.6-bookworm AS go
 WORKDIR /app
 RUN GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
     GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
