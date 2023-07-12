@@ -114,8 +114,8 @@ WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl ruby ruby-build qemu-user && \
     if [ "$(uname -m)" != x86_64 ]; then \
-        dpkg --add-architecture amd64 \
-    ; fi && \
+        dpkg --add-architecture amd64 && \
+    true; fi && \
     rm -rf /var/lib/apt/lists/* && \
     touch linuxbrew-placeholder.txt
 
