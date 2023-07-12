@@ -114,13 +114,14 @@ WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl ruby ruby-build qemu-user && \
     if [ "$(uname -m)" != x86_64 ]; then \
-        dpkg --add-architecture amd64; \
-    fi && \
+        dpkg --add-architecture amd64 \
+    ; fi && \
     rm -rf /var/lib/apt/lists/* && \
     touch linuxbrew-placeholder.txt
 
 # apt-get update -o APT::Architecture="amd64" -o APT::Architectures="amd64"
 # NONINTERACTIVE=1 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+# brew bundle --help
 
 FROM debian:12.0-slim AS loksh
 WORKDIR /app
@@ -187,6 +188,7 @@ RUN apt-get update && \
         ash bash dash ksh ksh93u+m mksh posh yash zsh && \
     rm -rf /var/lib/apt/lists/* && \
     git config --system --add safe.directory '*' && \
+    git config --global --add safe.directory '*' && \
     useradd --create-home --no-log-init --shell /bin/sh --user-group --system azlint && \
     su - azlint -c "git config --global --add safe.directory '*'" && \
     mkdir -p /home/azlint/.cache/proselint

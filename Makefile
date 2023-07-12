@@ -85,6 +85,10 @@ bootstrap:
 			DESTDIR="$$PWD/bin/" bash gitman/circleci-cli/install.sh; \
 		fi
 
+	if command -v brew >/dev/null 2>&1; then \
+		brew bundle --help >/dev/null; \
+	fi
+
 .PHONY: build
 build:
 	docker build . --tag matejkosiarcik/azlint:dev
