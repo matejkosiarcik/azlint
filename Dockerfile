@@ -5,23 +5,21 @@
 # Gitman #
 FROM node:20.4.0-slim AS gitman
 WORKDIR /app
-COPY requirements.txt ./
+COPY requirements.txt linters/gitman.yml ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-pip git && \
     rm -rf /var/lib/apt/lists/* && \
     python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
-WORKDIR /app/linters
-COPY linters/gitman.yml ./
 RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 
 # GoLang #
 FROM golang:1.20.6-bookworm AS go
 WORKDIR /app
+COPY --from=gitman /app/gitman ./gitman
 RUN GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
     GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
     GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
     GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
-COPY --from=gitman /app/linters/gitman ./gitman
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends pandoc && \
     rm -rf /var/lib/apt/lists/* && \
@@ -95,7 +93,7 @@ RUN PATH="/app/linters/composer/bin:$PATH" composer install --no-cache
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
 FROM debian:12.0-slim AS circleci
 WORKDIR /app/linters
-COPY --from=gitman /app/linters/gitman ./gitman
+COPY --from=gitman /app/gitman ./gitman
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl && \
     bash ./gitman/circleci-cli/install.sh && \
@@ -112,7 +110,7 @@ FROM koalaman/shellcheck:v0.9.0 AS shellcheck
 # We have to provide our custom `uname`, because HomeBrew prohibits installation on non-x64 Linux systems
 FROM debian:12.0-slim AS brew-install
 WORKDIR /app
-COPY --from=gitman /app/linters/gitman/brew-installer ./brew-installer
+COPY --from=gitman /app/gitman/brew-installer ./brew-installer
 COPY utils/uname-x64.sh /usr/bin/uname-x64
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl git procps ruby && \
@@ -137,7 +135,7 @@ RUN apt-get update && \
 # Instead we install the same ruby version via rbenv and replace it in HomeBrew
 FROM debian:12.0-slim AS brew-rbenv
 WORKDIR /app
-COPY --from=gitman /app/linters/gitman/rbenv-installer ./rbenv-installer
+COPY --from=gitman /app/gitman/rbenv-installer ./rbenv-installer
 COPY --from=brew-install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
 ENV PATH="$PATH:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims"
 RUN apt-get update && \
@@ -166,7 +164,7 @@ WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends build-essential ca-certificates git meson && \
     rm -rf /var/lib/apt/lists/*
-COPY --from=gitman /app/linters/gitman ./gitman
+COPY --from=gitman /app/gitman ./gitman
 WORKDIR /app/gitman/loksh/
 RUN meson setup --prefix="$PWD/install" build && \
     ninja -C build install
