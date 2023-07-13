@@ -107,21 +107,59 @@ FROM hadolint/hadolint:v2.12.0 AS hadolint
 # ShellCheck #
 FROM koalaman/shellcheck:v0.9.0 AS shellcheck
 
-# TODO: Finish LinuxBrew setup
-# LinuxBrew #
-FROM debian:12.0-slim AS brew
+# LinuxBrew - install #
+# This is first part of HomeBrew, here we just install it
+# We have to provide our custom `uname`, because HomeBrew prohibits installation on non-x64 Linux systems
+FROM debian:12.0-slim AS brew-install
 WORKDIR /app
+COPY ./linters/gitman/brew-installer ./brew-installer
+COPY utils/uname-x64.sh /usr/bin/uname-x64
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl ruby ruby-build qemu-user && \
-    if [ "$(uname -m)" != x86_64 ]; then \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl git procps ruby && \
+    if [ "$(uname -m)" != 'amd64' ]; then \
         dpkg --add-architecture amd64 && \
+        apt-get update && \
+        DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends libc6:amd64 && \
+        chmod a+x /usr/bin/uname-x64 && \
+        mv /usr/bin/uname /usr/bin/uname-bak && \
+        mv /usr/bin/uname-x64 /usr/bin/uname && \
     true; fi && \
     rm -rf /var/lib/apt/lists/* && \
-    touch linuxbrew-placeholder.txt
+    bash ./brew-installer/install.sh && \
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
+    brew update && \
+    brew bundle --help && \
+    ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
+    rm -rf "/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby/$ruby_version_full"
 
-# apt-get update -o APT::Architecture="amd64" -o APT::Architectures="amd64"
-# NONINTERACTIVE=1 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-# brew bundle --help
+# LinuxBrew - rbenv #
+# We need to replace ruby bundled with HomeBrew, because it is only a x64 version
+# Instead we install the same ruby version via rbenv and replace it in HomeBrew
+FROM debian:12.0-slim AS brew-rbenv
+WORKDIR /app
+COPY ./linters/gitman/rbenv-installer ./rbenv-installer
+COPY --from=brew-install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
+ENV PATH="$PATH:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims"
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
+        autoconf bison build-essential ca-certificates curl git \
+        libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev && \
+    rm -rf /var/lib/apt/lists/* && \
+    export RBENV_ROOT="/.rbenv" && \
+    bash rbenv-installer/bin/rbenv-installer && \
+    ruby_version_short="$(sed -E 's~_.+$~~' <portable-ruby-version)" && \
+    rbenv install "$ruby_version_short"
+
+# LinuxBrew - final #
+FROM debian:12.0-slim AS brew-final
+WORKDIR /app
+COPY --from=brew-install /home/linuxbrew /home/linuxbrew
+COPY --from=brew-rbenv /.rbenv/versions /.rbenv/versions
+RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
+    ruby_version_short="$(sed -E 's~_.+$~~' </home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
+    ln -sf "/.rbenv/versions/$ruby_version_short" "/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby/$ruby_version_full"
+
+# Shells #
 
 FROM debian:12.0-slim AS loksh
 WORKDIR /app
@@ -150,9 +188,6 @@ RUN apt-get update && \
 
 # Pre-Final #
 FROM debian:12.0-slim AS pre-final
-WORKDIR /
-COPY --from=brew /app/linuxbrew-placeholder.txt ./
-RUN rm linuxbrew-placeholder.txt
 WORKDIR /app
 COPY VERSION.txt ./
 WORKDIR /app/cli
@@ -179,12 +214,13 @@ COPY --from=loksh /app/gitman/loksh/install/bin/ksh ./loksh
 ### Final ###
 
 FROM debian:12.0-slim
+COPY --from=brew-final /home/linuxbrew /home/linuxbrew
+COPY --from=brew-final /.rbenv/versions /.rbenv/versions
 WORKDIR /app
 COPY --from=pre-final /app/ ./
-ENV PATH="$PATH:/app/bin"
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
-        git libxml2-utils \
+        curl git libxml2-utils \
         bmake make \
         nodejs npm \
         php php-mbstring \
@@ -197,7 +233,12 @@ RUN apt-get update && \
     useradd --create-home --no-log-init --shell /bin/sh --user-group --system azlint && \
     su - azlint -c "git config --global --add safe.directory '*'" && \
     mkdir -p /root/.cache/proselint /home/azlint/.cache/proselint
-ENV NODE_OPTIONS=--dns-result-order=ipv4first
+ENV NODE_OPTIONS=--dns-result-order=ipv4first \
+    PATH="$PATH:/app/bin:/home/linuxbrew/.linuxbrew/bin" \
+    HOMEBREW_NO_AUTO_UPDATE=1 \
+    HOMEBREW_NO_INSTALL_CLEANUP=1 \
+    HOMEBREW_NO_ENV_HINTS=1 \
+    HOMEBREW_NO_ANALYTICS=1
 USER azlint
 WORKDIR /project
 ENTRYPOINT ["azlint"]
