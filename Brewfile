@@ -28,11 +28,11 @@ brew "zsh"
 # Others
 brew "libxml2"
 
-# Haskell
+# TODO: Install these following Haskell tools via Cabal
 brew "hadolint"
+brew "shellcheck"
 
 # No longer necessary below
 # brew "checkmake"
 # brew "circleci"
-# brew "shellcheck"
 # brew "shfmt"

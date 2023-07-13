@@ -10,7 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## \[0.6.3\] - 2023-07-09
 
 - Added
-  - New linter `loksh`
+  - New linters:
+    - `loksh` for shell files
+    - `oksh` for shell files
+    - `brew bundle list` for `Brewfile`s
+    - `actionlint` for GitHub Action workflow files
 
 ## \[0.6.2\] - 2023-07-02
 

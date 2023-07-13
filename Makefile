@@ -72,6 +72,7 @@ bootstrap:
 
 	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' 'github.com/freshautomations/stoml@latest'
 	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest'
+	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' 'github.com/rhysd/actionlint/cmd/actionlint@latest'
 	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
 
 	cabal update # && \

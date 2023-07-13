@@ -8,7 +8,7 @@ import { customExeca, getConfigArgs, getPythonConfigArgs, hashFile, isCwdGitRepo
 
 function shouldSkipLinter(envName: string, linterName: string): boolean {
     const envEnable = 'VALIDATE_' + envName;
-    if (process.env[envEnable] && process.env[envEnable] === 'false') {
+    if (process.env[envEnable] === 'false') {
         logExtraVerbose(`Skipped ${linterName} - ${envEnable} is false`);
         return true;
     }
@@ -58,7 +58,6 @@ export class Linters {
             jobs?: number | undefined,
         }
     ): Promise<void> {
-        const files = matchFiles(this.files, options.fileMatch);
         if (shouldSkipLinter(options.envName, options.linterName)) {
             return;
         }
@@ -75,6 +74,7 @@ export class Linters {
             await resolvePromiseOrValue(options.beforeAllFiles(options.linterName));
         }
 
+        const files = matchFiles(this.files, options.fileMatch);
         await Promise.all(files.map(async (file) => {
             await this.runLinterFile({
                 file: file,
@@ -178,8 +178,8 @@ export class Linters {
             markdown: '*.{md,mdown,markdown}',
             text: '*.{txt, text}',
             makefile: '{Makefile,*.make}',
-            gnumakefile: '{GNU,G,}{Makefile,*.make}',
-            bsdmakefile: '{BSD,B,}{Makefile,*.make}',
+            gnumakefile: ['{GNU,G}Makefile', '*.{gnu,g}make'],
+            bsdmakefile: ['{BSD,B}Makefile', '*.{bsd,b}make'],
             html: '*.{html,htm,html5,xhtml}',
             shell: '*.{sh,bash,ksh,ksh93,mksh,loksh,ash,dash,zsh,yash}',
             python: '*.{py,py3,python,python3}',
@@ -595,6 +595,14 @@ export class Linters {
         });
         await fs.rm( randomDir, { force: true, recursive: true });
 
+        // HomeBrew
+        await this.runLinter({
+            linterName: 'brew-bundle',
+            envName: 'BREW_BUNDLE',
+            fileMatch: ['Brewfile', '*.Brewfile', 'Brewfile.*'],
+            lintFile: { args: ['brew', 'bundle', 'list', '--file', '#file#', '--no-lock'] },
+        });
+
         /* Docker */
 
         const dockerfilelintConfigArgs = getConfigArgs('DOCKERFILELINT', '--config', ['.dockerfilelintrc']);
@@ -622,7 +630,7 @@ export class Linters {
         await this.runLinter({
             linterName: 'checkmake',
             envName: 'CHECKMAKE',
-            fileMatch: [matchers.makefile, matchers.gnumakefile, matchers.bsdmakefile],
+            fileMatch: [matchers.makefile, ...matchers.gnumakefile, ...matchers.bsdmakefile],
             lintFile: { args: ['checkmake', ...checkmakeConfigArgs, '#file#'] },
         });
 
@@ -630,7 +638,7 @@ export class Linters {
         await this.runLinter({
             linterName: 'gmake',
             envName: 'GMAKE',
-            fileMatch: [matchers.makefile, matchers.gnumakefile],
+            fileMatch: [matchers.makefile, ...matchers.gnumakefile],
             lintFile: { args: ['gmake', '--dry-run', '-f', '#file#'] },
         });
 
@@ -638,15 +646,23 @@ export class Linters {
         await this.runLinter({
             linterName: 'bmake',
             envName: 'BMAKE',
-            fileMatch: matchers.bsdmakefile,
+            fileMatch: [matchers.makefile, ...matchers.bsdmakefile],
             lintFile: { args: ['bmake', '-n', '-f', '#file#'] },
         });
 
         // BSD Make
+        // TODO: Install bsdmake in docker and remove the following workaround
+        const hasBsdMake = await (async () => {
+            const cmd = await customExeca(['command', '-v', 'bsdmake']);
+            return cmd.exitCode === 0;
+        })();
+        if (!hasBsdMake) {
+            process.env['VALIDATE_BSDMAKE'] = 'false';
+        }
         await this.runLinter({
-            linterName: 'bmake',
+            linterName: 'bsdmake',
             envName: 'BSDMAKE',
-            fileMatch: matchers.bsdmakefile,
+            fileMatch: [matchers.makefile, ...matchers.bsdmakefile],
             lintFile: { args: ['bsdmake', '-n', '-f', '#file#'] },
         });
 

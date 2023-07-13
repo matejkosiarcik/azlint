@@ -3,7 +3,6 @@
 - Add and improve linters:
   - checkov
   - textlint
-  - brew bundle list --file="#file#"
   - Check more shells in dry_runner: oksh, hush
   - Remove exitzero from jscpd
   - sql-lint and sqlfluff

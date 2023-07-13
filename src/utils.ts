@@ -185,12 +185,16 @@ export async function hashFile(file: string): Promise<string> {
  * Handles even relatively complex things like '*.{c,h}{,pp}'
  */
 export function wildcard2regex(wildcard: string): RegExp {
-    const regex = wildcard.replace(/\./, "\\.")
-        .replace(/\?/, ".")
-        .replace(/\*/, ".*")
-        .replace(/\{/, "(")
-        .replace(/\}/, ")")
-        .replace(/,/, "|");
+    const regex = wildcard
+        .replace(/\./g, "\\.")
+        .replace(/\?/g, ".")
+        .replace(/\*{2}\//g, ".<star>/?")
+        .replace(/\*{2}/g, ".<star>")
+        .replace(/\*/g, "[^/\\\\]<star>")
+        .replace(/\{/g, "(")
+        .replace(/\}/g, ")")
+        .replace(/,/g, "|")
+        .replace(/<star>/g, "*");
     return new RegExp(`^(.*/)?${regex}$`, 'i');
 }
 
