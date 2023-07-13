@@ -179,7 +179,7 @@ RUN meson setup --prefix="$PWD/install" build && \
 FROM ubuntu:23.10 AS upx
 WORKDIR /app
 COPY --from=circleci /usr/local/bin/circleci ./
-COPY --from=go /app/linters/gitman/checkmake/checkmake /app/linters/gitman/editorconfig-checker/bin/ec /app/go/bin/shfmt /app/go/bin/stoml /app/go/bin/tomljson ./
+COPY --from=go /app/linters/gitman/checkmake/checkmake /app/linters/gitman/editorconfig-checker/bin/ec /app/go/bin/actionlint /app/go/bin/shfmt /app/go/bin/stoml /app/go/bin/tomljson ./
 COPY --from=rust /app/cargo/bin/shellharden /app/cargo/bin/dotenv-linter ./
 COPY --from=shellcheck /bin/shellcheck ./
 RUN apt-get update && \
@@ -209,7 +209,7 @@ COPY --from=ruby /app/bundle ./bundle
 WORKDIR /app/linters/bin
 COPY --from=composer /app/linters/composer/bin/composer ./
 COPY --from=hadolint /bin/hadolint ./
-COPY --from=upx /app/checkmake /app/circleci /app/dotenv-linter /app/ec /app/shellcheck /app/shellharden /app/shfmt /app/stoml /app/tomljson ./
+COPY --from=upx /app/actionlint /app/checkmake /app/circleci /app/dotenv-linter /app/ec /app/shellcheck /app/shellharden /app/shfmt /app/stoml /app/tomljson ./
 COPY --from=loksh /app/gitman/loksh/install/bin/ksh ./loksh
 
 ### Final ###
