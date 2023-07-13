@@ -39,7 +39,7 @@ jobs:
             shellcheck
       - run: make bootstrap
       - run: |
-          bash linters/brew-installer/install.sh
+          bash linters/gitman/brew-installer/install.sh
           brew --help
           brew bundle --help
       - run: VALIDATE_HADOLINT=false npm run azlint:lint
