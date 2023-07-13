@@ -651,6 +651,14 @@ export class Linters {
         });
 
         // BSD Make
+        // TODO: Install bsdmake in docker and remove the following workaround
+        const hasBsdMake = await (async () => {
+            const cmd = await customExeca(['command', '-v', 'bsdmake']);
+            return cmd.exitCode === 0;
+        })();
+        if (hasBsdMake) {
+            process.env['VALIDATE_BSDMAKE'] = 'false';
+        }
         await this.runLinter({
             linterName: 'bsdmake',
             envName: 'BSDMAKE',
