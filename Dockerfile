@@ -113,7 +113,7 @@ FROM koalaman/shellcheck:v0.9.0 AS shellcheck
 # We have to provide our custom `uname`, because HomeBrew prohibits installation on non-x64 Linux systems
 FROM debian:12.0-slim AS brew-install
 WORKDIR /app
-COPY linters/gitman/brew-installer ./brew-installer
+COPY --from=gitman /app/linters/gitman/brew-installer ./brew-installer
 COPY utils/uname-x64.sh /usr/bin/uname-x64
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl git procps ruby && \
@@ -138,7 +138,7 @@ RUN apt-get update && \
 # Instead we install the same ruby version via rbenv and replace it in HomeBrew
 FROM debian:12.0-slim AS brew-rbenv
 WORKDIR /app
-COPY linters/gitman/rbenv-installer ./rbenv-installer
+COPY --from=gitman /app/linters/gitman/rbenv-installer ./rbenv-installer
 COPY --from=brew-install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
 ENV PATH="$PATH:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims"
 RUN apt-get update && \
