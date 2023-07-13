@@ -595,6 +595,14 @@ export class Linters {
         });
         await fs.rm( randomDir, { force: true, recursive: true });
 
+        // HomeBrew
+        await this.runLinter({
+            linterName: 'brew-bundle',
+            envName: 'BREW_BUNDLE',
+            fileMatch: ['Brewfile', '*.Brewfile', 'Brewfile.*'],
+            lintFile: { args: ['brew', 'bundle', 'list', '--file', '#file#', '--no-lock'] },
+        });
+
         /* Docker */
 
         const dockerfilelintConfigArgs = getConfigArgs('DOCKERFILELINT', '--config', ['.dockerfilelintrc']);
