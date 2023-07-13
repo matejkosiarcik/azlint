@@ -67,7 +67,7 @@ RUN apt-get update && \
 
 # Python/Pip #
 FROM debian:12.0-slim AS python
-WORKDIR /app/linters
+WORKDIR /app
 COPY linters/requirements.txt ./
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -82,17 +82,16 @@ WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl php php-cli php-common php-mbstring php-zip && \
     curl -fLsS https://getcomposer.org/installer -o composer-setup.php && \
-    mkdir -p /app/linters/composer/bin && \
-    php composer-setup.php --install-dir=/app/linters/composer/bin --filename=composer && \
+    mkdir -p /app/composer/bin && \
+    php composer-setup.php --install-dir=/app/composer/bin --filename=composer && \
     rm -rf /var/lib/apt/lists/* composer-setup.php
-WORKDIR /app/linters
 COPY linters/composer.json linters/composer.lock ./
-RUN PATH="/app/linters/composer/bin:$PATH" composer install --no-cache
+RUN PATH="/app/composer/bin:$PATH" composer install --no-cache
 
 # CircleCI #
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
 FROM debian:12.0-slim AS circleci
-WORKDIR /app/linters
+WORKDIR /app
 COPY --from=gitman /app/gitman ./gitman
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl && \
@@ -199,12 +198,12 @@ RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azl
     chmod a+x azlint fmt lint
 WORKDIR /app/linters
 COPY linters/Gemfile linters/Gemfile.lock linters/composer.json ./
-COPY --from=composer /app/linters/vendor ./vendor
+COPY --from=composer /app/vendor ./vendor
 COPY --from=node /app/linters/node_modules ./node_modules
-COPY --from=python /app/linters/python ./python
+COPY --from=python /app/python ./python
 COPY --from=ruby /app/bundle ./bundle
 WORKDIR /app/linters/bin
-COPY --from=composer /app/linters/composer/bin/composer ./
+COPY --from=composer /app/composer/bin/composer ./
 COPY --from=hadolint /bin/hadolint ./
 COPY --from=upx /app/actionlint /app/checkmake /app/circleci /app/dotenv-linter /app/ec /app/shellcheck /app/shellharden /app/shfmt /app/stoml /app/tomljson ./
 COPY --from=loksh /app/gitman/loksh/install/bin/ksh ./loksh
