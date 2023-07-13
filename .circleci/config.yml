@@ -39,8 +39,8 @@ jobs:
             shellcheck
       - run: make bootstrap
       - run: |
-          export PATH="$PATH:/home/linuxbrew/.linuxbrew/bin"
           bash linters/gitman/brew-installer/install.sh
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew --help
           brew bundle --help
       - run: |
