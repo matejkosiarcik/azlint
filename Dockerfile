@@ -21,13 +21,12 @@ RUN GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/fres
     GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
     GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
     GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
-WORKDIR /app/linters
 COPY --from=gitman /app/linters/gitman ./gitman
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends pandoc && \
     rm -rf /var/lib/apt/lists/* && \
-    make -C /app/linters/gitman/editorconfig-checker build && \
-    BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make -C /app/linters/gitman/checkmake
+    make -C ./gitman/editorconfig-checker build && \
+    BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make -C ./gitman/checkmake
 
 # NodeJS/NPM #
 FROM node:20.4.0-slim AS node
@@ -179,7 +178,7 @@ RUN meson setup --prefix="$PWD/install" build && \
 FROM ubuntu:23.10 AS upx
 WORKDIR /app
 COPY --from=circleci /usr/local/bin/circleci ./
-COPY --from=go /app/linters/gitman/checkmake/checkmake /app/linters/gitman/editorconfig-checker/bin/ec /app/go/bin/actionlint /app/go/bin/shfmt /app/go/bin/stoml /app/go/bin/tomljson ./
+COPY --from=go /app/gitman/checkmake/checkmake /app/gitman/editorconfig-checker/bin/ec /app/go/bin/actionlint /app/go/bin/shfmt /app/go/bin/stoml /app/go/bin/tomljson ./
 COPY --from=rust /app/cargo/bin/shellharden /app/cargo/bin/dotenv-linter ./
 COPY --from=shellcheck /bin/shellcheck ./
 RUN apt-get update && \
