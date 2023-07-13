@@ -39,14 +39,21 @@ jobs:
             shellcheck
       - run: make bootstrap
       - run: |
+          export PATH="$PATH:/home/linuxbrew/.linuxbrew/bin"
           bash linters/gitman/brew-installer/install.sh
           brew --help
           brew bundle --help
-      - run: VALIDATE_HADOLINT=false npm run azlint:lint
+      - run: |
+          VALIDATE_HADOLINT=false \
+          PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" \
+          npm run azlint:lint
       - run: |
           printf 'git status check before formatting.\n'
           if [ "$(git status --short | wc -l)" -ne 0 ]; then printf 'Found following changes:\n'; git status; return 1; fi
-      - run: VALIDATE_HADOLINT=false npm run azlint:fmt
+      - run: |
+          VALIDATE_HADOLINT=false \
+          PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" \
+          npm run azlint:fmt
       - run: |
           printf 'git status check after formatting.\n'
           if [ "$(git status --short | wc -l)" -ne 0 ]; then printf 'Found following changes:\n'; git status; return 1; fi
