@@ -8,7 +8,7 @@ import { customExeca, getConfigArgs, getPythonConfigArgs, hashFile, isCwdGitRepo
 
 function shouldSkipLinter(envName: string, linterName: string): boolean {
     const envEnable = 'VALIDATE_' + envName;
-    if (process.env[envEnable] && process.env[envEnable] === 'false') {
+    if (process.env[envEnable] === 'false') {
         logExtraVerbose(`Skipped ${linterName} - ${envEnable} is false`);
         return true;
     }
@@ -58,7 +58,6 @@ export class Linters {
             jobs?: number | undefined,
         }
     ): Promise<void> {
-        const files = matchFiles(this.files, options.fileMatch);
         if (shouldSkipLinter(options.envName, options.linterName)) {
             return;
         }
@@ -75,6 +74,7 @@ export class Linters {
             await resolvePromiseOrValue(options.beforeAllFiles(options.linterName));
         }
 
+        const files = matchFiles(this.files, options.fileMatch);
         await Promise.all(files.map(async (file) => {
             await this.runLinterFile({
                 file: file,
@@ -656,7 +656,7 @@ export class Linters {
             const cmd = await customExeca(['command', '-v', 'bsdmake']);
             return cmd.exitCode === 0;
         })();
-        if (hasBsdMake) {
+        if (!hasBsdMake) {
             process.env['VALIDATE_BSDMAKE'] = 'false';
         }
         await this.runLinter({
