@@ -178,8 +178,8 @@ export class Linters {
             markdown: '*.{md,mdown,markdown}',
             text: '*.{txt, text}',
             makefile: '{Makefile,*.make}',
-            gnumakefile: '{GNU,G,}{Makefile,*.make}',
-            bsdmakefile: '{BSD,B,}{Makefile,*.make}',
+            gnumakefile: ['{GNU,G}Makefile', '*.{gnu,g}make'],
+            bsdmakefile: ['{BSD,B}Makefile', '*.{bsd,b}make'],
             html: '*.{html,htm,html5,xhtml}',
             shell: '*.{sh,bash,ksh,ksh93,mksh,loksh,ash,dash,zsh,yash}',
             python: '*.{py,py3,python,python3}',
@@ -630,7 +630,7 @@ export class Linters {
         await this.runLinter({
             linterName: 'checkmake',
             envName: 'CHECKMAKE',
-            fileMatch: [matchers.makefile, matchers.gnumakefile, matchers.bsdmakefile],
+            fileMatch: [matchers.makefile, ...matchers.gnumakefile, ...matchers.bsdmakefile],
             lintFile: { args: ['checkmake', ...checkmakeConfigArgs, '#file#'] },
         });
 
@@ -638,7 +638,7 @@ export class Linters {
         await this.runLinter({
             linterName: 'gmake',
             envName: 'GMAKE',
-            fileMatch: [matchers.makefile, matchers.gnumakefile],
+            fileMatch: [matchers.makefile, ...matchers.gnumakefile],
             lintFile: { args: ['gmake', '--dry-run', '-f', '#file#'] },
         });
 
@@ -646,7 +646,7 @@ export class Linters {
         await this.runLinter({
             linterName: 'bmake',
             envName: 'BMAKE',
-            fileMatch: matchers.bsdmakefile,
+            fileMatch: [matchers.makefile, ...matchers.bsdmakefile],
             lintFile: { args: ['bmake', '-n', '-f', '#file#'] },
         });
 
@@ -662,7 +662,7 @@ export class Linters {
         await this.runLinter({
             linterName: 'bsdmake',
             envName: 'BSDMAKE',
-            fileMatch: matchers.bsdmakefile,
+            fileMatch: [matchers.makefile, ...matchers.bsdmakefile],
             lintFile: { args: ['bsdmake', '-n', '-f', '#file#'] },
         });
 
