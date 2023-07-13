@@ -51,7 +51,7 @@ RUN apt-get update && \
     BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install
 
 # Rust/Cargo #
-FROM rust:1.70.0-slim-bookworm AS rust
+FROM rust:1.71.0-slim-bookworm AS rust
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY utils/cargo-packages.js ./utils/
