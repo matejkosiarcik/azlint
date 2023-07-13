@@ -652,7 +652,7 @@ export class Linters {
 
         // BSD Make
         await this.runLinter({
-            linterName: 'bmake',
+            linterName: 'bsdmake',
             envName: 'BSDMAKE',
             fileMatch: matchers.bsdmakefile,
             lintFile: { args: ['bsdmake', '-n', '-f', '#file#'] },
