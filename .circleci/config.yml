@@ -40,7 +40,7 @@ jobs:
       - run: make bootstrap
       - run: |
           bash linters/gitman/brew-installer/install.sh
-          /home/linuxbrew/.linuxbrew/bin/brew shellenv
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew --help
           brew bundle --help
       - run: |
