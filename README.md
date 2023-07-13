@@ -210,6 +210,7 @@ _Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 
 | tool                                                                             | disable                       | files              | autofix |
 |----------------------------------------------------------------------------------|-------------------------------|--------------------|---------|
+| [brew-bundle](https://github.com/Homebrew/homebrew-bundle)                       | `VALIDATE_BREW_BUNDLE`        | `Brewfile`         | ❌       |
 | [composer-normalize](https://github.com/ergebnis/composer-normalize)             | `VALIDATE_COMPOSER_NORMALIZE` | `composer.json`    | ✅       |
 | [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)              | `VALIDATE_COMPOSER_VALIDATE`  | `composer.json`    | ❌       |
 | [composer-install](https://getcomposer.org)                                      | `VALIDATE_COMPOSER_INSTALL`   | `composer.json`    | ❌       |
