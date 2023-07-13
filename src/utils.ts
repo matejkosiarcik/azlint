@@ -188,10 +188,13 @@ export function wildcard2regex(wildcard: string): RegExp {
     const regex = wildcard
         .replace(/\./g, "\\.")
         .replace(/\?/g, ".")
-        .replace(/\*/g, ".*")
+        .replace(/\*{2}\//g, ".<star>/?")
+        .replace(/\*{2}/g, ".<star>")
+        .replace(/\*/g, "[^/\\\\]<star>")
         .replace(/\{/g, "(")
         .replace(/\}/g, ")")
-        .replace(/,/g, "|");
+        .replace(/,/g, "|")
+        .replace(/<star>/g, "*");
     return new RegExp(`^(.*/)?${regex}$`, 'i');
 }
 
