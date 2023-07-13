@@ -23,8 +23,8 @@ RUN GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/fres
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends pandoc && \
     rm -rf /var/lib/apt/lists/* && \
-    make -C ./gitman/editorconfig-checker build && \
-    BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make -C ./gitman/checkmake
+    make -C 'gitman/editorconfig-checker' build && \
+    BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make -C 'gitman/checkmake'
 
 # NodeJS/NPM #
 FROM node:20.4.0-slim AS node
@@ -123,7 +123,7 @@ RUN apt-get update && \
         mv /usr/bin/uname-x64 /usr/bin/uname && \
     true; fi && \
     rm -rf /var/lib/apt/lists/* && \
-    bash ./brew-installer/install.sh && \
+    bash brew-installer/install.sh && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
     brew update && \
     brew bundle --help && \
