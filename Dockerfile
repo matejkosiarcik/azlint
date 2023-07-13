@@ -196,7 +196,7 @@ RUN apt-get update && \
     git config --global --add safe.directory '*' && \
     useradd --create-home --no-log-init --shell /bin/sh --user-group --system azlint && \
     su - azlint -c "git config --global --add safe.directory '*'" && \
-    mkdir -p /home/azlint/.cache/proselint
+    mkdir -p /root/.cache/proselint /home/azlint/.cache/proselint
 ENV NODE_OPTIONS=--dns-result-order=ipv4first
 USER azlint
 WORKDIR /project
