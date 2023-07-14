@@ -91,12 +91,12 @@ RUN PATH="/app/composer/bin:$PATH" composer install --no-cache
 # CircleCI #
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
 FROM debian:12.0-slim AS circleci
-WORKDIR /app
-COPY --from=gitman /app/gitman ./gitman
+COPY --from=gitman /app/gitman/circleci-cli /app/circleci-cli
+WORKDIR /app/circleci-cli
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl && \
-    bash ./gitman/circleci-cli/install.sh && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    bash install.sh
 
 # Hadolint #
 FROM hadolint/hadolint:v2.12.0 AS hadolint
