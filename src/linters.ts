@@ -181,7 +181,7 @@ export class Linters {
             gnumakefile: ['{GNU,G}Makefile', '*.{gnu,g}make'],
             bsdmakefile: ['{BSD,B}Makefile', '*.{bsd,b}make'],
             html: '*.{html,htm,html5,xhtml}',
-            shell: '*.{sh,bash,ksh,ksh93,mksh,loksh,ash,dash,zsh,yash}',
+            shell: '*.{sh,bash,ksh,ksh93,mksh,oksh,loksh,ash,dash,zsh,yash}',
             python: '*.{py,py3,python,python3}',
             allText: [] as string[],
         };
@@ -246,7 +246,21 @@ export class Linters {
         await this.runLinter({
             linterName: 'prettier',
             envName: 'PRETTIER',
-            fileMatch: [matchers.json, matchers.yaml, '*.{json,yml,yaml,html,vue,css,scss,sass,less}'],
+            fileMatch: matchers.json,
+            lintFile: { args: ['prettier', ...prettierConfigArgs, '--parser', 'json-stringify', '--list-different', '#file#'] },
+            fmtFile: { args: ['prettier', ...prettierConfigArgs, '--parser', 'json-stringify', '--write', '#file#'] },
+        });
+        await this.runLinter({
+            linterName: 'prettier',
+            envName: 'PRETTIER',
+            fileMatch: matchers.yaml,
+            lintFile: { args: ['prettier', ...prettierConfigArgs, '--parser', 'yaml', '--list-different', '#file#'] },
+            fmtFile: { args: ['prettier', ...prettierConfigArgs, '--parser', 'yaml', '--write', '#file#'] },
+        });
+        await this.runLinter({
+            linterName: 'prettier',
+            envName: 'PRETTIER',
+            fileMatch: '*.{html,vue,css,scss,sass,less}',
             lintFile: { args: ['prettier', ...prettierConfigArgs, '--list-different', '#file#'] },
             fmtFile: { args: ['prettier', ...prettierConfigArgs, '--write', '#file#'] },
         });
@@ -448,6 +462,14 @@ export class Linters {
             envName: 'SHELL_DRY_RUN',
             fileMatch: matchers.shell,
             lintFile: { args: ['sh', path.join(__dirname, 'shell-dry-run.sh'), "#file#"] },
+        });
+
+        // Hush
+        await this.runLinter({
+            linterName: 'hush-check',
+            envName: 'HUSH_CHECK',
+            fileMatch: '*.hush',
+            lintFile: { args: ['hush', '--check', "#file#"] },
         });
 
         /* Python */

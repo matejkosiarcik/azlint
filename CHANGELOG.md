@@ -8,9 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## \[Unreleased\]
 
 - Added
+  - New linters:
+    - `actionlint` for GitHub Action workflow files
+
+## \[0.6.5\] - 2023-07-14
+
+- Added
   - New linters
     - `oksh` for shell files
-    - `actionlint` for GitHub Action workflow files
+    - `hush --check` for `*.hush` files
+- Fixed
+  - Formatting for _json_ files with prettier
 
 ## \[0.6.4\] - 2023-07-14
 

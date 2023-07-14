@@ -15,16 +15,17 @@ RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 # GoLang #
 FROM golang:1.20.6-bookworm AS go
 WORKDIR /app
-COPY --from=gitman /app/gitman ./gitman
+COPY --from=gitman /app/gitman/checkmake ./gitman/checkmake
+COPY --from=gitman /app/gitman/editorconfig-checker ./gitman/editorconfig-checker
 RUN GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
     GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
     GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
-    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
-RUN apt-get update && \
+    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest' && \
+    apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends pandoc && \
     rm -rf /var/lib/apt/lists/* && \
-    make -C 'gitman/editorconfig-checker' build && \
-    BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make -C 'gitman/checkmake'
+    BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make -C gitman/checkmake && \
+    make -C gitman/editorconfig-checker build
 
 # NodeJS/NPM #
 FROM node:20.4.0-slim AS node
@@ -163,8 +164,8 @@ COPY --from=gitman /app/gitman/loksh /app/loksh
 WORKDIR /app/loksh
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends build-essential ca-certificates git meson && \
-    rm -rf /var/lib/apt/lists/*
-RUN meson setup --prefix="$PWD/install" build && \
+    rm -rf /var/lib/apt/lists/* && \
+    meson setup --prefix="$PWD/install" build && \
     ninja -C build install
 
 FROM debian:12.0-slim AS oksh
@@ -185,7 +186,7 @@ FROM ubuntu:23.10 AS upx
 WORKDIR /app
 COPY --from=circleci /usr/local/bin/circleci ./
 COPY --from=go /app/gitman/checkmake/checkmake /app/gitman/editorconfig-checker/bin/ec /app/go/bin/actionlint /app/go/bin/shfmt /app/go/bin/stoml /app/go/bin/tomljson ./
-COPY --from=rust /app/cargo/bin/shellharden /app/cargo/bin/dotenv-linter ./
+COPY --from=rust /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden ./
 COPY --from=shellcheck /bin/shellcheck ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends parallel upx-ucl && \
@@ -214,7 +215,7 @@ COPY --from=ruby /app/bundle ./bundle
 WORKDIR /app/linters/bin
 COPY --from=composer /app/composer/bin/composer ./
 COPY --from=hadolint /bin/hadolint ./
-COPY --from=upx /app/actionlint /app/checkmake /app/circleci /app/dotenv-linter /app/ec /app/shellcheck /app/shellharden /app/shfmt /app/stoml /app/tomljson ./
+COPY --from=upx /app/actionlint /app/checkmake /app/circleci /app/dotenv-linter /app/ec /app/hush /app/shellcheck /app/shellharden /app/shfmt /app/stoml /app/tomljson ./
 COPY --from=loksh /app/loksh/install/bin/ksh ./loksh
 COPY --from=oksh /app/oksh/install/usr/local/bin/oksh ./oksh
 

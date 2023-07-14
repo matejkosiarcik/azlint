@@ -1,5 +1,11 @@
 {
   "threshold": 0,
-  "reporters": ["markdown"],
-  "ignore": ["**/*lock*", "**/*resolved*", "**/*pins*"]
+  "reporters": [
+    "markdown"
+  ],
+  "ignore": [
+    "**/*lock*",
+    "**/*resolved*",
+    "**/*pins*"
+  ]
 }
