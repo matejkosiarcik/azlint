@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## \[Unreleased\]
 
 - Added
-  - `actionlint` for GitHub Action workflow files
+  - New linters:
+    - `actionlint` for GitHub Action workflow files
 
 ## \[0.6.5\] - 2023-07-14
 
