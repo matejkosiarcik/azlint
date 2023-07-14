@@ -1,6 +1,6 @@
 location: gitman/
 sources:
-  - repo: https://github.com/mrtazz/checkmake
+  - repo: https://github.com/mrtazz/checkmake.git
     name: checkmake
     rev: main
     type: git
@@ -10,7 +10,7 @@ sources:
       -
     scripts:
       -
-  - repo: https://github.com/editorconfig-checker/editorconfig-checker
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker.git
     name: editorconfig-checker
     rev: main
     type: git
@@ -20,7 +20,7 @@ sources:
       -
     scripts:
       -
-  - repo: https://github.com/Homebrew/install
+  - repo: https://github.com/Homebrew/install.git
     name: brew-installer
     rev: master
     type: git
@@ -30,7 +30,7 @@ sources:
       -
     scripts:
       -
-  - repo: https://github.com/CircleCI-Public/circleci-cli
+  - repo: https://github.com/CircleCI-Public/circleci-cli.git
     name: circleci-cli
     rev: main
     type: git
@@ -40,7 +40,7 @@ sources:
       -
     scripts:
       -
-  - repo: https://github.com/dimkr/loksh
+  - repo: https://github.com/dimkr/loksh.git
     name: loksh
     rev: master
     type: git
@@ -60,7 +60,7 @@ sources:
       -
     scripts:
       -
-  - repo: https://github.com/rbenv/rbenv-installer
+  - repo: https://github.com/rbenv/rbenv-installer.git
     name: rbenv-installer
     rev: main
     type: git
@@ -71,7 +71,7 @@ sources:
     scripts:
       -
 sources_locked:
-  - repo: https://github.com/mrtazz/checkmake
+  - repo: https://github.com/mrtazz/checkmake.git
     name: checkmake
     rev: 48ab7819837d1bdfcbac58e301478a06efebf4a8
     type: git
@@ -81,7 +81,7 @@ sources_locked:
       -
     scripts:
       -
-  - repo: https://github.com/editorconfig-checker/editorconfig-checker
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker.git
     name: editorconfig-checker
     rev: a49a2ff72e0d15e57ca40956a504ad6132dbfada
     type: git
@@ -91,7 +91,7 @@ sources_locked:
       -
     scripts:
       -
-  - repo: https://github.com/Homebrew/install
+  - repo: https://github.com/Homebrew/install.git
     name: brew-installer
     rev: 8494f72c03681700a056a209feaae76eb53f3f2d
     type: git
@@ -101,7 +101,7 @@ sources_locked:
       -
     scripts:
       -
-  - repo: https://github.com/CircleCI-Public/circleci-cli
+  - repo: https://github.com/CircleCI-Public/circleci-cli.git
     name: circleci-cli
     rev: 68a3d97d39be29235867f926a683ab8601c48d09
     type: git
@@ -111,7 +111,7 @@ sources_locked:
       -
     scripts:
       -
-  - repo: https://github.com/dimkr/loksh
+  - repo: https://github.com/dimkr/loksh.git
     name: loksh
     rev: e88658fefa1d1ac3cf0699a666f5f7056664089a
     type: git
@@ -121,7 +121,7 @@ sources_locked:
       -
     scripts:
       -
-  - repo: https://github.com/rbenv/rbenv-installer
+  - repo: https://github.com/rbenv/rbenv-installer.git
     name: rbenv-installer
     rev: 33926644327c067be973c8e1c6c4f5c2178d4ead
     type: git
