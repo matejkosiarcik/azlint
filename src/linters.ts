@@ -450,6 +450,14 @@ export class Linters {
             lintFile: { args: ['sh', path.join(__dirname, 'shell-dry-run.sh'), "#file#"] },
         });
 
+        // Hush
+        await this.runLinter({
+            linterName: 'hush-check',
+            envName: 'HUSH_CHECK',
+            fileMatch: '*.hush',
+            lintFile: { args: ['hush', '--check', "#file#"] },
+        });
+
         /* Python */
 
         // Autopep8
