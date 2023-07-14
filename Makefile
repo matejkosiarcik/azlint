@@ -85,12 +85,14 @@ bootstrap:
 		# cabal install hadolint-2.12.0 && \
 		# cabal install ShellCheck-0.9.0
 
-	cd linters && \
+	cd linters/gitman/circleci-cli && \
+		mkdir -p install && \
 		if [ "$$(uname)" = Darwin ] && [ "$$(uname -m)" = arm64 ]; then \
-			DESTDIR="$$PWD/bin/" arch -x86_64 sh gitman/circleci-cli/install.sh; \
+			DESTDIR="$$PWD/install/" arch -x86_64 sh install.sh; \
 		else \
-			DESTDIR="$$PWD/bin/" bash gitman/circleci-cli/install.sh; \
+			DESTDIR="$$PWD/install/" bash install.sh; \
 		fi
+	cp linters/gitman/circleci-cli/install/circleci linters/bin/
 
 	if command -v brew >/dev/null 2>&1; then \
 		brew bundle --help >/dev/null; \
