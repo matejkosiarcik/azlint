@@ -3,7 +3,7 @@
 - Add and improve linters:
   - checkov
   - textlint
-  - Check more shells in dry_runner: oksh, hush
+  - Check more shells in dry_runner: hush
   - Remove exitzero from jscpd
   - sql-lint and sqlfluff
   - GitHub-actions linter: actionlint
