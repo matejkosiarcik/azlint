@@ -15,16 +15,17 @@ RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 # GoLang #
 FROM golang:1.20.6-bookworm AS go
 WORKDIR /app
-COPY --from=gitman /app/gitman ./gitman
+COPY --from=gitman /app/gitman/checkmake ./gitman/checkmake
+COPY --from=gitman /app/gitman/editorconfig-checker ./gitman/editorconfig-checker
 RUN GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
     GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
     GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
-    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
-RUN apt-get update && \
+    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest' && \
+    apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends pandoc && \
     rm -rf /var/lib/apt/lists/* && \
-    make -C 'gitman/editorconfig-checker' build && \
-    BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make -C 'gitman/checkmake'
+    BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make -C checkmake && \
+    make -C editorconfig-checker build
 
 # NodeJS/NPM #
 FROM node:20.4.0-slim AS node
@@ -163,8 +164,8 @@ COPY --from=gitman /app/gitman/loksh /app/loksh
 WORKDIR /app/loksh
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends build-essential ca-certificates git meson && \
-    rm -rf /var/lib/apt/lists/*
-RUN meson setup --prefix="$PWD/install" build && \
+    rm -rf /var/lib/apt/lists/* && \
+    meson setup --prefix="$PWD/install" build && \
     ninja -C build install
 
 FROM debian:12.0-slim AS oksh
