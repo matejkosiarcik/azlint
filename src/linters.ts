@@ -181,7 +181,7 @@ export class Linters {
             gnumakefile: ['{GNU,G}Makefile', '*.{gnu,g}make'],
             bsdmakefile: ['{BSD,B}Makefile', '*.{bsd,b}make'],
             html: '*.{html,htm,html5,xhtml}',
-            shell: '*.{sh,bash,ksh,ksh93,mksh,loksh,ash,dash,zsh,yash}',
+            shell: '*.{sh,bash,ksh,ksh93,mksh,oksh,loksh,ash,dash,zsh,yash}',
             python: '*.{py,py3,python,python3}',
             allText: [] as string[],
         };
