@@ -77,9 +77,9 @@ bootstrap:
 	cp linters/gitman/editorconfig-checker/bin/ec linters/bin/
 
 	GOPATH="$$PWD/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
-	GOPATH="$$PWD/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' "github.com/freshautomations/stoml@$(shell node utils/go-package-version.js stoml)"
+	GOPATH="$$PWD/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' "github.com/freshautomations/stoml@latest"
 	GOPATH="$$PWD/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest'
-	GOPATH="$$PWD/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' "github.com/rhysd/actionlint/cmd/actionlint@$(shell node utils/go-package-version.js actionlint)"
+	GOPATH="$$PWD/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' "github.com/rhysd/actionlint/cmd/actionlint@latest"
 
 	cabal update # && \
 		# cabal install hadolint-2.12.0 && \
