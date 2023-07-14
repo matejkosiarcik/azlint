@@ -60,8 +60,18 @@ sources:
       -
     scripts:
       -
+  - repo: https://github.com/freshautomations/stoml.git
+    name: stoml
+    rev: master
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
   - repo: https://github.com/pelletier/go-toml.git
-    name: actionlint
+    name: go-toml
     rev: v2
     type: git
     sparse_paths:
@@ -162,6 +172,26 @@ sources_locked:
     scripts:
       -
   - repo: https://github.com/pelletier/go-toml.git
+    name: go-toml
+    rev: e183db7e69f2c8da8ddff8be040ce1f79024d075
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+  - repo: https://github.com/freshautomations/stoml.git
+    name: stoml
+    rev: 4b2cd09b5795a54fddc215f0d24e24071894b3cf
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+  - repo: https://github.com/rhysd/actionlint.git
     name: actionlint
     rev: b52755032d83ad8f4c72542abf36a2f055ce742d
     type: git

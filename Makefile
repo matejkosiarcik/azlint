@@ -26,12 +26,12 @@ bootstrap:
 		|| virtualenv venv \
 		|| mkvirtualenv venv
 
-	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
-	PYTHONPATH="$(PROJECT_DIR)/python" \
+	PATH="$$PWD/venv/bin:$(PATH)" \
+	PYTHONPATH="$$PWD/python" \
 		pip install --requirement requirements.txt
 
 	cd linters && \
-		PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
+		PATH="$$PWD/venv/bin:$(PATH)" \
 			gitman install --force
 	sh utils/apply-git-patches.sh
 
@@ -46,23 +46,23 @@ bootstrap:
 		DESTDIR="$$PWD/install" make install
 	cp linters/gitman/oksh/install/usr/local/bin/oksh linters/bin/oksh
 
-	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
-	PYTHONPATH="$(PROJECT_DIR)/linters/python" \
+	PATH="$$PWD/venv/bin:$(PATH)" \
+	PYTHONPATH="$$PWD/linters/python" \
 		pip install --requirement linters/requirements.txt --target linters/python
 
 	# Create cache ahead of time, because it can fail when creating during runtime
 	mkdir -p "$$HOME/.cache/proselint"
 
 	gem install bundler --install-dir linters/ruby
-	PATH="$(PROJECT_DIR)/linters/ruby/bin:$(PATH)" \
+	PATH="$$PWD/linters/ruby/bin:$(PATH)" \
 	BUNDLE_DISABLE_SHARED_GEMS=true \
 	BUNDLE_PATH__SYSTEM=false \
-	BUNDLE_PATH="$(PROJECT_DIR)/linters/bundle" \
-	BUNDLE_GEMFILE="$(PROJECT_DIR)/linters/Gemfile" \
+	BUNDLE_PATH="$$PWD/linters/bundle" \
+	BUNDLE_GEMFILE="$$PWD/linters/Gemfile" \
 		bundle install
 
 	node utils/cargo-packages.js | while read -r package version; do \
-		cargo install "$$package" --force --root "$(PROJECT_DIR)/linters/cargo" --version "$$version"; \
+		cargo install "$$package" --force --root "$$PWD/linters/cargo" --version "$$version"; \
 	done
 
 	cd linters && \
@@ -76,10 +76,10 @@ bootstrap:
 		make build
 	cp linters/gitman/editorconfig-checker/bin/ec linters/bin/
 
-	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' 'github.com/freshautomations/stoml@latest'
-	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest'
-	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' 'github.com/rhysd/actionlint/cmd/actionlint@latest'
-	GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
+	GOPATH="$$PWD/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
+	GOPATH="$$PWD/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' "github.com/freshautomations/stoml@$(shell node utils/go-package-version.js stoml)"
+	GOPATH="$$PWD/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest'
+	GOPATH="$$PWD/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' "github.com/rhysd/actionlint/cmd/actionlint@$(shell node utils/go-package-version.js actionlint)"
 
 	cabal update # && \
 		# cabal install hadolint-2.12.0 && \
@@ -87,7 +87,7 @@ bootstrap:
 
 	cd linters/gitman/circleci-cli && \
 		mkdir -p install && \
-		if [ "$$(uname)" = Darwin ] && [ "$$(uname -m)" = arm64 ]; then \
+		if [ "$(shell uname)" = Darwin ] && [ "$(shell uname -m)" = arm64 ]; then \
 			DESTDIR="$$PWD/install/" arch -x86_64 /bin/sh install.sh; \
 		else \
 			DESTDIR="$$PWD/install/" bash install.sh; \
@@ -105,7 +105,7 @@ build:
 .PHONY: run
 run:
 	docker run --interactive --tty --rm \
-		--volume "$(PROJECT_DIR):/project:ro" \
+		--volume "$$PWD:/project:ro" \
 		--env CONFIG_DIR=.config \
 		matejkosiarcik/azlint:dev lint
 
@@ -116,7 +116,7 @@ test:
 .PHONY: clean
 clean:
 	git clean -xdf
-	rm -rf "$(PROJECT_DIR)/linters/gitman" "$(PROJECT_DIR)/docs/demo/gitman"
+	rm -rf "$$PWD/linters/gitman" "$$PWD/docs/demo/gitman"
 
 .PHONY: demo
 demo:
