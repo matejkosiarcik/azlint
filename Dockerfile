@@ -159,12 +159,11 @@ RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebre
 # Shells #
 
 FROM debian:12.0-slim AS loksh
-WORKDIR /app
+COPY --from=gitman /app/gitman/loksh /app/loksh
+WORKDIR /app/loksh
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends build-essential ca-certificates git meson && \
     rm -rf /var/lib/apt/lists/*
-COPY --from=gitman /app/gitman ./gitman
-WORKDIR /app/gitman/loksh/
 RUN meson setup --prefix="$PWD/install" build && \
     ninja -C build install
 
@@ -216,7 +215,7 @@ WORKDIR /app/linters/bin
 COPY --from=composer /app/composer/bin/composer ./
 COPY --from=hadolint /bin/hadolint ./
 COPY --from=upx /app/actionlint /app/checkmake /app/circleci /app/dotenv-linter /app/ec /app/shellcheck /app/shellharden /app/shfmt /app/stoml /app/tomljson ./
-COPY --from=loksh /app/gitman/loksh/install/bin/ksh ./loksh
+COPY --from=loksh /app/loksh/install/bin/ksh ./loksh
 COPY --from=oksh /app/oksh/install/usr/local/bin/oksh ./oksh
 
 ### Final ###
