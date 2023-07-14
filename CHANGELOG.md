@@ -7,14 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
+- Added
+  - New linters
+    - `oksh` for shell files
+    - `actionlint` for GitHub Action workflow files
+
+## \[0.6.4\] - 2023-07-14
+
+- Added
+  - New linters:
+    - `brew bundle list` for `Brewfile`s
+
 ## \[0.6.3\] - 2023-07-09
 
 - Added
   - New linters:
     - `loksh` for shell files
-    - `oksh` for shell files
-    - `brew bundle list` for `Brewfile`s
-    - `actionlint` for GitHub Action workflow files
 
 ## \[0.6.2\] - 2023-07-02
 
