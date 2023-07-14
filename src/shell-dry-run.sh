@@ -23,6 +23,7 @@ check_ksh() {
     mksh -n "$file"
     ksh93 -n "$file"
     loksh -n "$file"
+    oksh -n "$file"
 }
 
 check_bash() {

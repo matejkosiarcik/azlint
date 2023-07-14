@@ -36,9 +36,15 @@ bootstrap:
 	sh utils/apply-git-patches.sh
 
 	cd linters/gitman/loksh && \
-		meson setup --prefix="$(PROJECT_DIR)/linters/gitman/loksh/install" build && \
+		meson setup --prefix="$$PWD/install" build && \
 		ninja -C build install
 	cp linters/gitman/loksh/install/bin/ksh linters/bin/loksh
+
+	cd linters/gitman/oksh && \
+		./configure && \
+		make && \
+		DESTDIR="$$PWD/install" make install
+	cp linters/gitman/oksh/install/usr/local/bin/oksh linters/bin/oksh
 
 	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
 	PYTHONPATH="$(PROJECT_DIR)/linters/python" \
