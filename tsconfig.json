@@ -3,7 +3,9 @@
     "outDir": "cli",
     "target": "ES5",
     "module": "CommonJS",
-    "lib": ["es5"],
+    "lib": [
+      "es5"
+    ],
     "esModuleInterop": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
@@ -16,5 +18,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }

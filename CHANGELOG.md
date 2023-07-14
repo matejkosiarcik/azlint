@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `oksh` for shell files
     - `hush --check` for `*.hush` files
     - `actionlint` for GitHub Action workflow files
+- Fixed
+  - Formatting for _json_ files with prettier
 
 ## \[0.6.4\] - 2023-07-14
 
