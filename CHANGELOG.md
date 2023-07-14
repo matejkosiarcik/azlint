@@ -5,16 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+<!-- - `oksh` for shell files -->
+<!-- - `actionlint` for GitHub Action workflow files -->
+
 ## \[Unreleased\]
+
+- Added
+  - New linters:
+    - `brew bundle list` for `Brewfile`s
 
 ## \[0.6.3\] - 2023-07-09
 
 - Added
   - New linters:
     - `loksh` for shell files
-    - `oksh` for shell files
-    - `brew bundle list` for `Brewfile`s
-    - `actionlint` for GitHub Action workflow files
 
 ## \[0.6.2\] - 2023-07-02
 
