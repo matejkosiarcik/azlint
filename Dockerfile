@@ -96,7 +96,7 @@ WORKDIR /app/circleci-cli
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl && \
     rm -rf /var/lib/apt/lists/* && \
-    DESTDIR="$PWD/install/" bash install.sh
+    bash install.sh
 
 # Hadolint #
 FROM hadolint/hadolint:v2.12.0 AS hadolint
@@ -183,7 +183,7 @@ RUN apt-get update && \
 # Single stage to compress all executables from multiple components
 FROM ubuntu:23.10 AS upx
 WORKDIR /app
-COPY --from=circleci /app/circleci-cli/install/circleci ./
+COPY --from=circleci /usr/local/bin/circleci ./
 COPY --from=go /app/gitman/checkmake/checkmake /app/gitman/editorconfig-checker/bin/ec /app/go/bin/actionlint /app/go/bin/shfmt /app/go/bin/stoml /app/go/bin/tomljson ./
 COPY --from=rust /app/cargo/bin/shellharden /app/cargo/bin/dotenv-linter ./
 COPY --from=shellcheck /bin/shellcheck ./
