@@ -24,8 +24,8 @@ RUN GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/fres
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends pandoc && \
     rm -rf /var/lib/apt/lists/* && \
-    BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make -C checkmake && \
-    make -C editorconfig-checker build
+    BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make -C gitman/checkmake && \
+    make -C gitman/editorconfig-checker build
 
 # NodeJS/NPM #
 FROM node:20.4.0-slim AS node
