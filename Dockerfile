@@ -168,6 +168,16 @@ WORKDIR /app/gitman/loksh/
 RUN meson setup --prefix="$PWD/install" build && \
     ninja -C build install
 
+FROM debian:12.0-slim AS oksh
+COPY --from=gitman /app/gitman/oksh /app/oksh
+WORKDIR /app/oksh
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends build-essential && \
+    rm -rf /var/lib/apt/lists/* && \
+    ./configure && \
+    make && \
+    DESTDIR="$PWD/install" make install
+
 ### Helpers ###
 
 # Upx #
@@ -207,6 +217,7 @@ COPY --from=composer /app/composer/bin/composer ./
 COPY --from=hadolint /bin/hadolint ./
 COPY --from=upx /app/actionlint /app/checkmake /app/circleci /app/dotenv-linter /app/ec /app/shellcheck /app/shellharden /app/shfmt /app/stoml /app/tomljson ./
 COPY --from=loksh /app/gitman/loksh/install/bin/ksh ./loksh
+COPY --from=oksh /app/oksh/install/usr/local/bin/oksh ./oksh
 
 ### Final ###
 

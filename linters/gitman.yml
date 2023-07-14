@@ -50,6 +50,16 @@ sources:
       -
     scripts:
       -
+  - repo: https://github.com/ibara/oksh.git
+    name: oksh
+    rev: main
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
   - repo: https://github.com/rbenv/rbenv-installer
     name: rbenv-installer
     rev: main
@@ -114,6 +124,16 @@ sources_locked:
   - repo: https://github.com/rbenv/rbenv-installer
     name: rbenv-installer
     rev: 33926644327c067be973c8e1c6c4f5c2178d4ead
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+  - repo: https://github.com/ibara/oksh.git
+    name: oksh
+    rev: 5858a92b6dfbb67087a8b0f396964acc66ccb4e0
     type: git
     sparse_paths:
       -
