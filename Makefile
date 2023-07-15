@@ -31,7 +31,7 @@ bootstrap:
 		pip install --requirement requirements.txt
 
 	cd linters && \
-		PATH="$$PWD/venv/bin:$(PATH)" \
+		PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
 			gitman install --force
 	sh utils/apply-git-patches.sh
 
