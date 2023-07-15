@@ -28,6 +28,8 @@
   - [Shells](#shells)
   - [Python](#python)
 - [Development](#development)
+  - [Prepare you system](#prepare-you-system)
+  - [Build & Run](#build--run)
 - [License](#license)
 - [Alternatives](#alternatives)
 
