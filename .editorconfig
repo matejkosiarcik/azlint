@@ -81,7 +81,7 @@ indent_size = 2
 # indent_size = 2
 
 # JSON variants
-[*.{babelrc,ecrc,eslintrc,htmlhintrc,htmllintrc,hintrc,json,json5,remarkrc}]
+[*.{babelrc,ecrc,eslintrc,htmlhintrc,htmllintrc,hintrc,proselintrc,json,json5,remarkrc}]
 indent_size = 2
 
 ### Ruby ecosystem ###
