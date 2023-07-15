@@ -1,4 +1,5 @@
 # checkov:skip=CKV_DOCKER_2:Disable HEALTHCHECK
+# ^^^ Healhcheck doesn't make sense for us here, because we are building a CLI tool, not server program
 
 ### Components/Linters ###
 
@@ -195,6 +196,8 @@ RUN apt-get update && \
 
 # Pre-Final #
 FROM debian:12.0-slim AS pre-final
+COPY --from=brew-final /home/linuxbrew /home/linuxbrew
+COPY --from=brew-final /.rbenv/versions /.rbenv/versions
 WORKDIR /app
 COPY VERSION.txt ./
 WORKDIR /app/cli
@@ -219,12 +222,12 @@ COPY --from=upx /app/actionlint /app/checkmake /app/circleci /app/dotenv-linter 
 COPY --from=loksh /app/loksh/install/bin/ksh ./loksh
 COPY --from=oksh /app/oksh/install/usr/local/bin/oksh ./oksh
 
-### Final ###
+### Final stage ###
 
 FROM debian:12.0-slim
-COPY --from=brew-final /home/linuxbrew /home/linuxbrew
-COPY --from=brew-final /.rbenv/versions /.rbenv/versions
 WORKDIR /app
+COPY --from=pre-final /home/linuxbrew /home/linuxbrew
+COPY --from=pre-final /.rbenv/versions /.rbenv/versions
 COPY --from=pre-final /app/ ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
