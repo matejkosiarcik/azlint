@@ -277,7 +277,7 @@ The following shells are checked in custom dry runner:
 | tool                                    |
 |-----------------------------------------|
 | [loksh](https://github.com/dimkr/loksh) |
-| [oksh](https://github.com/ibara/oksh) |
+| [oksh](https://github.com/ibara/oksh)   |
 
 ### Python
 
@@ -320,7 +320,7 @@ npm run azlint:fmt && npm run azlint:lint
 To build and run project in docker:
 
 ```sh
-$ make build run
+make build run
 ```
 
 ## License
