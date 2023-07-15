@@ -100,6 +100,26 @@ sources:
       -
     scripts:
       -
+  - repo: https://github.com/hadolint/hadolint.git
+    name: hadolint
+    rev: master
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+  - repo: https://github.com/koalaman/shellcheck.git
+    name: shellcheck
+    rev: master
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
 sources_locked:
   - repo: https://github.com/mrtazz/checkmake.git
     name: checkmake
@@ -193,7 +213,27 @@ sources_locked:
       -
   - repo: https://github.com/rhysd/actionlint.git
     name: actionlint
-    rev: b52755032d83ad8f4c72542abf36a2f055ce742d
+    rev: b6d6b09aa29ecd03027b11738d7630749d0240b0
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+  - repo: https://github.com/hadolint/hadolint.git
+    name: hadolint
+    rev: 024fd640378acd5d8218f77ec2c744826cdda5ce
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+  - repo: https://github.com/koalaman/shellcheck.git
+    name: shellcheck
+    rev: c9e27c24700cdc5b84cfca1f7a90fe07f542867c
     type: git
     sparse_paths:
       -

@@ -5,12 +5,13 @@
   - textlint
   - Remove exitzero from jscpd
   - sql-lint and sqlfluff
-  - GitHub-actions linter: actionlint
+  - GitHub Actions linter: actionlint
   - Install hadolint and shellcheck with cabal
     - Do not use published official images (too few architectures)
     - Do not use debian shellcheck in CI pipelines
     - Enable hadolint in CI pipelines
   - Research how to put .shellcheckrc into subdirectory
+  - Test azlint in GitHub Actions with azlint user
 
 - Useful links for LinuxBrew:
   - <https://unix.stackexchange.com/questions/115272/download-package-via-apt-for-another-architecture>
