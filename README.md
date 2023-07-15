@@ -277,6 +277,7 @@ The following shells are checked in custom dry runner:
 | tool                                    |
 |-----------------------------------------|
 | [loksh](https://github.com/dimkr/loksh) |
+| [oksh](https://github.com/ibara/oksh) |
 
 ### Python
 
@@ -294,17 +295,31 @@ _Autopep8*_ - Formatting conflicts with black, so it is turned off.
 
 ## Development
 
-Typical workflow is as follows:
+### Prepare you system
+
+In order to develop on this project, first install required system packages.
+
+- If you are on macOS and have [HomeBrew](https://brew.sh) available,
+  just run `brew bundle install` in project's root directory.
+  This will install all packages from `Brewfile`.
+- If you are on Windows, you need to find and install packages yourself - check out [Chocolatey](https://chocolatey.org).
+- If you are on Debian/Ubuntu Linux, check out `.circleci/config.yml`'s job native-build for `apt-get` instructions.
+
+Note: Also make sure you have Docker installed.
+
+Now run `make bootstrap` to install local project dependencies.
+
+### Build & Run
+
+To run project locally:
 
 ```sh
-$ make bootstrap
+npm run azlint:fmt && npm run azlint:lint
+```
 
-# Make some changes…
+To build and run project in docker:
 
-# Run locally:
-$ npm start -- lint
-
-# Run in docker:
+```sh
 $ make build run
 ```
 
