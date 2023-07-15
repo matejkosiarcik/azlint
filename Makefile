@@ -88,7 +88,7 @@ bootstrap:
 	cd linters/gitman/circleci-cli && \
 		mkdir -p install && \
 		if [ "$(shell uname)" = Darwin ] && [ "$(shell uname -m)" = arm64 ]; then \
-			DESTDIR="$$PWD/install/" arch -x86_64 /bin/sh install.sh; \
+			DESTDIR="$$PWD/install/" arch -x86_64 /bin/bash install.sh; \
 		else \
 			DESTDIR="$$PWD/install/" bash install.sh; \
 		fi

@@ -21,7 +21,6 @@ brew "bash"
 brew "dash"
 brew "ksh93"
 brew "mksh"
-brew "oksh"
 brew "yash"
 brew "zsh"
 
@@ -35,4 +34,5 @@ brew "shellcheck"
 # No longer necessary below
 # brew "checkmake"
 # brew "circleci"
+# brew "oksh"
 # brew "shfmt"
