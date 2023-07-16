@@ -18,7 +18,6 @@
 - Add config option to ignore certain files for individual linters
 
 - Useful links for LinuxBrew:
-  - <https://unix.stackexchange.com/questions/115272/download-package-via-apt-for-another-architecture>
   - <https://github.com/orgs/Homebrew/discussions/3612>
 
 - Watch this issue <https://github.com/CircleCI-Public/circleci-cli/issues/959> and remove rosetta hack when possible
