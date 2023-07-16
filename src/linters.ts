@@ -733,16 +733,16 @@ export class Linters {
         });
 
         // jscpd
-        const jscpdConfigArgs = getConfigArgs('JSCPD', '--config',
-            ['jscpd.json', '.jscpd.json']);
-        const jscpdTmpdir = await fs.mkdtemp(path.join(os.tmpdir(), 'azlint-jscpd-'));
-        await this.runLinter({
-            linterName: 'jscpd',
-            envName: 'JSCPD',
-            fileMatch: '*',
-            lintFile: { args: ['exitzero', 'jscpd', ...jscpdConfigArgs, '--output', jscpdTmpdir, '#file#'] },
-        });
-        await fs.rm(jscpdTmpdir, { force: true, recursive: true });
+        // const jscpdConfigArgs = getConfigArgs('JSCPD', '--config',
+        //     ['jscpd.json', '.jscpd.json']);
+        // const jscpdTmpdir = await fs.mkdtemp(path.join(os.tmpdir(), 'azlint-jscpd-'));
+        // await this.runLinter({
+        //     linterName: 'jscpd',
+        //     envName: 'JSCPD',
+        //     fileMatch: '*',
+        //     lintFile: { args: ['exitzero', 'jscpd', ...jscpdConfigArgs, '--output', jscpdTmpdir, '#file#'] },
+        // });
+        // await fs.rm(jscpdTmpdir, { force: true, recursive: true });
 
         /* Other */
 
