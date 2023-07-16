@@ -93,7 +93,7 @@ COPY --from=rust /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends parallel upx-ucl && \
     rm -rf /var/lib/apt/lists/* && \
-    parallel upx --best ::: /app/*
+    parallel upx --ultra-brute ::: /app/*
 
 # Pre-Final #
 FROM debian:12.0-slim AS pre-final
