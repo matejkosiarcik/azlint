@@ -87,6 +87,9 @@ RUN apt-get update && \
 # ShellCheck #
 FROM koalaman/shellcheck:v0.9.0 AS shellcheck
 
+# Hadolint #
+FROM hadolint/hadolint:v2.12.0 AS hadolint
+
 # Upx #
 FROM ubuntu:23.10 AS upx
 WORKDIR /app
@@ -105,7 +108,8 @@ WORKDIR /app/bin
 COPY --from=composer /app/composer/bin/composer ./
 COPY --from=upx /app/actionlint /app/checkmake /app/circleci /app/dotenv-linter /app/ec /app/hush /app/shellcheck /app/shellharden /app/shfmt /app/stoml /app/tomljson ./
 COPY --from=loksh /app/loksh/install/bin/ksh ./loksh
-COPY --from=oksh /app/oksh/install/usr/local/bin/oksh ./oksh
+COPY --from=oksh /app/oksh/install/usr/local/bin/oksh ./
+COPY --from=hadolint /bin/hadolint ./
 RUN find . -type f -exec mv {} {}.bin \;
 
 # Final #

@@ -60,9 +60,6 @@ RUN apt-get update && \
 COPY linters/composer.json linters/composer.lock ./
 RUN PATH="/app/composer/bin:$PATH" composer install --no-cache
 
-# Hadolint #
-FROM hadolint/hadolint:v2.12.0 AS hadolint
-
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it
 # We have to provide our custom `uname`, because HomeBrew prohibits installation on non-x64 Linux systems
@@ -158,7 +155,6 @@ COPY --from=ruby /app/bundle ./bundle
 WORKDIR /app/linters/bin
 COPY --from=prebuild /app/bin ./
 COPY --from=composer /app/composer/bin/composer ./
-COPY --from=hadolint /bin/hadolint ./
 
 ### Final stage ###
 
