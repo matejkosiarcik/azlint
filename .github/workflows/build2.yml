@@ -1,17 +1,13 @@
-name: Deploy
+name: Build2
 
 permissions: read-all
 
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - "v*.*.*"
+  pull_request:
 
 jobs:
-  deploy:
-    name: Deploy
+  build2:
+    name: Build2
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
