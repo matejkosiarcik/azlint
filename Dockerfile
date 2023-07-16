@@ -63,9 +63,6 @@ RUN PATH="/app/composer/bin:$PATH" composer install --no-cache
 # Hadolint #
 FROM hadolint/hadolint:v2.12.0 AS hadolint
 
-# ShellCheck #
-FROM koalaman/shellcheck:v0.9.0 AS shellcheck
-
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it
 # We have to provide our custom `uname`, because HomeBrew prohibits installation on non-x64 Linux systems
@@ -124,7 +121,6 @@ RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebre
 # Single stage to compress all executables from multiple components
 FROM ubuntu:23.10 AS upx
 WORKDIR /app
-COPY --from=shellcheck /bin/shellcheck ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends parallel upx-ucl && \
     rm -rf /var/lib/apt/lists/* && \
@@ -163,7 +159,6 @@ WORKDIR /app/linters/bin
 COPY --from=prebuild /app/bin ./
 COPY --from=composer /app/composer/bin/composer ./
 COPY --from=hadolint /bin/hadolint ./
-COPY --from=upx /app/shellcheck ./
 
 ### Final stage ###
 

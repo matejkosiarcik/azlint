@@ -84,12 +84,16 @@ RUN apt-get update && \
     make && \
     DESTDIR="$PWD/install" make install
 
+# ShellCheck #
+FROM koalaman/shellcheck:v0.9.0 AS shellcheck
+
 # Upx #
 FROM ubuntu:23.10 AS upx
 WORKDIR /app
 COPY --from=circleci /usr/local/bin/circleci ./
 COPY --from=go /app/gitman/checkmake/checkmake /app/gitman/editorconfig-checker/bin/ec /app/go/bin/actionlint /app/go/bin/shfmt /app/go/bin/stoml /app/go/bin/tomljson ./
 COPY --from=rust /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden ./
+COPY --from=shellcheck /bin/shellcheck ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends parallel upx-ucl && \
     rm -rf /var/lib/apt/lists/* && \
@@ -99,7 +103,7 @@ RUN apt-get update && \
 FROM debian:12.0-slim AS pre-final
 WORKDIR /app/bin
 COPY --from=composer /app/composer/bin/composer ./
-COPY --from=upx /app/actionlint /app/checkmake /app/circleci /app/dotenv-linter /app/ec /app/hush /app/shellharden /app/shfmt /app/stoml /app/tomljson ./
+COPY --from=upx /app/actionlint /app/checkmake /app/circleci /app/dotenv-linter /app/ec /app/hush /app/shellcheck /app/shellharden /app/shfmt /app/stoml /app/tomljson ./
 COPY --from=loksh /app/loksh/install/bin/ksh ./loksh
 COPY --from=oksh /app/oksh/install/usr/local/bin/oksh ./oksh
 RUN find . -type f -exec mv {} {}.bin \;
