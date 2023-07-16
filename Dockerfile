@@ -75,7 +75,7 @@ RUN apt-get update && \
         mv /usr/bin/uname-x64 /usr/bin/uname && \
     true; fi && \
     rm -rf /var/lib/apt/lists/* && \
-    bash brew-installer/install.sh && \
+    NONINTERACTIVE=1 bash brew-installer/install.sh && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
     brew update && \
     brew bundle --help && \
