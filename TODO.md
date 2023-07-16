@@ -13,6 +13,10 @@
   - Research how to put .shellcheckrc into subdirectory
   - Test azlint in GitHub Actions with azlint user
 
+- Add config option to add additional CLI variable for individual linters
+- Add config option to add files for individual linters
+- Add config option to ignore certain files for individual linters
+
 - Useful links for LinuxBrew:
   - <https://unix.stackexchange.com/questions/115272/download-package-via-apt-for-another-architecture>
   - <https://github.com/orgs/Homebrew/discussions/3612>

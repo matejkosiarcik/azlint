@@ -304,8 +304,8 @@ In order to develop on this project, first install required system packages.
 - If you are on macOS and have [HomeBrew](https://brew.sh) available,
   just run `brew bundle install` in project's root directory.
   This will install all packages from `Brewfile` (learn more about [HomeBrew Bundle](https://github.com/Homebrew/homebrew-bundle)).
+- If you are on Debian/Ubuntu Linux, check out `.circleci/config.yml` -> job _native-build_ for `apt-get` instructions.
 - If you are on Windows, you need to find and install packages yourself - check out [Chocolatey](https://chocolatey.org).
-- If you are on Debian/Ubuntu Linux, check out `.circleci/config.yml`'s job native-build for `apt-get` instructions.
 
 Note: Also make sure you have Docker installed.
 
