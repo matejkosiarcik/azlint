@@ -13,21 +13,6 @@ RUN apt-get update && \
     python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
 RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 
-# GoLang #
-FROM golang:1.20.6-bookworm AS go
-WORKDIR /app
-COPY --from=gitman /app/gitman/checkmake ./gitman/checkmake
-COPY --from=gitman /app/gitman/editorconfig-checker ./gitman/editorconfig-checker
-RUN GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
-    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
-    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
-    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest' && \
-    apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends pandoc && \
-    rm -rf /var/lib/apt/lists/* && \
-    BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make -C gitman/checkmake && \
-    make -C gitman/editorconfig-checker build
-
 # NodeJS/NPM #
 FROM node:20.4.0-slim AS node
 ENV NODE_OPTIONS=--dns-result-order=ipv4first
@@ -52,21 +37,6 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install
 
-# Rust/Cargo #
-FROM rust:1.71.0-slim-bookworm AS rust
-WORKDIR /app
-COPY package.json package-lock.json ./
-COPY utils/cargo-packages.js ./utils/
-COPY linters/Cargo.toml ./linters/
-ENV NODE_OPTIONS=--dns-result-order=ipv4first
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs npm && \
-    rm -rf /var/lib/apt/lists/* && \
-    npm ci --unsafe-perm && \
-    node utils/cargo-packages.js | while read -r package version; do \
-        cargo install "$package" --force --version "$version" --root "$PWD/cargo"; \
-    done
-
 # Python/Pip #
 FROM debian:12.0-slim AS python
 WORKDIR /app
@@ -89,16 +59,6 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* composer-setup.php
 COPY linters/composer.json linters/composer.lock ./
 RUN PATH="/app/composer/bin:$PATH" composer install --no-cache
-
-# CircleCI #
-# It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
-FROM debian:12.0-slim AS circleci
-COPY --from=gitman /app/gitman/circleci-cli /app/circleci-cli
-WORKDIR /app/circleci-cli
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl && \
-    rm -rf /var/lib/apt/lists/* && \
-    bash install.sh
 
 # Hadolint #
 FROM hadolint/hadolint:v2.12.0 AS hadolint
@@ -158,41 +118,25 @@ RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebre
     ruby_version_short="$(sed -E 's~_.+$~~' </home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
     ln -sf "/.rbenv/versions/$ruby_version_short" "/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby/$ruby_version_full"
 
-# Shells #
-
-FROM debian:12.0-slim AS loksh
-COPY --from=gitman /app/gitman/loksh /app/loksh
-WORKDIR /app/loksh
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends build-essential ca-certificates git meson && \
-    rm -rf /var/lib/apt/lists/* && \
-    meson setup --prefix="$PWD/install" build && \
-    ninja -C build install
-
-FROM debian:12.0-slim AS oksh
-COPY --from=gitman /app/gitman/oksh /app/oksh
-WORKDIR /app/oksh
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends build-essential && \
-    rm -rf /var/lib/apt/lists/* && \
-    ./configure && \
-    make && \
-    DESTDIR="$PWD/install" make install
-
 ### Helpers ###
 
 # Upx #
 # Single stage to compress all executables from multiple components
 FROM ubuntu:23.10 AS upx
 WORKDIR /app
-COPY --from=circleci /usr/local/bin/circleci ./
-COPY --from=go /app/gitman/checkmake/checkmake /app/gitman/editorconfig-checker/bin/ec /app/go/bin/actionlint /app/go/bin/shfmt /app/go/bin/stoml /app/go/bin/tomljson ./
-COPY --from=rust /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden ./
 COPY --from=shellcheck /bin/shellcheck ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends parallel upx-ucl && \
     rm -rf /var/lib/apt/lists/* && \
     parallel upx --best ::: /app/*
+
+# Prepare prebuild binaries #
+FROM debian:12.0-slim AS prebuild
+ARG TARGETPLATFORM
+WORKDIR /app/bin
+COPY prebuild/bin/platform/$TARGETPLATFORM ./
+# hadolint disable=SC2016
+RUN find . -name '*.bin' -type f -exec sh -c 'mv "$0" "$(basename "$0" .bin)"' {} \;
 
 # Pre-Final #
 FROM debian:12.0-slim AS pre-final
@@ -216,11 +160,10 @@ COPY --from=node /app/linters/node_modules ./node_modules
 COPY --from=python /app/python ./python
 COPY --from=ruby /app/bundle ./bundle
 WORKDIR /app/linters/bin
+COPY --from=prebuild /app/bin ./
 COPY --from=composer /app/composer/bin/composer ./
 COPY --from=hadolint /bin/hadolint ./
-COPY --from=upx /app/actionlint /app/checkmake /app/circleci /app/dotenv-linter /app/ec /app/hush /app/shellcheck /app/shellharden /app/shfmt /app/stoml /app/tomljson ./
-COPY --from=loksh /app/loksh/install/bin/ksh ./loksh
-COPY --from=oksh /app/oksh/install/usr/local/bin/oksh ./oksh
+COPY --from=upx /app/shellcheck ./
 
 ### Final stage ###
 
