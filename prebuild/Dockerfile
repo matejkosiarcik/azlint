@@ -97,6 +97,8 @@ COPY --from=circleci /usr/local/bin/circleci ./
 COPY --from=go /app/gitman/checkmake/checkmake /app/gitman/editorconfig-checker/bin/ec /app/go/bin/actionlint /app/go/bin/shfmt /app/go/bin/stoml /app/go/bin/tomljson ./
 COPY --from=rust /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden ./
 COPY --from=shellcheck /bin/shellcheck ./
+COPY --from=loksh /app/loksh/install/bin/ksh ./loksh
+COPY --from=oksh /app/oksh/install/usr/local/bin/oksh ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends parallel upx-ucl && \
     rm -rf /var/lib/apt/lists/* && \
@@ -106,9 +108,7 @@ RUN apt-get update && \
 FROM debian:12.0-slim AS pre-final
 WORKDIR /app/bin
 COPY --from=composer /app/composer/bin/composer ./
-COPY --from=upx /app/actionlint /app/checkmake /app/circleci /app/dotenv-linter /app/ec /app/hush /app/shellcheck /app/shellharden /app/shfmt /app/stoml /app/tomljson ./
-COPY --from=loksh /app/loksh/install/bin/ksh ./loksh
-COPY --from=oksh /app/oksh/install/usr/local/bin/oksh ./
+COPY --from=upx /app/actionlint /app/checkmake /app/circleci /app/dotenv-linter /app/ec /app/hush /app/loksh /app/oksh /app/shellcheck /app/shellharden /app/shfmt /app/stoml /app/tomljson ./
 COPY --from=hadolint /bin/hadolint ./
 RUN find . -type f -exec mv {} {}.bin \;
 
