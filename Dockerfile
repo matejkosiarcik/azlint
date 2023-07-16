@@ -145,7 +145,6 @@ COPY --from=python /app/python ./python
 COPY --from=ruby /app/bundle ./bundle
 WORKDIR /app/linters/bin
 COPY --from=prebuild /app/bin ./
-COPY --from=composer /app/composer/bin/composer ./
 
 ### Final stage ###
 
