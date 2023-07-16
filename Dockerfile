@@ -114,15 +114,6 @@ RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebre
 
 ### Helpers ###
 
-# Upx #
-# Single stage to compress all executables from multiple components
-FROM ubuntu:23.10 AS upx
-WORKDIR /app
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends parallel upx-ucl && \
-    rm -rf /var/lib/apt/lists/* && \
-    parallel upx --best ::: /app/*
-
 # Prepare prebuild binaries #
 FROM debian:12.0-slim AS prebuild
 ARG TARGETPLATFORM
