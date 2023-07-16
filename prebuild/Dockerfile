@@ -108,5 +108,5 @@ RUN find . -type f -exec mv {} {}.bin \;
 FROM debian:12.0-slim
 WORKDIR /app
 COPY --from=pre-final /app/ ./
-# RUN useradd --create-home --no-log-init --shell /bin/sh --user-group --system azlint
-# USER azlint
+RUN useradd --create-home --no-log-init --shell /bin/sh --user-group --system user
+USER user
