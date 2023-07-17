@@ -88,11 +88,11 @@ RUN apt-get update && \
         libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev && \
     rm -rf /var/lib/apt/lists/*
 ENV PATH="$PATH:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims"
+ENV RBENV_ROOT=/.rbenv
 COPY --from=gitman /app/gitman/rbenv-installer ./rbenv-installer
+RUN bash rbenv-installer/bin/rbenv-installer
 COPY --from=brew-install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
-RUN export RBENV_ROOT="/.rbenv" && \
-    bash rbenv-installer/bin/rbenv-installer && \
-    ruby_version_short="$(sed -E 's~_.+$~~' <portable-ruby-version)" && \
+RUN ruby_version_short="$(sed -E 's~_.+$~~' <portable-ruby-version)" && \
     rbenv install "$ruby_version_short"
 
 # LinuxBrew - final #
