@@ -148,9 +148,6 @@ COPY --from=prebuild /app/bin ./
 
 FROM debian:12.0-slim
 WORKDIR /app
-COPY --from=pre-final /home/linuxbrew /home/linuxbrew
-COPY --from=pre-final /.rbenv/versions /.rbenv/versions
-COPY --from=pre-final /app/ ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
         curl git libxml2-utils \
@@ -166,6 +163,9 @@ RUN apt-get update && \
     useradd --create-home --no-log-init --shell /bin/sh --user-group --system azlint && \
     su - azlint -c "git config --global --add safe.directory '*'" && \
     mkdir -p /root/.cache/proselint /home/azlint/.cache/proselint
+COPY --from=pre-final /home/linuxbrew /home/linuxbrew
+COPY --from=pre-final /.rbenv/versions /.rbenv/versions
+COPY --from=pre-final /app/ ./
 ENV NODE_OPTIONS=--dns-result-order=ipv4first \
     PATH="$PATH:/app/bin:/home/linuxbrew/.linuxbrew/bin" \
     HOMEBREW_NO_AUTO_UPDATE=1 \
