@@ -35,10 +35,10 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 ENV NODE_OPTIONS=--dns-result-order=ipv4first
 COPY package.json package-lock.json ./
+RUN npm ci --unsafe-perm
 COPY utils/cargo-packages.js ./utils/
 COPY linters/Cargo.toml ./linters/
-RUN npm ci --unsafe-perm && \
-    node utils/cargo-packages.js | while read -r package version; do \
+RUN node utils/cargo-packages.js | while read -r package version; do \
         cargo install "$package" --force --version "$version" --root "$PWD/cargo"; \
     done
 
