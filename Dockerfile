@@ -4,13 +4,14 @@
 ### Components/Linters ###
 
 # Gitman #
-FROM node:20.4.0-slim AS gitman
+FROM debian:12.0-slim AS gitman
 WORKDIR /app
-COPY requirements.txt linters/gitman.yml ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-pip git && \
-    rm -rf /var/lib/apt/lists/* && \
-    python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
+    rm -rf /var/lib/apt/lists/*
+COPY requirements.txt ./
+RUN python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
+COPY linters/gitman.yml ./
 RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 
 # NodeJS/NPM #
