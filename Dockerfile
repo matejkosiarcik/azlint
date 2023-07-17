@@ -41,13 +41,13 @@ RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/
 # Python/Pip #
 FROM debian:12.0-slim AS python
 WORKDIR /app
-COPY linters/requirements.txt ./
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PYTHONDONTWRITEBYTECODE=1
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-pip && \
-    rm -rf /var/lib/apt/lists/* && \
-    python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
+    rm -rf /var/lib/apt/lists/*
+COPY linters/requirements.txt ./
+RUN python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
 
 # PHP/Composer #
 FROM debian:12.0-slim AS composer
