@@ -32,11 +32,11 @@ RUN npm ci --unsafe-perm && \
 # Ruby/Gem #
 FROM debian:12.0-slim AS ruby
 WORKDIR /app
-COPY linters/Gemfile linters/Gemfile.lock ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bundler ruby ruby-build ruby-dev && \
-    rm -rf /var/lib/apt/lists/* && \
-    BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install
+    rm -rf /var/lib/apt/lists/*
+COPY linters/Gemfile linters/Gemfile.lock ./
+RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install
 
 # Python/Pip #
 FROM debian:12.0-slim AS python
