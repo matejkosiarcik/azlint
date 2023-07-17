@@ -18,13 +18,6 @@ RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 FROM node:20.4.0-slim AS node
 ENV NODE_OPTIONS=--dns-result-order=ipv4first
 WORKDIR /app
-COPY package.json package-lock.json tsconfig.json ./
-COPY src/ ./src/
-RUN npm ci --unsafe-perm && \
-    npm run build && \
-    npx node-prune && \
-    npm prune --production
-WORKDIR /app/linters
 COPY linters/package.json linters/package-lock.json ./
 RUN npm ci --unsafe-perm && \
     npm prune --production
@@ -63,6 +56,7 @@ RUN composer install --no-cache
 # We have to provide our custom `uname`, because HomeBrew prohibits installation on non-x64 Linux systems
 FROM debian:12.0-slim AS brew-install
 WORKDIR /app
+COPY utils/uname-x64.sh /usr/bin/uname-x64
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl git procps ruby && \
     if [ "$(uname -m)" != 'amd64' ]; then \
@@ -76,7 +70,6 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     touch /.dockerenv
 COPY --from=gitman /app/gitman/brew-installer ./brew-installer
-COPY utils/uname-x64.sh /usr/bin/uname-x64
 RUN NONINTERACTIVE=1 bash brew-installer/install.sh && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
     brew update && \
@@ -113,10 +106,22 @@ RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebre
 
 ### Helpers ###
 
+# Main CLI #
+FROM node:20.4.0-slim AS cli
+ENV NODE_OPTIONS=--dns-result-order=ipv4first
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --unsafe-perm
+COPY tsconfig.json ./
+COPY src/ ./src/
+RUN npm run build && \
+    npx node-prune && \
+    npm prune --production
+
 # Prepare prebuild binaries #
 FROM debian:12.0-slim AS prebuild
 ARG TARGETPLATFORM
-WORKDIR /app/bin
+WORKDIR /app
 COPY prebuild/bin/platform/$TARGETPLATFORM ./
 # hadolint disable=SC2016
 RUN find . -name '*.bin' -type f -exec sh -c 'mv "$0" "$(basename "$0" .bin)"' {} \;
@@ -128,8 +133,8 @@ COPY --from=brew-final /.rbenv/versions /.rbenv/versions
 WORKDIR /app
 COPY VERSION.txt ./
 WORKDIR /app/cli
-COPY --from=node /app/cli ./
-COPY --from=node /app/node_modules ./node_modules
+COPY --from=cli /app/cli ./
+COPY --from=cli /app/node_modules ./node_modules
 COPY src/shell-dry-run.sh src/shell-dry-run-utils.sh ./
 WORKDIR /app/bin
 RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azlint && \
@@ -139,11 +144,11 @@ RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azl
 WORKDIR /app/linters
 COPY linters/Gemfile linters/Gemfile.lock linters/composer.json ./
 COPY --from=composer /app/vendor ./vendor
-COPY --from=node /app/linters/node_modules ./node_modules
+COPY --from=node /app/node_modules ./node_modules
 COPY --from=python /app/python ./python
 COPY --from=ruby /app/bundle ./bundle
 WORKDIR /app/linters/bin
-COPY --from=prebuild /app/bin ./
+COPY --from=prebuild /app ./
 
 ### Final stage ###
 
