@@ -89,15 +89,15 @@ RUN NONINTERACTIVE=1 bash brew-installer/install.sh && \
 # Instead we install the same ruby version via rbenv and replace it in HomeBrew
 FROM debian:12.0-slim AS brew-rbenv
 WORKDIR /app
-COPY --from=gitman /app/gitman/rbenv-installer ./rbenv-installer
-COPY --from=brew-install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
-ENV PATH="$PATH:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims"
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
         autoconf bison build-essential ca-certificates curl git \
         libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev && \
-    rm -rf /var/lib/apt/lists/* && \
-    export RBENV_ROOT="/.rbenv" && \
+    rm -rf /var/lib/apt/lists/*
+ENV PATH="$PATH:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims"
+COPY --from=gitman /app/gitman/rbenv-installer ./rbenv-installer
+COPY --from=brew-install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
+RUN export RBENV_ROOT="/.rbenv" && \
     bash rbenv-installer/bin/rbenv-installer && \
     ruby_version_short="$(sed -E 's~_.+$~~' <portable-ruby-version)" && \
     rbenv install "$ruby_version_short"
