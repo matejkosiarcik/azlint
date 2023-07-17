@@ -2,29 +2,30 @@
 # ^^^ Healhcheck doesn't make sense for us here, because we are building a CLI tool, not server program
 
 # Gitman #
-FROM node:20.4.0-slim AS gitman
+FROM debian:12.0-slim AS gitman
 WORKDIR /app
-COPY requirements.txt linters/gitman.yml ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-pip git && \
-    rm -rf /var/lib/apt/lists/* && \
-    python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
+    rm -rf /var/lib/apt/lists/*
+COPY requirements.txt ./
+RUN python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
+COPY linters/gitman.yml ./
 RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 
 # GoLang #
 FROM golang:1.20.6-bookworm AS go
 WORKDIR /app
-COPY --from=gitman /app/gitman/checkmake ./gitman/checkmake
-COPY --from=gitman /app/gitman/editorconfig-checker ./gitman/editorconfig-checker
-RUN GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
-    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
-    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
-    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest' && \
-    apt-get update && \
+RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends pandoc && \
     rm -rf /var/lib/apt/lists/* && \
-    BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make -C gitman/checkmake && \
-    make -C gitman/editorconfig-checker build
+    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
+    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
+    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
+    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
+COPY --from=gitman /app/gitman/checkmake ./gitman/checkmake
+RUN BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make -C gitman/checkmake
+COPY --from=gitman /app/gitman/editorconfig-checker ./gitman/editorconfig-checker
+RUN make -C gitman/editorconfig-checker build
 
 # Rust #
 FROM rust:1.71.0-slim-bookworm AS rust
