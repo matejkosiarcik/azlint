@@ -52,13 +52,10 @@ RUN apt-get update && \
 FROM debian:12.0-slim AS composer
 WORKDIR /app
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl php php-cli php-common php-mbstring php-zip && \
-    curl -fLsS https://getcomposer.org/installer -o composer-setup.php && \
-    mkdir -p /app/composer/bin && \
-    php composer-setup.php --install-dir=/app/composer/bin --filename=composer && \
-    rm -rf /var/lib/apt/lists/* composer-setup.php
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates composer php php-cli php-common php-mbstring php-zip && \
+    rm -rf /var/lib/apt/lists/*
 COPY linters/composer.json linters/composer.lock ./
-RUN PATH="/app/composer/bin:$PATH" composer install --no-cache
+RUN composer install --no-cache
 
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it
@@ -78,7 +75,8 @@ RUN apt-get update && \
         mv /usr/bin/uname-x64 /usr/bin/uname && \
     true; fi && \
     rm -rf /var/lib/apt/lists/* && \
-    bash brew-installer/install.sh && \
+    touch /.dockerenv && \
+    NONINTERACTIVE=1 bash brew-installer/install.sh && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
     brew update && \
     brew bundle --help && \
@@ -145,7 +143,6 @@ COPY --from=python /app/python ./python
 COPY --from=ruby /app/bundle ./bundle
 WORKDIR /app/linters/bin
 COPY --from=prebuild /app/bin ./
-COPY --from=composer /app/composer/bin/composer ./
 
 ### Final stage ###
 

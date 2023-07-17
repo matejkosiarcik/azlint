@@ -50,8 +50,6 @@ RUN apt-get update && \
     mkdir -p /app/composer/bin && \
     php composer-setup.php --install-dir=/app/composer/bin --filename=composer && \
     rm -rf /var/lib/apt/lists/* composer-setup.php
-COPY linters/composer.json linters/composer.lock ./
-RUN PATH="/app/composer/bin:$PATH" composer install --no-cache
 
 # CircleCI-CLI #
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
