@@ -4,26 +4,20 @@
 ### Components/Linters ###
 
 # Gitman #
-FROM node:20.4.0-slim AS gitman
+FROM debian:12.0-slim AS gitman
 WORKDIR /app
-COPY requirements.txt linters/gitman.yml ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-pip git && \
-    rm -rf /var/lib/apt/lists/* && \
-    python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
+    rm -rf /var/lib/apt/lists/*
+COPY requirements.txt ./
+RUN python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
+COPY linters/gitman.yml ./
 RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 
 # NodeJS/NPM #
 FROM node:20.4.0-slim AS node
 ENV NODE_OPTIONS=--dns-result-order=ipv4first
 WORKDIR /app
-COPY package.json package-lock.json tsconfig.json ./
-COPY src/ ./src/
-RUN npm ci --unsafe-perm && \
-    npm run build && \
-    npx node-prune && \
-    npm prune --production
-WORKDIR /app/linters
 COPY linters/package.json linters/package-lock.json ./
 RUN npm ci --unsafe-perm && \
     npm prune --production
@@ -31,22 +25,22 @@ RUN npm ci --unsafe-perm && \
 # Ruby/Gem #
 FROM debian:12.0-slim AS ruby
 WORKDIR /app
-COPY linters/Gemfile linters/Gemfile.lock ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bundler ruby ruby-build ruby-dev && \
-    rm -rf /var/lib/apt/lists/* && \
-    BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install
+    rm -rf /var/lib/apt/lists/*
+COPY linters/Gemfile linters/Gemfile.lock ./
+RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install
 
 # Python/Pip #
 FROM debian:12.0-slim AS python
 WORKDIR /app
-COPY linters/requirements.txt ./
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PYTHONDONTWRITEBYTECODE=1
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-pip && \
-    rm -rf /var/lib/apt/lists/* && \
-    python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
+    rm -rf /var/lib/apt/lists/*
+COPY linters/requirements.txt ./
+RUN python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
 
 # PHP/Composer #
 FROM debian:12.0-slim AS composer
@@ -62,7 +56,6 @@ RUN composer install --no-cache
 # We have to provide our custom `uname`, because HomeBrew prohibits installation on non-x64 Linux systems
 FROM debian:12.0-slim AS brew-install
 WORKDIR /app
-COPY --from=gitman /app/gitman/brew-installer ./brew-installer
 COPY utils/uname-x64.sh /usr/bin/uname-x64
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl git procps ruby && \
@@ -75,8 +68,9 @@ RUN apt-get update && \
         mv /usr/bin/uname-x64 /usr/bin/uname && \
     true; fi && \
     rm -rf /var/lib/apt/lists/* && \
-    touch /.dockerenv && \
-    NONINTERACTIVE=1 bash brew-installer/install.sh && \
+    touch /.dockerenv
+COPY --from=gitman /app/gitman/brew-installer ./brew-installer
+RUN NONINTERACTIVE=1 bash brew-installer/install.sh && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
     brew update && \
     brew bundle --help && \
@@ -88,15 +82,15 @@ RUN apt-get update && \
 # Instead we install the same ruby version via rbenv and replace it in HomeBrew
 FROM debian:12.0-slim AS brew-rbenv
 WORKDIR /app
-COPY --from=gitman /app/gitman/rbenv-installer ./rbenv-installer
-COPY --from=brew-install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
-ENV PATH="$PATH:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims"
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
         autoconf bison build-essential ca-certificates curl git \
         libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev && \
-    rm -rf /var/lib/apt/lists/* && \
-    export RBENV_ROOT="/.rbenv" && \
+    rm -rf /var/lib/apt/lists/*
+ENV PATH="$PATH:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims"
+COPY --from=gitman /app/gitman/rbenv-installer ./rbenv-installer
+COPY --from=brew-install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
+RUN export RBENV_ROOT="/.rbenv" && \
     bash rbenv-installer/bin/rbenv-installer && \
     ruby_version_short="$(sed -E 's~_.+$~~' <portable-ruby-version)" && \
     rbenv install "$ruby_version_short"
@@ -112,10 +106,22 @@ RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebre
 
 ### Helpers ###
 
+# Main CLI #
+FROM node:20.4.0-slim AS cli
+ENV NODE_OPTIONS=--dns-result-order=ipv4first
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --unsafe-perm
+COPY tsconfig.json ./
+COPY src/ ./src/
+RUN npm run build && \
+    npx node-prune && \
+    npm prune --production
+
 # Prepare prebuild binaries #
 FROM debian:12.0-slim AS prebuild
 ARG TARGETPLATFORM
-WORKDIR /app/bin
+WORKDIR /app
 COPY prebuild/bin/platform/$TARGETPLATFORM ./
 # hadolint disable=SC2016
 RUN find . -name '*.bin' -type f -exec sh -c 'mv "$0" "$(basename "$0" .bin)"' {} \;
@@ -127,8 +133,8 @@ COPY --from=brew-final /.rbenv/versions /.rbenv/versions
 WORKDIR /app
 COPY VERSION.txt ./
 WORKDIR /app/cli
-COPY --from=node /app/cli ./
-COPY --from=node /app/node_modules ./node_modules
+COPY --from=cli /app/cli ./
+COPY --from=cli /app/node_modules ./node_modules
 COPY src/shell-dry-run.sh src/shell-dry-run-utils.sh ./
 WORKDIR /app/bin
 RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azlint && \
@@ -138,11 +144,11 @@ RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azl
 WORKDIR /app/linters
 COPY linters/Gemfile linters/Gemfile.lock linters/composer.json ./
 COPY --from=composer /app/vendor ./vendor
-COPY --from=node /app/linters/node_modules ./node_modules
+COPY --from=node /app/node_modules ./node_modules
 COPY --from=python /app/python ./python
 COPY --from=ruby /app/bundle ./bundle
 WORKDIR /app/linters/bin
-COPY --from=prebuild /app/bin ./
+COPY --from=prebuild /app ./
 
 ### Final stage ###
 
