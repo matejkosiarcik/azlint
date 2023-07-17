@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added
   - New linters:
     - `actionlint` for GitHub Action workflow files
+
+## \[0.6.6\] - 2023-07-17
+
+- Miscellaneous
+  - Maintenance release
 - Changed
   - Remove jscpd
 
