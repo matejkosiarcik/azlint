@@ -30,14 +30,14 @@ RUN make -C gitman/editorconfig-checker build
 # Rust #
 FROM rust:1.71.0-slim-bookworm AS rust
 WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs npm && \
+    rm -rf /var/lib/apt/lists/*
+ENV NODE_OPTIONS=--dns-result-order=ipv4first
 COPY package.json package-lock.json ./
 COPY utils/cargo-packages.js ./utils/
 COPY linters/Cargo.toml ./linters/
-ENV NODE_OPTIONS=--dns-result-order=ipv4first
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs npm && \
-    rm -rf /var/lib/apt/lists/* && \
-    npm ci --unsafe-perm && \
+RUN npm ci --unsafe-perm && \
     node utils/cargo-packages.js | while read -r package version; do \
         cargo install "$package" --force --version "$version" --root "$PWD/cargo"; \
     done
@@ -55,31 +55,31 @@ RUN apt-get update && \
 # CircleCI-CLI #
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
 FROM debian:12.0-slim AS circleci
-COPY --from=gitman /app/gitman/circleci-cli /app/circleci-cli
-WORKDIR /app/circleci-cli
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl && \
-    rm -rf /var/lib/apt/lists/* && \
-    bash install.sh
+    rm -rf /var/lib/apt/lists/*
+COPY --from=gitman /app/gitman/circleci-cli /app/circleci-cli
+WORKDIR /app/circleci-cli
+RUN bash install.sh
 
 # Shell - loksh #
 FROM debian:12.0-slim AS loksh
-COPY --from=gitman /app/gitman/loksh /app/loksh
-WORKDIR /app/loksh
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends build-essential ca-certificates git meson && \
-    rm -rf /var/lib/apt/lists/* && \
-    meson setup --prefix="$PWD/install" build && \
+    rm -rf /var/lib/apt/lists/*
+COPY --from=gitman /app/gitman/loksh /app/loksh
+WORKDIR /app/loksh
+RUN meson setup --prefix="$PWD/install" build && \
     ninja -C build install
 
 # Shell - oksh #
 FROM debian:12.0-slim AS oksh
-COPY --from=gitman /app/gitman/oksh /app/oksh
-WORKDIR /app/oksh
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends build-essential && \
-    rm -rf /var/lib/apt/lists/* && \
-    ./configure && \
+    rm -rf /var/lib/apt/lists/*
+COPY --from=gitman /app/gitman/oksh /app/oksh
+WORKDIR /app/oksh
+RUN ./configure && \
     make && \
     DESTDIR="$PWD/install" make install
 
@@ -92,23 +92,23 @@ FROM hadolint/hadolint:v2.12.0 AS hadolint
 # Upx #
 FROM ubuntu:23.10 AS upx
 WORKDIR /app
-COPY --from=circleci /usr/local/bin/circleci ./
-COPY --from=go /app/gitman/checkmake/checkmake /app/gitman/editorconfig-checker/bin/ec /app/go/bin/actionlint /app/go/bin/shfmt /app/go/bin/stoml /app/go/bin/tomljson ./
-COPY --from=rust /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden ./
-COPY --from=shellcheck /bin/shellcheck ./
-COPY --from=loksh /app/loksh/install/bin/ksh ./loksh
-COPY --from=oksh /app/oksh/install/usr/local/bin/oksh ./
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends parallel upx-ucl && \
-    rm -rf /var/lib/apt/lists/* && \
-    parallel upx --ultra-brute ::: /app/*
+    rm -rf /var/lib/apt/lists/*
+COPY --from=circleci /usr/local/bin/circleci ./
+COPY --from=go /app/gitman/checkmake/checkmake /app/gitman/editorconfig-checker/bin/ec /app/go/bin/actionlint /app/go/bin/shfmt /app/go/bin/stoml /app/go/bin/tomljson ./
+COPY --from=loksh /app/loksh/install/bin/ksh ./loksh
+COPY --from=oksh /app/oksh/install/usr/local/bin/oksh ./
+COPY --from=rust /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden ./
+COPY --from=shellcheck /bin/shellcheck ./
+RUN parallel upx --ultra-brute ::: /app/*
 
 # Pre-Final #
 FROM debian:12.0-slim AS pre-final
 WORKDIR /app/bin
 COPY --from=composer /app/composer/bin/composer ./
-COPY --from=upx /app/actionlint /app/checkmake /app/circleci /app/dotenv-linter /app/ec /app/hush /app/loksh /app/oksh /app/shellcheck /app/shellharden /app/shfmt /app/stoml /app/tomljson ./
 COPY --from=hadolint /bin/hadolint ./
+COPY --from=upx /app/actionlint /app/checkmake /app/circleci /app/dotenv-linter /app/ec /app/hush /app/loksh /app/oksh /app/shellcheck /app/shellharden /app/shfmt /app/stoml /app/tomljson ./
 RUN find . -type f -exec mv {} {}.bin \;
 
 # Final #
