@@ -54,11 +54,11 @@ _AZLint_.
 
 ### Features
 
-- 📦 Includes 39 linters
-- 🛠️ Supports autofix mode (only for 11 linters)
+- 📦 Includes 48 linters
+- 🛠️ Supports autofix mode - only for 9 linters
 - 🐳 Distributed as a docker image
 - 💯 Reports all found problems, not just the first one
-- 🏎️ Runs linters in parallel to speed up
+- 🏎️ Runs linters in parallel for speed
 
 ## Usage
 

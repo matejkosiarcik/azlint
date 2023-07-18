@@ -12,7 +12,9 @@ RUN apt-get update && \
 COPY requirements.txt ./
 RUN python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
 COPY linters/gitman.yml ./
-RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
+ENV PYTHONPATH=/app/python \
+    PATH="/app/python/bin:$PATH"
+RUN gitman install
 
 # NodeJS/NPM #
 FROM node:20.4.0-slim AS node
@@ -87,9 +89,9 @@ RUN apt-get update && \
         autoconf bison build-essential ca-certificates curl git \
         libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev && \
     rm -rf /var/lib/apt/lists/*
+COPY --from=gitman /app/gitman/rbenv-installer ./rbenv-installer
 ENV PATH="$PATH:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims" \
     RBENV_ROOT=/.rbenv
-COPY --from=gitman /app/gitman/rbenv-installer ./rbenv-installer
 RUN bash rbenv-installer/bin/rbenv-installer
 COPY --from=brew-install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
 RUN ruby_version_short="$(sed -E 's~_.+$~~' <portable-ruby-version)" && \
