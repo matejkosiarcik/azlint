@@ -126,6 +126,14 @@ COPY prebuild/bin/platform/$TARGETPLATFORM ./
 # hadolint disable=SC2016
 RUN find . -name '*.bin' -type f -exec sh -c 'mv "$0" "$(basename "$0" .bin)"' {} \;
 
+# Azlint binaries #
+FROM debian:12.0-slim AS extra-bin
+WORKDIR /app
+RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azlint && \
+    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >fmt && \
+    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint lint $@' >lint && \
+    chmod a+x azlint fmt lint
+
 # Pre-Final #
 FROM debian:12.0-slim AS pre-final
 COPY --from=brew-final /home/linuxbrew /home/linuxbrew
@@ -136,11 +144,6 @@ WORKDIR /app/cli
 COPY --from=cli /app/cli ./
 COPY --from=cli /app/node_modules ./node_modules
 COPY src/shell-dry-run.sh src/shell-dry-run-utils.sh ./
-WORKDIR /app/bin
-RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azlint && \
-    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >fmt && \
-    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint lint $@' >lint && \
-    chmod a+x azlint fmt lint
 WORKDIR /app/linters
 COPY linters/Gemfile linters/Gemfile.lock linters/composer.json ./
 COPY --from=composer /app/vendor ./vendor
@@ -169,6 +172,7 @@ RUN apt-get update && \
     useradd --create-home --no-log-init --shell /bin/sh --user-group --system azlint && \
     su - azlint -c "git config --global --add safe.directory '*'" && \
     mkdir -p /root/.cache/proselint /home/azlint/.cache/proselint
+COPY --from=extra-bin /app/azlint /app/fmt /app/lint /usr/bin/
 COPY --from=pre-final /home/linuxbrew /home/linuxbrew
 COPY --from=pre-final /.rbenv/versions /.rbenv/versions
 COPY --from=pre-final /app/ ./
