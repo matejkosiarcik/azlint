@@ -12,4 +12,4 @@ pylint==2.17.4
 bashate==2.1.1
 proselint==0.13.0
 yamllint==1.32.0
-sqlfluff==2.1.2
+sqlfluff==2.1.3
