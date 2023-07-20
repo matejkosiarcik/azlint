@@ -20,6 +20,7 @@ export class Linters {
     readonly mode: 'lint' | 'fmt';
     readonly files: string[];
     readonly progress: ProgressOptions;
+    private _randomDir: string = '';
 
     foundProblems = 0;
     fixedProblems = 0;
@@ -32,6 +33,10 @@ export class Linters {
         this.mode = options.mode;
         this.files = options.files;
         this.progress = options.progress;
+    }
+
+    private async randomDir(): Promise<string> {
+        return await fs.mkdtemp(path.join(this._randomDir, 'dir-'));
     }
 
     private async runLinter(
@@ -170,6 +175,8 @@ export class Linters {
     }
 
     async run(): Promise<boolean> {
+        this._randomDir = await fs.mkdtemp(path.join(os.tmpdir(), 'azlint-'));
+
         const matchers = {
             json: '*.{json,json5,jsonl,geojson,babelrc,ecrc,eslintrc,htmlhintrc,htmllintrc,jscsrc,jshintrc,jslintrc,prettierrc,remarkrc}',
             yaml: '*.{yml,yaml}',
@@ -599,7 +606,6 @@ export class Linters {
         });
 
         // NPM install
-        const randomDir = await fs.mkdtemp(path.join(os.tmpdir(), 'azlint-npm-1-'));
         await this.runLinter({
             linterName: 'npm-install',
             envName: 'NPM_INSTALL',
@@ -607,7 +613,7 @@ export class Linters {
             lintFile: {
                 args: ['npm', 'install', '--dry-run'],
                 options: async (file) => {
-                    const workdir = await fs.mkdtemp(path.join(randomDir, Buffer.from(file).toString('base64url')));
+                    const workdir = await this.randomDir();
                     await fs.copyFile(file, path.join(workdir, path.basename(file)));
                     return {
                         cwd: workdir,
@@ -615,9 +621,7 @@ export class Linters {
                 }
             },
         });
-        await fs.rm(randomDir, { force: true, recursive: true });
 
-        const randomDir2 = await fs.mkdtemp(path.join(os.tmpdir(), 'azlint-npm-2-'));
         await this.runLinter({
             linterName: 'npm-ci',
             envName: 'NPM_CI',
@@ -628,7 +632,7 @@ export class Linters {
             lintFile: {
                 args: ['npm', 'ci', '--dry-run'],
                 options: async (file) => {
-                    const workdir = await fs.mkdtemp(path.join(randomDir2, Buffer.from(file).toString('base64url')));
+                    const workdir = await this.randomDir();
                     await fs.copyFile(file, path.join(workdir, path.basename(file)));
                     await fs.copyFile(path.join(path.dirname(file), 'package.json'), path.join(workdir, 'package.json'));
                     return {
@@ -637,7 +641,6 @@ export class Linters {
                 }
             },
         });
-        await fs.rm(randomDir2, { force: true, recursive: true });
 
         // HomeBrew
         await this.runLinter({
@@ -757,7 +760,7 @@ export class Linters {
         // jscpd
         // const jscpdConfigArgs = getConfigArgs('JSCPD', '--config',
         //     ['jscpd.json', '.jscpd.json']);
-        // const jscpdTmpdir = await fs.mkdtemp(path.join(os.tmpdir(), 'azlint-jscpd-'));
+        // const jscpdTmpdir = await this.randomDir();
         // await this.runLinter({
         //     linterName: 'jscpd',
         //     envName: 'JSCPD',
@@ -787,6 +790,7 @@ export class Linters {
             return this.foundProblems === this.fixedProblems;
         }
 
+        await fs.rm(this._randomDir, { force: true, recursive: true });
         return true;
     }
 }
