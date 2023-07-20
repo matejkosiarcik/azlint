@@ -40,7 +40,7 @@ updates:
 
   # Prebuild
   - package-ecosystem: docker
-    directory: /
+    directory: /prebuild
     schedule:
       interval: daily
       time: "01:00"
