@@ -121,15 +121,15 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
     rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
-RUN npm ci --unsafe-perm
+RUN npm ci --unsafe-perm && \
+    npx modclean --patterns default:safe --run --error-halt && \
+    npx node-prune && \
+    find node_modules/yargs/locales -name '*.json' -and -not -name 'en.json' -delete && \
+    find node_modules -name '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
 COPY tsconfig.json ./
 COPY src/ ./src/
 RUN npm run build && \
-    npx modclean --patterns default:safe --run --error-halt && \
-    npx node-prune && \
-    npm prune --production && \
-    find node_modules/yargs/locales -name '*.json' -and -not -name 'en.json' -delete && \
-    find node_modules -name '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
+    npm prune --production
 
 # Prepare prebuild binaries #
 FROM debian:12.0-slim AS prebuild
