@@ -1,5 +1,5 @@
 import fs from 'fs/promises';
-
+import fsSync from 'fs';
 import path from "path";
 import os from 'os';
 import { Options as ExecaOptions } from "@esm2cjs/execa";
@@ -599,7 +599,7 @@ export class Linters {
         });
 
         // NPM install
-        const randomDir = await fs.mkdtemp(path.join(os.tmpdir(), 'azlint-npm-'));
+        const randomDir = await fs.mkdtemp(path.join(os.tmpdir(), 'azlint-npm-1-'));
         await this.runLinter({
             linterName: 'npm-install',
             envName: 'NPM_INSTALL',
@@ -615,7 +615,29 @@ export class Linters {
                 }
             },
         });
-        await fs.rm( randomDir, { force: true, recursive: true });
+        await fs.rm(randomDir, { force: true, recursive: true });
+
+        const randomDir2 = await fs.mkdtemp(path.join(os.tmpdir(), 'azlint-npm-2-'));
+        await this.runLinter({
+            linterName: 'npm-ci',
+            envName: 'NPM_CI',
+            fileMatch: ['package-lock.json'],
+            shouldSkipFile(file) {
+                return !fsSync.existsSync(path.join(path.dirname(file), 'package.json'));
+            },
+            lintFile: {
+                args: ['npm', 'ci', '--dry-run'],
+                options: async (file) => {
+                    const workdir = await fs.mkdtemp(path.join(randomDir2, Buffer.from(file).toString('base64url')));
+                    await fs.copyFile(file, path.join(workdir, path.basename(file)));
+                    await fs.copyFile(path.join(path.dirname(file), 'package.json'), path.join(workdir, 'package.json'));
+                    return {
+                        cwd: workdir,
+                    };
+                }
+            },
+        });
+        await fs.rm(randomDir2, { force: true, recursive: true });
 
         // HomeBrew
         await this.runLinter({

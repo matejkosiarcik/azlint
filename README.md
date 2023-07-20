@@ -210,15 +210,16 @@ _Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 
 ### Package managers
 
-| tool                                                                             | disable                       | files              | autofix |
-|----------------------------------------------------------------------------------|-------------------------------|--------------------|---------|
-| [brew-bundle](https://github.com/Homebrew/homebrew-bundle)                       | `VALIDATE_BREW_BUNDLE`        | `Brewfile`         | ❌       |
-| [composer-normalize](https://github.com/ergebnis/composer-normalize)             | `VALIDATE_COMPOSER_NORMALIZE` | `composer.json`    | ✅       |
-| [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)              | `VALIDATE_COMPOSER_VALIDATE`  | `composer.json`    | ❌       |
-| [composer-install](https://getcomposer.org)                                      | `VALIDATE_COMPOSER_INSTALL`   | `composer.json`    | ❌       |
-| [package-json-validator](https://github.com/gorillamania/package.json-validator) | `VALIDATE_PACKAGE_JSON`       | `package.json`     | ❌       |
-| [pip-install](https://pip.pypa.io/en/stable/cli/pip_install)                     | `VALIDATE_PIP_INSTALL`        | `requirements.txt` | ❌       |
-| [npm-install](https://docs.npmjs.com/cli/v6/commands/npm-install)                | `VALIDATE_NPM_INSTALL`        | `package.json`     | ❌       |
+| tool                                                                             | disable                       | files               | autofix |
+|----------------------------------------------------------------------------------|-------------------------------|---------------------|---------|
+| [brew-bundle](https://github.com/Homebrew/homebrew-bundle)                       | `VALIDATE_BREW_BUNDLE`        | `Brewfile`          | ❌       |
+| [composer-normalize](https://github.com/ergebnis/composer-normalize)             | `VALIDATE_COMPOSER_NORMALIZE` | `composer.json`     | ✅       |
+| [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)              | `VALIDATE_COMPOSER_VALIDATE`  | `composer.json`     | ❌       |
+| [composer-install](https://getcomposer.org)                                      | `VALIDATE_COMPOSER_INSTALL`   | `composer.json`     | ❌       |
+| [package-json-validator](https://github.com/gorillamania/package.json-validator) | `VALIDATE_PACKAGE_JSON`       | `package.json`      | ❌       |
+| [pip-install](https://pip.pypa.io/en/stable/cli/pip_install)                     | `VALIDATE_PIP_INSTALL`        | `requirements.txt`  | ❌       |
+| [npm-install](https://docs.npmjs.com/cli/v9/commands/npm-install)                | `VALIDATE_NPM_INSTALL`        | `package.json`      | ❌       |
+| [npm-ci](https://docs.npmjs.com/cli/v9/commands/npm-ci)                          | `VALIDATE_NPM_CI`             | `package-lock.json` | ❌       |
 
 ### CI/CD services
 
