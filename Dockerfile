@@ -117,6 +117,7 @@ RUN npm ci --unsafe-perm
 COPY tsconfig.json ./
 COPY src/ ./src/
 RUN npm run build && \
+    npx modclean --patterns default:safe --run --error-halt && \
     npx node-prune && \
     npm prune --production
 
