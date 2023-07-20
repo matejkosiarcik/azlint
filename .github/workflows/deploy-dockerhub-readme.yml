@@ -6,10 +6,22 @@ on:
   push:
     branches:
       - main
+      - develop
 
 jobs:
+  predeploy:
+    name: PreDeploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.3
+
+      - name: Echo
+        run: echo 'Predeploy...'
+
   deploy:
     name: Deploy
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
