@@ -83,6 +83,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
+          docker_layer_caching: true
           version: 20.10.14
           # Current circleci docker default version is 17.09.0-ce https://circleci.com/docs/2.0/building-docker-images/#docker-version
           # But during installation of php, some utilities run statx syscalls
