@@ -46,19 +46,19 @@ jobs:
           name: Install project dependencies
           command: make bootstrap
       - run:
-          name: Install LinuxBrew
+          name: Install HomeBrew
           command: |
             bash linters/gitman/brew-installer/install.sh
             eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
             brew --help
             brew bundle --help
       - run:
-          name: AZLint lint
+          name: Run lint
           command: |
             PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" \
               npm run azlint:lint
       - run:
-          name: git status (before formatting)
+          name: Git status (before formatting)
           command: |
             if [ "$(git status --short | wc -l)" -ne 0 ]; then
               printf 'Found following changes:\n'
@@ -66,12 +66,12 @@ jobs:
               exit 1
             fi
       - run:
-          name: AZLint fmt
+          name: Run fmt
           command: |
             PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" \
               npm run azlint:fmt
       - run:
-          name: git status (after formatting)
+          name: Git status (after formatting)
           command: |
             if [ "$(git status --short | wc -l)" -ne 0 ]; then
               printf 'Found following changes:\n'
