@@ -181,9 +181,10 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     git config --system --add safe.directory '*' && \
     git config --global --add safe.directory '*' && \
+    mkdir -p /root/.cache/proselint && \
     useradd --create-home --no-log-init --shell /bin/sh --user-group --system azlint && \
     su - azlint -c "git config --global --add safe.directory '*'" && \
-    mkdir -p /root/.cache/proselint /home/azlint/.cache/proselint
+    su - azlint -c 'mkdir -p /home/azlint/.cache/proselint'
 COPY --from=extra-bin /app/azlint /app/fmt /app/lint /usr/bin/
 COPY --from=pre-final /home/linuxbrew /home/linuxbrew
 COPY --from=pre-final /.rbenv/versions /.rbenv/versions
