@@ -63,19 +63,21 @@ RUN composer install --no-cache
 # We have to provide our custom `uname`, because HomeBrew prohibits installation on non-x64 Linux systems
 FROM debian:12.0-slim AS brew-install
 WORKDIR /app
-COPY utils/uname-x64.sh /usr/bin/uname-x64
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl git procps ruby && \
     if [ "$(uname -m)" != 'amd64' ]; then \
         dpkg --add-architecture amd64 && \
         apt-get update && \
         DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends libc6:amd64 && \
-        chmod a+x /usr/bin/uname-x64 && \
-        mv /usr/bin/uname /usr/bin/uname-bak && \
-        mv /usr/bin/uname-x64 /usr/bin/uname && \
     true; fi && \
     rm -rf /var/lib/apt/lists/* && \
     touch /.dockerenv
+COPY utils/uname-x64.sh /usr/bin/uname-x64
+RUN if [ "$(uname -m)" != 'amd64' ]; then \
+        chmod a+x /usr/bin/uname-x64 && \
+        mv /usr/bin/uname /usr/bin/uname-bak && \
+        mv /usr/bin/uname-x64 /usr/bin/uname && \
+    true; fi
 COPY --from=gitman /app/gitman/brew-installer ./brew-installer
 RUN NONINTERACTIVE=1 bash brew-installer/install.sh && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
