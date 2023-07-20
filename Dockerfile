@@ -20,9 +20,14 @@ RUN gitman install
 FROM node:20.4.0-slim AS node
 ENV NODE_OPTIONS=--dns-result-order=ipv4first
 WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
+    rm -rf /var/lib/apt/lists/*
 COPY linters/package.json linters/package-lock.json ./
 RUN npm ci --unsafe-perm && \
-    npm prune --production
+    npm prune --production && \
+    find node_modules/yargs/locales -name '*.json' -and -not -name 'en.json' -delete && \
+    find node_modules -name '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
 
 # Ruby/Gem #
 FROM debian:12.0-slim AS ruby
@@ -112,6 +117,9 @@ RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebre
 FROM node:20.4.0-slim AS cli
 ENV NODE_OPTIONS=--dns-result-order=ipv4first
 WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
+    rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
 RUN npm ci --unsafe-perm
 COPY tsconfig.json ./
@@ -119,15 +127,16 @@ COPY src/ ./src/
 RUN npm run build && \
     npx modclean --patterns default:safe --run --error-halt && \
     npx node-prune && \
-    npm prune --production
+    npm prune --production && \
+    find node_modules/yargs/locales -name '*.json' -and -not -name 'en.json' -delete && \
+    find node_modules -name '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
 
 # Prepare prebuild binaries #
 FROM debian:12.0-slim AS prebuild
 ARG TARGETPLATFORM
 WORKDIR /app
 COPY prebuild/bin/platform/$TARGETPLATFORM ./
-# hadolint disable=SC2016
-RUN find . -name '*.bin' -type f -exec sh -c 'mv "$0" "$(basename "$0" .bin)"' {} \;
+RUN find . -name '*.bin' -type f | while read -r file; do mv "$file" "$(basename "$file" .bin)"; done
 
 # Azlint binaries #
 FROM debian:12.0-slim AS extra-bin
@@ -172,19 +181,21 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     git config --system --add safe.directory '*' && \
     git config --global --add safe.directory '*' && \
+    mkdir -p /root/.cache/proselint && \
     useradd --create-home --no-log-init --shell /bin/sh --user-group --system azlint && \
     su - azlint -c "git config --global --add safe.directory '*'" && \
-    mkdir -p /root/.cache/proselint /home/azlint/.cache/proselint
+    su - azlint -c 'mkdir -p /home/azlint/.cache/proselint'
 COPY --from=extra-bin /app/azlint /app/fmt /app/lint /usr/bin/
 COPY --from=pre-final /home/linuxbrew /home/linuxbrew
 COPY --from=pre-final /.rbenv/versions /.rbenv/versions
 COPY --from=pre-final /app/ ./
-ENV NODE_OPTIONS=--dns-result-order=ipv4first \
-    PATH="$PATH:/app/bin:/home/linuxbrew/.linuxbrew/bin" \
-    HOMEBREW_NO_AUTO_UPDATE=1 \
-    HOMEBREW_NO_INSTALL_CLEANUP=1 \
+ENV HOMEBREW_NO_AUTO_UPDATE=1 \
+    HOMEBREW_NO_ANALYTICS=1 \
     HOMEBREW_NO_ENV_HINTS=1 \
-    HOMEBREW_NO_ANALYTICS=1
+    HOMEBREW_NO_INSTALL_CLEANUP=1 \
+    NODE_OPTIONS=--dns-result-order=ipv4first \
+    PATH="$PATH:/app/bin:/home/linuxbrew/.linuxbrew/bin" \
+    PYTHONDONTWRITEBYTECODE=1
 USER azlint
 WORKDIR /project
 ENTRYPOINT ["azlint"]

@@ -9,6 +9,7 @@ import { Linters } from './linters';
 
 (async () => {
     let argumentParser = yargs(hideBin(process.argv))
+        .locale('en')
         .scriptName('azlint')
         .help(true)
         .version(false)
