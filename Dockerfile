@@ -22,7 +22,8 @@ ENV NODE_OPTIONS=--dns-result-order=ipv4first
 WORKDIR /app
 COPY linters/package.json linters/package-lock.json ./
 RUN npm ci --unsafe-perm && \
-    npm prune --production
+    npm prune --production && \
+    find node_modules/yargs/locales -name '*.json' -and -not -name 'en.json' -delete
 
 # Ruby/Gem #
 FROM debian:12.0-slim AS ruby
@@ -119,7 +120,8 @@ COPY src/ ./src/
 RUN npm run build && \
     npx modclean --patterns default:safe --run --error-halt && \
     npx node-prune && \
-    npm prune --production
+    npm prune --production && \
+    find node_modules/yargs/locales -name '*.json' -and -not -name 'en.json' -delete
 
 # Prepare prebuild binaries #
 FROM debian:12.0-slim AS prebuild
