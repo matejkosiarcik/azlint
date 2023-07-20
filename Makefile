@@ -106,7 +106,6 @@ build:
 run:
 	docker run --interactive --tty --rm \
 		--volume "$$PWD:/project:ro" \
-		--env CONFIG_DIR=.config \
 		matejkosiarcik/azlint:dev lint
 
 .PHONY: test
