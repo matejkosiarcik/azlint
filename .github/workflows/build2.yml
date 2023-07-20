@@ -28,15 +28,3 @@ jobs:
           tags: matejkosiarcik/azlint:dev
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Run lint
-        run: |
-          docker run --interactive --rm \
-            --volume "$PWD:/project:ro" \
-            matejkosiarcik/azlint:dev lint
-
-      - name: Run fmt
-        run: |
-          docker run --interactive --rm \
-            --volume "$PWD:/project" \
-            matejkosiarcik/azlint:dev fmt
