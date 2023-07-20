@@ -52,11 +52,10 @@ jobs:
             eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
             brew --help
             brew bundle --help
+            export PATH="$PATH:/home/linuxbrew/.linuxbrew/bin"
       - run:
           name: Run lint
-          command: |
-            PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" \
-              npm run azlint:lint
+          command: npm run azlint:lint
       - run:
           name: Git status (before formatting)
           command: |
@@ -67,9 +66,7 @@ jobs:
             fi
       - run:
           name: Run fmt
-          command: |
-            PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" \
-              npm run azlint:fmt
+          command: npm run azlint:fmt
       - run:
           name: Git status (after formatting)
           command: |
