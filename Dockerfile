@@ -179,12 +179,13 @@ COPY --from=extra-bin /app/azlint /app/fmt /app/lint /usr/bin/
 COPY --from=pre-final /home/linuxbrew /home/linuxbrew
 COPY --from=pre-final /.rbenv/versions /.rbenv/versions
 COPY --from=pre-final /app/ ./
-ENV NODE_OPTIONS=--dns-result-order=ipv4first \
-    PATH="$PATH:/app/bin:/home/linuxbrew/.linuxbrew/bin" \
-    HOMEBREW_NO_AUTO_UPDATE=1 \
-    HOMEBREW_NO_INSTALL_CLEANUP=1 \
+ENV HOMEBREW_NO_AUTO_UPDATE=1 \
+    HOMEBREW_NO_ANALYTICS=1 \
     HOMEBREW_NO_ENV_HINTS=1 \
-    HOMEBREW_NO_ANALYTICS=1
+    HOMEBREW_NO_INSTALL_CLEANUP=1 \
+    NODE_OPTIONS=--dns-result-order=ipv4first \
+    PATH="$PATH:/app/bin:/home/linuxbrew/.linuxbrew/bin" \
+    PYTHONDONTWRITEBYTECODE=1
 USER azlint
 WORKDIR /project
 ENTRYPOINT ["azlint"]
