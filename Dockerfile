@@ -136,8 +136,7 @@ FROM debian:12.0-slim AS prebuild
 ARG TARGETPLATFORM
 WORKDIR /app
 COPY prebuild/bin/platform/$TARGETPLATFORM ./
-# hadolint disable=SC2016
-RUN find . -name '*.bin' -type f -exec sh -c 'mv "$0" "$(basename "$0" .bin)"' {} \;
+RUN find . -name '*.bin' -type f | while read -r file; do mv "$file" "$(basename "$file" .bin)"; done
 
 # Azlint binaries #
 FROM debian:12.0-slim AS extra-bin
