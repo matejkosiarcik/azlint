@@ -20,10 +20,14 @@ RUN gitman install
 FROM node:20.4.0-slim AS node
 ENV NODE_OPTIONS=--dns-result-order=ipv4first
 WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
+    rm -rf /var/lib/apt/lists/*
 COPY linters/package.json linters/package-lock.json ./
 RUN npm ci --unsafe-perm && \
     npm prune --production && \
-    find node_modules/yargs/locales -name '*.json' -and -not -name 'en.json' -delete
+    find node_modules/yargs/locales -name '*.json' -and -not -name 'en.json' -delete && \
+    find node_modules -name '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
 
 # Ruby/Gem #
 FROM debian:12.0-slim AS ruby
@@ -113,6 +117,9 @@ RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebre
 FROM node:20.4.0-slim AS cli
 ENV NODE_OPTIONS=--dns-result-order=ipv4first
 WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
+    rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
 RUN npm ci --unsafe-perm
 COPY tsconfig.json ./
@@ -121,7 +128,8 @@ RUN npm run build && \
     npx modclean --patterns default:safe --run --error-halt && \
     npx node-prune && \
     npm prune --production && \
-    find node_modules/yargs/locales -name '*.json' -and -not -name 'en.json' -delete
+    find node_modules/yargs/locales -name '*.json' -and -not -name 'en.json' -delete && \
+    find node_modules -name '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
 
 # Prepare prebuild binaries #
 FROM debian:12.0-slim AS prebuild
