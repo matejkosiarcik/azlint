@@ -22,9 +22,14 @@ jobs:
       - name: Build
         run: make build
 
-      - name: Run
+      - name: Run lint
         run: |
           docker run --interactive --rm \
-            --volume "$(PROJECT_DIR):/project:ro" \
-            --env CONFIG_DIR=.config \
+            --volume "$PWD:/project:ro" \
             matejkosiarcik/azlint:dev lint
+
+      - name: Run fmt
+        run: |
+          docker run --interactive --rm \
+            --volume "$PWD:/project" \
+            matejkosiarcik/azlint:dev fmt
