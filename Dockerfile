@@ -152,6 +152,7 @@ RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azl
 FROM debian:12.0-slim AS pre-final
 COPY --from=brew-final /home/linuxbrew /home/linuxbrew
 COPY --from=brew-final /.rbenv/versions /.rbenv/versions
+COPY --from=extra-bin /app/azlint /app/fmt /app/lint /usr/bin/
 WORKDIR /app
 COPY VERSION.txt ./
 WORKDIR /app/cli
@@ -187,7 +188,7 @@ RUN apt-get update && \
     useradd --create-home --no-log-init --shell /bin/sh --user-group --system azlint && \
     su - azlint -c "git config --global --add safe.directory '*'" && \
     su - azlint -c 'mkdir -p /home/azlint/.cache/proselint'
-COPY --from=extra-bin /app/azlint /app/fmt /app/lint /usr/bin/
+COPY --from=pre-final /usr/bin/azlint /usr/bin/fmt /usr/bin/lint /usr/bin/
 COPY --from=pre-final /home/linuxbrew /home/linuxbrew
 COPY --from=pre-final /.rbenv/versions /.rbenv/versions
 COPY --from=pre-final /app/ ./
