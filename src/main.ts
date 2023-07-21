@@ -1,5 +1,6 @@
-import path from 'path';
 import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import dotenv from 'dotenv';
@@ -33,7 +34,10 @@ import { Linters } from './linters';
             alias: 'n', describe: 'Dry run', type: 'boolean',
         })
         .option('color', {
-            describe: 'Colored output', type: 'string', choices: ['auto', 'never', 'always'], default: 'auto',
+            alias: 'colour', describe: 'Colored output', type: 'string', choices: ['auto', 'never', 'always'], default: 'auto',
+        })
+        .option('jobs', {
+            alias: 'j', describe: 'No. jobs, when set to 0 will use cpu-threads x10', type: 'number', default: 0,
         })
         .option('dir', {
             describe: 'Path to project directory', type: 'string', default: '.',
@@ -97,6 +101,12 @@ import { Linters } from './linters';
     })();
     const color = args.color as ColorOptions;
     const progress: ProgressOptions = 'no'; // = argv.progress as ProgressOptions;
+    const jobs = (() => {
+        if (args.jobs <= 0) {
+            return os.cpus().length * 10;
+        }
+        return args.jobs;
+    })();
 
     // Set global properties
     setLogSettings({
@@ -133,6 +143,7 @@ import { Linters } from './linters';
         mode: command,
         files: projectFiles,
         progress: progress,
+        jobs: jobs,
     });
     const success = await linters.run();
     process.exit(success ? 0 : 1);
