@@ -127,8 +127,9 @@ RUN apt-get update && \
 COPY linters/package.json linters/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
     npm prune --production && \
-    find node_modules/yargs/locales -name '*.json' -and -not -name 'en.json' -delete && \
-    find node_modules -name '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
+    find 'node_modules' \( -iname 'test' -or -iname 'tests' \) -prune -exec rm -rf {} \; && \
+    find 'node_modules/yargs/locales' -iname '*.json' -and -not -name 'en.json' -delete && \
+    find 'node_modules' -iname '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
 
 # Ruby/Gem #
 FROM debian:12.0-slim AS ruby
@@ -229,8 +230,8 @@ COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
     npx modclean --patterns default:safe --run --error-halt && \
     npx node-prune && \
-    find node_modules/yargs/locales -name '*.json' -and -not -name 'en.json' -delete && \
-    find node_modules -name '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
+    find 'node_modules/yargs/locales' -name '*.json' -and -not -name 'en.json' -delete && \
+    find 'node_modules' -name '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
 COPY tsconfig.json ./
 COPY src/ ./src/
 RUN npm run build && \
