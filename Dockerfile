@@ -149,14 +149,7 @@ COPY linters/requirements.txt ./
 RUN PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
 
 # Composer #
-FROM debian:12.0-slim AS composer-bin
-WORKDIR /app
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl php php-cli php-common php-mbstring php-zip && \
-    rm -rf /var/lib/apt/lists/* && \
-    curl -fLsS https://getcomposer.org/installer -o composer-setup.php && \
-    mkdir -p /app/composer/bin && \
-    php composer-setup.php --install-dir=/app/composer/bin --filename=composer
+FROM composer:2.5.8 AS composer-bin
 
 # PHP/Composer #
 FROM debian:12.0-slim AS composer-vendor
@@ -267,7 +260,7 @@ COPY --from=node /app/node_modules ./node_modules
 COPY --from=python /app/python ./python
 COPY --from=ruby /app/bundle ./bundle
 WORKDIR /app/linters/bin
-COPY --from=composer-bin /app/composer/bin/composer ./
+COPY --from=composer-bin /usr/bin/composer ./
 COPY --from=hadolint /bin/hadolint ./
 COPY --from=go /app ./
 COPY --from=rust /app ./
