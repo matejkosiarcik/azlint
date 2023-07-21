@@ -146,7 +146,9 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-pip && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/requirements.txt ./
-RUN PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
+RUN PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 python3 -m pip install --no-cache-dir --requirement requirements.txt --target python && \
+    find python -type d -name '__pycache__' -prune -exec rm -rf {} \; && \
+    find python -type f -name '*.py[oc]' -delete
 
 # Composer #
 FROM composer:2.5.8 AS composer-bin
@@ -299,6 +301,7 @@ ENV HOMEBREW_NO_AUTO_UPDATE=1 \
     HOMEBREW_NO_INSTALL_CLEANUP=1 \
     NODE_OPTIONS=--dns-result-order=ipv4first \
     PATH="$PATH:/app/bin:/home/linuxbrew/.linuxbrew/bin" \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PYTHONDONTWRITEBYTECODE=1
 USER azlint
 WORKDIR /project
