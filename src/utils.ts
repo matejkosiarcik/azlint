@@ -350,3 +350,15 @@ export function getPythonConfigArgs(envName: string, linterName: string, configA
     const commonConfigFile = commonConfigFiles[0];
     return configArgName.endsWith('=') ? [`${configArgName}${commonConfigFile}`] : [configArgName, commonConfigFile];
 }
+
+export function combine(...args: (string[] | string)[]): string[] {
+    let output: string[] = [''];
+    for (const arg of args) {
+        if (typeof arg === 'string') {
+            output = output.map((el) => el + arg);
+        } else {
+            output = arg.map((variant) => output.map((el) => el + variant)).flat();
+        }
+    }
+    return output;
+}

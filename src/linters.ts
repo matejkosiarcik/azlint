@@ -5,7 +5,7 @@ import os from 'os';
 import { Options as ExecaOptions } from "@esm2cjs/execa";
 import pLimit, { LimitFunction } from "@esm2cjs/p-limit";
 import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from "./log";
-import { customExeca, getConfigArgs, getPythonConfigArgs, hashFile, isCwdGitRepo, matchFiles, OneOrArray, ProgressOptions, resolveLintArgs, resolveLintOptions, resolveLintSuccessExitCode, resolvePromiseOrValue } from "./utils";
+import { combine, customExeca, getConfigArgs, getPythonConfigArgs, hashFile, isCwdGitRepo, matchFiles, OneOrArray, ProgressOptions, resolveLintArgs, resolveLintOptions, resolveLintSuccessExitCode, resolvePromiseOrValue } from "./utils";
 
 function shouldSkipLinter(envName: string, linterName: string): boolean {
     const envEnable = 'VALIDATE_' + envName;
@@ -361,8 +361,7 @@ export class Linters {
         /* Prettier - MultiLang */
 
         // Prettier
-        const prettierConfigArgs = getConfigArgs('PRETTIER', '--config',
-            ['prettierrc', 'prettierrc.yml', 'prettierrc.yaml', 'prettierrc.json', 'prettierrc.js', '.prettierrc', '.prettierrc.yml', '.prettierrc.yaml', '.prettierrc.json', '.prettierrc.js']);
+        const prettierConfigArgs = getConfigArgs('PRETTIER', '--config', ([] as string[]).concat(combine(['', '.'], 'prettier', ['', 'rc'], ['js', 'json', 'yaml', 'yml']), combine(['', '.'], 'prettierrc')));
         await this.runLinter({
             linterName: 'prettier',
             envName: 'PRETTIER',
@@ -388,9 +387,7 @@ export class Linters {
         /* JSON, YAML, TOML */
 
         // Jsonlint
-        const jsonlintConfigArgs = getConfigArgs('JSONLINT', '--config',
-            ['jsonlintrc', 'jsonlintrc.json', 'jsonlintrc.yml', 'jsonlintrc.yaml', 'jsonlintrc.js', 'jsonlintrc.mjs', 'jsonlintrc.cjs'].flatMap((el) => [`${el}`, `.${el}`])
-        );
+        const jsonlintConfigArgs = getConfigArgs('JSONLINT', '--config', ([] as string[]).concat(combine(['', '.'], 'jsonlintrc.', ['js', 'json', 'mjs', 'yaml', 'yml']), combine(['', '.'], 'jsonlintrc')));
         await this.runLinter({
             linterName: 'jsonlint',
             envName: 'JSONLINT',
@@ -681,8 +678,7 @@ export class Linters {
             lintFile: { args: ['dockerfilelint', ...dockerfilelintConfigArgs, '#file#'] },
         });
 
-        const hadolintConfigArgs = getConfigArgs('HADOLINT', '--config',
-            ['hadolint.yml', 'hadolint.yaml', '.hadolint.yml', '.hadolint.yaml']);
+        const hadolintConfigArgs = getConfigArgs('HADOLINT', '--config', combine(['', '.'], 'hadolint', ['', 'rc'], '.', ['yml', 'yaml']));
         await this.runLinter({
             linterName: 'hadolint',
             envName: 'HADOLINT',
