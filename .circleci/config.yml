@@ -22,7 +22,6 @@ jobs:
       - image: debian:12.0
     environment:
       VALIDATE_HADOLINT: "false"
-      VALIDATE_ECLINT: "false"
     steps:
       - checkout
       - run:

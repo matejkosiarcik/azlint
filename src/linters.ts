@@ -3,6 +3,7 @@ import fsSync from 'fs';
 import path from "path";
 import os from 'os';
 import { Options as ExecaOptions } from "@esm2cjs/execa";
+import pLimit, { LimitFunction } from "@esm2cjs/p-limit";
 import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from "./log";
 import { customExeca, getConfigArgs, getPythonConfigArgs, hashFile, isCwdGitRepo, matchFiles, OneOrArray, ProgressOptions, resolveLintArgs, resolveLintOptions, resolveLintSuccessExitCode, resolvePromiseOrValue } from "./utils";
 
@@ -21,6 +22,8 @@ export class Linters {
     readonly files: string[];
     readonly progress: ProgressOptions;
     private _randomDir: string = '';
+    private readonly savedJobs: Promise<void>[] = [];
+    private limit: LimitFunction; // = pLimit(os.cpus().length * 10);
 
     foundProblems = 0;
     fixedProblems = 0;
@@ -28,11 +31,13 @@ export class Linters {
     constructor(options: {
         mode: 'lint' | 'fmt',
         files: string[],
-        progress: ProgressOptions
+        progress: ProgressOptions,
+        jobs: number,
     }) {
         this.mode = options.mode;
         this.files = options.files;
         this.progress = options.progress;
+        this.limit = pLimit(options.jobs);
     }
 
     private async randomDir(): Promise<string> {
@@ -70,7 +75,7 @@ export class Linters {
         if (options.shouldSkipAllFiles) {
             const returnValue = await resolvePromiseOrValue(options.shouldSkipAllFiles(options.linterName));
 
-            if (!returnValue) {
+            if (returnValue) {
                 return;
             }
         }
@@ -115,7 +120,7 @@ export class Linters {
         if (options.shouldSkipFile) {
             const returnValue = await resolvePromiseOrValue(options.shouldSkipFile(options.file, options.linterName));
 
-            if (!returnValue) {
+            if (returnValue) {
                 return;
             }
         }
@@ -125,9 +130,11 @@ export class Linters {
         }
 
         if (this.mode === 'lint') {
+            let lintCallback: (file: string, toolName: string) => Promise<void> = async () => {};
+
             if (typeof options.lintFile === 'object') {
                 const execaConfig = options.lintFile;
-                options.lintFile = async (file: string, toolName: string) => {
+                lintCallback = async (file: string, toolName: string) => {
                     const args = await resolveLintArgs(execaConfig.args, file);
                     const options = await resolveLintOptions(execaConfig.options, file);
                     const isExitCodeSuccess = resolveLintSuccessExitCode(execaConfig.successExitCode);
@@ -140,8 +147,12 @@ export class Linters {
                         logLintFail(toolName, file, cmd);
                     }
                 };
+            } else {
+                lintCallback = options.lintFile;
             }
-            await options.lintFile(options.file, options.linterName);
+
+            const lintJob = this.limit(async () => lintCallback(options.file, options.linterName));
+            this.savedJobs.push(lintJob);
         } else if (this.mode === 'fmt' && options.fmtFile) {
             if (typeof options.fmtFile === 'object') {
                 const execaConfig = options.fmtFile;
@@ -194,6 +205,57 @@ export class Linters {
         };
         matchers.allText = [matchers.markdown, matchers.text, 'README', 'LICENSE'];
 
+        /* Slow linters */
+        // Here are linters which take the longest time, so we launch them first
+
+        // Markdown link check
+        const markdownLinkCheckConfigArgs = getConfigArgs('MARKDOWN_LINK_CHECK', '--config', ['markdown-link-check.json', '.markdown-link-check.json']);
+        await this.runLinter({
+            linterName: 'markdown-link-check',
+            envName: 'MARKDOWN_LINK_CHECK',
+            fileMatch: matchers.markdown,
+            lintFile: { args: ['markdown-link-check', ...markdownLinkCheckConfigArgs, '--retry', '--verbose', "#file#"] },
+            // lintFile: async (file: string, toolName: string) => {
+            //     let attempt = 0;
+            //     const self = this;
+            //     async function run() {
+            //         attempt += 1;
+            //         const cmd = await customExeca(['markdown-link-check', ...markdownLinkCheckConfigArgs, '--retry', '--verbose', file]);
+            //         if (cmd.exitCode === 0) { // Success
+            //             logLintSuccess(toolName, file, cmd);
+            //         } else { // Fail
+            //             if (attempt < 3 && cmd.all?.includes(' → Status: 0')) {
+            //                 logLintWarning(toolName, file);
+            //                 await delay(1000);
+            //                 await run();
+            //             } else {
+            //                 logLintFail(toolName, file, cmd);
+            //                 self.foundProblems += 1;
+            //             }
+            //         }
+            //     }
+
+            //     await run();
+            // },
+        });
+
+        // NPM install
+        await this.runLinter({
+            linterName: 'npm-install',
+            envName: 'NPM_INSTALL',
+            fileMatch: ['package.json'],
+            lintFile: {
+                args: ['npm', 'install', '--dry-run'],
+                options: async (file) => {
+                    const workdir = await this.randomDir();
+                    await fs.copyFile(file, path.join(workdir, path.basename(file)));
+                    return {
+                        cwd: workdir,
+                    };
+                }
+            },
+        });
+
         /* Generic linters for all files */
 
         // Gitignore
@@ -243,6 +305,57 @@ export class Linters {
             envName: 'ECLINT',
             fileMatch: '*',
             lintFile: { args: ['eclint', '#file#'] },
+        });
+
+        /* Package Managers */
+
+        // Composer install
+        await this.runLinter({
+            linterName: 'composer-install',
+            envName: 'COMPOSER_INSTALL',
+            fileMatch: 'composer.json',
+            lintFile: { args: ['composer', 'install', '--dry-run', '--working-dir=#directory#'], },
+        });
+
+        // Pip install
+        await this.runLinter({
+            linterName: 'pip-install',
+            envName: 'PIP_INSTALL',
+            fileMatch: ['requirements.txt', 'requirements-*.txt', 'requirements_*.txt', '*-requirements.txt', '*_requirements.txt'],
+            lintFile: { args: ['python3', '-m', 'pip', 'install', '--dry-run', '--ignore-installed', '--break-system-packages', '--requirement', '#file#'] },
+        });
+
+        // HomeBrew
+        await this.runLinter({
+            linterName: 'brew-bundle',
+            envName: 'BREW_BUNDLE',
+            fileMatch: ['Brewfile', '*.Brewfile', 'Brewfile.*'],
+            lintFile: { args: ['brew', 'bundle', 'list', '--file', '#file#', '--no-lock'] },
+        });
+
+        // NPM install - lockfile
+        await this.runLinter({
+            linterName: 'npm-install-lock',
+            envName: 'NPM_INSTALL_LOCK',
+            fileMatch: ['package-lock.json'],
+            shouldSkipFile(file, toolName) {
+                const skip = !fsSync.existsSync(path.join(path.dirname(file), 'package.json'));
+                if (skip) {
+                    logExtraVerbose(`⏩ Skipping ${toolName} - ${file}, no package.json find`);
+                }
+                return skip;
+            },
+            lintFile: {
+                args: ['npm', 'ci', '--dry-run'],
+                options: async (file) => {
+                    const workdir = await this.randomDir();
+                    await fs.copyFile(file, path.join(workdir, path.basename(file)));
+                    await fs.copyFile(path.join(path.dirname(file), 'package.json'), path.join(workdir, 'package.json'));
+                    return {
+                        cwd: workdir,
+                    };
+                }
+            },
         });
 
         /* Prettier - MultiLang */
@@ -377,37 +490,6 @@ export class Linters {
             envName: 'MDL',
             fileMatch: matchers.markdown,
             lintFile: { args: ['bundle', 'exec', 'mdl', ...mdlConfigArgs, '#file#'] },
-        });
-
-        // Markdown link check
-        const markdownLinkCheckConfigArgs = getConfigArgs('MARKDOWN_LINK_CHECK', '--config', ['markdown-link-check.json', '.markdown-link-check.json']);
-        await this.runLinter({
-            linterName: 'markdown-link-check',
-            envName: 'MARKDOWN_LINK_CHECK',
-            fileMatch: matchers.markdown,
-            lintFile: { args: ['markdown-link-check', ...markdownLinkCheckConfigArgs, '--retry', '--verbose', "#file#"] },
-            // lintFile: async (file: string, toolName: string) => {
-            //     let attempt = 0;
-            //     const self = this;
-            //     async function run() {
-            //         attempt += 1;
-            //         const cmd = await customExeca(['markdown-link-check', ...markdownLinkCheckConfigArgs, '--retry', '--verbose', file]);
-            //         if (cmd.exitCode === 0) { // Success
-            //             logLintSuccess(toolName, file, cmd);
-            //         } else { // Fail
-            //             if (attempt < 3 && cmd.all?.includes(' → Status: 0')) {
-            //                 logLintWarning(toolName, file);
-            //                 await delay(1000);
-            //                 await run();
-            //             } else {
-            //                 logLintFail(toolName, file, cmd);
-            //                 self.foundProblems += 1;
-            //             }
-            //         }
-            //     }
-
-            //     await run();
-            // },
         });
 
         // Proselint
@@ -553,11 +635,11 @@ export class Linters {
             fileMatch: 'package.json',
             shouldSkipFile: async (file: string, toolName: string) => {
                 const packageJson = JSON.parse(await fs.readFile(file, 'utf8'));
-                if (packageJson['private'] === true) {
+                const skip = packageJson['private'] === true;
+                if (skip) {
                     logExtraVerbose(`⏩ Skipping ${toolName} - ${file}, because it's private`);
-                    return false;
                 }
-                return true;
+                return skip;
             },
             lintFile: { args: ['pjv', '--warnings', '--recommendations', '--filename', '#file#'] },
         });
@@ -587,67 +669,6 @@ export class Linters {
                     cwd: path.resolve(path.join(__dirname, '..', 'linters')),
                 },
             }
-        });
-
-        // Composer install
-        await this.runLinter({
-            linterName: 'composer-install',
-            envName: 'COMPOSER_INSTALL',
-            fileMatch: 'composer.json',
-            lintFile: { args: ['composer', 'install', '--dry-run', '--working-dir=#directory#'], },
-        });
-
-        // Pip install
-        await this.runLinter({
-            linterName: 'pip-install',
-            envName: 'PIP_INSTALL',
-            fileMatch: ['requirements.txt', 'requirements-*.txt', 'requirements_*.txt', '*-requirements.txt', '*_requirements.txt'],
-            lintFile: { args: ['python3', '-m', 'pip', 'install', '--dry-run', '--ignore-installed', '--break-system-packages', '--requirement', '#file#'] },
-        });
-
-        // NPM install
-        await this.runLinter({
-            linterName: 'npm-install',
-            envName: 'NPM_INSTALL',
-            fileMatch: ['package.json'],
-            lintFile: {
-                args: ['npm', 'install', '--dry-run'],
-                options: async (file) => {
-                    const workdir = await this.randomDir();
-                    await fs.copyFile(file, path.join(workdir, path.basename(file)));
-                    return {
-                        cwd: workdir,
-                    };
-                }
-            },
-        });
-
-        await this.runLinter({
-            linterName: 'npm-ci',
-            envName: 'NPM_CI',
-            fileMatch: ['package-lock.json'],
-            shouldSkipFile(file) {
-                return !fsSync.existsSync(path.join(path.dirname(file), 'package.json'));
-            },
-            lintFile: {
-                args: ['npm', 'ci', '--dry-run'],
-                options: async (file) => {
-                    const workdir = await this.randomDir();
-                    await fs.copyFile(file, path.join(workdir, path.basename(file)));
-                    await fs.copyFile(path.join(path.dirname(file), 'package.json'), path.join(workdir, 'package.json'));
-                    return {
-                        cwd: workdir,
-                    };
-                }
-            },
-        });
-
-        // HomeBrew
-        await this.runLinter({
-            linterName: 'brew-bundle',
-            envName: 'BREW_BUNDLE',
-            fileMatch: ['Brewfile', '*.Brewfile', 'Brewfile.*'],
-            lintFile: { args: ['brew', 'bundle', 'list', '--file', '#file#', '--no-lock'] },
         });
 
         /* Docker */
@@ -780,6 +801,8 @@ export class Linters {
         });
 
         /* End of linters */
+
+        await Promise.all(this.savedJobs);
 
         // Report results
         logNormal(`Found ${this.foundProblems} problems`);

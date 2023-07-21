@@ -203,7 +203,7 @@ export function wildcard2regex(wildcard: string): RegExp {
  */
 export async function customExeca(command: string[], _options?: ExecaOptions<string>): Promise<ExecaReturnValue<string>> {
     const options: ExecaOptions = {
-        timeout: 60_000,
+        timeout: 300_000,
         stdio: 'pipe', // Capture output
         all: true, // Merge stdout and stderr
         ..._options ?? {},
