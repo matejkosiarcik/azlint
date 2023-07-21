@@ -47,8 +47,14 @@ indent_size = unset
 
 ### Documentation, Configuration, Markup # ###
 
-[*.{css,htm,html,j2,jinja,jinja2,less,liquid,sass,scss,sdef,svg,textlintrc,toml,xhtml,xlf,xml,yaml,yml}]
+[*.{css,htm,html,j2,jinja,jinja2,json,json5,less,liquid,sass,scss,sdef,svg,toml,xhtml,xlf,xml,yaml,yml}]
 indent_size = 2
+
+# RC files
+[*.*rc]
+indent_size = 2
+# [*.{babelrc,dockerfilelintrc,ecrc,eslintrc,htmlhintrc,htmllintrc,hintrc,proselintrc,remarkrc,textlintrc}]
+# indent_size = 2
 
 [*.{md,mdown,markdown}]
 indent_size = 2
@@ -73,15 +79,6 @@ indent_size = 2
 
 # Carthage https://github.com/Carthage/Carthage
 [Cartfile{,.resolved}]
-indent_size = 2
-
-### JavaScript ecosystem ###
-
-# [*.{js,ts,jsx,tsx}]
-# indent_size = 2
-
-# JSON variants
-[*.{babelrc,ecrc,eslintrc,htmlhintrc,htmllintrc,hintrc,proselintrc,json,json5,remarkrc}]
 indent_size = 2
 
 ### Ruby ecosystem ###

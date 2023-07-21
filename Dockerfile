@@ -3,6 +3,13 @@
 
 ### Components/Linters ###
 
+# Upx #
+FROM ubuntu:23.10 AS upx-base
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends parallel upx-ucl && \
+    rm -rf /var/lib/apt/lists/*
+
 # Gitman #
 FROM debian:12.0-slim AS gitman
 WORKDIR /app
@@ -12,17 +19,16 @@ RUN apt-get update && \
 COPY requirements.txt ./
 RUN python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
 COPY linters/gitman.yml ./
-ENV PYTHONPATH=/app/python \
-    PATH="/app/python/bin:$PATH"
-RUN gitman install
+RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 
 # GoLang #
-FROM golang:1.20.6-bookworm AS go
+FROM golang:1.20.6-bookworm AS go-base
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends pandoc && \
-    rm -rf /var/lib/apt/lists/* && \
-    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
+    rm -rf /var/lib/apt/lists/*
+COPY linters/gitman.yml ./
+RUN GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
     GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
     GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
     GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
@@ -31,24 +37,33 @@ RUN BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make -C gitman/checkmak
 COPY --from=gitman /app/gitman/editorconfig-checker ./gitman/editorconfig-checker
 RUN make -C gitman/editorconfig-checker build
 
+# Golang -> UPX #
+FROM upx-base AS go
+COPY --from=go-base /app/gitman/checkmake/checkmake /app/gitman/editorconfig-checker/bin/ec /app/go/bin/actionlint /app/go/bin/shfmt /app/go/bin/stoml /app/go/bin/tomljson /app/
+RUN parallel upx --ultra-brute ::: /app/*
+
 # Rust #
-FROM rust:1.71.0-slim-bookworm AS rust
+FROM rust:1.71.0-slim-bookworm AS rust-base
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs npm && \
     rm -rf /var/lib/apt/lists/*
-ENV NODE_OPTIONS=--dns-result-order=ipv4first
 COPY package.json package-lock.json ./
-RUN npm ci --unsafe-perm
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm
 COPY utils/cargo-packages.js ./utils/
 COPY linters/Cargo.toml ./linters/
 RUN node utils/cargo-packages.js | while read -r package version; do \
         cargo install "$package" --force --version "$version" --root "$PWD/cargo"; \
     done
 
-# CircleCI-CLI #
+# Rust -> UPX #
+FROM upx-base AS rust
+COPY --from=rust-base /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden /app/
+RUN parallel upx --ultra-brute ::: /app/*
+
+# CircleCI CLI #
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
-FROM debian:12.0-slim AS circleci
+FROM debian:12.0-slim AS circleci-base
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl && \
     rm -rf /var/lib/apt/lists/*
@@ -56,8 +71,13 @@ COPY --from=gitman /app/gitman/circleci-cli /app/circleci-cli
 WORKDIR /app/circleci-cli
 RUN bash install.sh
 
+# CircleCI CLI -> UPX #
+FROM upx-base AS circleci
+COPY --from=circleci-base /usr/local/bin/circleci /app/
+RUN upx --ultra-brute /app/circleci
+
 # Shell - loksh #
-FROM debian:12.0-slim AS loksh
+FROM debian:12.0-slim AS loksh-base
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends build-essential ca-certificates git meson && \
     rm -rf /var/lib/apt/lists/*
@@ -66,8 +86,13 @@ WORKDIR /app/loksh
 RUN meson setup --prefix="$PWD/install" build && \
     ninja -C build install
 
+# loksh -> UPX #
+FROM upx-base AS loksh
+COPY --from=loksh-base /app/loksh/install/bin/ksh /app/loksh
+RUN upx --ultra-brute /app/loksh
+
 # Shell - oksh #
-FROM debian:12.0-slim AS oksh
+FROM debian:12.0-slim AS oksh-base
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends build-essential && \
     rm -rf /var/lib/apt/lists/*
@@ -77,21 +102,30 @@ RUN ./configure && \
     make && \
     DESTDIR="$PWD/install" make install
 
+# oksh -> UPX #
+FROM upx-base AS oksh
+COPY --from=oksh-base /app/oksh/install/usr/local/bin/oksh /app/
+RUN upx --ultra-brute /app/oksh
+
 # ShellCheck #
-FROM koalaman/shellcheck:v0.9.0 AS shellcheck
+FROM koalaman/shellcheck:v0.9.0 AS shellcheck-base
+
+# ShellCheck -> UPX #
+FROM upx-base AS shellcheck
+COPY --from=shellcheck-base /bin/shellcheck ./
+RUN upx --ultra-brute /app/shellcheck
 
 # Hadolint #
 FROM hadolint/hadolint:v2.12.0 AS hadolint
 
 # NodeJS/NPM #
 FROM node:20.4.0-slim AS node
-ENV NODE_OPTIONS=--dns-result-order=ipv4first
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/package.json linters/package-lock.json ./
-RUN npm ci --unsafe-perm && \
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
     npm prune --production && \
     find node_modules/yargs/locales -name '*.json' -and -not -name 'en.json' -delete && \
     find node_modules -name '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
@@ -108,23 +142,16 @@ RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/
 # Python/Pip #
 FROM debian:12.0-slim AS python
 WORKDIR /app
-ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PYTHONDONTWRITEBYTECODE=1
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-pip && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/requirements.txt ./
-RUN python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
+RUN PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 python3 -m pip install --no-cache-dir --requirement requirements.txt --target python && \
+    find python -type d -name '__pycache__' -prune -exec rm -rf {} \; && \
+    find python -type f -name '*.py[oc]' -delete
 
 # Composer #
-FROM debian:12.0-slim AS composer-bin
-WORKDIR /app
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl php php-cli php-common php-mbstring php-zip && \
-    curl -fLsS https://getcomposer.org/installer -o composer-setup.php && \
-    mkdir -p /app/composer/bin && \
-    php composer-setup.php --install-dir=/app/composer/bin --filename=composer && \
-    rm -rf /var/lib/apt/lists/* composer-setup.php
+FROM composer:2.5.8 AS composer-bin
 
 # PHP/Composer #
 FROM debian:12.0-slim AS composer-vendor
@@ -192,29 +219,14 @@ RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebre
 
 ### Helpers ###
 
-# Upx #
-FROM ubuntu:23.10 AS upx
-WORKDIR /app
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends parallel upx-ucl && \
-    rm -rf /var/lib/apt/lists/*
-COPY --from=circleci /usr/local/bin/circleci ./
-COPY --from=go /app/gitman/checkmake/checkmake /app/gitman/editorconfig-checker/bin/ec /app/go/bin/actionlint /app/go/bin/shfmt /app/go/bin/stoml /app/go/bin/tomljson ./
-COPY --from=loksh /app/loksh/install/bin/ksh ./loksh
-COPY --from=oksh /app/oksh/install/usr/local/bin/oksh ./
-COPY --from=rust /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden ./
-COPY --from=shellcheck /bin/shellcheck ./
-RUN parallel upx --ultra-brute ::: /app/*
-
 # Main CLI #
 FROM node:20.4.0-slim AS cli
-ENV NODE_OPTIONS=--dns-result-order=ipv4first
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
     rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
-RUN npm ci --unsafe-perm && \
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
     npx modclean --patterns default:safe --run --error-halt && \
     npx node-prune && \
     find node_modules/yargs/locales -name '*.json' -and -not -name 'en.json' -delete && \
@@ -225,7 +237,7 @@ RUN npm run build && \
     npm prune --production
 
 # Azlint binaries #
-FROM debian:12.0-slim AS extra-bin
+FROM debian:12.0-slim AS azlint-bin
 WORKDIR /app
 RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azlint && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >fmt && \
@@ -236,7 +248,7 @@ RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azl
 FROM debian:12.0-slim AS pre-final
 COPY --from=brew-final /home/linuxbrew /home/linuxbrew
 COPY --from=brew-final /.rbenv/versions /.rbenv/versions
-COPY --from=extra-bin /app/azlint /app/fmt /app/lint /usr/bin/
+COPY --from=azlint-bin /app/azlint /app/fmt /app/lint /usr/bin/
 WORKDIR /app
 COPY VERSION.txt ./
 WORKDIR /app/cli
@@ -250,9 +262,14 @@ COPY --from=node /app/node_modules ./node_modules
 COPY --from=python /app/python ./python
 COPY --from=ruby /app/bundle ./bundle
 WORKDIR /app/linters/bin
-COPY --from=composer-bin /app/composer/bin/composer ./
+COPY --from=composer-bin /usr/bin/composer ./
 COPY --from=hadolint /bin/hadolint ./
-COPY --from=upx /app ./
+COPY --from=go /app ./
+COPY --from=rust /app ./
+COPY --from=circleci /app ./
+COPY --from=loksh /app ./
+COPY --from=oksh /app ./
+COPY --from=shellcheck /app ./
 
 ### Final stage ###
 
@@ -284,6 +301,7 @@ ENV HOMEBREW_NO_AUTO_UPDATE=1 \
     HOMEBREW_NO_INSTALL_CLEANUP=1 \
     NODE_OPTIONS=--dns-result-order=ipv4first \
     PATH="$PATH:/app/bin:/home/linuxbrew/.linuxbrew/bin" \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PYTHONDONTWRITEBYTECODE=1
 USER azlint
 WORKDIR /project

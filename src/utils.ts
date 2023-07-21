@@ -277,7 +277,8 @@ function getConfigDirs(envName: string): string[] {
  * - else searches `CONFIG_DIR` for config files and returns first found
  * @returns array of arguments to use in subprocess call
  */
-export function getConfigArgs(envName: string, configArgName: string, possibleDefaultConfigFiles: string[]): string[] {
+export function getConfigArgs(envName: string, configArgName: string, possibleDefaultConfigFiles: string[], options?: { mode: 'file' | 'directory' }): string[] {
+    const mode = options?.mode ?? 'file';
     const customConfigFilePath = process.env[envName + '_CONFIG_FILE'];
 
     const configFiles = getConfigDirs(envName)
@@ -303,7 +304,10 @@ export function getConfigArgs(envName: string, configArgName: string, possibleDe
         return [];
     }
 
-    const configFile = configFiles[0];
+    let configFile = configFiles[0];
+    if (mode === 'directory') {
+        configFile = path.dirname(configFile);
+    }
     return configArgName.endsWith('=') ? [`${configArgName}${configFile}`] : [configArgName, configFile];
 }
 
@@ -345,4 +349,16 @@ export function getPythonConfigArgs(envName: string, linterName: string, configA
 
     const commonConfigFile = commonConfigFiles[0];
     return configArgName.endsWith('=') ? [`${configArgName}${commonConfigFile}`] : [configArgName, commonConfigFile];
+}
+
+export function combine(...args: (string[] | string)[]): string[] {
+    let output: string[] = [''];
+    for (const arg of args) {
+        if (typeof arg === 'string') {
+            output = output.map((el) => el + arg);
+        } else {
+            output = arg.map((variant) => output.map((el) => el + variant)).flat();
+        }
+    }
+    return output;
 }

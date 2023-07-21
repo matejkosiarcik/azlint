@@ -37,6 +37,7 @@ jobs:
           VALIDATE_TYPESCRIPT_STANDARD: false
           VALIDATE_RUST_2015: false
           VALIDATE_RUST_CLIPPY: false # somehow fails the compilation
+          VALIDATE_DOCKERFILE_HADOLINT: false # Incorrectly tries to lint .dockerfilelintrc
 
           # config files
           DOCKERFILE_HADOLINT_FILE_NAME: .hadolint.yaml
