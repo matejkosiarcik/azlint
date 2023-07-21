@@ -116,10 +116,10 @@ FROM debian:12.0-slim AS composer-bin
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl php php-cli php-common php-mbstring php-zip && \
+    rm -rf /var/lib/apt/lists/* && \
     curl -fLsS https://getcomposer.org/installer -o composer-setup.php && \
     mkdir -p /app/composer/bin && \
-    php composer-setup.php --install-dir=/app/composer/bin --filename=composer && \
-    rm -rf /var/lib/apt/lists/* composer-setup.php
+    php composer-setup.php --install-dir=/app/composer/bin --filename=composer
 
 # PHP/Composer #
 FROM debian:12.0-slim AS composer-vendor
