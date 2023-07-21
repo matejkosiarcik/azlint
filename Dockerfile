@@ -12,9 +12,7 @@ RUN apt-get update && \
 COPY requirements.txt ./
 RUN python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
 COPY linters/gitman.yml ./
-ENV PYTHONPATH=/app/python \
-    PATH="/app/python/bin:$PATH"
-RUN gitman install
+RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 
 # GoLang #
 FROM golang:1.20.6-bookworm AS go
@@ -38,9 +36,8 @@ WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs npm && \
     rm -rf /var/lib/apt/lists/*
-ENV NODE_OPTIONS=--dns-result-order=ipv4first
 COPY package.json package-lock.json ./
-RUN npm ci --unsafe-perm
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm
 COPY utils/cargo-packages.js ./utils/
 COPY linters/Cargo.toml ./linters/
 RUN node utils/cargo-packages.js | while read -r package version; do \
@@ -86,13 +83,12 @@ FROM hadolint/hadolint:v2.12.0 AS hadolint
 
 # NodeJS/NPM #
 FROM node:20.4.0-slim AS node
-ENV NODE_OPTIONS=--dns-result-order=ipv4first
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/package.json linters/package-lock.json ./
-RUN npm ci --unsafe-perm && \
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
     npm prune --production && \
     find node_modules/yargs/locales -name '*.json' -and -not -name 'en.json' -delete && \
     find node_modules -name '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
@@ -109,13 +105,11 @@ RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/
 # Python/Pip #
 FROM debian:12.0-slim AS python
 WORKDIR /app
-ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PYTHONDONTWRITEBYTECODE=1
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-pip && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/requirements.txt ./
-RUN python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
+RUN PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
 
 # Composer #
 FROM debian:12.0-slim AS composer-bin
@@ -209,13 +203,12 @@ RUN parallel upx --ultra-brute ::: /app/*
 
 # Main CLI #
 FROM node:20.4.0-slim AS cli
-ENV NODE_OPTIONS=--dns-result-order=ipv4first
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
     rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
-RUN npm ci --unsafe-perm && \
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
     npx modclean --patterns default:safe --run --error-halt && \
     npx node-prune && \
     find node_modules/yargs/locales -name '*.json' -and -not -name 'en.json' -delete && \
