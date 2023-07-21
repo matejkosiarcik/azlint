@@ -673,7 +673,7 @@ export class Linters {
 
         /* Docker */
 
-        const dockerfilelintConfigArgs = getConfigArgs('DOCKERFILELINT', '--config', ['.dockerfilelintrc']);
+        const dockerfilelintConfigArgs = getConfigArgs('DOCKERFILELINT', '--config', ['.dockerfilelintrc'], { mode: 'directory' });
         await this.runLinter({
             linterName: 'dockerfilelint',
             envName: 'DOCKERFILELINT',
