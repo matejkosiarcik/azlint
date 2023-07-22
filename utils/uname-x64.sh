@@ -1,5 +1,6 @@
 #!/bin/sh
 set -euf
+# This file is used on non-x64 systems, to make HomeBrew think it is running on x64 system
 
 if [ "$#" -gt 1 ]; then
     printf 'Too many arguments (%s): %s\n' "$#" "$@"
