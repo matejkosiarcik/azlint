@@ -12,6 +12,7 @@ find 'node_modules' -type d \( \
     -iname 'snapshots' -or \
     -iname '__snapshots__' \
     \) -prune -exec rm -rf {} \;
+
 find 'node_modules' -type d -not -path '*/markdown-table-prettify/*' \( \
     -iname 'doc' -or \
     -iname 'docs' \
@@ -28,7 +29,7 @@ find 'node_modules' -type d \( \
 ### Remove files ###
 
 # Unused yargs locales
-find 'node_modules' -ipath '*/locale*/*' -and -iname '*.json' -and -not -iname 'en*.json' -delete
+find 'node_modules' -ipath '*/locale*/*' -iname '*.json' -not -iname 'en*.json' -delete
 
 # System files
 find 'node_modules' -type f \( \
@@ -50,8 +51,15 @@ find 'node_modules' -type f \( \
 
 # Docs
 find 'node_modules' -type f \( \
+    -iname 'AUTHORS' -or \
+    -iname 'AUTHORS.*' -or \
+    -iname 'CHANGELOG' -or \
+    -iname 'CHANGELOG.*' -or \
+    -iname 'HISTORY' -or \
+    -iname 'HISTORY.*' -or \
     -iname 'LICENSE' -or \
     -iname 'LICENSE.*' -or \
+    -name 'LICENSE-*' -or \
     -iname 'README' -or \
     -iname 'README.*' -or \
     -iname '*.md' -or \
@@ -100,6 +108,9 @@ find 'node_modules' -type f \( \
 
 # Misc
 find 'node_modules' -type f \( \
+    -iname 'Jenkinsfile' -or \
+    -iname 'Makefile' -or \
+    -iname 'Dockerfile' -or \
     -iname '*.bnf' -or \
     -iname '*.conf' -or \
     -iname '*.cts' -or \
@@ -125,6 +136,12 @@ find 'node_modules' -type f \( \
     -iname '*.xml' -or \
     -iname '*.yaml' -or \
     -iname '*.yml' \
+    \) -delete
+
+# Other languages
+find 'node_modules' -type f -not -path '*/bats/*' -not -path '*/bats-core/*' \( \
+    -iname '*.sh' -or \
+    -iname '*.bash' \
     \) -delete
 
 # Remove leftover empty directories
