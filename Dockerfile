@@ -161,6 +161,8 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/composer.json linters/composer.lock ./
 RUN composer install --no-cache
+COPY utils/optimize-composer-vendor.sh ./
+RUN sh optimize-composer-vendor.sh
 
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it
