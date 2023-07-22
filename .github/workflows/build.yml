@@ -25,6 +25,6 @@ jobs:
       - name: Run
         run: |
           docker run --interactive --rm \
-            --volume "$(PROJECT_DIR):/project:ro" \
+            --volume "$PWD:/project:ro" \
             --env CONFIG_DIR=.config \
             matejkosiarcik/azlint:dev lint
