@@ -19,7 +19,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Miscellaneous
   - Optimize published docker image (~340 MB-> ___ MB)
 
-
 ## \[0.6.5\] - 2023-07-18
 
 - Added
