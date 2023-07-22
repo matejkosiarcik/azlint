@@ -24,10 +24,6 @@ jobs:
 
       - name: AZLint lint
         run: |
-          # TODO: Reenable shell linters
           docker run --interactive --rm \
             --volume "$PWD:/project:ro" \
-            --env VALIDATE_SHELLHARDEN=false \
-            --env VALIDATE_SHELLCHECK=false \
-            --env VALIDATE_SHELL_DRY_RUN=false \
             matejkosiarcik/azlint:dev lint

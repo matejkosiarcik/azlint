@@ -40,7 +40,7 @@ RUN make -C gitman/editorconfig-checker build
 # Golang -> UPX #
 FROM upx-base AS go
 COPY --from=go-base /app/gitman/checkmake/checkmake /app/gitman/editorconfig-checker/bin/ec /app/go/bin/actionlint /app/go/bin/shfmt /app/go/bin/stoml /app/go/bin/tomljson /app/
-RUN parallel upx --ultra-brute ::: /app/*
+RUN parallel upx --best ::: /app/*
 
 # Rust #
 FROM rust:1.71.0-slim-bookworm AS rust-base
@@ -59,7 +59,7 @@ RUN node utils/cargo-packages.js | while read -r package version; do \
 # Rust -> UPX #
 FROM upx-base AS rust
 COPY --from=rust-base /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden /app/
-RUN parallel upx --ultra-brute ::: /app/*
+RUN parallel upx --best ::: /app/*
 
 # CircleCI CLI #
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
@@ -74,7 +74,7 @@ RUN bash install.sh
 # CircleCI CLI -> UPX #
 FROM upx-base AS circleci
 COPY --from=circleci-base /usr/local/bin/circleci /app/
-RUN upx --ultra-brute /app/circleci
+RUN upx --best /app/circleci
 
 # Shell - loksh #
 FROM debian:12.0-slim AS loksh-base
@@ -89,7 +89,7 @@ RUN meson setup --prefix="$PWD/install" build && \
 # loksh -> UPX #
 FROM upx-base AS loksh
 COPY --from=loksh-base /app/loksh/install/bin/ksh /app/loksh
-RUN upx --ultra-brute /app/loksh
+RUN upx --best /app/loksh
 
 # Shell - oksh #
 FROM debian:12.0-slim AS oksh-base
@@ -105,7 +105,7 @@ RUN ./configure && \
 # oksh -> UPX #
 FROM upx-base AS oksh
 COPY --from=oksh-base /app/oksh/install/usr/local/bin/oksh /app/
-RUN upx --ultra-brute /app/oksh
+RUN upx --best /app/oksh
 
 # ShellCheck #
 FROM koalaman/shellcheck:v0.9.0 AS shellcheck-base
@@ -113,7 +113,7 @@ FROM koalaman/shellcheck:v0.9.0 AS shellcheck-base
 # ShellCheck -> UPX #
 FROM upx-base AS shellcheck
 COPY --from=shellcheck-base /bin/shellcheck ./
-RUN upx --ultra-brute /app/shellcheck
+RUN upx --best /app/shellcheck
 
 # Hadolint #
 FROM hadolint/hadolint:v2.12.0 AS hadolint
