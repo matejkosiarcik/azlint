@@ -14,7 +14,7 @@ find 'node_modules' -type d \( \
     \) -prune -exec rm -rf {} \;
 find 'node_modules' -type d -not -path '*/markdown-table-prettify/*' \( \
     -iname 'doc' -or \
-    -name 'docs' \
+    -iname 'docs' \
     \) -prune -exec rm -rf {} \;
 
 # OS specific directories (non-Linux)
@@ -28,7 +28,7 @@ find 'node_modules' -type d \( \
 ### Remove files ###
 
 # Unused yargs locales
-find 'node_modules' -ipath '*/locale*/*' -and -iname '*.json' -and -not -name 'en*.json' -delete
+find 'node_modules' -ipath '*/locale*/*' -and -iname '*.json' -and -not -iname 'en*.json' -delete
 
 # System files
 find 'node_modules' -type f \( \

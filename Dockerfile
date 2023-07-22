@@ -146,9 +146,9 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-pip && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/requirements.txt ./
-RUN PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 python3 -m pip install --no-cache-dir --requirement requirements.txt --target python && \
-    find python -type d -iname '__pycache__' -prune -exec rm -rf {} \; && \
-    find python -type f -iname '*.py[oc]' -delete
+RUN PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
+COPY utils/optimize-python-dist.sh ./
+RUN sh optimize-python-dist.sh
 
 # Composer #
 FROM composer:2.5.8 AS composer-bin
