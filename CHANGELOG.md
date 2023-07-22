@@ -10,7 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added
   - New linters:
     - `actionlint` for GitHub Action workflow files
+
+## \[0.6.6\] - 2023-07-22
+
+- Added
+  - New linters:
     - `npm ci --dry-run` for `package-lock.json` files
+- Miscellaneous
+  - Optimize published docker image (~340 MB-> ___ MB)
+
 
 ## \[0.6.5\] - 2023-07-18
 
