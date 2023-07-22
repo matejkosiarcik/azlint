@@ -28,6 +28,9 @@ find node_modules -type d \( \
 
 ### Remove files ###
 
+# Package-lock.json
+find node_modules -type f -iname 'package-lock.json' -delete
+
 # Unused yargs locales
 find node_modules -ipath '*/locale*/*' -iname '*.json' -not -iname 'en*.json' -delete
 
