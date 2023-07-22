@@ -27,4 +27,4 @@ jobs:
           docker run --interactive --rm \
             --volume "$PWD:/project:ro" \
             --env CONFIG_DIR=.config \
-            matejkosiarcik/azlint:dev lint -vv
+            matejkosiarcik/azlint:dev lint -vv --jobs 2
