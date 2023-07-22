@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added
   - New linters:
     - `actionlint` for GitHub Action workflow files
+
+## \[0.6.7\] - 2023-07-22
+
 - Miscellaneous
   - Optimize dependency directories (`bundle`, `node_modules`, `python` and `vendor`) in published docker image (total improvement ~310 MB-> ___ MB)
 
