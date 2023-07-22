@@ -38,11 +38,13 @@ find 'node_modules' -type f \( \
 
 # Config files:
 # - dockerignore, gitignore, npmignore, ...
-# - .prettierrc, .eslintrc
-# - .gitconfig, .gitattributes, .gitmodules, .gitkeep
+# - .prettierrc, .eslintrc, ...
+# - .prettierrc.json, .prettierrc.yml, ...
+# - .gitconfig, .gitattributes, .gitmodules, .gitkeep, ...
 find 'node_modules' -type f \( \
     -iname '*.*ignore' -or \
     -iname '*.*rc' -or \
+    -iname '*.*rc.*' -or \
     -iname '*.git*' \
     \) -delete
 
