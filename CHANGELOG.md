@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - New linters:
     - `npm ci --dry-run` for `package-lock.json` files
 - Miscellaneous
-  - Optimize `node_modules` in published docker image (total improvement ~340 MB-> ___ MB)
+  - Optimize `node_modules` in published docker image (total improvement ~340 MB-> 310 MB)
 
 ## \[0.6.5\] - 2023-07-18
 
