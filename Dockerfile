@@ -126,29 +126,9 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/package.json linters/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
-    npm prune --production && \
-    find 'node_modules' -type d \( \
-        -iname 'test' -or \
-        -iname 'tests' -or \
-        -iname '__test__' -or \
-        -iname '__tests__' -or \
-        -iname 'man' -or \
-        -iname 'snapshots' -or \
-        -iname '__snapshots__' \
-    \) -prune -exec rm -rf {} \; && \
-    find 'node_modules' -type d -not -path '*/markdown-table-prettify/*' \( -iname 'doc' -or -name 'docs' \) -prune -exec rm -rf {} \; && \
-    find 'node_modules' -type f \( \
-        -iname 'README' -or \
-        -iname 'LICENSE' -or \
-        -iname 'README.*' -or \
-        -iname 'LICENSE.*' -or \
-        -iname '*.md' -or \
-        -iname '*.txt' -or \
-        -iname '*.css' -or \
-        -iname '*.map' \
-    \) -exec rm -rf {} \; && \
-    find 'node_modules/yargs/locales' -iname '*.json' -and -not -name 'en.json' -delete && \
-    find 'node_modules' -iname '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
+    npm prune --production
+COPY utils/optimize-node-modules.sh ./
+RUN sh optimize-node-modules.sh
 
 # Ruby/Gem #
 FROM debian:12.0-slim AS ruby
