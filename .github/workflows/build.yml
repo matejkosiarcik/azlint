@@ -22,9 +22,8 @@ jobs:
       - name: Build
         run: make build
 
-      - name: Run
+      - name: AZLint lint
         run: |
           docker run --interactive --rm \
             --volume "$PWD:/project:ro" \
-            --env CONFIG_DIR=.config \
             matejkosiarcik/azlint:dev lint

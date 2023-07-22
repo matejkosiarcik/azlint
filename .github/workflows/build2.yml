@@ -28,3 +28,9 @@ jobs:
           tags: matejkosiarcik/azlint:dev
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: AZLint lint
+        run: |
+          docker run --interactive --rm \
+            --volume "$PWD:/project:ro" \
+            matejkosiarcik/azlint:dev lint
