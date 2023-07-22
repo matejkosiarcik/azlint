@@ -186,6 +186,7 @@ export async function hashFile(file: string): Promise<string> {
  */
 export function wildcard2regex(wildcard: string): RegExp {
     const regex = wildcard
+        .replace(/-/g, "\\-")
         .replace(/\./g, "\\.")
         .replace(/\?/g, ".")
         .replace(/\*{2}\//g, ".<star>/?")
