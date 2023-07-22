@@ -159,5 +159,12 @@ find node_modules -type d -empty -prune -exec rm -rf {} \;
 
 ### Minification ###
 
-# Minify JSON
-find node_modules -iname '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
+# Minify JSONs
+find node_modules -iname '*.json' -not -iname 'package.json' | while read -r file; do
+    jq -c '.' <"$file" | sponge "$file"
+done
+
+# Minify and remove extra keys from `package.json`s
+find node_modules -iname 'package.json' | while read -r file; do
+    jq -c '. | to_entries | map(select(.key | test("^(description|engine|engines|exports|imports|main|module|type|version)$"))) | from_entries' <"$file" | sponge "$file"
+done
