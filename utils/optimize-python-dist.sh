@@ -37,12 +37,14 @@ find python -type f \( \
     -iname 'LICENSE.*' -or \
     -iname 'README' -or \
     -iname 'README.*' -or \
+    -iname '*.latex' -or \
     -iname '*.markdown' -or \
     -iname '*.markdown-it' -or \
     -iname '*.md' -or \
     -iname '*.mdown' -or \
     -iname '*.rst' -or \
     -iname '*.tex' -or \
+    -iname '*.text' -or \
     -iname '*.txt' \
     \) -delete
 
@@ -51,6 +53,9 @@ find python -type f \( \
     -iname '*.css' -or \
     -iname '*.htm' -or \
     -iname '*.html' -or \
+    -iname '*.less' -or \
+    -iname '*.sass' -or \
+    -iname '*.scss' -or \
     -iname '*.xhtml' \
     \) -delete
 
@@ -98,3 +103,6 @@ find python -type f \( \
     -iname '*.test' -and \
     -not -iname 'py.test' \
     \) -delete
+
+# Remove leftover empty directories
+find python -type d -empty -prune -exec rm -rf {} \;

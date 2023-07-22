@@ -62,9 +62,13 @@ find node_modules -type f \( \
     -name 'LICENSE-*' -or \
     -iname 'README' -or \
     -iname 'README.*' -or \
+    -iname '*.latex' -or \
+    -iname '*.markdown' -or \
     -iname '*.md' -or \
+    -iname '*.mdown' -or \
     -iname '*.rst' -or \
     -iname '*.tex' -or \
+    -iname '*.text' -or \
     -iname '*.txt' \
     \) -delete
 
@@ -79,10 +83,13 @@ find node_modules -type f \( \
 
 # HTML
 find node_modules -type f \( \
+    -iname '*.css' -or \
     -iname '*.htm' -or \
     -iname '*.html' -or \
-    -iname '*.xhtml' -or \
-    -iname '*.pug' \
+    -iname '*.less' -or \
+    -iname '*.sass' -or \
+    -iname '*.scss' -or \
+    -iname '*.xhtml' \
     \) -delete
 
 # JS preprocessors left unprocessed
