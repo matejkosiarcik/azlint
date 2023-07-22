@@ -98,6 +98,7 @@ export function logLintFail(toolName: string, file: string, command?: ExecaRetur
     if (command) {
         const cmdOutput = command.all ? `:\n${command.all}` : '';
         logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
+        logExtraVerbose(`Failed: ${command.failed}, Killed: ${command.killed}, Signal: ${command.signal}, Full command: ${command}`);
     }
 }
 
