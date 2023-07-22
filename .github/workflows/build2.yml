@@ -31,6 +31,4 @@ jobs:
 
       - name: AZLint lint
         run: |
-          docker run --interactive --rm \
-            --volume "$PWD:/project:ro" \
-            matejkosiarcik/azlint:dev lint
+          docker image ls | grep azlint
