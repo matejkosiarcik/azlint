@@ -31,6 +31,8 @@ find python -type f -iname '*.py[cio]' -delete
 
 find 'python' -type f \( \
     -iname 'APACHE' -or \
+    -iname 'CHANGELOG' -or \
+    -iname 'CHANGELOG.*' -or \
     -iname 'BSD' -or \
     -iname 'LICENSE' -or \
     -iname 'LICENSE.*' -or \
