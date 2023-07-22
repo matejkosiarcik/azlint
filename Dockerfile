@@ -228,13 +228,13 @@ RUN apt-get update && \
 COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
     npx modclean --patterns default:safe --run --error-halt && \
-    npx node-prune && \
-    find 'node_modules/yargs/locales' -iname '*.json' -and -not -iname 'en.json' -delete && \
-    find 'node_modules' -iname '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
+    npx node-prune
 COPY tsconfig.json ./
 COPY src/ ./src/
 RUN npm run build && \
     npm prune --production
+COPY utils/optimize-node-modules.sh ./
+RUN sh optimize-node-modules.sh
 
 # Azlint binaries #
 FROM debian:12.0-slim AS azlint-bin
