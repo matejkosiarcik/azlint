@@ -298,14 +298,8 @@ COPY --from=pre-final /usr/bin/azlint /usr/bin/fmt /usr/bin/lint /usr/bin/
 COPY --from=pre-final /home/linuxbrew /home/linuxbrew
 COPY --from=pre-final /.rbenv/versions /.rbenv/versions
 COPY --from=pre-final /app/ ./
-ENV HOMEBREW_NO_AUTO_UPDATE=1 \
-    HOMEBREW_NO_ANALYTICS=1 \
-    HOMEBREW_NO_ENV_HINTS=1 \
-    HOMEBREW_NO_INSTALL_CLEANUP=1 \
-    NODE_OPTIONS=--dns-result-order=ipv4first \
-    PATH="$PATH:/app/bin:/home/linuxbrew/.linuxbrew/bin" \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PYTHONDONTWRITEBYTECODE=1
+ENV NODE_OPTIONS=--dns-result-order=ipv4first \
+    PATH="$PATH:/app/bin:/home/linuxbrew/.linuxbrew/bin"
 USER azlint
 WORKDIR /project
 ENTRYPOINT ["azlint"]
