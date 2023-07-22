@@ -28,7 +28,7 @@ find 'node_modules' -type d \( \
 ### Remove files ###
 
 # Unused yargs locales
-find 'node_modules/yargs/locales' -iname '*.json' -and -not -name 'en.json' -delete
+find 'node_modules' -ipath '*/locale*/*' -and -iname '*.json' -and -not -name 'en*.json' -delete
 
 # System files
 find 'node_modules' -type f \( \
