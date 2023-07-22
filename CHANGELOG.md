@@ -14,7 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## \[0.6.7\] - 2023-07-23
 
 - Miscellaneous
-  - Optimize dependency directories (`bundle`, `node_modules`, `python` and `vendor`) in published docker image (total improvement ~310 MB-> ___ MB)
+  - Optimize dependencies in published docker image (total improvement ~310 MB-> ___ MB)
+    - Remove unecessary files from directories (`bundle`, `node_modules`, `python` and `vendor`)
+    - Remove unecessary properties from `package.json`s
 
 ## \[0.6.6\] - 2023-07-22
 
