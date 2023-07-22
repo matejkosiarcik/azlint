@@ -12,6 +12,7 @@
     - Enable hadolint in CI pipelines
   - Research how to put .shellcheckrc into subdirectory
   - Test azlint in GitHub Actions with azlint user
+  - Publish container to ghcr
 
 - Add config option to add additional CLI variable for individual linters
 - Add config option to add files for individual linters
