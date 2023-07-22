@@ -138,6 +138,8 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/Gemfile linters/Gemfile.lock ./
 RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install
+COPY utils/optimize-ruby-bundle.sh ./
+RUN sh optimize-ruby-bundle.sh
 
 # Python/Pip #
 FROM debian:12.0-slim AS python
