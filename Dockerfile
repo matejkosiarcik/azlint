@@ -127,9 +127,26 @@ RUN apt-get update && \
 COPY linters/package.json linters/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
     npm prune --production && \
-    find 'node_modules' -type d \( -iname 'test' -or -iname 'tests' -or -iname 'man' \) -prune -exec rm -rf {} \; && \
+    find 'node_modules' -type d \( \
+        -iname 'test' -or \
+        -iname 'tests' -or \
+        -iname '__test__' -or \
+        -iname '__tests__' -or \
+        -iname 'man' -or \
+        -iname 'snapshots' -or \
+        -iname '__snapshots__' \
+    \) -prune -exec rm -rf {} \; && \
     find 'node_modules' -type d -not -path '*/markdown-table-prettify/*' \( -iname 'doc' -or -name 'docs' \) -prune -exec rm -rf {} \; && \
-    find 'node_modules' -type f \( -name 'README' -or -name 'LICENSE' -or -name 'README.*' -or -name 'LICENSE.*' -or -name '*.md' -or -name '*.txt' \) -exec rm -rf {} \; && \
+    find 'node_modules' -type f \( \
+        -iname 'README' -or \
+        -iname 'LICENSE' -or \
+        -iname 'README.*' -or \
+        -iname 'LICENSE.*' -or \
+        -iname '*.md' -or \
+        -iname '*.txt' -or \
+        -iname '*.css' -or \
+        -iname '*.map' \
+    \) -exec rm -rf {} \; && \
     find 'node_modules/yargs/locales' -iname '*.json' -and -not -name 'en.json' -delete && \
     find 'node_modules' -iname '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
 
@@ -150,8 +167,8 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/requirements.txt ./
 RUN PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 python3 -m pip install --no-cache-dir --requirement requirements.txt --target python && \
-    find python -type d -name '__pycache__' -prune -exec rm -rf {} \; && \
-    find python -type f -name '*.py[oc]' -delete
+    find python -type d -iname '__pycache__' -prune -exec rm -rf {} \; && \
+    find python -type f -iname '*.py[oc]' -delete
 
 # Composer #
 FROM composer:2.5.8 AS composer-bin
@@ -232,8 +249,8 @@ COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
     npx modclean --patterns default:safe --run --error-halt && \
     npx node-prune && \
-    find 'node_modules/yargs/locales' -name '*.json' -and -not -name 'en.json' -delete && \
-    find 'node_modules' -name '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
+    find 'node_modules/yargs/locales' -iname '*.json' -and -not -iname 'en.json' -delete && \
+    find 'node_modules' -iname '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
 COPY tsconfig.json ./
 COPY src/ ./src/
 RUN npm run build && \
