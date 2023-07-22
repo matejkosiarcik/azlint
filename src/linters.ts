@@ -321,7 +321,7 @@ export class Linters {
         await this.runLinter({
             linterName: 'pip-install',
             envName: 'PIP_INSTALL',
-            fileMatch: ['requirements.txt', 'requirements-*.txt', 'requirements_*.txt', '*-requirements.txt', '*_requirements.txt'],
+            fileMatch: ['requirements.txt', 'requirements{-,_}*.txt', '*{-,_}requirements.txt'],
             lintFile: { args: ['python3', '-m', 'pip', 'install', '--dry-run', '--ignore-installed', '--break-system-packages', '--requirement', '#file#'] },
         });
 

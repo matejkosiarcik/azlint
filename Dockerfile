@@ -138,6 +138,8 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/Gemfile linters/Gemfile.lock ./
 RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install
+COPY utils/optimize-ruby-bundle.sh ./
+RUN sh optimize-ruby-bundle.sh
 
 # Python/Pip #
 FROM debian:12.0-slim AS python
@@ -146,9 +148,9 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-pip && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/requirements.txt ./
-RUN PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 python3 -m pip install --no-cache-dir --requirement requirements.txt --target python && \
-    find python -type d -iname '__pycache__' -prune -exec rm -rf {} \; && \
-    find python -type f -iname '*.py[oc]' -delete
+RUN PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
+COPY utils/optimize-python-dist.sh ./
+RUN sh optimize-python-dist.sh
 
 # Composer #
 FROM composer:2.5.8 AS composer-bin
@@ -157,10 +159,12 @@ FROM composer:2.5.8 AS composer-bin
 FROM debian:12.0-slim AS composer-vendor
 WORKDIR /app
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates composer php php-cli php-common php-mbstring php-zip && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates composer php php-cli php-mbstring php-zip && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/composer.json linters/composer.lock ./
 RUN composer install --no-cache
+COPY utils/optimize-composer-vendor.sh ./
+RUN sh optimize-composer-vendor.sh
 
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it

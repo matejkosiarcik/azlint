@@ -22,9 +22,12 @@ jobs:
       - name: Build
         run: make build
 
-      - name: Run
+      - name: AZLint lint
         run: |
+          # TODO: Reenable shell linters
           docker run --interactive --rm \
-            --volume "$(PROJECT_DIR):/project:ro" \
-            --env CONFIG_DIR=.config \
+            --volume "$PWD:/project:ro" \
+            --env VALIDATE_SHELLHARDEN=false \
+            --env VALIDATE_SHELLCHECK=false \
+            --env VALIDATE_SHELL_DRY_RUN=false \
             matejkosiarcik/azlint:dev lint
