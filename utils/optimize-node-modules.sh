@@ -3,7 +3,7 @@ set -euf
 
 ### Remove directories ###
 
-find 'node_modules' -type d \( \
+find node_modules -type d \( \
     -iname 'test' -or \
     -iname 'tests' -or \
     -iname '__test__' -or \
@@ -13,13 +13,13 @@ find 'node_modules' -type d \( \
     -iname '__snapshots__' \
     \) -prune -exec rm -rf {} \;
 
-find 'node_modules' -type d -not -path '*/markdown-table-prettify/*' \( \
+find node_modules -type d -not -path '*/markdown-table-prettify/*' \( \
     -iname 'doc' -or \
     -iname 'docs' \
     \) -prune -exec rm -rf {} \;
 
 # OS specific directories (non-Linux)
-find 'node_modules' -type d \( \
+find node_modules -type d \( \
     -iname 'mac' -or \
     -iname 'macos' -or \
     -iname 'win' -or \
@@ -29,10 +29,10 @@ find 'node_modules' -type d \( \
 ### Remove files ###
 
 # Unused yargs locales
-find 'node_modules' -ipath '*/locale*/*' -iname '*.json' -not -iname 'en*.json' -delete
+find node_modules -ipath '*/locale*/*' -iname '*.json' -not -iname 'en*.json' -delete
 
 # System files
-find 'node_modules' -type f \( \
+find node_modules -type f \( \
     -iname '*~' -or \
     -iname '.DS_Store' \
     \) -delete
@@ -42,7 +42,7 @@ find 'node_modules' -type f \( \
 # - .prettierrc, .eslintrc, ...
 # - .prettierrc.json, .prettierrc.yml, ...
 # - .gitconfig, .gitattributes, .gitmodules, .gitkeep, ...
-find 'node_modules' -type f \( \
+find node_modules -type f \( \
     -iname '*.*ignore' -or \
     -iname '*.*rc' -or \
     -iname '*.*rc.*' -or \
@@ -50,7 +50,7 @@ find 'node_modules' -type f \( \
     \) -delete
 
 # Docs
-find 'node_modules' -type f \( \
+find node_modules -type f \( \
     -iname 'AUTHORS' -or \
     -iname 'AUTHORS.*' -or \
     -iname 'CHANGELOG' -or \
@@ -69,7 +69,7 @@ find 'node_modules' -type f \( \
     \) -delete
 
 # Images
-find 'node_modules' -type f \( \
+find node_modules -type f \( \
     -iname '*.jpeg' -or \
     -iname '*.jpg' -or \
     -iname '*.apng' -or \
@@ -78,7 +78,7 @@ find 'node_modules' -type f \( \
     \) -delete
 
 # HTML
-find 'node_modules' -type f \( \
+find node_modules -type f \( \
     -iname '*.htm' -or \
     -iname '*.html' -or \
     -iname '*.xhtml' -or \
@@ -86,7 +86,7 @@ find 'node_modules' -type f \( \
     \) -delete
 
 # JS preprocessors left unprocessed
-find 'node_modules' -type f \( \
+find node_modules -type f \( \
     -iname '*.coffee' -or \
     -iname '*.ts' -or \
     -iname '*.flow' -or \
@@ -94,20 +94,20 @@ find 'node_modules' -type f \( \
     \) -delete
 
 # CSS
-find 'node_modules' -type f \( \
+find node_modules -type f \( \
     -iname '*.css' -or \
     -iname '*.less' -or \
     -iname '*.sass' \
     \) -delete
 
 # Other languages
-find 'node_modules' -type f \( \
+find node_modules -type f \( \
     -iname '*.py' -or \
     -iname '*.py-js' \
     \) -delete
 
 # Misc
-find 'node_modules' -type f \( \
+find node_modules -type f \( \
     -iname 'Jenkinsfile' -or \
     -iname 'Makefile' -or \
     -iname 'Dockerfile' -or \
@@ -139,15 +139,15 @@ find 'node_modules' -type f \( \
     \) -delete
 
 # Other languages
-find 'node_modules' -type f -not -path '*/bats/*' -not -path '*/bats-core/*' \( \
+find node_modules -type f -not -path '*/bats/*' -not -path '*/bats-core/*' \( \
     -iname '*.sh' -or \
     -iname '*.bash' \
     \) -delete
 
 # Remove leftover empty directories
-find 'node_modules' -type d -empty -prune -exec rm -rf {} \;
+find node_modules -type d -empty -prune -exec rm -rf {} \;
 
 ### Minification ###
 
 # Minify JSON
-find 'node_modules' -iname '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
+find node_modules -iname '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done

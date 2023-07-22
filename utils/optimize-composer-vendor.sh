@@ -4,7 +4,7 @@ set -euf
 ### Remove files ###
 
 # Documentation
-find 'vendor' -type f \( \
+find vendor -type f \( \
     -iname 'CHANGELOG' -or \
     -iname 'CHANGELOG.*' -or \
     -iname 'LICENSE' -or \
@@ -20,7 +20,7 @@ find 'vendor' -type f \( \
     \) -delete
 
 # Misc
-find 'vendor' -type f \( \
+find vendor -type f \( \
     -iname '*.lock' -or \
     -iname '*.xml' -or \
     -iname '*.yaml' -or \

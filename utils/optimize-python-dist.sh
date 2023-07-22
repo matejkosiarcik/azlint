@@ -3,7 +3,7 @@ set -euf
 
 ### Remove directories ###
 
-find 'python' -type d \( \
+find python -type d \( \
     -iname 'doc' -or \
     -iname 'docs' -or \
     -iname 'man' -or \
@@ -14,12 +14,12 @@ find 'python' -type d \( \
     -iname '__pycache__' \
     \) -prune -exec rm -rf {} \;
 
-find 'python' -type d -iname '*.dist-info' -prune -exec rm -rf {} \;
+find python -type d -iname '*.dist-info' -prune -exec rm -rf {} \;
 
 ### Remove files ###
 
 # System files
-find 'python' -type f \( \
+find python -type f \( \
     -iname '*~' -or \
     -iname '.DS_Store' \
     \) -delete
@@ -28,8 +28,7 @@ find 'python' -type f \( \
 find python -type f -iname '*.py[cio]' -delete
 
 # Documentation
-
-find 'python' -type f \( \
+find python -type f \( \
     -iname 'APACHE' -or \
     -iname 'CHANGELOG' -or \
     -iname 'CHANGELOG.*' -or \
@@ -48,7 +47,7 @@ find 'python' -type f \( \
     \) -delete
 
 # HTML
-find 'python' -type f \( \
+find python -type f \( \
     -iname '*.css' -or \
     -iname '*.htm' -or \
     -iname '*.html' -or \
@@ -56,7 +55,7 @@ find 'python' -type f \( \
     \) -delete
 
 # Compiled resources
-find 'python' -type f \( \
+find python -type f \( \
     -iname '*.c' -or \
     -iname '*.cc' -or \
     -iname '*.cpp' -or \
@@ -70,7 +69,7 @@ find 'python' -type f \( \
     \) -delete
 
 # Misc
-find 'python' -type f \( \
+find python -type f \( \
     -iname 'Makefile' -or \
     -iname 'VERSIONS' -or \
     -iname '*.1' -or \
@@ -89,13 +88,13 @@ find 'python' -type f \( \
     \) -delete
 
 # YAML (except in yamllint)
-find 'python' -type f -not -ipath '*/yamllint/*' \( \
+find python -type f -not -ipath '*/yamllint/*' \( \
     -iname '*.yaml' -or \
     -iname '*.yml' \
     \) -delete
 
 # Test files (except pytest)
-find 'python' -type f \( \
+find python -type f \( \
     -iname '*.test' -and \
     -not -iname 'py.test' \
     \) -delete
