@@ -119,7 +119,7 @@ RUN upx --ultra-brute /app/shellcheck
 FROM hadolint/hadolint:v2.12.0 AS hadolint
 
 # NodeJS/NPM #
-FROM node:20.4.0-slim AS node
+FROM node:20.5.0-slim AS node
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
@@ -224,7 +224,7 @@ RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebre
 ### Helpers ###
 
 # Main CLI #
-FROM node:20.4.0-slim AS cli
+FROM node:20.5.0-slim AS cli
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
