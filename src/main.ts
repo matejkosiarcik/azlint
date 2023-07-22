@@ -127,11 +127,20 @@ import { Linters } from './linters';
         bin: path.join(lintersDir, 'bin'),
     };
     process.env['PATH'] = `${Object.values(binPaths).join(':')}:${process.env['PATH']}`;
+
     process.env['PYTHONPATH'] = `${path.join(lintersDir, 'python')}`;
+    process.env['PIP_DISABLE_PIP_VERSION_CHECK'] = '1';
+    process.env['PYTHONDONTWRITEBYTECODE'] = '1';
+
     process.env['BUNDLE_DISABLE_SHARED_GEMS'] = 'true';
     process.env['BUNDLE_PATH__SYSTEM'] = 'false';
     process.env['BUNDLE_PATH'] = path.join(lintersDir, 'bundle');
     process.env['BUNDLE_GEMFILE'] = path.join(lintersDir, 'Gemfile');
+
+    process.env['HOMEBREW_NO_AUTO_UPDATE'] = '1';
+    process.env['HOMEBREW_NO_ANALYTICS'] = '1';
+    process.env['HOMEBREW_NO_ENV_HINTS'] = '1';
+    process.env['HOMEBREW_NO_INSTALL_CLEANUP'] = '1';
 
     logVerbose(`Performing: ${command}`);
     logVerbose(`Project path: ${path.resolve(process.cwd())}`);

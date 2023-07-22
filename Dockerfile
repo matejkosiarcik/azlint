@@ -127,8 +127,11 @@ RUN apt-get update && \
 COPY linters/package.json linters/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
     npm prune --production && \
-    find node_modules/yargs/locales -name '*.json' -and -not -name 'en.json' -delete && \
-    find node_modules -name '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
+    find 'node_modules' -type d \( -iname 'test' -or -iname 'tests' -or -iname 'man' \) -prune -exec rm -rf {} \; && \
+    find 'node_modules' -type d -not -path '*/markdown-table-prettify/*' \( -iname 'doc' -or -name 'docs' \) -prune -exec rm -rf {} \; && \
+    find 'node_modules' -type f \( -name 'README' -or -name 'LICENSE' -or -name 'README.*' -or -name 'LICENSE.*' -or -name '*.md' -or -name '*.txt' \) -exec rm -rf {} \; && \
+    find 'node_modules/yargs/locales' -iname '*.json' -and -not -name 'en.json' -delete && \
+    find 'node_modules' -iname '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
 
 # Ruby/Gem #
 FROM debian:12.0-slim AS ruby
@@ -229,8 +232,8 @@ COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
     npx modclean --patterns default:safe --run --error-halt && \
     npx node-prune && \
-    find node_modules/yargs/locales -name '*.json' -and -not -name 'en.json' -delete && \
-    find node_modules -name '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
+    find 'node_modules/yargs/locales' -name '*.json' -and -not -name 'en.json' -delete && \
+    find 'node_modules' -name '*.json' | while read -r file; do jq -r tostring <"$file" | sponge "$file"; done
 COPY tsconfig.json ./
 COPY src/ ./src/
 RUN npm run build && \
@@ -295,14 +298,8 @@ COPY --from=pre-final /usr/bin/azlint /usr/bin/fmt /usr/bin/lint /usr/bin/
 COPY --from=pre-final /home/linuxbrew /home/linuxbrew
 COPY --from=pre-final /.rbenv/versions /.rbenv/versions
 COPY --from=pre-final /app/ ./
-ENV HOMEBREW_NO_AUTO_UPDATE=1 \
-    HOMEBREW_NO_ANALYTICS=1 \
-    HOMEBREW_NO_ENV_HINTS=1 \
-    HOMEBREW_NO_INSTALL_CLEANUP=1 \
-    NODE_OPTIONS=--dns-result-order=ipv4first \
-    PATH="$PATH:/app/bin:/home/linuxbrew/.linuxbrew/bin" \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PYTHONDONTWRITEBYTECODE=1
+ENV NODE_OPTIONS=--dns-result-order=ipv4first \
+    PATH="$PATH:/app/bin:/home/linuxbrew/.linuxbrew/bin"
 USER azlint
 WORKDIR /project
 ENTRYPOINT ["azlint"]
