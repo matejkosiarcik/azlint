@@ -29,7 +29,7 @@
   - minify `*.php` files in `/app/linters/vendor`
   - minify `composer` executable
   - minify `*.{js,mjc,cjs}` files in `/app/cli/node_modules`
-  - minify any other files (`*.{json,yml,...}`) in all dependencies `/app/**/*`
+  - minify any other files (eg. `*.{json,yml}`) in all dependencies `/app/**/*`
   - minify main-CLI files at `/app/cli/*.js`
   - Enable LTO for _rust_ executables
   - Optimize _go_ executables (`ldflags`) for checkmake and editorconfig-checker
