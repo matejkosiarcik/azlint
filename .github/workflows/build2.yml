@@ -28,7 +28,3 @@ jobs:
           tags: matejkosiarcik/azlint:dev
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: AZLint lint
-        run: |
-          docker image ls | grep azlint
