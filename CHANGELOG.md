@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[0.6.7\] - 2023-07-23
 
+- Fixed
+  - Problem with `shellcheck`, `shellharden`, `oksh`, `loksh` on x64 caused by `upx --ultra-brute`
 - Miscellaneous
   - Optimize dependencies in published docker image (total improvement ~310 MB-> ___ MB)
     - Remove unecessary files from directories (`bundle`, `node_modules`, `python` and `vendor`)

@@ -113,7 +113,8 @@ FROM koalaman/shellcheck:v0.9.0 AS shellcheck-base
 # ShellCheck -> UPX #
 FROM upx-base AS shellcheck
 COPY --from=shellcheck-base /bin/shellcheck ./
-RUN upx --best /app/shellcheck
+RUN upx --best /app/shellcheck && \
+    /app/shellcheck --help
 
 # Hadolint #
 FROM hadolint/hadolint:v2.12.0 AS hadolint
