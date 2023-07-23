@@ -33,5 +33,5 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: AZLint debug
-        run:
+        run: |
           docker image ls
