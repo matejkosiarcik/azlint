@@ -38,3 +38,5 @@
     - Too big `/usr/share/`
     - <https://askubuntu.com/a/541061>
     - Maybe try installing aptitude packages in previous stage and copy only binaries to final stage?
+
+- Apply upx after problems with qemu are resolved <https://github.com/upx/upx/issues/683>
