@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy to DockerHub
 
 permissions: read-all
 
@@ -10,8 +10,8 @@ on:
       - "v*.*.*"
 
 jobs:
-  deploy:
-    name: Deploy
+  deploy-container:
+    name: Build and Push images
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -21,14 +21,13 @@ jobs:
         uses: docker/metadata-action@v4.6.0
         id: tags
         with:
-          images: |
-            matejkosiarcik/azlint
+          images: matejkosiarcik/azlint
+          # NOTE: `:latest` tag is added automatically on `type=semver`
           tags: |
             type=edge,branch=main
             type=semver,pattern={{major}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}.{{minor}}.{{patch}}
-          # :latest tag is added automatically on type=semver
 
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v2.2.0
@@ -39,8 +38,8 @@ jobs:
 
       - name: Debug logs
         run: |
-          printf "Platforms:\n%s\n" "${{ steps.buildx.outputs.platforms }}"
-          printf "Tags:\n%s\n" "${{ steps.tags.outputs.tags }}"
+          printf "Available platforms:\n%s\n" "${{ steps.buildx.outputs.platforms }}"
+          printf "Building tags:\n%s\n" "${{ steps.tags.outputs.tags }}"
 
       - name: Login to DockerHub
         uses: docker/login-action@v2.2.0
@@ -56,3 +55,19 @@ jobs:
           tags: ${{ steps.tags.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy-description:
+    name: Update description
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.3
+
+      - name: Update DockerHub description
+        uses: peter-evans/dockerhub-description@v3.4.2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: matejkosiarcik/azlint
+          short-description: ${{ github.event.repository.description }}
