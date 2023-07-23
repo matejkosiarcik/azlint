@@ -1,6 +1,8 @@
 #!/bin/sh
 set -euf
 
+exit 0
+
 ### Remove files ###
 
 # Documentation
