@@ -35,7 +35,7 @@ stoml --version
 tomljson /dev/null
 
 # Haskell
-# TODO: Reenable check for hadolint
+# TODO: Reenable check for hadolint (without upx)
 # hadolint --help
 # hadolint --version
 shellcheck --help
