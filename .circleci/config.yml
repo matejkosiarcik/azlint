@@ -87,5 +87,5 @@ jobs:
           docker_layer_caching: true
       - run: apk update --no-cache
       - run: apk add --no-cache make
-      - run: make build
+      - run: docker build . --tag matejkosiarcik/azlint:dev --progress plain
       - run: make run
