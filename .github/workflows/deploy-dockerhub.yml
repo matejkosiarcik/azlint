@@ -21,8 +21,7 @@ jobs:
         uses: docker/metadata-action@v4.6.0
         id: tags
         with:
-          images: |
-            matejkosiarcik/azlint
+          images: matejkosiarcik/azlint
           # NOTE: `:latest` tag is added automatically on `type=semver`
           tags: |
             type=edge,branch=main
