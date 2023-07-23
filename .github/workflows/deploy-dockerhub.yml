@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy dockerhub
 
 permissions: read-all
 
@@ -10,8 +10,8 @@ on:
       - "v*.*.*"
 
 jobs:
-  deploy:
-    name: Deploy
+  deploy-container:
+    name: Build and Push images
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -23,12 +23,12 @@ jobs:
         with:
           images: |
             matejkosiarcik/azlint
+          # NOTE: `:latest` tag is added automatically on `type=semver`
           tags: |
             type=edge,branch=main
             type=semver,pattern={{major}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}.{{minor}}.{{patch}}
-          # :latest tag is added automatically on type=semver
 
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v2.2.0
@@ -39,8 +39,8 @@ jobs:
 
       - name: Debug logs
         run: |
-          printf "Platforms:\n%s\n" "${{ steps.buildx.outputs.platforms }}"
-          printf "Tags:\n%s\n" "${{ steps.tags.outputs.tags }}"
+          printf "Available platforms:\n%s\n" "${{ steps.buildx.outputs.platforms }}"
+          printf "Building tags:\n%s\n" "${{ steps.tags.outputs.tags }}"
 
       - name: Login to DockerHub
         uses: docker/login-action@v2.2.0
