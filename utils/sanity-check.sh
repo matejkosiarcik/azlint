@@ -32,7 +32,7 @@ shfmt --help
 shfmt --version
 stoml --help
 stoml --version
-tomljson --help
+tomljson /dev/null
 
 # Haskell
 hadolint --help
