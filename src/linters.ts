@@ -755,7 +755,7 @@ export class Linters {
 
         // GitLabCI Validate
         await this.runLinter({
-            linterName: 'gitlab-ci-lint',
+            linterName: 'gitlab-ci-validate',
             envName: 'GITLABCI_VALIDATE',
             fileMatch: '.gitlab-ci.yml',
             lintFile: { args: ['gitlab-ci-validate', 'validate', '#file#'] },
