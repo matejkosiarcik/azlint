@@ -102,6 +102,11 @@ bootstrap:
 build:
 	docker build . --tag matejkosiarcik/azlint:dev
 
+.PHONY: multibuild
+multibuild:
+	docker build . --tag matejkosiarcik/azlint:dev-amd64 --platform linux/amd64
+	docker build . --tag matejkosiarcik/azlint:dev-arm64 --platform linux/arm64
+
 .PHONY: run
 run:
 	docker run --interactive --tty --rm \
