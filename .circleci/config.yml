@@ -3,7 +3,6 @@ version: 2.1
 commands:
   azlint-lint:
     description: AZLint lint
-    name: AZLint lint
     parameters:
       command-base:
         type: string
@@ -12,7 +11,6 @@ commands:
 
   azlint-fmt:
     description: AZLint fmt
-    name: AZLint fmt
     parameters:
       command-base:
         type: string
