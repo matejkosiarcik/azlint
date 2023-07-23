@@ -141,7 +141,7 @@ COPY linters/package.json linters/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
     npm prune --production
 COPY utils/optimize-node-modules.sh ./
-RUN sh optimize-node-modules.sh
+# RUN sh optimize-node-modules.sh
 
 # Ruby/Gem #
 FROM debian:12.0-slim AS ruby
@@ -152,7 +152,7 @@ RUN apt-get update && \
 COPY linters/Gemfile linters/Gemfile.lock ./
 RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install
 COPY utils/optimize-ruby-bundle.sh ./
-RUN sh optimize-ruby-bundle.sh
+# RUN sh optimize-ruby-bundle.sh
 
 # Python/Pip #
 FROM debian:12.0-slim AS python
@@ -163,7 +163,7 @@ RUN apt-get update && \
 COPY linters/requirements.txt ./
 RUN PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
 COPY utils/optimize-python-dist.sh ./
-RUN sh optimize-python-dist.sh
+# RUN sh optimize-python-dist.sh
 
 # Composer #
 FROM composer:2.5.8 AS composer-bin
@@ -177,7 +177,7 @@ RUN apt-get update && \
 COPY linters/composer.json linters/composer.lock ./
 RUN composer install --no-cache
 COPY utils/optimize-composer-vendor.sh ./
-RUN sh optimize-composer-vendor.sh
+# RUN sh optimize-composer-vendor.sh
 
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it
@@ -251,7 +251,7 @@ COPY src/ ./src/
 RUN npm run build && \
     npm prune --production
 COPY utils/optimize-node-modules.sh ./
-RUN sh optimize-node-modules.sh
+# RUN sh optimize-node-modules.sh
 
 # Azlint binaries #
 FROM debian:12.0-slim AS azlint-bin
@@ -263,6 +263,16 @@ RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azl
 
 # Pre-Final #
 FROM debian:12.0-slim AS pre-final
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
+        curl git libxml2-utils \
+        bmake make \
+        nodejs npm \
+        php php-mbstring \
+        python-is-python3 python3 python3-pip \
+        bundler ruby \
+        ash bash dash ksh ksh93u+m mksh posh yash zsh && \
+    rm -rf /var/lib/apt/lists/*
 COPY --from=brew-final /home/linuxbrew /home/linuxbrew
 COPY --from=brew-final /.rbenv/versions /.rbenv/versions
 COPY --from=azlint-bin /app/azlint /app/fmt /app/lint /usr/bin/
@@ -287,6 +297,17 @@ COPY --from=circleci /app ./
 COPY --from=loksh /app ./
 COPY --from=oksh /app ./
 COPY --from=shellcheck /app ./
+WORKDIR /app-tmp
+COPY utils/sanity-check.sh ./
+ENV PATH="$PATH:/app/linters/bin:/app/linters/python/bin:/app/linters/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin" \
+    PYTHONPATH=/app/linters/python \
+    COMPOSER_ALLOW_SUPERUSER=1 \
+    BUNDLE_DISABLE_SHARED_GEMS=true \
+    BUNDLE_PATH__SYSTEM=false \
+    BUNDLE_PATH=/app/linters/bundle \
+    BUNDLE_GEMFILE=/app/linters/Gemfile
+RUN touch /.dockerenv && \
+    sh sanity-check.sh
 
 ### Final stage ###
 
@@ -298,7 +319,7 @@ RUN apt-get update && \
         bmake make \
         nodejs npm \
         php php-mbstring \
-        python3 python3-pip \
+        python-is-python3 python3 python3-pip \
         bundler ruby \
         ash bash dash ksh ksh93u+m mksh posh yash zsh && \
     rm -rf /var/lib/apt/lists/* && \

@@ -142,6 +142,8 @@ import { Linters } from './linters';
     process.env['HOMEBREW_NO_ENV_HINTS'] = '1';
     process.env['HOMEBREW_NO_INSTALL_CLEANUP'] = '1';
 
+    process.env['COMPOSER_ALLOW_SUPERUSER'] = '1';
+
     logVerbose(`Performing: ${command}`);
     logVerbose(`Project path: ${path.resolve(process.cwd())}`);
 
