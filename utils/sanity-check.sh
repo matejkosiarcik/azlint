@@ -17,6 +17,8 @@ composer --version
 composer install --help
 (cd /app/linters && composer normalize --help)
 (cd /app/linters && composer validate --help)
+php --help
+php --version
 
 # Go
 actionlint --help
@@ -49,6 +51,8 @@ gmake --version
 gmake -n -f /dev/null /dev/null
 
 # NodeJS - NPM
+node --help
+node --version
 npm help
 npm version
 npm --version
@@ -88,6 +92,8 @@ svglint --help
 svglint --version
 
 # Python - main
+python --help
+python --version
 pip --help
 pip --version
 pip install --help
@@ -124,7 +130,9 @@ yamllint --help
 yamllint --version
 
 # Ruby
-bundle --help >/dev/null
+ruby --help | cat
+ruby --version
+bundle --help | cat
 bundle --version
 bundle exec mdl --help
 bundle exec mdl --version
@@ -139,9 +147,21 @@ hush --version
 shellharden --help
 shellharden --version
 
-# Shells
+# Shells - custom
 loksh -c 'true'
 oksh -c 'true'
+
+# Shells - system
+ash -c 'true'
+bash -c 'true'
+dash -c 'true'
+ksh -c 'true'
+ksh93 -c 'true'
+mksh -c 'true'
+posh -c 'true'
+sh -c 'true'
+yash -c 'true'
+zsh -c 'true'
 
 # System/Other
 circleci --help

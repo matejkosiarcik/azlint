@@ -269,7 +269,7 @@ RUN apt-get update && \
         bmake make \
         nodejs npm \
         php php-mbstring \
-        python3 python3-pip \
+        python-is-python3 python3 python3-pip \
         bundler ruby \
         ash bash dash ksh ksh93u+m mksh posh yash zsh && \
     rm -rf /var/lib/apt/lists/*
@@ -318,7 +318,7 @@ RUN apt-get update && \
         bmake make \
         nodejs npm \
         php php-mbstring \
-        python3 python3-pip \
+        python-is-python3 python3 python3-pip \
         bundler ruby \
         ash bash dash ksh ksh93u+m mksh posh yash zsh && \
     rm -rf /var/lib/apt/lists/* && \
