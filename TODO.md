@@ -40,3 +40,4 @@
     - Maybe try installing aptitude packages in previous stage and copy only binaries to final stage?
 
 - Apply upx after problems with qemu are resolved <https://github.com/upx/upx/issues/683>
+- Optimize `make bootstrap` to only build executables in dev mode (go, rust)
