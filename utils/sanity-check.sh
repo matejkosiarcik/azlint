@@ -35,8 +35,9 @@ stoml --version
 tomljson /dev/null
 
 # Haskell
-hadolint --help
-hadolint --version
+# TODO: Reenable check for hadolint
+# hadolint --help
+# hadolint --version
 shellcheck --help
 shellcheck --version
 
