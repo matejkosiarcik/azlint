@@ -128,27 +128,8 @@ COPY --from=shellcheck-base /bin/shellcheck ./
 # RUN upx --best /app/shellcheck && \
 RUN /app/shellcheck --help
 
-# Hadolint - extract latest version #
-FROM debian:12.0-slim AS hadolint-version
-WORKDIR /app
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends git && \
-    rm -rf /var/lib/apt/lists/*
-COPY --from=gitman /app/gitman/hadolint /app/hadolint
-WORKDIR /app/hadolint
-RUN git tag | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+$' | sort --version-sort | tail -n 1 | sed -E 's~^v~~' >/hadolint-version.txt
-
-# Hadolint install #
-FROM haskell:9.2.8 AS hadolint-install
-COPY --from=hadolint-version /hadolint-version.txt /
-RUN cabal update && \
-    cabal install "hadolint-$(cat /hadolint-version.txt)"
-
-# Hadolint -> UPX #
-FROM upx-base AS hadolint
-COPY --from=hadolint-install /root/.cabal/bin/hadolint ./
-# RUN upx --best /app/hadolint && \
-RUN /app/hadolint --help
+# Hadolint #
+FROM hadolint/hadolint:v2.12.0 AS hadolint
 
 # NodeJS/NPM #
 FROM node:20.5.0-slim AS node
@@ -309,7 +290,7 @@ COPY --from=python /app/python ./python
 COPY --from=ruby /app/bundle ./bundle
 WORKDIR /app/linters/bin
 COPY --from=composer-bin /usr/bin/composer ./
-COPY --from=hadolint /app ./
+COPY --from=hadolint /bin/hadolint ./
 COPY --from=go /app ./
 COPY --from=rust /app ./
 COPY --from=circleci /app ./
