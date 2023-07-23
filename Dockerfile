@@ -141,7 +141,7 @@ COPY linters/package.json linters/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
     npm prune --production
 COPY utils/optimize-node-modules.sh ./
-RUN sh optimize-node-modules.sh
+# RUN sh optimize-node-modules.sh
 
 # Ruby/Gem #
 FROM debian:12.0-slim AS ruby
@@ -152,7 +152,7 @@ RUN apt-get update && \
 COPY linters/Gemfile linters/Gemfile.lock ./
 RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install
 COPY utils/optimize-ruby-bundle.sh ./
-RUN sh optimize-ruby-bundle.sh
+# RUN sh optimize-ruby-bundle.sh
 
 # Python/Pip #
 FROM debian:12.0-slim AS python
@@ -163,7 +163,7 @@ RUN apt-get update && \
 COPY linters/requirements.txt ./
 RUN PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
 COPY utils/optimize-python-dist.sh ./
-RUN sh optimize-python-dist.sh
+# RUN sh optimize-python-dist.sh
 
 # Composer #
 FROM composer:2.5.8 AS composer-bin
@@ -177,7 +177,7 @@ RUN apt-get update && \
 COPY linters/composer.json linters/composer.lock ./
 RUN composer install --no-cache
 COPY utils/optimize-composer-vendor.sh ./
-RUN sh optimize-composer-vendor.sh
+# RUN sh optimize-composer-vendor.sh
 
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it
@@ -251,7 +251,7 @@ COPY src/ ./src/
 RUN npm run build && \
     npm prune --production
 COPY utils/optimize-node-modules.sh ./
-RUN sh optimize-node-modules.sh
+# RUN sh optimize-node-modules.sh
 
 # Azlint binaries #
 FROM debian:12.0-slim AS azlint-bin
