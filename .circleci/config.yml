@@ -1,5 +1,22 @@
 version: 2.1
 
+commands:
+  azlint-lint:
+    description: AZLint lint
+    parameters:
+      command-base:
+        type: string
+    steps:
+      - run: << parameters.command-base >> lint
+
+  azlint-fmt:
+    description: AZLint fmt
+    parameters:
+      command-base:
+        type: string
+    steps:
+      - run: << parameters.command-base >> fmt
+
 workflows:
   version: 2
   circleci:
@@ -56,6 +73,8 @@ jobs:
           command: |
             PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" \
               npm run azlint:lint
+      - azlint-lint:
+          command-base: PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" npm run azlint --
       - run:
           name: Git status (before formatting)
           command: |
@@ -77,6 +96,8 @@ jobs:
               git status
               exit 1
             fi
+      # - azlint-fmt:
+      #     command-base: PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" npm run azlint --
 
   docker-build:
     docker:
@@ -88,4 +109,7 @@ jobs:
       - run: apk update --no-cache
       - run: apk add --no-cache make
       - run: docker build . --tag matejkosiarcik/azlint:dev --progress plain
-      - run: make run
+      - azlint-lint:
+          command-base: docker run --rm --volume "$PWD:/project:ro" matejkosiarcik/azlint:dev
+      # - azlint-fmt:
+      #     command-base: docker run --rm --volume "$PWD:/project" matejkosiarcik/azlint:dev
