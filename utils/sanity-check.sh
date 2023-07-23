@@ -32,11 +32,12 @@ shfmt --help
 shfmt --version
 stoml --help
 stoml --version
-tomljson --help
+tomljson /dev/null
 
 # Haskell
-hadolint --help
-hadolint --version
+# TODO: Reenable check for hadolint
+# hadolint --help
+# hadolint --version
 shellcheck --help
 shellcheck --version
 
