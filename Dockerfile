@@ -306,7 +306,8 @@ ENV PATH="$PATH:/app/linters/bin:/app/linters/python/bin:/app/linters/node_modul
     BUNDLE_PATH__SYSTEM=false \
     BUNDLE_PATH=/app/linters/bundle \
     BUNDLE_GEMFILE=/app/linters/Gemfile
-RUN sh sanity-check.sh
+RUN touch /.dockerenv && \
+    sh sanity-check.sh
 
 ### Final stage ###
 
