@@ -263,6 +263,16 @@ RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azl
 
 # Pre-Final #
 FROM debian:12.0-slim AS pre-final
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
+        curl git libxml2-utils \
+        bmake make \
+        nodejs npm \
+        php php-mbstring \
+        python3 python3-pip \
+        bundler ruby \
+        ash bash dash ksh ksh93u+m mksh posh yash zsh && \
+    rm -rf /var/lib/apt/lists/*
 COPY --from=brew-final /home/linuxbrew /home/linuxbrew
 COPY --from=brew-final /.rbenv/versions /.rbenv/versions
 COPY --from=azlint-bin /app/azlint /app/fmt /app/lint /usr/bin/
@@ -287,6 +297,16 @@ COPY --from=circleci /app ./
 COPY --from=loksh /app ./
 COPY --from=oksh /app ./
 COPY --from=shellcheck /app ./
+WORKDIR /app-tmp
+COPY utils/sanity-check.sh ./
+ENV PATH="$PATH:/app/linters/bin:/app/linters/python/bin:/app/linters/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin" \
+    PYTHONPATH=/app/linters/python \
+    COMPOSER_ALLOW_SUPERUSER=1 \
+    BUNDLE_DISABLE_SHARED_GEMS=true \
+    BUNDLE_PATH__SYSTEM=false \
+    BUNDLE_PATH=/app/linters/bundle \
+    BUNDLE_GEMFILE=/app/linters/Gemfile
+RUN sh sanity-check.sh
 
 ### Final stage ###
 
