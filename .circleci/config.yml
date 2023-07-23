@@ -44,7 +44,7 @@ workflows:
 jobs:
   test:
     docker:
-      - image: node:20.4.0
+      - image: node:20.5.0
     steps:
       - checkout
       - run: npm ci --prefix tests
@@ -84,14 +84,11 @@ jobs:
             eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
             brew --help
             brew bundle --help
-      - run:
-          name: Run lint
-          command: |
-            PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" \
-              npm run azlint:lint
       - azlint-lint:
+          name: AZLint lint
           command-base: PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" npm run azlint --
       - azlint-fmt:
+          name: AZLint fmt
           command-base: PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" npm run azlint --
 
   docker-build:
@@ -101,10 +98,17 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
-      - run: apk update --no-cache
-      - run: apk add --no-cache make
-      - run: docker build . --tag matejkosiarcik/azlint:dev --progress plain
+      - run:
+          name: Install system dependencies
+          command: |
+            apk update --no-cache
+            apk add --no-cache make
+      - run:
+          name: Docker build
+          command: docker build . --tag matejkosiarcik/azlint:dev --progress plain
       - azlint-lint:
+          name: AZLint lint
           command-base: docker run --rm --volume "$PWD:/project:ro" matejkosiarcik/azlint:dev
       - azlint-fmt:
+          name: AZLint fmt
           command-base: docker run --rm --volume "$PWD:/project" matejkosiarcik/azlint:dev
