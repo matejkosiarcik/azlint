@@ -15,7 +15,23 @@ commands:
       command-base:
         type: string
     steps:
+      - run:
+          name: Check git status - before formatting
+          command: |
+            if [ "$(git status --short | wc -l)" -ne 0 ]; then
+              printf 'Found following changes before formatting:\n'
+              git status
+              exit 1
+            fi
       - run: << parameters.command-base >> fmt
+      - run:
+          name: Check git status - after formatting
+          command: |
+            if [ "$(git status --short | wc -l)" -ne 0 ]; then
+              printf 'Found following changes after formatting:\n'
+              git status
+              exit 1
+            fi
 
 workflows:
   version: 2
@@ -75,29 +91,8 @@ jobs:
               npm run azlint:lint
       - azlint-lint:
           command-base: PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" npm run azlint --
-      - run:
-          name: Git status (before formatting)
-          command: |
-            if [ "$(git status --short | wc -l)" -ne 0 ]; then
-              printf 'Found following changes:\n'
-              git status
-              exit 1
-            fi
-      - run:
-          name: Run fmt
-          command: |
-            PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" \
-              npm run azlint:fmt
-      - run:
-          name: Git status (after formatting)
-          command: |
-            if [ "$(git status --short | wc -l)" -ne 0 ]; then
-              printf 'Found following changes:\n'
-              git status
-              exit 1
-            fi
-      # - azlint-fmt:
-      #     command-base: PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" npm run azlint --
+      - azlint-fmt:
+          command-base: PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" npm run azlint --
 
   docker-build:
     docker:
@@ -111,5 +106,5 @@ jobs:
       - run: docker build . --tag matejkosiarcik/azlint:dev --progress plain
       - azlint-lint:
           command-base: docker run --rm --volume "$PWD:/project:ro" matejkosiarcik/azlint:dev
-      # - azlint-fmt:
-      #     command-base: docker run --rm --volume "$PWD:/project" matejkosiarcik/azlint:dev
+      - azlint-fmt:
+          command-base: docker run --rm --volume "$PWD:/project" matejkosiarcik/azlint:dev
