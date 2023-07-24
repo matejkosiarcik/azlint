@@ -76,11 +76,10 @@ bootstrap:
 		make build
 	cp linters/gitman/editorconfig-checker/bin/ec linters/bin/
 
-	GOPATH="$$PWD/linters/go" GO111MODULE=on && \
-		go install -modcacherw 'mvdan.cc/sh/v3/cmd/shfmt@latest' && \
-		go install -modcacherw "github.com/freshautomations/stoml@latest" && \
-		go install -modcacherw 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
-		go install -modcacherw "github.com/rhysd/actionlint/cmd/actionlint@latest"
+	GOPATH="$$PWD/linters/go" GO111MODULE=on go install -modcacherw 'mvdan.cc/sh/v3/cmd/shfmt@latest' && \
+	GOPATH="$$PWD/linters/go" GO111MODULE=on go install -modcacherw "github.com/freshautomations/stoml@latest" && \
+	GOPATH="$$PWD/linters/go" GO111MODULE=on go install -modcacherw 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
+	GOPATH="$$PWD/linters/go" GO111MODULE=on go install -modcacherw "github.com/rhysd/actionlint/cmd/actionlint@latest"
 
 	cabal update # && \
 		# cabal install hadolint-2.12.0 && \
