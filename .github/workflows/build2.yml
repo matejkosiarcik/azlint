@@ -38,5 +38,30 @@ jobs:
 
       - name: AZLint lint
         run: |
-          docker run --interactive --rm --volume "$PWD:/project:ro" --platform ${{ matrix.platform }} \
+          docker run --interactive --rm \
+            --volume "$PWD:/project:ro" \
+            --platform ${{ matrix.platform }} \
             matejkosiarcik/azlint:dev lint
+
+      - name: Check git status - before formatting
+        run: |
+          if [ "$(git status --short | wc -l)" -ne 0 ]; then
+            printf 'Found following changes before formatting:\n'
+            git status
+            exit 1
+          fi
+
+      - name: AZLint fmt
+        run: |
+          docker run --interactive --rm \
+            --volume "$PWD:/project" \
+            --platform ${{ matrix.platform }} \
+            matejkosiarcik/azlint:dev fmt
+
+      - name: Check git status - after formatting
+        run: |
+          if [ "$(git status --short | wc -l)" -ne 0 ]; then
+            printf 'Found following changes after formatting:\n'
+            git status
+            exit 1
+          fi
