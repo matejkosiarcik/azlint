@@ -1,9 +1,20 @@
 export const configFiles = {
+    // https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-via-a-file
+    black: ['black', '.black'],
+    // Also:
+    // - pyproject.toml with "[tool.black]"
+
     // No source
     checkmake: 'checkmake.ini',
 
     // https://github.com/replicatedhq/dockerfilelint#configuring
     dockerfilelint: '.dockerfilelintrc',
+
+    // https://flake8.pycqa.org/en/latest/user/configuration.html
+    flake8: '.flake8',
+    // Also:
+    // - setup.cfg with "[flake8]"
+    // - tox.ini with "[flake8]"
 
     // https://github.com/hadolint/hadolint#configure
     hadolint: ['hadolint.yaml', '.hadolint.yaml'],
@@ -13,6 +24,13 @@ export const configFiles = {
 
     // No source
     htmllint: '.htmllintrc',
+
+    // https://pycqa.github.io/isort/docs/configuration/config_files.html
+    isort: '.isort.cfg',
+    // Also:
+    // - pyproject.toml with "[tool.isort]"
+    // - setup.cfg with "[isort]"
+    // - tox.ini with "[isort]"
 
     // https://github.com/kucherenko/jscpd/tree/master/packages/jscpd#config-file
     jscpd: '.jscpd.json',
@@ -34,6 +52,19 @@ export const configFiles = {
 
     // https://github.com/amperser/proselint#checks
     proselint: '.proselintrc',
+
+    // https://pycodestyle.pycqa.org/en/latest/intro.html#configuration
+    pycodestyle: ['pycodestyle', '.pycodestyle'],
+    // Also:
+    // - setup.cfg with "[pycodestyle]"
+    // - tox.ini with "[pycodestyle]"
+
+    // https://pylint.pycqa.org/en/latest/user_guide/usage/run.html#command-line-options
+    pylint: ['pylintrc', '.pylintrc'],
+    // Also:
+    // - pyproject.toml with "[tool.pylint."
+    // - setup.cfg with "[pylint."
+    // - tox.ini with "[pylint."
 
     // https://github.com/secretlint/secretlint#configuration
     secretlint: '.secretlintrc.{js,json,yml}',
