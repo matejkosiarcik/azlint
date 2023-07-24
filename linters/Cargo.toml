@@ -12,6 +12,6 @@ shellharden = "4.3.0"
 name = "placeholder"
 path = "placeholder.rs"
 
-# [profile.release]
-# strip = "debuginfo"
-# lto = true
+[profile.release]
+strip = "debuginfo"
+lto = true
