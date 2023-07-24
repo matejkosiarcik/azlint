@@ -260,8 +260,8 @@ export class Linters {
 
         // Gitignore
         await this.runLinter({
-            linterName: 'git-check-ignore',
-            envName: 'GITIGNORE',
+            linterName: 'git-ignore',
+            envName: 'GIT_IGNORE',
             fileMatch: '*',
             shouldSkipAllFiles: async (toolName: string) => {
                 const isGit = await isCwdGitRepo();
@@ -747,7 +747,7 @@ export class Linters {
 
         // GitLabCI Lint
         await this.runLinter({
-            linterName: 'gitlab-ci-lint',
+            linterName: 'gitlabci-lint',
             envName: 'GITLABCI_LINT',
             fileMatch: '.gitlab-ci.yml',
             lintFile: { args: ['gitlab-ci-lint', '#file#'] },
@@ -755,7 +755,7 @@ export class Linters {
 
         // GitLabCI Validate
         await this.runLinter({
-            linterName: 'gitlab-ci-validate',
+            linterName: 'gitlabci-validate',
             envName: 'GITLABCI_VALIDATE',
             fileMatch: '.gitlab-ci.yml',
             lintFile: { args: ['gitlab-ci-validate', 'validate', '#file#'] },
