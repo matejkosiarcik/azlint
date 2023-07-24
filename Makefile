@@ -15,9 +15,10 @@ all: bootstrap build test run
 bootstrap:
 	mkdir -p linters/bin
 
-	npm install --no-save
-	npm install --no-save --prefix tests
-	npm install --no-save --prefix linters
+	parallel ::: \
+		'npm install --no-save' \
+		'npm install --no-save --prefix tests' \
+		'npm install --no-save --prefix linters'
 
 	# check if virtual environment exists or create it
 	[ -n "$${VIRTUAL_ENV+x}" ] || [ -d venv ] \
@@ -61,9 +62,8 @@ bootstrap:
 	BUNDLE_GEMFILE="$$PWD/linters/Gemfile" \
 		bundle install
 
-	node utils/cargo-packages.js | while read -r package version; do \
-		cargo install "$$package" --force --root "$$PWD/linters/cargo" --version "$$version" --profile dev; \
-	done
+	node utils/cargo-packages.js | xargs -n2 -P0 sh -c \
+		'cargo install "$$0" --force --root "$$PWD/linters/cargo" --version "$$1" --profile dev'
 
 	cd linters && \
 		composer install
