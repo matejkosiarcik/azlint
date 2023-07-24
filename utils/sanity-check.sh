@@ -91,6 +91,8 @@ sql-lint --help
 sql-lint --version
 svglint --help
 svglint --version
+textlint --help
+textlint --version
 
 # Python - main
 python --help
@@ -121,6 +123,8 @@ mypy --version
 bashate --help
 bashate --version
 bashate --show
+checkov --help
+checkov --version
 # TODO: add # gitman --help
 # TODO: add # gitman --version
 proselint --help
