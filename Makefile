@@ -15,9 +15,9 @@ all: bootstrap build test run
 bootstrap:
 	mkdir -p linters/bin
 
-	npm ci
-	npm ci --prefix tests
-	npm ci --prefix linters
+	npm install --no-save
+	npm install --no-save --prefix tests
+	npm install --no-save --prefix linters
 
 	# check if virtual environment exists or create it
 	[ -n "$${VIRTUAL_ENV+x}" ] || [ -d venv ] \
