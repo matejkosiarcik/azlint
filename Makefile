@@ -62,7 +62,7 @@ bootstrap:
 		bundle install
 
 	node utils/cargo-packages.js | while read -r package version; do \
-		cargo install "$$package" --force --root "$$PWD/linters/cargo" --version "$$version"; \
+		cargo install "$$package" --force --root "$$PWD/linters/cargo" --version "$$version" --profile dev; \
 	done
 
 	cd linters && \
