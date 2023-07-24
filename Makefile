@@ -100,12 +100,12 @@ bootstrap:
 
 .PHONY: build
 build:
-	docker build . --tag matejkosiarcik/azlint:dev
+	docker build . --tag matejkosiarcik/azlint:dev --pull
 
 .PHONY: multibuild
 multibuild:
-	docker build . --tag matejkosiarcik/azlint:dev-amd64 --platform linux/amd64
-	docker build . --tag matejkosiarcik/azlint:dev-arm64 --platform linux/arm64
+	docker build . --tag matejkosiarcik/azlint:dev-amd64 --platform linux/amd64 --pull
+	docker build . --tag matejkosiarcik/azlint:dev-arm64 --platform linux/arm64 --pull
 
 .PHONY: run
 run:
