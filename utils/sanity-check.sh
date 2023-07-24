@@ -87,6 +87,8 @@ markdownlint --version
 pjv --help
 prettier --help
 prettier --version
+secretlint --help
+secretlint --version
 sql-lint --help
 sql-lint --version
 svglint --help
