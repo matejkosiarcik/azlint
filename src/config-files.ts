@@ -81,6 +81,6 @@ export const configFiles = {
 
 export function findConfigFile(linter: keyof typeof configFiles): string {
     const envName = linter.replace(/\-/g, '_').toUpperCase();
-
-    return '';
+    console.log(linter, envName);
+    return ''; // TODO: Finish function
 }
