@@ -471,7 +471,7 @@ export class Linters {
         });
 
         // Markdownlint
-        const markdownlintConfigArgs = getConfigArgs('MDL', '--config', ['markdownlint.json', '.markdownlint.json']);
+        const markdownlintConfigArgs = getConfigArgs('MARKDOWNLINT', '--config', ['markdownlint.json', '.markdownlint.json']);
         await this.runLinter({
             linterName: 'markdownlint',
             envName: 'MARKDOWNLINT',
