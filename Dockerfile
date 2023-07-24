@@ -4,6 +4,10 @@
 ### Components/Linters ###
 
 # Upx #
+# NOTE: `upx-ucl` is no longer available in debian 12 bookworm
+# It is available in older versions, see https://packages.debian.org/bullseye/upx-ucl
+# However, there were upgrade problems for bookworm, see https://tracker.debian.org/pkg/upx-ucl
+# TODO: Change upx target from ubuntu to debian
 FROM ubuntu:23.10 AS upx-base
 WORKDIR /app
 RUN apt-get update && \
@@ -24,22 +28,31 @@ RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 # GoLang #
 FROM golang:1.20.6-bookworm AS go-base
 WORKDIR /app
+COPY linters/gitman.yml ./
+RUN export GOPATH="$PWD/go" GO111MODULE=on && \
+    go install -ldflags='-s -w' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
+    go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest' && \
+    go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
+    go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest'
+
+FROM golang:1.20.6-bookworm AS go-checkmake
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends pandoc && \
     rm -rf /var/lib/apt/lists/*
-COPY linters/gitman.yml ./
-RUN GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
-    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
-    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
-    GOPATH="$PWD/go" GO111MODULE=on go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
-COPY --from=gitman /app/gitman/checkmake ./gitman/checkmake
-RUN BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make -C gitman/checkmake
-COPY --from=gitman /app/gitman/editorconfig-checker ./gitman/editorconfig-checker
-RUN make -C gitman/editorconfig-checker build
+COPY --from=gitman /app/gitman/checkmake /app/checkmake
+WORKDIR /app/checkmake
+RUN BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
+
+FROM golang:1.20.6-bookworm AS go-ec
+COPY --from=gitman /app/gitman/editorconfig-checker /app/editorconfig-checker
+WORKDIR /app/editorconfig-checker
+RUN make build
 
 # Golang -> UPX #
 FROM upx-base AS go
-COPY --from=go-base /app/gitman/checkmake/checkmake /app/gitman/editorconfig-checker/bin/ec /app/go/bin/actionlint /app/go/bin/shfmt /app/go/bin/stoml /app/go/bin/tomljson /app/
+COPY --from=go-base /app/go/bin/actionlint /app/go/bin/shfmt /app/go/bin/stoml /app/go/bin/tomljson /app/
+COPY --from=go-checkmake /app/checkmake/checkmake /app/
+COPY --from=go-ec /app/editorconfig-checker/bin/ec /app/
 # RUN parallel upx --best ::: /app/* && \
 RUN /app/actionlint --help && \
     /app/checkmake --help && \

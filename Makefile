@@ -15,9 +15,10 @@ all: bootstrap build test run
 bootstrap:
 	mkdir -p linters/bin
 
-	npm ci
-	npm ci --prefix tests
-	npm ci --prefix linters
+	parallel ::: \
+		'npm install --no-save' \
+		'npm install --no-save --prefix tests' \
+		'npm install --no-save --prefix linters'
 
 	# check if virtual environment exists or create it
 	[ -n "$${VIRTUAL_ENV+x}" ] || [ -d venv ] \
@@ -61,9 +62,8 @@ bootstrap:
 	BUNDLE_GEMFILE="$$PWD/linters/Gemfile" \
 		bundle install
 
-	node utils/cargo-packages.js | while read -r package version; do \
-		cargo install "$$package" --force --root "$$PWD/linters/cargo" --version "$$version"; \
-	done
+	node utils/cargo-packages.js | xargs -n2 -P0 sh -c \
+		'cargo install "$$0" --force --root "$$PWD/linters/cargo" --version "$$1" --profile dev'
 
 	cd linters && \
 		composer install
@@ -76,14 +76,16 @@ bootstrap:
 		make build
 	cp linters/gitman/editorconfig-checker/bin/ec linters/bin/
 
-	GOPATH="$$PWD/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest'
-	GOPATH="$$PWD/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' "github.com/freshautomations/stoml@latest"
-	GOPATH="$$PWD/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest'
-	GOPATH="$$PWD/linters/go" GO111MODULE=on go install -modcacherw -ldflags='-s -w' "github.com/rhysd/actionlint/cmd/actionlint@latest"
+	GOPATH="$$PWD/linters/go" GO111MODULE=on parallel ::: \
+		'go install -modcacherw "mvdan.cc/sh/v3/cmd/shfmt@latest"' \
+		'go install -modcacherw "github.com/freshautomations/stoml@latest"' \
+		'go install -modcacherw "github.com/pelletier/go-toml/cmd/tomljson@latest"' \
+		'go install -modcacherw "github.com/rhysd/actionlint/cmd/actionlint@latest"'
 
-	cabal update # && \
-		# cabal install hadolint-2.12.0 && \
-		# cabal install ShellCheck-0.9.0
+	cabal update
+	# parallel ::: \
+	# 	'cabal install hadolint-2.12.0' \
+	# 	'cabal install ShellCheck-0.9.0'
 
 	cd linters/gitman/circleci-cli && \
 		mkdir -p install && \
@@ -100,12 +102,12 @@ bootstrap:
 
 .PHONY: build
 build:
-	docker build . --tag matejkosiarcik/azlint:dev
+	docker build . --tag matejkosiarcik/azlint:dev --pull
 
 .PHONY: multibuild
 multibuild:
-	docker build . --tag matejkosiarcik/azlint:dev-amd64 --platform linux/amd64
-	docker build . --tag matejkosiarcik/azlint:dev-arm64 --platform linux/arm64
+	docker build . --tag matejkosiarcik/azlint:dev-amd64 --platform linux/amd64 --pull
+	docker build . --tag matejkosiarcik/azlint:dev-arm64 --platform linux/arm64 --pull
 
 .PHONY: run
 run:
