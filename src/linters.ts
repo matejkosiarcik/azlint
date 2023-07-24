@@ -201,9 +201,9 @@ export class Linters {
             html: '*.{html,htm,html5,xhtml}',
             shell: '*.{sh,bash,ksh,ksh93,mksh,oksh,loksh,ash,dash,zsh,yash}',
             python: '*.{py,py3,python,python3}',
-            allText: [] as string[],
+            docs: [] as string[],
         };
-        matchers.allText = [matchers.markdown, matchers.text, 'README', 'LICENSE'];
+        matchers.docs = [matchers.markdown, 'README'];
 
         /* Slow linters */
         // Here are linters which take the longest time, so we launch them first
@@ -494,7 +494,7 @@ export class Linters {
         await this.runLinter({
             linterName: 'proselint',
             envName: 'PROSELINT',
-            fileMatch: matchers.allText,
+            fileMatch: matchers.docs,
             lintFile: { args: ['proselint', ...proselintConfigArgs, "#file#"] },
         });
 
