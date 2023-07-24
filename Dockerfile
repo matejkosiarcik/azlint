@@ -29,7 +29,7 @@ RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 FROM golang:1.20.6-bookworm AS go-base
 WORKDIR /app
 COPY linters/gitman.yml ./
-RUN GOPATH="$PWD/go" GO111MODULE=on && \
+RUN export GOPATH="$PWD/go" GO111MODULE=on && \
     go install -ldflags='-s -w' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
     go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest' && \
     go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
