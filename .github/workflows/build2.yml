@@ -36,6 +36,7 @@ jobs:
           push: false
           tags: matejkosiarcik/azlint:dev
 
-      - name: AZLint debug
+      - name: AZLint lint
         run: |
-          docker image ls
+          docker run --interactive --rm --volume "$PWD:/project:ro" --platform ${{ matrix.platform }} \
+            matejkosiarcik/azlint:dev lint
