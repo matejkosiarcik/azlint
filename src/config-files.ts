@@ -21,7 +21,7 @@ export const configFiles = {
     jsonlint: ['.jsonlintrc', '.jsonlintrc.{cjs,js,json,yaml,yml}', 'jsonlint.config.{cjs,js}'],
 
     // No source
-    markdownLinkCheck: '.markdown-link-check.json',
+    'markdown-link-check': '.markdown-link-check.json',
 
     // https://github.com/igorshubovych/markdownlint-cli#configuration
     markdownlint: ['.markdownlintrc', '.markdownlint.{json,jsonc,yaml,yml}'],
@@ -47,3 +47,9 @@ export const configFiles = {
     // https://yamllint.readthedocs.io/en/stable/configuration.html
     yamllint: ['.yamllint', '.yamllint.{yaml,yml}'],
 };
+
+export function findConfigFile(linter: keyof typeof configFiles): string {
+    const envName = linter.replace(/\-/g, '_').toUpperCase();
+
+    return '';
+}
