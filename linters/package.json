@@ -17,6 +17,8 @@
     "package-json-validator": "^0.6.3",
     "prettier": "^3.0.0",
     "sql-lint": "^1.0.0",
-    "svglint": "^2.4.0"
+    "svglint": "^2.4.0",
+    "textlint": "^13.3.3",
+    "textlint-rule-no-todo": "^2.0.1"
   }
 }
