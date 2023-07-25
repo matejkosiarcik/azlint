@@ -36,6 +36,36 @@ jobs:
           push: false
           tags: matejkosiarcik/azlint:dev
 
-      - name: AZLint debug
+      - name: AZLint lint
+        if: ${{ matrix.platform == 'linux/amd64' }}
         run: |
-          docker image ls
+          docker run --interactive --rm \
+            --volume "$PWD:/project:ro" \
+            --platform ${{ matrix.platform }} \
+            matejkosiarcik/azlint:dev lint
+
+      - name: Check git status - before formatting
+        if: ${{ matrix.platform == 'linux/amd64' }}
+        run: |
+          if [ "$(git status --short | wc -l)" -ne 0 ]; then
+            printf 'Found following changes before formatting:\n'
+            git status
+            exit 1
+          fi
+
+      - name: AZLint fmt
+        if: ${{ matrix.platform == 'linux/amd64' }}
+        run: |
+          docker run --interactive --rm \
+            --volume "$PWD:/project" \
+            --platform ${{ matrix.platform }} \
+            matejkosiarcik/azlint:dev fmt
+
+      - name: Check git status - after formatting
+        if: ${{ matrix.platform == 'linux/amd64' }}
+        run: |
+          if [ "$(git status --short | wc -l)" -ne 0 ]; then
+            printf 'Found following changes after formatting:\n'
+            git status
+            exit 1
+          fi

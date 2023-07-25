@@ -32,12 +32,10 @@
   - minify `*.{js,mjc,cjs}` files in `/app/cli/node_modules`
   - minify any other files (eg. `*.{json,yml}`) in all dependencies `/app/**/*`
   - minify main-CLI files at `/app/cli/*.js`
-  - Enable LTO for _rust_ executables
   - Optimize _go_ executables (`ldflags`) for checkmake and editorconfig-checker
-  - Reduce size after in final stage:
+  - Reduce size after apt-get in final stage:
     - Too big `/usr/share/`
     - <https://askubuntu.com/a/541061>
     - Maybe try installing aptitude packages in previous stage and copy only binaries to final stage?
 
 - Apply upx after problems with qemu are resolved <https://github.com/upx/upx/issues/683>
-- Optimize `make bootstrap` to only build executables in dev mode (go, rust)

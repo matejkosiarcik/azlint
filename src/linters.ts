@@ -201,9 +201,9 @@ export class Linters {
             html: '*.{html,htm,html5,xhtml}',
             shell: '*.{sh,bash,ksh,ksh93,mksh,oksh,loksh,ash,dash,zsh,yash}',
             python: '*.{py,py3,python,python3}',
-            allText: [] as string[],
+            docs: [] as string[],
         };
-        matchers.allText = [matchers.markdown, matchers.text, 'README', 'LICENSE'];
+        matchers.docs = [matchers.markdown, 'README'];
 
         /* Slow linters */
         // Here are linters which take the longest time, so we launch them first
@@ -260,8 +260,8 @@ export class Linters {
 
         // Gitignore
         await this.runLinter({
-            linterName: 'git-check-ignore',
-            envName: 'GITIGNORE',
+            linterName: 'git-ignore',
+            envName: 'GIT_IGNORE',
             fileMatch: '*',
             shouldSkipAllFiles: async (toolName: string) => {
                 const isGit = await isCwdGitRepo();
@@ -471,7 +471,7 @@ export class Linters {
         });
 
         // Markdownlint
-        const markdownlintConfigArgs = getConfigArgs('MDL', '--config', ['markdownlint.json', '.markdownlint.json']);
+        const markdownlintConfigArgs = getConfigArgs('MARKDOWNLINT', '--config', ['markdownlint.json', '.markdownlint.json']);
         await this.runLinter({
             linterName: 'markdownlint',
             envName: 'MARKDOWNLINT',
@@ -494,7 +494,7 @@ export class Linters {
         await this.runLinter({
             linterName: 'proselint',
             envName: 'PROSELINT',
-            fileMatch: matchers.allText,
+            fileMatch: matchers.docs,
             lintFile: { args: ['proselint', ...proselintConfigArgs, "#file#"] },
         });
 
@@ -747,7 +747,7 @@ export class Linters {
 
         // GitLabCI Lint
         await this.runLinter({
-            linterName: 'gitlab-ci-lint',
+            linterName: 'gitlabci-lint',
             envName: 'GITLABCI_LINT',
             fileMatch: '.gitlab-ci.yml',
             lintFile: { args: ['gitlab-ci-lint', '#file#'] },
@@ -755,7 +755,7 @@ export class Linters {
 
         // GitLabCI Validate
         await this.runLinter({
-            linterName: 'gitlab-ci-validate',
+            linterName: 'gitlabci-validate',
             envName: 'GITLABCI_VALIDATE',
             fileMatch: '.gitlab-ci.yml',
             lintFile: { args: ['gitlab-ci-validate', 'validate', '#file#'] },
