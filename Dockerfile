@@ -28,16 +28,16 @@ RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 # GoLang #
 FROM golang:1.20.6-bookworm AS go-gitman-base
 WORKDIR /app
-COPY utils/latest-version-tag.sh ./
+COPY utils/git-latest-version.sh ./
 ENV GO111MODULE=on
 
 FROM go-gitman-base AS go-shfmt
 COPY --from=gitman /app/gitman/shfmt /app/shfmt
-RUN GOPATH="$PWD/go" go install -ldflags='-s -w' "mvdan.cc/sh/v3/cmd/shfmt@v$(sh latest-version-tag.sh shfmt)"
+RUN GOPATH="$PWD/go" go install -ldflags='-s -w' "mvdan.cc/sh/v3/cmd/shfmt@v$(sh git-latest-version.sh shfmt)"
 
 FROM go-gitman-base AS go-stoml
 COPY --from=gitman /app/gitman/stoml /app/stoml
-RUN GOPATH="$PWD/go" go install -ldflags='-s -w' "github.com/freshautomations/stoml@v$(sh latest-version-tag.sh stoml)"
+RUN GOPATH="$PWD/go" go install -ldflags='-s -w' "github.com/freshautomations/stoml@v$(sh git-latest-version.sh stoml)"
 
 FROM golang:1.20.6-bookworm AS go-other
 WORKDIR /app
