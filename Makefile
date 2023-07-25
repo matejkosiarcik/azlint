@@ -111,9 +111,7 @@ multibuild:
 
 .PHONY: run
 run:
-	docker run --interactive --tty --rm \
-		--volume "$$PWD:/project:ro" \
-		matejkosiarcik/azlint:dev lint
+	docker run --interactive --tty --rm --volume "$$PWD:/project:ro" matejkosiarcik/azlint:dev lint
 
 .PHONY: test
 test:
@@ -121,8 +119,19 @@ test:
 
 .PHONY: clean
 clean:
-	git clean -xdf
-	rm -rf "$$PWD/linters/gitman" "$$PWD/docs/demo/gitman"
+	rm -rf "$$PWD/docs/demo/gitman" \
+		"$$PWD/linters/bin" \
+		"$$PWD/linters/bundle" \
+		"$$PWD/linters/cargo" \
+		"$$PWD/linters/gitman" \
+		"$$PWD/linters/go" \
+		"$$PWD/linters/node_modules" \
+		"$$PWD/linters/python" \
+		"$$PWD/linters/ruby" \
+		"$$PWD/linters/target" \
+		"$$PWD/linters/vendor" \
+		"$$PWD/node_modules" \
+		"$$PWD/venv"
 
 .PHONY: demo
 demo:
