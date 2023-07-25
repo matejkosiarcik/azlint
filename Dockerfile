@@ -26,13 +26,24 @@ COPY linters/gitman.yml ./
 RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 
 # GoLang #
-FROM golang:1.20.6-bookworm AS go-base
+FROM golang:1.20.6-bookworm AS go-gitman-base
 WORKDIR /app
-COPY linters/gitman.yml ./
-RUN export GOPATH="$PWD/go" GO111MODULE=on && \
+COPY utils/latest-version-tag.sh ./
+ENV GO111MODULE=on
+
+FROM go-gitman-base AS go-shfmt
+COPY --from=gitman /app/gitman/shfmt /app/shfmt
+RUN GOPATH="$PWD/go" go install -ldflags='-s -w' "mvdan.cc/sh/v3/cmd/shfmt@v$(sh latest-version-tag.sh shfmt)"
+
+FROM go-gitman-base AS go-stoml
+COPY --from=gitman /app/gitman/stoml /app/stoml
+RUN GOPATH="$PWD/go" go install -ldflags='-s -w' "github.com/freshautomations/stoml@v$(sh latest-version-tag.sh stoml)"
+
+FROM golang:1.20.6-bookworm AS go-other
+WORKDIR /app
+ENV GO111MODULE=on
+RUN export GOPATH="$PWD/go" && \
     go install -ldflags='-s -w' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
-    go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest' && \
-    go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
     go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest'
 
 FROM golang:1.20.6-bookworm AS go-checkmake
@@ -50,7 +61,9 @@ RUN make build
 
 # Golang -> UPX #
 FROM upx-base AS go
-COPY --from=go-base /app/go/bin/actionlint /app/go/bin/shfmt /app/go/bin/stoml /app/go/bin/tomljson /app/
+COPY --from=go-shfmt /app/go/bin/shfmt /app/
+COPY --from=go-stoml /app/go/bin/stoml /app/
+COPY --from=go-other /app/go/bin/actionlint /app/go/bin/tomljson /app/
 COPY --from=go-checkmake /app/checkmake/checkmake /app/
 COPY --from=go-ec /app/editorconfig-checker/bin/ec /app/
 # RUN parallel upx --best ::: /app/* && \
