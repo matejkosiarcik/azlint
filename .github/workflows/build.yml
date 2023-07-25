@@ -1,4 +1,4 @@
-name: Build2
+name: Build
 
 permissions: read-all
 
@@ -9,7 +9,7 @@ on:
   pull_request:
 
 jobs:
-  build2:
+  build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
