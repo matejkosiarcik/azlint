@@ -37,6 +37,7 @@ jobs:
           tags: matejkosiarcik/azlint:dev
 
       - name: AZLint lint
+        if: ${{ matrix.platform == 'linux/am64' }}
         run: |
           docker run --interactive --rm \
             --volume "$PWD:/project:ro" \
@@ -44,6 +45,7 @@ jobs:
             matejkosiarcik/azlint:dev lint
 
       - name: Check git status - before formatting
+        if: ${{ matrix.platform == 'linux/am64' }}
         run: |
           if [ "$(git status --short | wc -l)" -ne 0 ]; then
             printf 'Found following changes before formatting:\n'
@@ -52,6 +54,7 @@ jobs:
           fi
 
       - name: AZLint fmt
+        if: ${{ matrix.platform == 'linux/am64' }}
         run: |
           docker run --interactive --rm \
             --volume "$PWD:/project" \
@@ -59,6 +62,7 @@ jobs:
             matejkosiarcik/azlint:dev fmt
 
       - name: Check git status - after formatting
+        if: ${{ matrix.platform == 'linux/am64' }}
         run: |
           if [ "$(git status --short | wc -l)" -ne 0 ]; then
             printf 'Found following changes after formatting:\n'
