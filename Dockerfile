@@ -166,7 +166,7 @@ RUN apt-get update && \
 COPY linters/package.json linters/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
     npm prune --production
-COPY utils/optimize-node-modules.sh ./
+COPY utils/optimize-common.sh utils/optimize-node-modules.sh ./
 # RUN sh optimize-node-modules.sh
 
 # Ruby/Gem #
@@ -177,7 +177,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/Gemfile linters/Gemfile.lock ./
 RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install
-COPY utils/optimize-ruby-bundle.sh ./
+COPY utils/optimize-common.sh utils/optimize-ruby-bundle.sh ./
 # RUN sh optimize-ruby-bundle.sh
 
 # Python/Pip #
@@ -188,7 +188,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/requirements.txt ./
 RUN PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
-COPY utils/optimize-python-dist.sh ./
+COPY utils/optimize-common.sh utils/optimize-python-dist.sh ./
 # RUN sh optimize-python-dist.sh
 
 # Composer #
@@ -202,7 +202,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/composer.json linters/composer.lock ./
 RUN composer install --no-cache
-COPY utils/optimize-composer-vendor.sh ./
+COPY utils/optimize-common.sh utils/optimize-composer-vendor.sh ./
 # RUN sh optimize-composer-vendor.sh
 
 # LinuxBrew - install #
@@ -276,7 +276,7 @@ COPY tsconfig.json ./
 COPY src/ ./src/
 RUN npm run build && \
     npm prune --production
-COPY utils/optimize-node-modules.sh ./
+COPY utils/optimize-common.sh utils/optimize-node-modules.sh ./
 # RUN sh optimize-node-modules.sh
 
 # Azlint binaries #
