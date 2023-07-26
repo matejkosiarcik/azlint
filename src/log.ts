@@ -9,7 +9,7 @@ export enum LogLevel {
     EXTRA_EXTRA_VERBOSE = 4,
 };
 
-let level: LogLevel;
+let level: LogLevel = LogLevel.QUIET;
 
 export const TerminalColors = {
     green: '\x1b[32m',
