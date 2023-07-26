@@ -40,25 +40,22 @@
 The main purpose of _AZLint_ is to bundle as many linters as possible into a single docker image
 and provide convenient CLI interface for calling them in bulk.
 
-_AZLint_ has an optional **format** mode 🤯 \(also called **autofix**\),
-which applies suggested fixes \(from supported linters\) to your files.
+I see it as a complement to
+[SuperLinter](https://github.com/github/super-linter) and
+[MegaLinter](https://github.com/nvuillam/mega-linter).
+These meta-linters are awesome, but are missing some features of _AZLint_.
 
 All that said, AZLint is mostly for my personal usage.
 However feel free to use it and report any found issues 😉.
 
-I see it as a complement to
-[SuperLinter](https://github.com/github/super-linter) and
-[MegaLinter](https://github.com/nvuillam/mega-linter).
-These meta-linters are awesome, but are missing some linters that are bundled into
-_AZLint_.
-
 ### Features
 
 - 📦 Includes 48 linters
-- 🛠️ Supports autofix mode - only for 9 linters
-- 🐳 Distributed as a docker image
-- 💯 Reports all found problems, not just the first one
-- 🏎️ Runs linters in parallel for speed
+- 🛠️ Supports **autofix** mode (only for 9 linters though)
+- 🐳 Distributed as a docker image (both `x64`/`arm64` available)
+- 💯 Reports all found problems
+- 🏎️ Runs linters in parallel
+- 🌈 Clear, colored output
 
 ## Usage
 
