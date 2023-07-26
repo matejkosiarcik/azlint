@@ -6,10 +6,8 @@ set -euf
 
 cleanDependencies node_modules
 
-# ### Remove files ###
-
-# # Package-lock.json
-# find node_modules -type f -iname 'package-lock.json' -delete
+# Package-lock.json
+find node_modules -type f -iname 'package-lock.json' -delete
 
 # # Unused yargs locales
 # find node_modules -ipath '*/locale*/*' -iname '*.json' -not -iname 'en*.json' -delete
@@ -39,9 +37,6 @@ cleanDependencies node_modules
 
 # # Misc
 # find node_modules -type f \( \
-#     -iname 'Jenkinsfile' -or \
-#     -iname 'Makefile' -or \
-#     -iname 'Dockerfile' -or \
 #     -iname '*.bnf' -or \
 #     -iname '*.conf' -or \
 #     -iname '*.cts' -or \
@@ -64,9 +59,7 @@ cleanDependencies node_modules
 #     -iname '*.properties' -or \
 #     -iname '*.targ' -or \
 #     -iname '*.tm_properties' -or \
-#     -iname '*.xml' -or \
-#     -iname '*.yaml' -or \
-#     -iname '*.yml' \
+#     -iname '*.xml' \
 #     \) -delete
 
 removeEmptyDirectories node_modules
