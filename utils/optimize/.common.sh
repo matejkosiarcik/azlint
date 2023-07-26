@@ -65,7 +65,9 @@ cleanDependencies() {
         -iname '*.html' -or \
         -iname '*.html5' -or \
         -iname '*.xhtml' -or \
-        -iname '*.xml' \
+        -iname '*.xml' -or \
+        -iname '*.xsd' -or \
+        -iname '*.xslt' \
         \) -delete
 
     # CSS

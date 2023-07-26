@@ -6,9 +6,11 @@ set -euf
 
 cleanDependencies node_modules
 
-find node_modules -type f -iname 'package-lock.json' -delete
-
-find node_modules -type f -iname '*.lock' -delete
+# lockfiles
+find node_modules -type f \( \
+    -iname 'package-lock.json' -or \
+    -iname '*.lock' \
+    \) -delete
 
 # Unused yargs locales
 find node_modules -ipath '*/locale*/*' -iname '*.json' -not -iname 'en*.json' -delete

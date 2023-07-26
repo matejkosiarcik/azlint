@@ -46,10 +46,8 @@ find bundle -type f \( \
     -iname '*.yardopts' \
     \) -delete
 
+removeEmptyDirectories bundle
+
 ### Minification ###
 
 minifyJsonFiles bundle
-
-### Rest ###
-
-removeEmptyDirectories bundle

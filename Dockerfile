@@ -187,7 +187,7 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils python3 python3-pip && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/requirements.txt ./
-RUN PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
+RUN PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 PYTHONPYCACHEPREFIX=python-cache python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
 COPY utils/optimize/.common.sh utils/optimize/optimize-python.sh ./
 RUN sh optimize-python.sh
 
@@ -331,7 +331,10 @@ ENV PATH="$PATH:/app/linters/bin:/app/linters/python/bin:/app/linters/node_modul
     BUNDLE_DISABLE_SHARED_GEMS=true \
     BUNDLE_PATH__SYSTEM=false \
     BUNDLE_PATH=/app/linters/bundle \
-    BUNDLE_GEMFILE=/app/linters/Gemfile
+    BUNDLE_GEMFILE=/app/linters/Gemfile \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPYCACHEPREFIX=/app-tmp/python-cache
 RUN touch /.dockerenv && \
     sh sanity-check.sh
 
@@ -360,7 +363,9 @@ COPY --from=pre-final /home/linuxbrew /home/linuxbrew
 COPY --from=pre-final /.rbenv/versions /.rbenv/versions
 COPY --from=pre-final /app/ ./
 ENV NODE_OPTIONS=--dns-result-order=ipv4first \
-    PATH="$PATH:/app/bin:/home/linuxbrew/.linuxbrew/bin"
+    PATH="$PATH:/app/bin:/home/linuxbrew/.linuxbrew/bin" \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONDONTWRITEBYTECODE=1
 USER azlint
 WORKDIR /project
 ENTRYPOINT ["azlint"]

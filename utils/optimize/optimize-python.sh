@@ -8,40 +8,35 @@ cleanDependencies python
 
 # Python cache
 find python -type d \( \
-    -iname '__pycache__' -or \
     -iname 'googletest' -or \
-    -iname 'gtest' \
+    -iname 'gtest' -or \
+    -iname '__pycache__' \
     \) -prune -exec rm -rf {} \;
-
-# find python -type d -iname '*.dist-info' -prune -exec rm -rf {} \;
 
 # Compiled python files
 find python -type f -iname '*.py[cio]' -delete
 
-# -iname '*.pem' -or \
-
-# -iname '*.cfg' -or \
-# -iname '*.in' -or \
 # -iname '*.json' \
 
 # Misc
 find python -type f \( \
+    -iname '*.cfg' -or \
     -iname '*.impl' -or \
+    -iname '*.in' -or \
+    -iname '*.pem' -or \
     -iname '*.pump' -or \
-    -iname '*.tmpl' \
+    -iname '*.tar.gz' -or \
+    -iname '*.tmpl' -or \
+    -iname '*.typed' \
     \) -delete
-
-    # -iname '*.typed' -or \
-    # -iname '*.xsd' -or \
-    # -iname '*.xslt' \
 
 # -iname 'VERSIONS' -or \
 
 # Test files
-# find python -type f \( \
-#     -iname '*.test' -and \
-#     -not -iname 'py.test' \
-#     \) -delete
+find python -type f \( \
+    -iname '*.test' -and \
+    -not -iname 'py.test' \
+    \) -delete
 
 ### Minification ###
 

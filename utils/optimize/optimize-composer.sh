@@ -8,10 +8,8 @@ cleanDependencies vendor
 
 find vendor -type f -iname '*.lock' -delete
 
+removeEmptyDirectories vendor
+
 ### Minification ###
 
 minifyJsonFiles vendor
-
-### Rest ###
-
-removeEmptyDirectories vendor
