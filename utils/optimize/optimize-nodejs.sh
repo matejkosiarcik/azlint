@@ -27,31 +27,31 @@ find node_modules -type f \( \
     -iname '*.py-js' \
     \) -delete
 
-# # Misc
-# find node_modules -type f \( \
-#     -iname '*.bnf' -or \
-#     -iname '*.conf' -or \
-#     -iname '*.cts' -or \
-#     -iname '*.def' -or \
-#     -iname '*.editorconfig' -or \
-#     -iname '*.el' -or \
-#     -iname '*.env' -or \
-#     -iname '*.exe' -or \
-#     -iname '*.hbs' -or \
-#     -iname '*.iml' -or \
-#     -iname '*.in' -or \
-#     -iname '*.jst' -or \
-#     -iname '*.lock' -or \
-#     -iname '*.map' -or \
-#     -iname '*.mts' -or \
-#     -iname '*.mts' -or \
-#     -iname '*.ne' -or \
-#     -iname '*.nix' -or \
-#     -iname '*.patch' -or \
-#     -iname '*.properties' -or \
-#     -iname '*.targ' -or \
-#     -iname '*.tm_properties' \
-#     \) -delete
+# Misc
+find node_modules -type f \( \
+    -iname '*.bnf' -or \
+    -iname '*.conf' -or \
+    -iname '*.cts' -or \
+    -iname '*.def' -or \
+    -iname '*.editorconfig' -or \
+    -iname '*.el' -or \
+    -iname '*.env' -or \
+    -iname '*.exe' -or \
+    -iname '*.hbs' -or \
+    -iname '*.iml' -or \
+    -iname '*.in' -or \
+    -iname '*.jst' -or \
+    -iname '*.lock' -or \
+    -iname '*.map' -or \
+    -iname '*.mts' -or \
+    -iname '*.mts' -or \
+    -iname '*.ne' -or \
+    -iname '*.nix' -or \
+    -iname '*.patch' -or \
+    -iname '*.properties' -or \
+    -iname '*.targ' -or \
+    -iname '*.tm_properties' \
+    \) -delete
 
 removeEmptyDirectories node_modules
 

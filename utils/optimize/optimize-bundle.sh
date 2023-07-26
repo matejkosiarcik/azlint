@@ -22,32 +22,29 @@ find bundle -type d \( \
 #     -iname 'VERSION' \
 #     \) -delete
 
-# # Misc
-# find bundle -type f \( \
-#     -iname 'Gemfile' -or \
-#     -iname '*.autotest' -or \
-#     -iname '*.dat' -or \
-#     -iname '*.data' -or \
-#     -iname '*.erb' -or \
-#     -iname '*.gemtest' -or \
-#     -iname '*.jar' -or \
-#     -iname '*.java' -or \
-#     -iname '*.log' -or \
-#     -iname '*.nib' -or \
-#     -iname '*.o' -or \
-#     -iname '*.out' -or \
-#     -iname '*.provisionprofile' -or \
-#     -iname '*.pem' -or \
-#     -iname '*.rake' -or \
-#     -iname '*.rspec' -or \
-#     -iname '*.rl' -or \
-#     -iname '*.sh' -or \
-#     -iname '*.simplecov' -or \
-#     -iname '*.time' -or \
-#     -iname '*.tt' -or \
-#     -iname '*.y' -or \
-#     -iname '*.yardopts' \
-#     \) -delete
+# Misc
+find bundle -type f \( \
+    -iname 'Gemfile' -or \
+    -iname '*.autotest' -or \
+    -iname '*.dat' -or \
+    -iname '*.erb' -or \
+    -iname '*.gemtest' -or \
+    -iname '*.jar' -or \
+    -iname '*.java' -or \
+    -iname '*.log' -or \
+    -iname '*.nib' -or \
+    -iname '*.o' -or \
+    -iname '*.out' -or \
+    -iname '*.provisionprofile' -or \
+    -iname '*.rake' -or \
+    -iname '*.rspec' -or \
+    -iname '*.rl' -or \
+    -iname '*.simplecov' -or \
+    -iname '*.time' -or \
+    -iname '*.tt' -or \
+    -iname '*.y' -or \
+    -iname '*.yardopts' \
+    \) -delete
 
 ### Minification ###
 
