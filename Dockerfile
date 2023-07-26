@@ -26,13 +26,24 @@ COPY linters/gitman.yml ./
 RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 
 # GoLang #
-FROM golang:1.20.6-bookworm AS go-base
+FROM golang:1.20.6-bookworm AS go-gitman-base
 WORKDIR /app
-COPY linters/gitman.yml ./
-RUN export GOPATH="$PWD/go" GO111MODULE=on && \
+COPY utils/git-latest-version.sh ./
+ENV GO111MODULE=on
+
+FROM go-gitman-base AS go-shfmt
+COPY --from=gitman /app/gitman/shfmt /app/shfmt
+RUN GOPATH="$PWD/go" go install -ldflags='-s -w' "mvdan.cc/sh/v3/cmd/shfmt@v$(sh git-latest-version.sh shfmt)"
+
+FROM go-gitman-base AS go-stoml
+COPY --from=gitman /app/gitman/stoml /app/stoml
+RUN GOPATH="$PWD/go" go install -ldflags='-s -w' "github.com/freshautomations/stoml@v$(sh git-latest-version.sh stoml)"
+
+FROM golang:1.20.6-bookworm AS go-other
+WORKDIR /app
+ENV GO111MODULE=on
+RUN export GOPATH="$PWD/go" && \
     go install -ldflags='-s -w' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
-    go install -ldflags='-s -w' 'mvdan.cc/sh/v3/cmd/shfmt@latest' && \
-    go install -ldflags='-s -w' 'github.com/freshautomations/stoml@latest' && \
     go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest'
 
 FROM golang:1.20.6-bookworm AS go-checkmake
@@ -50,7 +61,9 @@ RUN make build
 
 # Golang -> UPX #
 FROM upx-base AS go
-COPY --from=go-base /app/go/bin/actionlint /app/go/bin/shfmt /app/go/bin/stoml /app/go/bin/tomljson /app/
+COPY --from=go-shfmt /app/go/bin/shfmt /app/
+COPY --from=go-stoml /app/go/bin/stoml /app/
+COPY --from=go-other /app/go/bin/actionlint /app/go/bin/tomljson /app/
 COPY --from=go-checkmake /app/checkmake/checkmake /app/
 COPY --from=go-ec /app/editorconfig-checker/bin/ec /app/
 # RUN parallel upx --best ::: /app/* && \
@@ -153,7 +166,7 @@ RUN apt-get update && \
 COPY linters/package.json linters/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
     npm prune --production
-COPY utils/optimize-node-modules.sh ./
+COPY utils/optimize-common.sh utils/optimize-node-modules.sh ./
 # RUN sh optimize-node-modules.sh
 
 # Ruby/Gem #
@@ -164,7 +177,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/Gemfile linters/Gemfile.lock ./
 RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install
-COPY utils/optimize-ruby-bundle.sh ./
+COPY utils/optimize-common.sh utils/optimize-ruby-bundle.sh ./
 # RUN sh optimize-ruby-bundle.sh
 
 # Python/Pip #
@@ -175,7 +188,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/requirements.txt ./
 RUN PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
-COPY utils/optimize-python-dist.sh ./
+COPY utils/optimize-common.sh utils/optimize-python-dist.sh ./
 # RUN sh optimize-python-dist.sh
 
 # Composer #
@@ -189,7 +202,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/composer.json linters/composer.lock ./
 RUN composer install --no-cache
-COPY utils/optimize-composer-vendor.sh ./
+COPY utils/optimize-common.sh utils/optimize-composer-vendor.sh ./
 # RUN sh optimize-composer-vendor.sh
 
 # LinuxBrew - install #
@@ -263,7 +276,7 @@ COPY tsconfig.json ./
 COPY src/ ./src/
 RUN npm run build && \
     npm prune --production
-COPY utils/optimize-node-modules.sh ./
+COPY utils/optimize-common.sh utils/optimize-node-modules.sh ./
 # RUN sh optimize-node-modules.sh
 
 # Azlint binaries #

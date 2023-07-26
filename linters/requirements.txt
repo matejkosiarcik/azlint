@@ -6,11 +6,11 @@ flake8==6.0.0
 isort==5.12.0
 mypy==1.4.1
 pycodestyle==2.10.0
-pylint==2.17.4
+pylint==2.17.5
 
 # other
 bashate==2.1.1
-checkov==2.3.340
+checkov==2.3.343
 proselint==0.13.0
 sqlfluff==2.1.4
 yamllint==1.32.0

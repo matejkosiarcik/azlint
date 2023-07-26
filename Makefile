@@ -27,14 +27,13 @@ bootstrap:
 		|| virtualenv venv \
 		|| mkvirtualenv venv
 
-	PATH="$$PWD/venv/bin:$(PATH)" \
-	PYTHONPATH="$$PWD/python" \
+	PATH="$$PWD/venv/bin:$(PATH)" PYTHONPATH="$$PWD/python" \
 		pip install --requirement requirements.txt
 
 	cd linters && \
 		PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
 			gitman install --force
-	sh utils/apply-git-patches.sh
+	sh utils/apply-gitman-patches.sh
 
 	cd linters/gitman/loksh && \
 		meson setup --prefix="$$PWD/install" build && \
@@ -76,13 +75,22 @@ bootstrap:
 		make build
 	cp linters/gitman/editorconfig-checker/bin/ec linters/bin/
 
+	GOPATH="$$PWD/linters/go" GO111MODULE=on \
+		go install github.com/mikefarah/yq/v4@latest
+
+	# GOPATH="$$PWD/linters/go" GO111MODULE=on parallel ::: \
+	# 	'go install -modcacherw "mvdan.cc/sh/v3/cmd/shfmt@v$(shell sh utils/git-latest-version.sh linters/gitman/shfmt)"' \
+	# 	'go install -modcacherw "github.com/freshautomations/stoml@v$(shell sh utils/git-latest-version.sh linters/gitman/stoml)"' \
+	# 	'go install -modcacherw "github.com/pelletier/go-toml/cmd/tomljson@latest"' \
+	# 	'go install -modcacherw "github.com/rhysd/actionlint/cmd/actionlint@latest"'
+
 	GOPATH="$$PWD/linters/go" GO111MODULE=on parallel ::: \
 		'go install -modcacherw "mvdan.cc/sh/v3/cmd/shfmt@latest"' \
 		'go install -modcacherw "github.com/freshautomations/stoml@latest"' \
 		'go install -modcacherw "github.com/pelletier/go-toml/cmd/tomljson@latest"' \
 		'go install -modcacherw "github.com/rhysd/actionlint/cmd/actionlint@latest"'
 
-	cabal update
+	# cabal update
 	# parallel ::: \
 	# 	'cabal install hadolint-2.12.0' \
 	# 	'cabal install ShellCheck-0.9.0'

@@ -166,5 +166,5 @@ done
 
 # Minify and remove extra keys from `package.json`s
 find node_modules -iname 'package.json' | while read -r file; do
-    jq -c '. | to_entries | map(select(.key | test("^(description|engine|engines|exports|imports|main|module|type|version)$"))) | from_entries' <"$file" | sponge "$file"
+    jq -c '. | to_entries | map(select(.key | test("^(description|engine|engines|exports|imports|main|module|name|type|version)$"))) | from_entries' <"$file" | sponge "$file"
 done
