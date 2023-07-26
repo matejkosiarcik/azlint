@@ -14,30 +14,8 @@ find python -type d -iname '__pycache__' -prune -exec rm -rf {} \;
 # Compiled python files
 find python -type f -iname '*.py[cio]' -delete
 
-# # Documentation
-# find python -type f \( \
-#     -iname 'APACHE' -or \
-#     -iname 'CHANGELOG' -or \
-#     -iname 'CHANGELOG.*' -or \
-#     -iname 'BSD' -or \
-#     -iname 'LICENSE' -or \
-#     -iname 'LICENSE.*' -or \
-#     -iname 'README' -or \
-#     -iname 'README.*' -or \
-#     -iname '*.latex' -or \
-#     -iname '*.markdown' -or \
-#     -iname '*.markdown-it' -or \
-#     -iname '*.md' -or \
-#     -iname '*.mdown' -or \
-#     -iname '*.rst' -or \
-#     -iname '*.tex' -or \
-#     -iname '*.text' -or \
-#     -iname '*.txt' \
-#     \) -delete
-
 # # Misc
 # find python -type f \( \
-#     -iname 'VERSIONS' -or \
 #     -iname '*.1' -or \
 #     -iname '*.cfg' -or \
 #     -iname '*.in' -or \
@@ -51,8 +29,9 @@ find python -type f -iname '*.py[cio]' -delete
 #     -iname '*.xsd' -or \
 #     -iname '*.xslt' \
 #     \) -delete
+# -iname 'VERSIONS' -or \
 
-# # Test files (except pytest)
+# Test files
 # find python -type f \( \
 #     -iname '*.test' -and \
 #     -not -iname 'py.test' \

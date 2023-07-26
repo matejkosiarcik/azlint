@@ -6,34 +6,26 @@ set -euf
 
 cleanDependencies node_modules
 
-# Package-lock.json
 find node_modules -type f -iname 'package-lock.json' -delete
 
-# # Unused yargs locales
-# find node_modules -ipath '*/locale*/*' -iname '*.json' -not -iname 'en*.json' -delete
+find node_modules -type f -iname '*.lock' -delete
 
-# # Docs
-# find node_modules -type f \( \
-#     -iname 'AUTHORS' -or \
-#     -iname 'AUTHORS.*' -or \
-#     -iname 'LICENSE' -or \
-#     -iname 'LICENSE.*' -or \
-#     -name 'LICENSE-*' \
-#     \) -delete
+# Unused yargs locales
+find node_modules -ipath '*/locale*/*' -iname '*.json' -not -iname 'en*.json' -delete
 
-# # JS preprocessors left unprocessed
-# find node_modules -type f \( \
-#     -iname '*.coffee' -or \
-#     -iname '*.ts' -or \
-#     -iname '*.flow' -or \
-#     -iname '*.tsbuildinfo' \
-#     \) -delete
+# JS preprocessors left unprocessed
+find node_modules -type f \( \
+    -iname '*.coffee' -or \
+    -iname '*.ts' -or \
+    -iname '*.flow' -or \
+    -iname '*.tsbuildinfo' \
+    \) -delete
 
-# # Other languages
-# find node_modules -type f \( \
-#     -iname '*.py' -or \
-#     -iname '*.py-js' \
-#     \) -delete
+# Other languages
+find node_modules -type f \( \
+    -iname '*.py' -or \
+    -iname '*.py-js' \
+    \) -delete
 
 # # Misc
 # find node_modules -type f \( \
@@ -58,8 +50,7 @@ find node_modules -type f -iname 'package-lock.json' -delete
 #     -iname '*.patch' -or \
 #     -iname '*.properties' -or \
 #     -iname '*.targ' -or \
-#     -iname '*.tm_properties' -or \
-#     -iname '*.xml' \
+#     -iname '*.tm_properties' \
 #     \) -delete
 
 removeEmptyDirectories node_modules

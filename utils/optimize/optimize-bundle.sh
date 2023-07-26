@@ -8,30 +8,17 @@ cleanDependencies bundle
 
 # macOS apps
 find bundle -type d \( \
+    -iname 'cache' -or \
     -iname '*.app' \
     \) -prune -exec rm -rf {} \;
 
 # find bundle -type d \( \
-#     -iname 'cache' -or \
 #     -iname 'template' -or \
 #     -iname 'templates' -or \
-#     -iname '*.app' \
 #     \) -prune -exec rm -rf {} \;
 
 # # Documentation
 # find bundle -type f \( \
-#     -iname 'AUTHORS' -or \
-#     -iname 'AUTHORS.*' -or \
-#     -iname 'CONTRIBUTING' -or \
-#     -iname 'CONTRIBUTING.*' -or \
-#     -iname 'CONTRIBUTERS' -or \
-#     -iname 'CONTRIBUTERS.*' -or \
-#     -iname 'COPYING' -or \
-#     -iname 'COPYING.*' -or \
-#     -iname 'LICENSE' -or \
-#     -iname 'LICENSE.*' -or \
-#     -iname '*-LICENSE' -or \
-#     -iname 'LICENSE-*' -or \
 #     -iname 'VERSION' \
 #     \) -delete
 

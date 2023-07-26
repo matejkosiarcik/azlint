@@ -6,17 +6,7 @@ set -euf
 
 cleanDependencies vendor
 
-# # Documentation
-# find vendor -type f \( \
-#     -iname 'LICENSE' -or \
-#     -iname 'LICENSE.*' -or \
-#     \) -delete
-
-# # Misc
-# find vendor -type f \( \
-#     -iname '*.lock' -or \
-#     -iname '*.xml' \
-#     \) -delete
+find vendor -type f -iname '*.lock' -delete
 
 ### Minification ###
 

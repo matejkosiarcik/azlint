@@ -142,7 +142,7 @@ cleanDependencies() {
         -iname '*.markdown' -or \
         -iname '*.markdown-it' -or \
         -iname '*.md' -or \
-        -iname '*.mdown' \
+        -iname '*.mdown' -or \
         -iname '*.rdoc' -or \
         -iname '*.rst' -or \
         -iname '*.tex' -or \
