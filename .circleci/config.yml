@@ -82,6 +82,13 @@ jobs:
           name: Install project dependencies
           command: make bootstrap
       - run:
+          name: Debug git+gitman
+          command: |
+            cd linters/gitman/shfmt
+            git tag
+            echo 'Latest tag:'
+            git tag | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+$' | sed -E 's~^v~~' | sort --version-sort | tail -n 1
+      - run:
           name: Install HomeBrew
           command: |
             bash linters/gitman/brew-installer/install.sh
