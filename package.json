@@ -5,7 +5,8 @@
     "azlint": "npm start",
     "azlint:lint": "npm start -- lint",
     "azlint:fmt": "npm start -- fmt",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "mocha --exit"
   },
   "dependencies": {
     "@esm2cjs/execa": "^6.1.1-cjs.1",
@@ -15,8 +16,13 @@
   },
   "devDependencies": {
     "@iarna/toml": "^2.2.5",
+    "@tsconfig/strictest": "^2.0.1",
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
     "@types/node": "^20.4.5",
     "@types/yargs": "^17.0.24",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
     "modclean": "^3.0.0-beta.1",
     "node-prune": "^1.0.2",
     "ts-node": "^10.9.1",
