@@ -352,6 +352,7 @@ export function getPythonConfigArgs(envName: string, linterName: string, configA
     return configArgName.endsWith('=') ? [`${configArgName}${commonConfigFile}`] : [configArgName, commonConfigFile];
 }
 
+// TODO: remove unused function
 export function combine(...args: (string[] | string)[]): string[] {
     let output: string[] = [''];
     for (const arg of args) {

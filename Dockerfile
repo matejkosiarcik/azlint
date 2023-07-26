@@ -166,30 +166,30 @@ RUN apt-get update && \
 COPY linters/package.json linters/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
     npm prune --production
-COPY utils/optimize-common.sh utils/optimize-node-modules.sh ./
-# RUN sh optimize-node-modules.sh
+COPY utils/optimize/.common.sh utils/optimize/optimize-nodejs.sh ./
+RUN sh optimize-nodejs.sh
 
 # Ruby/Gem #
 FROM debian:12.0-slim AS ruby
 WORKDIR /app
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bundler ruby ruby-build ruby-dev && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bundler jq moreutils ruby ruby-build ruby-dev && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/Gemfile linters/Gemfile.lock ./
 RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install
-COPY utils/optimize-common.sh utils/optimize-ruby-bundle.sh ./
-# RUN sh optimize-ruby-bundle.sh
+COPY utils/optimize/.common.sh utils/optimize/optimize-bundle.sh ./
+RUN sh optimize-bundle.sh
 
 # Python/Pip #
 FROM debian:12.0-slim AS python
 WORKDIR /app
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-pip && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils python3 python3-pip && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/requirements.txt ./
-RUN PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
-COPY utils/optimize-common.sh utils/optimize-python-dist.sh ./
-# RUN sh optimize-python-dist.sh
+RUN PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 PYTHONPYCACHEPREFIX=python-cache python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
+COPY utils/optimize/.common.sh utils/optimize/optimize-python.sh ./
+RUN sh optimize-python.sh
 
 # Composer #
 FROM composer:2.5.8 AS composer-bin
@@ -198,12 +198,12 @@ FROM composer:2.5.8 AS composer-bin
 FROM debian:12.0-slim AS composer-vendor
 WORKDIR /app
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates composer php php-cli php-mbstring php-zip && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates composer jq moreutils php php-cli php-mbstring php-zip && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/composer.json linters/composer.lock ./
 RUN composer install --no-cache
-COPY utils/optimize-common.sh utils/optimize-composer-vendor.sh ./
-# RUN sh optimize-composer-vendor.sh
+COPY utils/optimize/.common.sh utils/optimize/optimize-composer.sh ./
+RUN sh optimize-composer.sh
 
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it
@@ -276,10 +276,10 @@ COPY tsconfig.json ./
 COPY src/ ./src/
 RUN npm run build && \
     npm prune --production
-COPY utils/optimize-common.sh utils/optimize-node-modules.sh ./
-# RUN sh optimize-node-modules.sh
+COPY utils/optimize/.common.sh utils/optimize/optimize-nodejs.sh ./
+RUN sh optimize-nodejs.sh
 
-# Azlint binaries #
+# AZLint binaries #
 FROM debian:12.0-slim AS azlint-bin
 WORKDIR /app
 RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azlint && \
@@ -331,7 +331,10 @@ ENV PATH="$PATH:/app/linters/bin:/app/linters/python/bin:/app/linters/node_modul
     BUNDLE_DISABLE_SHARED_GEMS=true \
     BUNDLE_PATH__SYSTEM=false \
     BUNDLE_PATH=/app/linters/bundle \
-    BUNDLE_GEMFILE=/app/linters/Gemfile
+    BUNDLE_GEMFILE=/app/linters/Gemfile \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPYCACHEPREFIX=/app-tmp/python-cache
 RUN touch /.dockerenv && \
     sh sanity-check.sh
 
@@ -360,7 +363,9 @@ COPY --from=pre-final /home/linuxbrew /home/linuxbrew
 COPY --from=pre-final /.rbenv/versions /.rbenv/versions
 COPY --from=pre-final /app/ ./
 ENV NODE_OPTIONS=--dns-result-order=ipv4first \
-    PATH="$PATH:/app/bin:/home/linuxbrew/.linuxbrew/bin"
+    PATH="$PATH:/app/bin:/home/linuxbrew/.linuxbrew/bin" \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONDONTWRITEBYTECODE=1
 USER azlint
 WORKDIR /project
 ENTRYPOINT ["azlint"]
