@@ -167,29 +167,29 @@ COPY linters/package.json linters/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
     npm prune --production
 COPY utils/optimize/.common.sh utils/optimize/optimize-nodejs.sh ./
-# RUN sh optimize-nodejs.sh
+RUN sh optimize-nodejs.sh
 
 # Ruby/Gem #
 FROM debian:12.0-slim AS ruby
 WORKDIR /app
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bundler ruby ruby-build ruby-dev && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bundler jq moreutils ruby ruby-build ruby-dev && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/Gemfile linters/Gemfile.lock ./
 RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install
 COPY utils/optimize/.common.sh utils/optimize/optimize-bundle.sh ./
-# RUN sh optimize-bundle.sh
+RUN sh optimize-bundle.sh
 
 # Python/Pip #
 FROM debian:12.0-slim AS python
 WORKDIR /app
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-pip && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils python3 python3-pip && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/requirements.txt ./
 RUN PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
 COPY utils/optimize/.common.sh utils/optimize/optimize-python.sh ./
-# RUN sh optimize-python.sh
+RUN sh optimize-python.sh
 
 # Composer #
 FROM composer:2.5.8 AS composer-bin
@@ -198,12 +198,12 @@ FROM composer:2.5.8 AS composer-bin
 FROM debian:12.0-slim AS composer-vendor
 WORKDIR /app
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates composer php php-cli php-mbstring php-zip && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates composer jq moreutils php php-cli php-mbstring php-zip && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/composer.json linters/composer.lock ./
 RUN composer install --no-cache
 COPY utils/optimize/.common.sh utils/optimize/optimize-composer.sh ./
-# RUN sh optimize-composer.sh
+RUN sh optimize-composer.sh
 
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it
@@ -277,7 +277,7 @@ COPY src/ ./src/
 RUN npm run build && \
     npm prune --production
 COPY utils/optimize/.common.sh utils/optimize/optimize-nodejs.sh ./
-# RUN sh optimize-nodejs.sh
+RUN sh optimize-nodejs.sh
 
 # AZLint binaries #
 FROM debian:12.0-slim AS azlint-bin
