@@ -75,9 +75,9 @@ jobs:
               bundler ruby ruby-build ruby-dev \
               rust-all \
               golang \
-              cabal-install ghc \
               ash bash dash ksh ksh93u+m mksh posh yash zsh \
               shellcheck
+              # Haskell packages skipped: cabal-install ghc
       - run:
           name: Install project dependencies
           command: make bootstrap

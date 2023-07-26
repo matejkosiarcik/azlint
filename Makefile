@@ -82,7 +82,7 @@ bootstrap:
 		'go install -modcacherw "github.com/pelletier/go-toml/cmd/tomljson@latest"' \
 		'go install -modcacherw "github.com/rhysd/actionlint/cmd/actionlint@latest"'
 
-	cabal update
+	# cabal update
 	# parallel ::: \
 	# 	'cabal install hadolint-2.12.0' \
 	# 	'cabal install ShellCheck-0.9.0'
