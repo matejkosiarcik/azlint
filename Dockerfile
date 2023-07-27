@@ -39,25 +39,32 @@ FROM go-gitman-base AS go-stoml
 COPY --from=gitman /app/gitman/stoml /app/stoml
 RUN GOPATH="$PWD/go" go install -ldflags='-s -w' "github.com/freshautomations/stoml@v$(sh git-latest-version.sh stoml)"
 
-FROM golang:1.20.6-bookworm AS go-other
+FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-other
 WORKDIR /app
 ENV GO111MODULE=on
-RUN export GOPATH="$PWD/go" && \
+ARG BUILDARCH TARGETARCH TARGETOS
+RUN export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" && \
     go install -ldflags='-s -w' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
-    go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest'
+    go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
+    if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
+        mv "./go/bin/linux_$TARGETARCH/actionlint" './go/bin/actionlint' && \
+        mv "./go/bin/linux_$TARGETARCH/tomljson" './go/bin/tomljson' && \
+    true; fi
 
-FROM golang:1.20.6-bookworm AS go-checkmake
+FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-checkmake
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends pandoc && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=gitman /app/gitman/checkmake /app/checkmake
 WORKDIR /app/checkmake
-RUN BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
+ARG TARGETARCH TARGETOS
+RUN GOOS="$TARGETOS" GOARCH="$TARGETARCH" BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
 
-FROM golang:1.20.6-bookworm AS go-ec
+FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-ec
 COPY --from=gitman /app/gitman/editorconfig-checker /app/editorconfig-checker
 WORKDIR /app/editorconfig-checker
-RUN make build
+ARG TARGETARCH TARGETOS
+RUN GOOS="$TARGETOS" GOARCH="$TARGETARCH" make build
 
 # Golang -> UPX #
 FROM upx-base AS go
