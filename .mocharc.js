@@ -1,6 +1,6 @@
 module.exports = {
     extension: ['ts'],
-    spec: 'tests/mocha/**/*.test.ts',
+    spec: 'tests/**/*.test.ts',
     require: ['ts-node/register'],
     retries: 0,
     timeout: 10_000,

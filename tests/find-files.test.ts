@@ -3,7 +3,7 @@ import os from 'os';
 import path from 'path';
 import process from 'process';
 import { expect } from 'chai';
-import { findFiles } from "../../src/utils";
+import { findFiles } from "../src/utils";
 import { execa as baseExeca } from '@esm2cjs/execa';
 
 async function touch(...files: string[]) {
