@@ -10,7 +10,7 @@ pylint==2.17.5
 
 # other
 bashate==2.1.1
-checkov==2.3.345
+checkov==2.3.347
 proselint==0.13.0
 sqlfluff==2.1.4
 yamllint==1.32.0
