@@ -13,13 +13,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3.5.3
 
-      - name: Install project dependencies
-        run: npm ci
-
       - name: Configure system
         run: |
           git config --global user.email nobody@example.com
           git config --global user.name Nobody
+
+      - name: Install project dependencies
+        run: npm ci
 
       - name: Test
         run: npm test
