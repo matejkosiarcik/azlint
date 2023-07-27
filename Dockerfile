@@ -351,7 +351,7 @@ RUN apt-get update && \
         python-is-python3 python3 python3-pip \
         bundler ruby \
         ash bash dash ksh ksh93u+m mksh posh yash zsh && \
-    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /var/lib/apt/lists/* /var/log/apt /var/log/dpkg* /var/cache/apt /usr/share/zsh/vendor-completions && \
     git config --system --add safe.directory '*' && \
     git config --global --add safe.directory '*' && \
     mkdir -p /root/.cache/proselint && \

@@ -9,7 +9,7 @@ PROJECT_DIR := $(abspath $(dir $(MAKEFILE_LIST)))
 
 .DEFAULT: all
 .PHONY: all
-all: bootstrap build test run
+all: bootstrap test build run
 
 .PHONY: bootstrap
 bootstrap:
@@ -17,7 +17,6 @@ bootstrap:
 
 	parallel ::: \
 		'npm install --no-save' \
-		'npm install --no-save --prefix tests' \
 		'npm install --no-save --prefix linters'
 
 	# check if virtual environment exists or create it
@@ -123,7 +122,7 @@ run:
 
 .PHONY: test
 test:
-	npm test --prefix tests
+	npm test
 
 .PHONY: clean
 clean:

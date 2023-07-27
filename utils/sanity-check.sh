@@ -151,12 +151,9 @@ dotenv-linter --help
 dotenv-linter --version
 hush --help
 hush --version
+printf 'true\n' | hush
 shellharden --help
 shellharden --version
-
-# Shells - custom
-loksh -c 'true'
-oksh -c 'true'
 
 # Shells - system
 ash -c 'true'
@@ -169,6 +166,10 @@ posh -c 'true'
 sh -c 'true'
 yash -c 'true'
 zsh -c 'true'
+
+# Shells - custom
+loksh -c 'true'
+oksh -c 'true'
 
 # System/Other
 circleci --help
