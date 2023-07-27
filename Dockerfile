@@ -100,7 +100,7 @@ RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm
 COPY utils/cargo-packages.js ./utils/
 COPY linters/Cargo.toml ./linters/
 RUN node utils/cargo-packages.js | while read -r package version; do \
-        cargo install "$package" --force --version "$version" --root "$PWD/cargo"; \
+        CARGO_PROFILE_RELEASE_LTO=true RUSTFLAGS=-Ctarget-cpu=native cargo install "$package" --force --version "$version" --root "$PWD/cargo"; \
     done
 
 # Rust -> UPX #
