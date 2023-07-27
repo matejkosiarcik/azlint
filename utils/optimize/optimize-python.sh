@@ -30,13 +30,15 @@ find python -type f \( \
     -iname '*.typed' \
     \) -delete
 
-# -iname 'VERSIONS' -or \
-
 # Test files
 find python -type f \( \
     -iname '*.test' -and \
     -not -iname 'py.test' \
     \) -delete
+
+# Potentially hazardous group
+rm -rf python/cloudsplaining/output
+find python -type f -iname '*.json.gz' -delete
 
 ### Minification ###
 
