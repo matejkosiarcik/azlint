@@ -105,7 +105,7 @@ RUN node utils/cargo-packages.js | while read -r package version; do \
         CARGO_PROFILE_RELEASE_PANIC=abort \
         CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
         CARGO_PROFILE_RELEASE_OPT_LEVEL=s \
-        RUSTFLAGS=-Ctarget-cpu=native \
+        RUSTFLAGS='-Ctarget-cpu=native -Cstrip=symbols' \
             cargo install "$package" --force --version "$version" --root "$PWD/cargo"; \
     done
 
