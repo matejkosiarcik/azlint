@@ -16,5 +16,10 @@ jobs:
       - name: Install project dependencies
         run: npm ci
 
+      - name: Configure system
+        run: |
+          git config --global user.email nobody@example.com
+          git config --global user.name Nobody
+
       - name: Test
         run: npm test
