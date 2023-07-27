@@ -51,6 +51,9 @@ jobs:
       - image: node:20.5.0
     steps:
       - checkout
+      - run: |
+          git config --global user.email nobody@example.com
+          git config --global user.name Nobody
       - run: npm ci
       - run: npm test
 
