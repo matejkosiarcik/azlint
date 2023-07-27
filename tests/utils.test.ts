@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import process from 'process';
-import { delay, hashFile, isCwdGitRepo, resolvePromiseOrValue, wildcard2regex } from '../../src/utils';
+import { delay, hashFile, isCwdGitRepo, resolvePromiseOrValue, wildcard2regex } from '../src/utils';
 import { expect } from 'chai';
 
 it('Project is git repo', async function () {
