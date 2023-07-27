@@ -94,20 +94,22 @@ RUN /app/actionlint --help && \
 FROM rust:1.71.0-slim-bookworm AS rust-base
 WORKDIR /app
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs npm && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends file nodejs npm && \
     rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm
 COPY utils/cargo-packages.js ./utils/
 COPY linters/Cargo.toml ./linters/
+ENV CARGO_PROFILE_RELEASE_LTO=true \
+    CARGO_PROFILE_RELEASE_PANIC=abort \
+    CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
+    CARGO_PROFILE_RELEASE_OPT_LEVEL=s \
+    RUSTFLAGS='-Ctarget-cpu=native -Cstrip=symbols'
 RUN node utils/cargo-packages.js | while read -r package version; do \
-        CARGO_PROFILE_RELEASE_LTO=true \
-        CARGO_PROFILE_RELEASE_PANIC=abort \
-        CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
-        CARGO_PROFILE_RELEASE_OPT_LEVEL=s \
-        RUSTFLAGS='-Ctarget-cpu=native -Cstrip=symbols' \
-            cargo install "$package" --force --version "$version" --root "$PWD/cargo"; \
-    done
+        cargo install "$package" --force --version "$version" --root "$PWD/cargo" && \
+        file "/app/cargo/bin/$package" | grep "stripped" && \
+        ! file "/app/cargo/bin/$package" | grep "not stripped" && \
+    true; done
 
 # Rust -> UPX #
 FROM upx-base AS rust
