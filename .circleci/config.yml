@@ -64,6 +64,9 @@ jobs:
       VALIDATE_HADOLINT: "false"
     steps:
       - checkout
+      - run: |
+          git config --global user.email nobody@example.com
+          git config --global user.name Nobody
       - run:
           name: Install system dependencies
           command: |
