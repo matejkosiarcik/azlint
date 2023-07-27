@@ -7,7 +7,7 @@
 # NOTE: `upx-ucl` is no longer available in debian 12 bookworm
 # It is available in older versions, see https://packages.debian.org/bullseye/upx-ucl
 # However, there were upgrade problems for bookworm, see https://tracker.debian.org/pkg/upx-ucl
-# TODO: Change upx target from ubuntu to debian
+# TODO: Change upx target from ubuntu to debian when possible
 FROM ubuntu:23.10 AS upx-base
 WORKDIR /app
 RUN apt-get update && \
@@ -15,7 +15,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Gitman #
-FROM debian:12.0-slim AS gitman
+FROM --platform=$BUILDPLATFORM debian:12.0-slim AS gitman
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-pip git && \
@@ -248,11 +248,11 @@ ENV PATH="$PATH:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims" \
     RBENV_ROOT=/.rbenv
 RUN bash rbenv-installer/bin/rbenv-installer
 COPY --from=brew-install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
-RUN ruby_version_short="$(sed -E 's~_.+$~~' <portable-ruby-version)" && \
+RUN ruby_version_short="$(sed -E 's~_.*$~~' <portable-ruby-version)" && \
     rbenv install "$ruby_version_short"
 
 # LinuxBrew - final #
-FROM debian:12.0-slim AS brew-final
+FROM --platform=$BUILDPLATFORM debian:12.0-slim AS brew-final
 WORKDIR /app
 COPY --from=brew-install /home/linuxbrew /home/linuxbrew
 COPY --from=brew-rbenv /.rbenv/versions /.rbenv/versions
@@ -280,7 +280,7 @@ COPY utils/optimize/.common.sh utils/optimize/optimize-nodejs.sh ./
 RUN sh optimize-nodejs.sh
 
 # AZLint binaries #
-FROM debian:12.0-slim AS azlint-bin
+FROM --platform=$BUILDPLATFORM debian:12.0-slim AS azlint-bin
 WORKDIR /app
 RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azlint && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >fmt && \
