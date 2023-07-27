@@ -1,4 +1,5 @@
 # checkov:skip=CKV_DOCKER_2:Disable HEALTHCHECK
+# checkov:skip=CKV_DOCKER_7:Disable FROM :latest
 # ^^^ Healhcheck doesn't make sense for us here, because we are building a CLI tool, not server program
 
 ### Components/Linters ###
