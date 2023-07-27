@@ -9,7 +9,7 @@ PROJECT_DIR := $(abspath $(dir $(MAKEFILE_LIST)))
 
 .DEFAULT: all
 .PHONY: all
-all: bootstrap build test run
+all: bootstrap test build run
 
 .PHONY: bootstrap
 bootstrap:
@@ -123,7 +123,7 @@ run:
 
 .PHONY: test
 test:
-	npm test --prefix tests
+	npm test
 
 .PHONY: clean
 clean:

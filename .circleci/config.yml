@@ -51,8 +51,8 @@ jobs:
       - image: node:20.5.0
     steps:
       - checkout
-      - run: npm ci --prefix tests
-      - run: make test
+      - run: npm ci
+      - run: npm test
 
   native-build:
     docker:

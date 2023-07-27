@@ -13,7 +13,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3.5.3
 
+      - name: Install project dependencies
+        run: npm ci
+
       - name: Test
-        run: |
-          npm ci --prefix tests
-          make test
+        run: npm test
