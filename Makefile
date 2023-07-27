@@ -17,7 +17,6 @@ bootstrap:
 
 	parallel ::: \
 		'npm install --no-save' \
-		'npm install --no-save --prefix tests' \
 		'npm install --no-save --prefix linters'
 
 	# check if virtual environment exists or create it
