@@ -16,7 +16,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Gitman #
-FROM --platform=$BUILDPLATFORM debian:12.0-slim AS gitman
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS gitman
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-pip git && \
@@ -121,7 +121,7 @@ RUN /app/dotenv-linter --help && \
 
 # CircleCI CLI #
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
-FROM debian:12.0-slim AS circleci-base
+FROM debian:12.1-slim AS circleci-base
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl && \
     rm -rf /var/lib/apt/lists/*
@@ -136,7 +136,7 @@ COPY --from=circleci-base /usr/local/bin/circleci /app/
 RUN /app/circleci --help
 
 # Shell - loksh #
-FROM debian:12.0-slim AS loksh-base
+FROM debian:12.1-slim AS loksh-base
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends build-essential ca-certificates git meson && \
     rm -rf /var/lib/apt/lists/*
@@ -152,7 +152,7 @@ COPY --from=loksh-base /app/loksh/install/bin/ksh /app/loksh
 RUN /app/loksh -c 'true'
 
 # Shell - oksh #
-FROM debian:12.0-slim AS oksh-base
+FROM debian:12.1-slim AS oksh-base
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends build-essential && \
     rm -rf /var/lib/apt/lists/*
@@ -193,7 +193,7 @@ COPY utils/optimize/.common.sh utils/optimize/optimize-nodejs.sh ./
 RUN sh optimize-nodejs.sh
 
 # Ruby/Gem #
-FROM debian:12.0-slim AS ruby
+FROM debian:12.1-slim AS ruby
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bundler jq moreutils ruby ruby-build ruby-dev && \
@@ -204,7 +204,7 @@ COPY utils/optimize/.common.sh utils/optimize/optimize-bundle.sh ./
 RUN sh optimize-bundle.sh
 
 # Python/Pip #
-FROM debian:12.0-slim AS python
+FROM debian:12.1-slim AS python
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils python3 python3-pip && \
@@ -218,7 +218,7 @@ RUN sh optimize-python.sh
 FROM composer:2.5.8 AS composer-bin
 
 # PHP/Composer #
-FROM debian:12.0-slim AS composer-vendor
+FROM debian:12.1-slim AS composer-vendor
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates composer jq moreutils php php-cli php-mbstring php-zip && \
@@ -231,7 +231,7 @@ RUN sh optimize-composer.sh
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it
 # We have to provide our custom `uname`, because HomeBrew prohibits installation on non-x64 Linux systems
-FROM debian:12.0-slim AS brew-install
+FROM debian:12.1-slim AS brew-install
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl git procps ruby && \
@@ -259,7 +259,7 @@ RUN NONINTERACTIVE=1 bash brew-installer/install.sh && \
 # LinuxBrew - rbenv #
 # We need to replace ruby bundled with HomeBrew, because it is only a x64 version
 # Instead we install the same ruby version via rbenv and replace it in HomeBrew
-FROM debian:12.0-slim AS brew-rbenv
+FROM debian:12.1-slim AS brew-rbenv
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
@@ -275,7 +275,7 @@ RUN ruby_version_short="$(sed -E 's~_.*$~~' <portable-ruby-version)" && \
     rbenv install "$ruby_version_short"
 
 # LinuxBrew - final #
-FROM --platform=$BUILDPLATFORM debian:12.0-slim AS brew-final
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-final
 WORKDIR /app
 COPY --from=brew-install /home/linuxbrew /home/linuxbrew
 COPY --from=brew-rbenv /.rbenv/versions /.rbenv/versions
@@ -303,7 +303,7 @@ COPY utils/optimize/.common.sh utils/optimize/optimize-nodejs.sh ./
 RUN sh optimize-nodejs.sh
 
 # AZLint binaries #
-FROM --platform=$BUILDPLATFORM debian:12.0-slim AS azlint-bin
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS azlint-bin
 WORKDIR /app
 RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azlint && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >fmt && \
@@ -311,7 +311,7 @@ RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azl
     chmod a+x azlint fmt lint
 
 # Pre-Final #
-FROM debian:12.0-slim AS pre-final
+FROM debian:12.1-slim AS pre-final
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
         curl git libxml2-utils \
@@ -363,7 +363,7 @@ RUN touch /.dockerenv && \
 
 ### Final stage ###
 
-FROM debian:12.0-slim
+FROM debian:12.1-slim
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \

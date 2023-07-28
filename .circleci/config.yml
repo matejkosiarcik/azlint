@@ -59,7 +59,7 @@ jobs:
 
   native-build:
     docker:
-      - image: debian:12.0
+      - image: debian:12.1
     environment:
       VALIDATE_HADOLINT: "false"
     steps:
