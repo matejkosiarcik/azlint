@@ -1,4 +1,5 @@
 # checkov:skip=CKV_DOCKER_2:Disable HEALTHCHECK
+# checkov:skip=CKV_DOCKER_7:Disable FROM :latest
 # ^^^ Healhcheck doesn't make sense for us here, because we are building a CLI tool, not server program
 
 ### Components/Linters ###
@@ -7,7 +8,7 @@
 # NOTE: `upx-ucl` is no longer available in debian 12 bookworm
 # It is available in older versions, see https://packages.debian.org/bullseye/upx-ucl
 # However, there were upgrade problems for bookworm, see https://tracker.debian.org/pkg/upx-ucl
-# TODO: Change upx target from ubuntu to debian
+# TODO: Change upx target from ubuntu to debian when possible
 FROM ubuntu:23.10 AS upx-base
 WORKDIR /app
 RUN apt-get update && \
@@ -15,7 +16,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Gitman #
-FROM debian:12.0-slim AS gitman
+FROM --platform=$BUILDPLATFORM debian:12.0-slim AS gitman
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-pip git && \
@@ -26,38 +27,53 @@ COPY linters/gitman.yml ./
 RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 
 # GoLang #
-FROM golang:1.20.6-bookworm AS go-gitman-base
+FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-gitman-base
 WORKDIR /app
+ENV GO111MODULE=on
 COPY utils/git-latest-version.sh ./
-ENV GO111MODULE=on
 
-FROM go-gitman-base AS go-shfmt
+FROM --platform=$BUILDPLATFORM go-gitman-base AS go-shfmt
 COPY --from=gitman /app/gitman/shfmt /app/shfmt
-RUN GOPATH="$PWD/go" go install -ldflags='-s -w' "mvdan.cc/sh/v3/cmd/shfmt@v$(sh git-latest-version.sh shfmt)"
+ARG BUILDARCH TARGETARCH TARGETOS
+RUN GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" go install -ldflags='-s -w' "mvdan.cc/sh/v3/cmd/shfmt@v$(sh git-latest-version.sh shfmt)" && \
+    if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
+        mv "./go/bin/linux_$TARGETARCH/shfmt" './go/bin/shfmt' && \
+    true; fi
 
-FROM go-gitman-base AS go-stoml
+FROM --platform=$BUILDPLATFORM go-gitman-base AS go-stoml
 COPY --from=gitman /app/gitman/stoml /app/stoml
-RUN GOPATH="$PWD/go" go install -ldflags='-s -w' "github.com/freshautomations/stoml@v$(sh git-latest-version.sh stoml)"
+ARG BUILDARCH TARGETARCH TARGETOS
+RUN GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" go install -ldflags='-s -w' "github.com/freshautomations/stoml@v$(sh git-latest-version.sh stoml)" && \
+    if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
+        mv "./go/bin/linux_$TARGETARCH/stoml" './go/bin/stoml' && \
+    true; fi
 
-FROM golang:1.20.6-bookworm AS go-other
+FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-other
 WORKDIR /app
 ENV GO111MODULE=on
-RUN export GOPATH="$PWD/go" && \
+ARG BUILDARCH TARGETARCH TARGETOS
+RUN export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" && \
     go install -ldflags='-s -w' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
-    go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest'
+    go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
+    if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
+        mv "./go/bin/linux_$TARGETARCH/actionlint" './go/bin/actionlint' && \
+        mv "./go/bin/linux_$TARGETARCH/tomljson" './go/bin/tomljson' && \
+    true; fi
 
-FROM golang:1.20.6-bookworm AS go-checkmake
+FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-checkmake
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends pandoc && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=gitman /app/gitman/checkmake /app/checkmake
 WORKDIR /app/checkmake
-RUN BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
+ARG TARGETARCH TARGETOS
+RUN GOOS="$TARGETOS" GOARCH="$TARGETARCH" BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
 
-FROM golang:1.20.6-bookworm AS go-ec
+FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-ec
 COPY --from=gitman /app/gitman/editorconfig-checker /app/editorconfig-checker
 WORKDIR /app/editorconfig-checker
-RUN make build
+ARG TARGETARCH TARGETOS
+RUN GOOS="$TARGETOS" GOARCH="$TARGETARCH" make build
 
 # Golang -> UPX #
 FROM upx-base AS go
@@ -85,7 +101,12 @@ RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm
 COPY utils/cargo-packages.js ./utils/
 COPY linters/Cargo.toml ./linters/
 RUN node utils/cargo-packages.js | while read -r package version; do \
-        cargo install "$package" --force --version "$version" --root "$PWD/cargo"; \
+        CARGO_PROFILE_RELEASE_LTO=true \
+        CARGO_PROFILE_RELEASE_PANIC=abort \
+        CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
+        CARGO_PROFILE_RELEASE_OPT_LEVEL=s \
+        RUSTFLAGS=-Ctarget-cpu=native \
+            cargo install "$package" --force --version "$version" --root "$PWD/cargo"; \
     done
 
 # Rust -> UPX #
@@ -248,11 +269,11 @@ ENV PATH="$PATH:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims" \
     RBENV_ROOT=/.rbenv
 RUN bash rbenv-installer/bin/rbenv-installer
 COPY --from=brew-install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
-RUN ruby_version_short="$(sed -E 's~_.+$~~' <portable-ruby-version)" && \
+RUN ruby_version_short="$(sed -E 's~_.*$~~' <portable-ruby-version)" && \
     rbenv install "$ruby_version_short"
 
 # LinuxBrew - final #
-FROM debian:12.0-slim AS brew-final
+FROM --platform=$BUILDPLATFORM debian:12.0-slim AS brew-final
 WORKDIR /app
 COPY --from=brew-install /home/linuxbrew /home/linuxbrew
 COPY --from=brew-rbenv /.rbenv/versions /.rbenv/versions
@@ -280,7 +301,7 @@ COPY utils/optimize/.common.sh utils/optimize/optimize-nodejs.sh ./
 RUN sh optimize-nodejs.sh
 
 # AZLint binaries #
-FROM debian:12.0-slim AS azlint-bin
+FROM --platform=$BUILDPLATFORM debian:12.0-slim AS azlint-bin
 WORKDIR /app
 RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azlint && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >fmt && \
