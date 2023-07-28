@@ -79,11 +79,11 @@ RUN GOOS="$TARGETOS" GOARCH="$TARGETARCH" make build
 
 # Golang -> UPX #
 FROM upx-base AS go
-COPY --from=go-shfmt /app/go/bin/shfmt /app/
-COPY --from=go-stoml /app/go/bin/stoml /app/
-COPY --from=go-other /app/go/bin/actionlint /app/go/bin/tomljson /app/
-COPY --from=go-checkmake /app/checkmake/checkmake /app/
-COPY --from=go-ec /app/editorconfig-checker/bin/ec /app/
+COPY --from=go-shfmt /app/go/bin/shfmt ./
+COPY --from=go-stoml /app/go/bin/stoml ./
+COPY --from=go-other /app/go/bin/actionlint /app/go/bin/tomljson ./
+COPY --from=go-checkmake /app/checkmake/checkmake ./
+COPY --from=go-ec /app/editorconfig-checker/bin/ec ./
 # RUN parallel upx --best ::: /app/* && \
 RUN /app/actionlint --help && \
     /app/checkmake --help && \
@@ -115,7 +115,7 @@ RUN node utils/cargo-packages.js | while read -r package version; do \
 
 # Rust -> UPX #
 FROM upx-base AS rust
-COPY --from=rust-base /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden /app/
+COPY --from=rust-base /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden ./
 # RUN parallel upx --best ::: /app/* && \
 RUN /app/dotenv-linter --help && \
     /app/hush --help && \
@@ -133,7 +133,7 @@ RUN bash install.sh
 
 # CircleCI CLI -> UPX #
 FROM upx-base AS circleci
-COPY --from=circleci-base /usr/local/bin/circleci /app/
+COPY --from=circleci-base /usr/local/bin/circleci ./
 # RUN upx --best /app/circleci && \
 RUN /app/circleci --help
 
@@ -166,7 +166,7 @@ RUN ./configure && \
 
 # oksh -> UPX #
 FROM upx-base AS oksh
-COPY --from=oksh-base /app/oksh/install/usr/local/bin/oksh /app/
+COPY --from=oksh-base /app/oksh/install/usr/local/bin/oksh ./
 # RUN upx --best /app/oksh && \
 RUN /app/oksh -c 'true'
 
