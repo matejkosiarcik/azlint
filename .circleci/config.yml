@@ -59,7 +59,7 @@ jobs:
 
   native-build:
     docker:
-      - image: debian:12.0
+      - image: debian:12.1
     environment:
       VALIDATE_HADOLINT: "false"
     steps:
@@ -82,6 +82,11 @@ jobs:
               shellcheck
               # Haskell packages skipped: cabal-install ghc
       - run:
+          name: Configure git
+          command: |
+            git config --global user.email nobody@example.com
+            git config --global user.name Nobody
+      - run:
           name: Install project dependencies
           command: make bootstrap
       - run:
@@ -98,7 +103,7 @@ jobs:
 
   docker-build:
     docker:
-      - image: docker:24.0.4
+      - image: docker:24.0.5
     steps:
       - checkout
       - setup_remote_docker:
