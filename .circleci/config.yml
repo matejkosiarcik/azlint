@@ -108,6 +108,7 @@ jobs:
               PIP_DISABLE_PIP_VERSION_CHECK=1 \
               PYTHONPATH="$PWD/linters/python" \
               PYTHONDONTWRITEBYTECODE=1
+            alias composer=true # TODO: Remove workaround
             sh utils/sanity-check/.main.sh
       - azlint-lint:
           command-base: PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" npm run azlint --
