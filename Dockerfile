@@ -285,11 +285,11 @@ COPY --from=shellcheck-base /bin/shellcheck ./
 # RUN upx --best /app/shellcheck
 
 FROM bins-aggregator AS shellcheck-final
-COPY utils/sanity-check/haskell-shellcheck.sh ./
+COPY utils/sanity-check/haskell-shellcheck.sh ./sanity-check.sh
 COPY --from=shellcheck-upx /app/shellcheck ./
 ENV BINPREFIX=/app/
-RUN sh haskell-shellcheck.sh && \
-    rm -f haskell-shellcheck.sh
+RUN sh sanity-check.sh && \
+    rm -f sanity-check.sh
 
 # Hadolint #
 FROM hadolint/hadolint:v2.12.0 AS hadolint-base
@@ -299,11 +299,11 @@ COPY --from=hadolint-base /bin/hadolint ./
 # RUN upx --best /app/hadolint
 
 FROM bins-aggregator AS hadolint-final
-COPY utils/sanity-check/haskell-hadolint.sh ./
+COPY utils/sanity-check/haskell-hadolint.sh ./sanity-check.sh
 COPY --from=hadolint-upx /app/hadolint ./
 ENV BINPREFIX=/app/
-RUN sh haskell-hadolint.sh && \
-    rm -f haskell-hadolint.sh
+RUN sh sanity-check.sh && \
+    rm -f sanity-check.sh
 
 # NodeJS/NPM #
 FROM node:20.5.0-slim AS nodejs-base
