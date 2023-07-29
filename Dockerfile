@@ -158,12 +158,12 @@ RUN apt-get update && \
 COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm
 ARG BUILDARCH BUILDOS TARGETARCH TARGETOS
-COPY utils/rust/get-target-machinename.sh ./
+COPY utils/rust/get-target-arch.sh ./
 RUN if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         apt-get update && \
         DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
-            "gcc-$(sh get-target-machinename.sh | tr '_' '-')-linux-gnu" \
-            "g++-$(sh get-target-machinename.sh | tr '_' '-')-linux-gnu" \
+            "gcc-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" \
+            "g++-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" \
             "libc6-dev-$TARGETARCH-cross" && \
         rm -rf /var/lib/apt/lists/* && \
     true; fi
@@ -182,10 +182,10 @@ COPY linters/Cargo.toml ./linters/
 RUN if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         HOST_CC=gcc \
         HOST_CXX=g++ \
-        AR_x86_64_unknown_linux_gnu="/usr/bin/$(sh get-target-machinename.sh)-linux-gnu-ar" \
-        CC_x86_64_unknown_linux_gnu="/usr/bin/$(sh get-target-machinename.sh)-linux-gnu-gcc" \
-        CXX_x86_64_unknown_linux_gnu="/usr/bin/$(sh get-target-machinename.sh)-linux-gnu-g++" \
-        CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER="/usr/bin/$(sh get-target-machinename.sh)-linux-gnu-gcc" \
+        AR_x86_64_unknown_linux_gnu="/usr/bin/$(sh get-target-arch.sh)-linux-gnu-ar" \
+        CC_x86_64_unknown_linux_gnu="/usr/bin/$(sh get-target-arch.sh)-linux-gnu-gcc" \
+        CXX_x86_64_unknown_linux_gnu="/usr/bin/$(sh get-target-arch.sh)-linux-gnu-g++" \
+        CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER="/usr/bin/$(sh get-target-arch.sh)-linux-gnu-gcc" \
         export HOST_CC HOST_CXX AR_x86_64_unknown_linux_gnu CC_x86_64_unknown_linux_gnu CXX_x86_64_unknown_linux_gnu CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER && \
     true; fi && \
     node utils/cargo-packages.js | while read -r package version; do \
