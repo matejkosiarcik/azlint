@@ -178,8 +178,8 @@ ENV CARGO_PROFILE_RELEASE_LTO=true \
     RUSTFLAGS='-Cstrip=symbols'
 COPY utils/cargo-packages.js ./utils/
 COPY linters/Cargo.toml ./linters/
-RUN --mount=type=cache,target=/usr/local/cargo/registry \
-    if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
+# RUN --mount=type=cache,target=/usr/local/cargo/registry \
+RUN if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         HOST_CC=gcc \
         HOST_CXX=g++ \
         AR_x86_64_unknown_linux_gnu="/usr/bin/$(sh get-target-machinename.sh)-linux-gnu-ar" \
