@@ -238,14 +238,23 @@ RUN /app/oksh -c 'true'
 # ShellCheck #
 FROM koalaman/shellcheck:v0.9.0 AS shellcheck-base
 
-# ShellCheck -> UPX #
-FROM upx-base AS shellcheck
+FROM upx-base AS shellcheck-upx
 COPY --from=shellcheck-base /bin/shellcheck ./
-# RUN upx --best /app/shellcheck && \
+# RUN upx --best /app/shellcheck
+
+FROM debian:12.1-slim AS shellcheck-final
+WORKDIR /app
+COPY --from=shellcheck-base /bin/shellcheck ./
 RUN /app/shellcheck --help
 
 # Hadolint #
-FROM hadolint/hadolint:v2.12.0 AS hadolint
+FROM hadolint/hadolint:v2.12.0 AS hadolint-base
+
+FROM debian:12.1-slim AS hadolint-final
+WORKDIR /app
+COPY --from=hadolint-base /bin/hadolint ./
+# TODO: Run this when qemu bugs are resolved
+# RUN /app/hadolint --help
 
 # NodeJS/NPM #
 FROM node:20.5.0-slim AS node
@@ -408,13 +417,13 @@ COPY --from=python /app/python ./python
 COPY --from=ruby /app/bundle ./bundle
 WORKDIR /app/linters/bin
 COPY --from=composer-bin /usr/bin/composer ./
-COPY --from=hadolint /bin/hadolint ./
+COPY --from=hadolint-final /app ./
 COPY --from=go-final /app ./
 COPY --from=rust-final /app ./
 COPY --from=circleci-final /app ./
 COPY --from=loksh-final /app ./
 COPY --from=oksh-final /app ./
-COPY --from=shellcheck /app ./
+COPY --from=shellcheck-final /app ./
 WORKDIR /app-tmp
 COPY utils/sanity-check.sh ./
 ENV PATH="$PATH:/app/linters/bin:/app/linters/python/bin:/app/linters/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin" \
