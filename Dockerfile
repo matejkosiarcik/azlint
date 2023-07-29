@@ -454,7 +454,6 @@ COPY --from=loksh-final /app ./
 COPY --from=oksh-final /app ./
 COPY --from=shellcheck-final /app ./
 WORKDIR /app-tmp
-COPY utils/sanity-check.sh ./
 ENV PATH="$PATH:/app/linters/bin:/app/linters/python/bin:/app/linters/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin" \
     PYTHONPATH=/app/linters/python \
     COMPOSER_ALLOW_SUPERUSER=1 \
@@ -465,8 +464,9 @@ ENV PATH="$PATH:/app/linters/bin:/app/linters/python/bin:/app/linters/node_modul
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPYCACHEPREFIX=/app-tmp/python-cache
+COPY utils/sanity-check ./sanity-check
 RUN touch /.dockerenv && \
-    sh sanity-check.sh
+    sh sanity-check/.main.sh
 
 ### Final stage ###
 
