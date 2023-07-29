@@ -31,7 +31,7 @@ RUN --mount=type=cache,target=/root/.gitcache \
     PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 
 # GoLang #
-FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-actionlint
+FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-actionlint-build
 WORKDIR /app
 ARG BUILDARCH TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
@@ -43,7 +43,11 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         mv "./go/bin/linux_$TARGETARCH/actionlint" './go/bin/actionlint' && \
     true; fi
 
-FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-shfmt
+FROM upx-base AS go-actionlint
+COPY --from=go-actionlint-build /app/go/bin/actionlint ./
+# RUN upx --best /app/actionlint
+
+FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-shfmt-build
 WORKDIR /app
 COPY --from=gitman /app/gitman/shfmt /app/shfmt
 COPY utils/git-latest-version.sh ./
@@ -57,7 +61,11 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         mv "./go/bin/linux_$TARGETARCH/shfmt" './go/bin/shfmt' && \
     true; fi
 
-FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-stoml
+FROM upx-base AS go-shfmt
+COPY --from=go-shfmt-build /app/go/bin/shfmt ./
+# RUN upx --best /app/shfmt
+
+FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-stoml-build
 WORKDIR /app
 COPY --from=gitman /app/gitman/stoml /app/stoml
 COPY utils/git-latest-version.sh ./
@@ -71,7 +79,11 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         mv "./go/bin/linux_$TARGETARCH/stoml" './go/bin/stoml' && \
     true; fi
 
-FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-tomljson
+FROM upx-base AS go-stoml
+COPY --from=go-stoml-build /app/go/bin/stoml ./
+# RUN upx --best /app/stoml
+
+FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-tomljson-build
 WORKDIR /app
 ARG BUILDARCH TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
@@ -83,7 +95,11 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         mv "./go/bin/linux_$TARGETARCH/tomljson" './go/bin/tomljson' && \
     true; fi
 
-FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-checkmake
+FROM upx-base AS go-tomljson
+COPY --from=go-tomljson-build /app/go/bin/tomljson ./
+# RUN upx --best /app/tomljson
+
+FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-checkmake-build
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends pandoc && \
     rm -rf /var/lib/apt/lists/*
@@ -94,7 +110,11 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     GOOS="$TARGETOS" GOARCH="$TARGETARCH" BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
 
-FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-ec
+FROM upx-base AS go-checkmake
+COPY --from=go-checkmake-build /app/checkmake/checkmake ./
+# RUN upx --best /app/checkmake
+
+FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-editorconfig-checker-build
 COPY --from=gitman /app/gitman/editorconfig-checker /app/editorconfig-checker
 WORKDIR /app/editorconfig-checker
 ARG TARGETARCH TARGETOS
@@ -102,17 +122,18 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     GOOS="$TARGETOS" GOARCH="$TARGETARCH" make build
 
-FROM upx-base AS go-upx
-COPY --from=go-actionlint /app/go/bin/actionlint ./
-COPY --from=go-checkmake /app/checkmake/checkmake ./
-COPY --from=go-ec /app/editorconfig-checker/bin/ec ./
-COPY --from=go-shfmt /app/go/bin/shfmt ./
-COPY --from=go-stoml /app/go/bin/stoml ./
-COPY --from=go-tomljson /app/go/bin/tomljson ./
-# RUN parallel upx --best ::: /app/* && \
+FROM upx-base AS go-editorconfig-checker
+COPY --from=go-editorconfig-checker-build /app/editorconfig-checker/bin/ec ./
+# RUN upx --best /app/ec
 
 FROM debian:12.1-slim AS go-final
-COPY --from=go-upx /app/actionlint /app/checkmake /app/ec /app/shfmt /app/stoml /app/tomljson ./
+WORKDIR /app
+COPY --from=go-actionlint /app/actionlint ./
+COPY --from=go-checkmake /app/checkmake ./
+COPY --from=go-editorconfig-checker /app/ec ./
+COPY --from=go-shfmt /app/shfmt ./
+COPY --from=go-stoml /app/stoml ./
+COPY --from=go-tomljson /app/tomljson ./
 RUN /app/actionlint --help && \
     /app/checkmake --help && \
     /app/ec --help && \
