@@ -102,8 +102,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     GOOS="$TARGETOS" GOARCH="$TARGETARCH" make build
 
-# Golang -> UPX #
-FROM upx-base AS go-final
+FROM upx-base AS go-upx
 COPY --from=go-actionlint /app/go/bin/actionlint ./
 COPY --from=go-checkmake /app/checkmake/checkmake ./
 COPY --from=go-ec /app/editorconfig-checker/bin/ec ./
@@ -111,6 +110,9 @@ COPY --from=go-shfmt /app/go/bin/shfmt ./
 COPY --from=go-stoml /app/go/bin/stoml ./
 COPY --from=go-tomljson /app/go/bin/tomljson ./
 # RUN parallel upx --best ::: /app/* && \
+
+FROM debian:12.1-slim AS go-final
+COPY --from=go-upx /app/actionlint /app/checkmake /app/ec /app/shfmt /app/stoml /app/tomljson ./
 RUN /app/actionlint --help && \
     /app/checkmake --help && \
     /app/ec --help && \
