@@ -552,8 +552,8 @@ export class Linters {
 
         // Hush
         await this.runLinter({
-            linterName: 'hush-check',
-            envName: 'HUSH_CHECK',
+            linterName: 'hush',
+            envName: 'HUSH',
             fileMatch: '*.hush',
             lintFile: { args: ['hush', '--check', "#file#"] },
         });
