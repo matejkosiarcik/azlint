@@ -153,7 +153,7 @@ sources_locked:
       -
   - repo: https://github.com/Homebrew/install.git
     name: brew-installer
-    rev: f68ace21f6648a85bfaee61b87e1a890902561a5
+    rev: 5e7f30635a945f475a557240f006973c81c71324
     type: git
     sparse_paths:
       -
@@ -223,7 +223,7 @@ sources_locked:
       -
   - repo: https://github.com/rhysd/actionlint.git
     name: actionlint
-    rev: 590d3bd9dde0c91f7a66071d40eb84716526e5a6
+    rev: 571fff48ad5eccf236f90aada2123c457253a023
     type: git
     sparse_paths:
       -

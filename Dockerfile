@@ -7,8 +7,6 @@
 # hadolint global ignore=DL3042
 # ^^^ pip cache
 
-### Components/Linters ###
-
 # Upx #
 # NOTE: `upx-ucl` is no longer available in debian 12 bookworm
 # It is available in older versions, see https://packages.debian.org/bullseye/upx-ucl
@@ -19,6 +17,14 @@ WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends parallel upx-ucl && \
     rm -rf /var/lib/apt/lists/*
+
+FROM debian:12.1-slim AS bins-aggregator
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends file && \
+    rm -rf /var/lib/apt/lists/*
+
+### Components/Linters ###
 
 # Gitman #
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS gitman
@@ -129,8 +135,7 @@ FROM upx-base AS go-editorconfig-checker
 COPY --from=go-editorconfig-checker-build /app/editorconfig-checker/bin/ec ./
 # RUN upx --best /app/ec
 
-FROM debian:12.1-slim AS go-final
-WORKDIR /app
+FROM bins-aggregator AS go-final
 COPY --from=go-actionlint /app/actionlint ./
 COPY --from=go-checkmake /app/checkmake ./
 COPY --from=go-editorconfig-checker /app/ec ./
@@ -145,7 +150,7 @@ RUN /app/actionlint --help && \
     /app/tomljson --help
 
 # Rust #
-FROM rust:1.71.0-slim-bookworm AS rust-base
+FROM rust:1.71.0-slim-bookworm AS rust-builder
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends file nodejs npm && \
@@ -159,16 +164,19 @@ ENV CARGO_PROFILE_RELEASE_LTO=true \
     CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
     CARGO_PROFILE_RELEASE_OPT_LEVEL=s \
     RUSTFLAGS='-Ctarget-cpu=native -Cstrip=symbols'
-RUN node utils/cargo-packages.js | while read -r package version; do \
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    node utils/cargo-packages.js | while read -r package version; do \
         cargo install "$package" --force --version "$version" --root "$PWD/cargo" && \
         file "/app/cargo/bin/$package" | grep "stripped" && \
         ! file "/app/cargo/bin/$package" | grep "not stripped" && \
     true; done
 
-# Rust -> UPX #
-FROM upx-base AS rust
-COPY --from=rust-base /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden ./
-# RUN parallel upx --best ::: /app/* && \
+FROM upx-base AS rust-upx
+COPY --from=rust-builder /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden ./
+# RUN parallel upx --best ::: /app/*
+
+FROM bins-aggregator AS rust-final
+COPY --from=rust-upx /app/dotenv-linter /app/hush /app/shellharden ./
 RUN /app/dotenv-linter --help && \
     /app/hush --help && \
     /app/shellharden --help
@@ -183,10 +191,12 @@ COPY --from=gitman /app/gitman/circleci-cli /app/circleci-cli
 WORKDIR /app/circleci-cli
 RUN bash install.sh
 
-# CircleCI CLI -> UPX #
-FROM upx-base AS circleci
+FROM upx-base AS circleci-upx
 COPY --from=circleci-base /usr/local/bin/circleci ./
-# RUN upx --best /app/circleci && \
+# RUN upx --best /app/circleci
+
+FROM bins-aggregator AS circleci-final
+COPY --from=circleci-upx /app/circleci ./
 RUN /app/circleci --help
 
 # Shell - loksh #
@@ -199,10 +209,12 @@ WORKDIR /app/loksh
 RUN meson setup --prefix="$PWD/install" build && \
     ninja -C build install
 
-# loksh -> UPX #
-FROM upx-base AS loksh
+FROM upx-base AS loksh-upx
 COPY --from=loksh-base /app/loksh/install/bin/ksh /app/loksh
-# RUN upx --best /app/loksh && \
+# RUN upx --best /app/loksh
+
+FROM bins-aggregator AS loksh-final
+COPY --from=loksh-upx /app/loksh ./
 RUN /app/loksh -c 'true'
 
 # Shell - oksh #
@@ -216,23 +228,32 @@ RUN ./configure && \
     make && \
     DESTDIR="$PWD/install" make install
 
-# oksh -> UPX #
-FROM upx-base AS oksh
+FROM upx-base AS oksh-upx
 COPY --from=oksh-base /app/oksh/install/usr/local/bin/oksh ./
-# RUN upx --best /app/oksh && \
+# RUN upx --best /app/oksh
+
+FROM bins-aggregator AS oksh-final
+COPY --from=oksh-upx /app/oksh ./
 RUN /app/oksh -c 'true'
 
 # ShellCheck #
 FROM koalaman/shellcheck:v0.9.0 AS shellcheck-base
 
-# ShellCheck -> UPX #
-FROM upx-base AS shellcheck
+FROM upx-base AS shellcheck-upx
 COPY --from=shellcheck-base /bin/shellcheck ./
-# RUN upx --best /app/shellcheck && \
+# RUN upx --best /app/shellcheck
+
+FROM bins-aggregator AS shellcheck-final
+COPY --from=shellcheck-base /bin/shellcheck ./
 RUN /app/shellcheck --help
 
 # Hadolint #
-FROM hadolint/hadolint:v2.12.0 AS hadolint
+FROM hadolint/hadolint:v2.12.0 AS hadolint-base
+
+FROM bins-aggregator AS hadolint-final
+COPY --from=hadolint-base /bin/hadolint ./
+# TODO: Run this when qemu bugs are resolved
+# RUN /app/hadolint --help
 
 # NodeJS/NPM #
 FROM node:20.5.0-slim AS node
@@ -330,14 +351,21 @@ RUN --mount=type=cache,target=/.rbenv/cache \
     rbenv install "$ruby_version_short" && \
     find /.rbenv/versions -mindepth 1 -maxdepth 1 -type d -not -name "$ruby_version_short" -exec rm -rf {} \;
 
-# LinuxBrew - final #
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-final
+# LinuxBrew - join brew & rbenv #
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-link
 WORKDIR /app
 COPY --from=brew-install /home/linuxbrew /home/linuxbrew
 COPY --from=brew-rbenv /.rbenv/versions /.rbenv/versions
 RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
     ruby_version_short="$(sed -E 's~_.+$~~' </home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
     ln -sf "/.rbenv/versions/$ruby_version_short" "/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby/$ruby_version_full"
+
+# LinuxBrew - final #
+FROM debian:12.1-slim AS brew-final
+WORKDIR /app
+COPY --from=brew-link /home/linuxbrew /home/linuxbrew
+COPY --from=brew-link /.rbenv/versions /.rbenv/versions
+# TODO: individual sanity-check here
 
 ### Helpers ###
 
@@ -395,13 +423,13 @@ COPY --from=python /app/python ./python
 COPY --from=ruby /app/bundle ./bundle
 WORKDIR /app/linters/bin
 COPY --from=composer-bin /usr/bin/composer ./
-COPY --from=hadolint /bin/hadolint ./
+COPY --from=hadolint-final /app ./
 COPY --from=go-final /app ./
-COPY --from=rust /app ./
-COPY --from=circleci /app ./
-COPY --from=loksh /app ./
-COPY --from=oksh /app ./
-COPY --from=shellcheck /app ./
+COPY --from=rust-final /app ./
+COPY --from=circleci-final /app ./
+COPY --from=loksh-final /app ./
+COPY --from=oksh-final /app ./
+COPY --from=shellcheck-final /app ./
 WORKDIR /app-tmp
 COPY utils/sanity-check.sh ./
 ENV PATH="$PATH:/app/linters/bin:/app/linters/python/bin:/app/linters/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin" \
