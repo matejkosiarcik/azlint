@@ -87,7 +87,9 @@ FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-ec
 COPY --from=gitman /app/gitman/editorconfig-checker /app/editorconfig-checker
 WORKDIR /app/editorconfig-checker
 ARG TARGETARCH TARGETOS
-RUN GOOS="$TARGETOS" GOARCH="$TARGETARCH" make build
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg \
+    GOOS="$TARGETOS" GOARCH="$TARGETARCH" make build
 
 # Golang -> UPX #
 FROM upx-base AS go-final
