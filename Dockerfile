@@ -32,7 +32,8 @@ RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-actionlint
 WORKDIR /app
 ARG BUILDARCH TARGETARCH TARGETOS
-RUN export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
+RUN --mount=type=cache,target=/app/go/pkg \
+    export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
     go install -ldflags='-s -w' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         mv "./go/bin/linux_$TARGETARCH/actionlint" './go/bin/actionlint' && \
@@ -43,7 +44,8 @@ WORKDIR /app
 COPY --from=gitman /app/gitman/shfmt /app/shfmt
 COPY utils/git-latest-version.sh ./
 ARG BUILDARCH TARGETARCH TARGETOS
-RUN export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
+RUN --mount=type=cache,target=/app/go/pkg \
+    export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
     go install -ldflags='-s -w' "mvdan.cc/sh/v3/cmd/shfmt@v$(sh git-latest-version.sh shfmt)" && \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         mv "./go/bin/linux_$TARGETARCH/shfmt" './go/bin/shfmt' && \
@@ -54,7 +56,8 @@ WORKDIR /app
 COPY --from=gitman /app/gitman/stoml /app/stoml
 COPY utils/git-latest-version.sh ./
 ARG BUILDARCH TARGETARCH TARGETOS
-RUN export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
+RUN --mount=type=cache,target=/app/go/pkg \
+    export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
     go install -ldflags='-s -w' "github.com/freshautomations/stoml@v$(sh git-latest-version.sh stoml)" && \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         mv "./go/bin/linux_$TARGETARCH/stoml" './go/bin/stoml' && \
@@ -63,7 +66,8 @@ RUN export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on
 FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-tomljson
 WORKDIR /app
 ARG BUILDARCH TARGETARCH TARGETOS
-RUN export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
+RUN --mount=type=cache,target=/app/go/pkg \
+    export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
     go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         mv "./go/bin/linux_$TARGETARCH/tomljson" './go/bin/tomljson' && \
