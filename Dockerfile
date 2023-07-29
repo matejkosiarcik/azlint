@@ -273,7 +273,8 @@ ENV PATH="$PATH:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims" \
     RBENV_ROOT=/.rbenv
 RUN bash rbenv-installer/bin/rbenv-installer
 COPY --from=brew-install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
-RUN ruby_version_short="$(sed -E 's~_.*$~~' <portable-ruby-version)" && \
+RUN --mount=type=cache,target=/.rbenv/cache \
+    ruby_version_short="$(sed -E 's~_.*$~~' <portable-ruby-version)" && \
     rbenv install "$ruby_version_short"
 
 # LinuxBrew - final #
