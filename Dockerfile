@@ -206,10 +206,13 @@ WORKDIR /app/loksh
 RUN meson setup --prefix="$PWD/install" build && \
     ninja -C build install
 
-# loksh -> UPX #
-FROM upx-base AS loksh
+FROM upx-base AS loksh-upx
 COPY --from=loksh-base /app/loksh/install/bin/ksh /app/loksh
-# RUN upx --best /app/loksh && \
+# RUN upx --best /app/loksh
+
+FROM debian:12.1-slim AS loksh-final
+WORKDIR /app
+COPY --from=loksh-upx /app/loksh ./
 RUN /app/loksh -c 'true'
 
 # Shell - oksh #
@@ -223,10 +226,13 @@ RUN ./configure && \
     make && \
     DESTDIR="$PWD/install" make install
 
-# oksh -> UPX #
-FROM upx-base AS oksh
+FROM upx-base AS oksh-upx
 COPY --from=oksh-base /app/oksh/install/usr/local/bin/oksh ./
-# RUN upx --best /app/oksh && \
+# RUN upx --best /app/oksh
+
+FROM debian:12.1-slim AS oksh-final
+WORKDIR /app
+COPY --from=oksh-upx /app/oksh ./
 RUN /app/oksh -c 'true'
 
 # ShellCheck #
@@ -406,8 +412,8 @@ COPY --from=hadolint /bin/hadolint ./
 COPY --from=go-final /app ./
 COPY --from=rust-final /app ./
 COPY --from=circleci-final /app ./
-COPY --from=loksh /app ./
-COPY --from=oksh /app ./
+COPY --from=loksh-final /app ./
+COPY --from=oksh-final /app ./
 COPY --from=shellcheck /app ./
 WORKDIR /app-tmp
 COPY utils/sanity-check.sh ./
