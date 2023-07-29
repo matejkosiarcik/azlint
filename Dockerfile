@@ -145,7 +145,7 @@ RUN /app/actionlint --help && \
     /app/tomljson --help
 
 # Rust #
-FROM rust:1.71.0-slim-bookworm AS rust-base
+FROM rust:1.71.0-slim-bookworm AS rust-builder
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends file nodejs npm && \
@@ -165,10 +165,13 @@ RUN node utils/cargo-packages.js | while read -r package version; do \
         ! file "/app/cargo/bin/$package" | grep "not stripped" && \
     true; done
 
-# Rust -> UPX #
-FROM upx-base AS rust
-COPY --from=rust-base /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden ./
+FROM upx-base AS rust-upx
+COPY --from=rust-builder /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden ./
 # RUN parallel upx --best ::: /app/* && \
+
+FROM debian:12.1-slim AS rust-final
+WORKDIR /app
+COPY --from=rust-upx /app/dotenv-linter /app/hush /app/shellharden ./
 RUN /app/dotenv-linter --help && \
     /app/hush --help && \
     /app/shellharden --help
@@ -397,7 +400,7 @@ WORKDIR /app/linters/bin
 COPY --from=composer-bin /usr/bin/composer ./
 COPY --from=hadolint /bin/hadolint ./
 COPY --from=go-final /app ./
-COPY --from=rust /app ./
+COPY --from=rust-final /app ./
 COPY --from=circleci /app ./
 COPY --from=loksh /app ./
 COPY --from=oksh /app ./
