@@ -454,16 +454,17 @@ COPY --from=loksh-final /app ./
 COPY --from=oksh-final /app ./
 COPY --from=shellcheck-final /app ./
 WORKDIR /app-tmp
-ENV PATH="$PATH:/app/linters/bin:/app/linters/python/bin:/app/linters/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin" \
-    PYTHONPATH=/app/linters/python \
-    COMPOSER_ALLOW_SUPERUSER=1 \
-    BUNDLE_DISABLE_SHARED_GEMS=true \
+ENV BUNDLE_DISABLE_SHARED_GEMS=true \
+    BUNDLE_GEMFILE=/app/linters/Gemfile \
     BUNDLE_PATH__SYSTEM=false \
     BUNDLE_PATH=/app/linters/bundle \
-    BUNDLE_GEMFILE=/app/linters/Gemfile \
+    COMPOSER_ALLOW_SUPERUSER=1 \
+    HOMEBREW_NO_ANALYTICS=1 \
+    HOMEBREW_NO_AUTO_UPDATE=1 \
+    PATH="$PATH:/app/linters/bin:/app/linters/python/bin:/app/linters/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin" \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONPYCACHEPREFIX=/app-tmp/python-cache
+    PYTHONPATH=/app/linters/python
 COPY utils/sanity-check ./sanity-check
 RUN touch /.dockerenv && \
     sh sanity-check/.main.sh

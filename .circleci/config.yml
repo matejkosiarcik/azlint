@@ -94,12 +94,20 @@ jobs:
           command: |
             bash linters/gitman/brew-installer/install.sh
             eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-            brew --help
-            brew bundle --help
       - run:
           name: Sanity check
           command: |
-            export PATH="$PATH:/app/linters/bin:/app/linters/python/bin:/app/linters/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin"
+            export \
+              BUNDLE_DISABLE_SHARED_GEMS=true \
+              BUNDLE_GEMFILE="$PWD/linters/Gemfile" \
+              BUNDLE_PATH__SYSTEM=false \
+              BUNDLE_PATH="$PWD/linters/bundle" \
+              HOMEBREW_NO_ANALYTICS=1 \
+              HOMEBREW_NO_AUTO_UPDATE=1 \
+              PATH="$PATH:$PWD/linters/bin:$PWD/linters/python/bin:$PWD/linters/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin" \
+              PIP_DISABLE_PIP_VERSION_CHECK=1 \
+              PYTHONPATH="$PWD/linters/python" \
+              PYTHONDONTWRITEBYTECODE=1
             sh utils/sanity-check/.main.sh
       - azlint-lint:
           command-base: PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" npm run azlint --
