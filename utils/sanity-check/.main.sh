@@ -5,8 +5,8 @@ set -euf
 # Somewhere in the chain, we might do an optimization which screws them up,
 # eg. upx, or being too aggressive with removing files from node_modules/bundle/python directories
 
-sh "$(dirname "$0")/brew.sh"
-sh "$(dirname "$0")/circleci.sh"
+# sh "$(dirname "$0")/brew.sh"
+# sh "$(dirname "$0")/circleci.sh"
 sh "$(dirname "$0")/composer.sh"
 sh "$(dirname "$0")/go-actionlint.sh"
 sh "$(dirname "$0")/go-checkmake.sh"

@@ -1,5 +1,5 @@
 #!/bin/sh
 set -euf
 
-circleci --help
-circleci version
+"${BINPREFIX:-}circleci" --help
+"${BINPREFIX:-}circleci" version

@@ -227,8 +227,11 @@ COPY --from=circleci-base /usr/local/bin/circleci ./
 # RUN upx --best /app/circleci
 
 FROM bins-aggregator AS circleci-final
+COPY utils/sanity-check/circleci.sh ./sanity-check.sh
 COPY --from=circleci-upx /app/circleci ./
-RUN /app/circleci --help
+ENV BINPREFIX=/app/
+RUN sh sanity-check.sh && \
+    rm -f sanity-check.sh
 
 # Shell - loksh #
 FROM debian:12.1-slim AS loksh-base
@@ -437,9 +440,13 @@ RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebre
 # LinuxBrew - final #
 FROM debian:12.1-slim AS brew-final
 WORKDIR /app
+COPY utils/sanity-check/brew.sh ./sanity-check.sh
 COPY --from=brew-link /home/linuxbrew /home/linuxbrew
 COPY --from=brew-link /.rbenv/versions /.rbenv/versions
-# TODO: individual sanity-check here
+ENV BINPREFIX=/home/linuxbrew/.linuxbrew/bin/
+RUN touch /.dockerenv && \
+    sh sanity-check.sh && \
+    rm -f sanity-check.sh
 
 ### Helpers ###
 
@@ -522,8 +529,7 @@ ENV BUNDLE_DISABLE_SHARED_GEMS=true \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app/linters/python
 COPY utils/sanity-check ./sanity-check
-RUN touch /.dockerenv && \
-    sh sanity-check/.main.sh
+RUN sh sanity-check/.main.sh
 
 ### Final stage ###
 
