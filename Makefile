@@ -118,7 +118,7 @@ multibuild:
 
 .PHONY: run
 run:
-	docker run --interactive --tty --rm --volume "$$PWD:/project:ro" matejkosiarcik/azlint:dev lint
+	time docker run --interactive --tty --rm --volume "$$PWD:/project:ro" matejkosiarcik/azlint:dev lint
 
 .PHONY: test
 test:
