@@ -159,7 +159,8 @@ ENV CARGO_PROFILE_RELEASE_LTO=true \
     CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
     CARGO_PROFILE_RELEASE_OPT_LEVEL=s \
     RUSTFLAGS='-Ctarget-cpu=native -Cstrip=symbols'
-RUN node utils/cargo-packages.js | while read -r package version; do \
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    node utils/cargo-packages.js | while read -r package version; do \
         cargo install "$package" --force --version "$version" --root "$PWD/cargo" && \
         file "/app/cargo/bin/$package" | grep "stripped" && \
         ! file "/app/cargo/bin/$package" | grep "not stripped" && \
