@@ -29,39 +29,47 @@ COPY linters/gitman.yml ./
 RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 
 # GoLang #
-FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-builder
+FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-actionlint
 WORKDIR /app
-ENV GO111MODULE=on
-COPY utils/git-latest-version.sh ./
-
-FROM --platform=$BUILDPLATFORM go-builder AS go-shfmt
-COPY --from=gitman /app/gitman/shfmt /app/shfmt
 ARG BUILDARCH TARGETARCH TARGETOS
-RUN GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" go install -ldflags='-s -w' "mvdan.cc/sh/v3/cmd/shfmt@v$(sh git-latest-version.sh shfmt)" && \
+RUN export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
+    go install -ldflags='-s -w' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
+    if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
+        mv "./go/bin/linux_$TARGETARCH/actionlint" './go/bin/actionlint' && \
+    true; fi
+
+FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-shfmt
+WORKDIR /app
+COPY --from=gitman /app/gitman/shfmt /app/shfmt
+COPY utils/git-latest-version.sh ./
+ARG BUILDARCH TARGETARCH TARGETOS
+RUN export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
+    go install -ldflags='-s -w' "mvdan.cc/sh/v3/cmd/shfmt@v$(sh git-latest-version.sh shfmt)" && \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         mv "./go/bin/linux_$TARGETARCH/shfmt" './go/bin/shfmt' && \
     true; fi
 
-FROM --platform=$BUILDPLATFORM go-builder AS go-stoml
+FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-stoml
+WORKDIR /app
 COPY --from=gitman /app/gitman/stoml /app/stoml
+COPY utils/git-latest-version.sh ./
 ARG BUILDARCH TARGETARCH TARGETOS
-RUN GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" go install -ldflags='-s -w' "github.com/freshautomations/stoml@v$(sh git-latest-version.sh stoml)" && \
+RUN export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
+    go install -ldflags='-s -w' "github.com/freshautomations/stoml@v$(sh git-latest-version.sh stoml)" && \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         mv "./go/bin/linux_$TARGETARCH/stoml" './go/bin/stoml' && \
     true; fi
 
-FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-other
+FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-tomljson
 WORKDIR /app
-ENV GO111MODULE=on
 ARG BUILDARCH TARGETARCH TARGETOS
-RUN export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" && \
-    go install -ldflags='-s -w' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
+RUN export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
     go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
-        mv "./go/bin/linux_$TARGETARCH/actionlint" './go/bin/actionlint' && \
         mv "./go/bin/linux_$TARGETARCH/tomljson" './go/bin/tomljson' && \
     true; fi
 
+# GoLang + custom make #
 FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-checkmake
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends pandoc && \
@@ -78,12 +86,13 @@ ARG TARGETARCH TARGETOS
 RUN GOOS="$TARGETOS" GOARCH="$TARGETARCH" make build
 
 # Golang -> UPX #
-FROM upx-base AS go
-COPY --from=go-shfmt /app/go/bin/shfmt ./
-COPY --from=go-stoml /app/go/bin/stoml ./
-COPY --from=go-other /app/go/bin/actionlint /app/go/bin/tomljson ./
+FROM upx-base AS go-final
+COPY --from=go-actionlint /app/go/bin/actionlint ./
 COPY --from=go-checkmake /app/checkmake/checkmake ./
 COPY --from=go-ec /app/editorconfig-checker/bin/ec ./
+COPY --from=go-shfmt /app/go/bin/shfmt ./
+COPY --from=go-stoml /app/go/bin/stoml ./
+COPY --from=go-tomljson /app/go/bin/tomljson ./
 # RUN parallel upx --best ::: /app/* && \
 RUN /app/actionlint --help && \
     /app/checkmake --help && \
@@ -343,7 +352,7 @@ COPY --from=ruby /app/bundle ./bundle
 WORKDIR /app/linters/bin
 COPY --from=composer-bin /usr/bin/composer ./
 COPY --from=hadolint /bin/hadolint ./
-COPY --from=go /app ./
+COPY --from=go-final /app ./
 COPY --from=rust /app ./
 COPY --from=circleci /app ./
 COPY --from=loksh /app ./
