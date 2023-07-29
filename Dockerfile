@@ -1,6 +1,6 @@
 #
 # checkov:skip=CKV_DOCKER_2:Disable HEALTHCHECK
-# ^^^ Healhcheck doesn't make sense for us here, because we are building a CLI tool, not server program
+# ^^^ Healhcheck doesn't make sense, because we are building a CLI tool, not server program
 # checkov:skip=CKV_DOCKER_7:Disable FROM :latest
 # ^^^ false positive for `--platform=$BUILDPLATFORM`
 
@@ -12,7 +12,7 @@
 # It is available in older versions, see https://packages.debian.org/bullseye/upx-ucl
 # However, there were upgrade problems for bookworm, see https://tracker.debian.org/pkg/upx-ucl
 # TODO: Change upx target from ubuntu to debian when possible
-FROM ubuntu:23.10 AS upx-base
+FROM --platform=$BUILDPLATFORM ubuntu:23.10 AS upx-base
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends parallel upx-ucl && \
@@ -52,7 +52,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         mv "./go/bin/linux_$TARGETARCH/actionlint" './go/bin/actionlint' && \
     true; fi
 
-FROM upx-base AS go-actionlint
+FROM --platform=$BUILDPLATFORM upx-base AS go-actionlint
 COPY --from=go-actionlint-build /app/go/bin/actionlint ./
 # RUN upx --best /app/actionlint
 
@@ -70,7 +70,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         mv "./go/bin/linux_$TARGETARCH/shfmt" './go/bin/shfmt' && \
     true; fi
 
-FROM upx-base AS go-shfmt
+FROM --platform=$BUILDPLATFORM upx-base AS go-shfmt
 COPY --from=go-shfmt-build /app/go/bin/shfmt ./
 # RUN upx --best /app/shfmt
 
@@ -88,7 +88,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         mv "./go/bin/linux_$TARGETARCH/stoml" './go/bin/stoml' && \
     true; fi
 
-FROM upx-base AS go-stoml
+FROM --platform=$BUILDPLATFORM upx-base AS go-stoml
 COPY --from=go-stoml-build /app/go/bin/stoml ./
 # RUN upx --best /app/stoml
 
@@ -104,7 +104,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         mv "./go/bin/linux_$TARGETARCH/tomljson" './go/bin/tomljson' && \
     true; fi
 
-FROM upx-base AS go-tomljson
+FROM --platform=$BUILDPLATFORM upx-base AS go-tomljson
 COPY --from=go-tomljson-build /app/go/bin/tomljson ./
 # RUN upx --best /app/tomljson
 
@@ -119,7 +119,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     GOOS="$TARGETOS" GOARCH="$TARGETARCH" BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
 
-FROM upx-base AS go-checkmake
+FROM --platform=$BUILDPLATFORM upx-base AS go-checkmake
 COPY --from=go-checkmake-build /app/checkmake/checkmake ./
 # RUN upx --best /app/checkmake
 
@@ -131,7 +131,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     GOOS="$TARGETOS" GOARCH="$TARGETARCH" make build
 
-FROM upx-base AS go-editorconfig-checker
+FROM --platform=$BUILDPLATFORM upx-base AS go-editorconfig-checker
 COPY --from=go-editorconfig-checker-build /app/editorconfig-checker/bin/ec ./
 # RUN upx --best /app/ec
 
@@ -151,19 +151,49 @@ RUN /app/actionlint --help && \
 
 # Rust #
 FROM rust:1.71.0-slim-bookworm AS rust-builder
+# FROM --platform=$BUILDPLATFORM rust:1.71.0-slim-bookworm AS rust-builder
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends file nodejs npm && \
     rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm
-COPY utils/cargo-packages.js ./utils/
-COPY linters/Cargo.toml ./linters/
+# ARG BUILDARCH BUILDOS TARGETARCH TARGETOS
+# COPY utils/rust/get-target-arch.sh ./
+# RUN if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
+#         apt-get update && \
+#         DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
+#             "gcc-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" \
+#             "g++-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" \
+#             "libc6-dev-$TARGETARCH-cross" && \
+#         rm -rf /var/lib/apt/lists/* && \
+#     true; fi
+# COPY utils/rust/get-target-tripple.sh ./
+# RUN if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
+#         rustup target add "$(sh get-target-tripple.sh)" && \
+#     true; fi
 ENV CARGO_PROFILE_RELEASE_LTO=true \
     CARGO_PROFILE_RELEASE_PANIC=abort \
     CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
     CARGO_PROFILE_RELEASE_OPT_LEVEL=s \
-    RUSTFLAGS='-Ctarget-cpu=native -Cstrip=symbols'
+    RUSTFLAGS='-Cstrip=symbols'
+COPY utils/cargo-packages.js ./utils/
+COPY linters/Cargo.toml ./linters/
+# RUN --mount=type=cache,target=/usr/local/cargo/registry \
+#     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
+#         HOST_CC=gcc \
+#         HOST_CXX=g++ \
+#         AR_x86_64_unknown_linux_gnu="/usr/bin/$(sh get-target-arch.sh)-linux-gnu-ar" \
+#         CC_x86_64_unknown_linux_gnu="/usr/bin/$(sh get-target-arch.sh)-linux-gnu-gcc" \
+#         CXX_x86_64_unknown_linux_gnu="/usr/bin/$(sh get-target-arch.sh)-linux-gnu-g++" \
+#         CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER="/usr/bin/$(sh get-target-arch.sh)-linux-gnu-gcc" \
+#         export HOST_CC HOST_CXX AR_x86_64_unknown_linux_gnu CC_x86_64_unknown_linux_gnu CXX_x86_64_unknown_linux_gnu CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER && \
+#     true; fi && \
+#     node utils/cargo-packages.js | while read -r package version; do \
+#         cargo install "$package" --force --version "$version" --root "$PWD/cargo" --target "$(sh get-target-tripple.sh)" && \
+#         file "/app/cargo/bin/$package" | grep "stripped" && \
+#         ! file "/app/cargo/bin/$package" | grep "not stripped" && \
+#     true; done
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     node utils/cargo-packages.js | while read -r package version; do \
         cargo install "$package" --force --version "$version" --root "$PWD/cargo" && \
@@ -171,7 +201,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
         ! file "/app/cargo/bin/$package" | grep "not stripped" && \
     true; done
 
-FROM upx-base AS rust-upx
+FROM --platform=$BUILDPLATFORM upx-base AS rust-upx
 COPY --from=rust-builder /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden ./
 # RUN parallel upx --best ::: /app/*
 
@@ -191,7 +221,7 @@ COPY --from=gitman /app/gitman/circleci-cli /app/circleci-cli
 WORKDIR /app/circleci-cli
 RUN bash install.sh
 
-FROM upx-base AS circleci-upx
+FROM --platform=$BUILDPLATFORM upx-base AS circleci-upx
 COPY --from=circleci-base /usr/local/bin/circleci ./
 # RUN upx --best /app/circleci
 
@@ -209,13 +239,16 @@ WORKDIR /app/loksh
 RUN meson setup --prefix="$PWD/install" build && \
     ninja -C build install
 
-FROM upx-base AS loksh-upx
+FROM --platform=$BUILDPLATFORM upx-base AS loksh-upx
 COPY --from=loksh-base /app/loksh/install/bin/ksh /app/loksh
 # RUN upx --best /app/loksh
 
 FROM bins-aggregator AS loksh-final
 COPY --from=loksh-upx /app/loksh ./
-RUN /app/loksh -c 'true'
+COPY utils/sanity-check/shell-loksh.sh ./
+ENV BINPREFIX=/app/
+RUN sh shell-loksh.sh && \
+    rm -f shell-loksh.sh
 
 # Shell - oksh #
 FROM debian:12.1-slim AS oksh-base
@@ -228,64 +261,97 @@ RUN ./configure && \
     make && \
     DESTDIR="$PWD/install" make install
 
-FROM upx-base AS oksh-upx
+FROM --platform=$BUILDPLATFORM upx-base AS oksh-upx
 COPY --from=oksh-base /app/oksh/install/usr/local/bin/oksh ./
 # RUN upx --best /app/oksh
 
 FROM bins-aggregator AS oksh-final
 COPY --from=oksh-upx /app/oksh ./
-RUN /app/oksh -c 'true'
+COPY utils/sanity-check/shell-oksh.sh ./
+ENV BINPREFIX=/app/
+RUN sh shell-oksh.sh && \
+    rm -f shell-oksh.sh
 
 # ShellCheck #
 FROM koalaman/shellcheck:v0.9.0 AS shellcheck-base
 
-FROM upx-base AS shellcheck-upx
+FROM --platform=$BUILDPLATFORM upx-base AS shellcheck-upx
 COPY --from=shellcheck-base /bin/shellcheck ./
 # RUN upx --best /app/shellcheck
 
 FROM bins-aggregator AS shellcheck-final
-COPY --from=shellcheck-base /bin/shellcheck ./
-RUN /app/shellcheck --help
+COPY utils/sanity-check/haskell-shellcheck.sh ./
+COPY --from=shellcheck-upx /app/shellcheck ./
+ENV BINPREFIX=/app/
+RUN sh haskell-shellcheck.sh && \
+    rm -f haskell-shellcheck.sh
 
 # Hadolint #
 FROM hadolint/hadolint:v2.12.0 AS hadolint-base
 
-FROM bins-aggregator AS hadolint-final
+FROM --platform=$BUILDPLATFORM upx-base AS hadolint-upx
 COPY --from=hadolint-base /bin/hadolint ./
-# TODO: Run this when qemu bugs are resolved
-# RUN /app/hadolint --help
+# RUN upx --best /app/hadolint
+
+FROM bins-aggregator AS hadolint-final
+COPY utils/sanity-check/haskell-hadolint.sh ./
+COPY --from=hadolint-upx /app/hadolint ./
+ENV BINPREFIX=/app/
+RUN sh haskell-hadolint.sh && \
+    rm -f haskell-hadolint.sh
 
 # NodeJS/NPM #
-FROM node:20.5.0-slim AS node
+FROM node:20.5.0-slim AS nodejs-base
+WORKDIR /app
+COPY linters/package.json linters/package-lock.json ./
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
+    npm prune --production
+
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS nodejs-final
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
     rm -rf /var/lib/apt/lists/*
-COPY linters/package.json linters/package-lock.json ./
-RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
-    npm prune --production
+COPY --from=nodejs-base /app/node_modules ./node_modules
 COPY utils/optimize/.common.sh utils/optimize/optimize-nodejs.sh ./
 RUN sh optimize-nodejs.sh
 
 # Ruby/Gem #
-FROM debian:12.1-slim AS ruby
+FROM debian:12.1-slim AS ruby-base
 WORKDIR /app
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bundler jq moreutils ruby ruby-build ruby-dev && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bundler ruby ruby-build ruby-dev && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/Gemfile linters/Gemfile.lock ./
 RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install
+
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS ruby-final
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
+    rm -rf /var/lib/apt/lists/*
+COPY --from=ruby-base /app/bundle ./bundle
 COPY utils/optimize/.common.sh utils/optimize/optimize-bundle.sh ./
 RUN sh optimize-bundle.sh
 
 # Python/Pip #
-FROM debian:12.1-slim AS python
+FROM debian:12.1-slim AS python-base
 WORKDIR /app
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils python3 python3-pip && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-pip && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/requirements.txt ./
-RUN PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 PYTHONPYCACHEPREFIX=python-cache python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONDONTWRITEBYTECODE=1
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python3 -m pip install --requirement requirements.txt --target python
+
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS python-final
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
+    rm -rf /var/lib/apt/lists/*
+COPY --from=python-base /app/python ./python
 COPY utils/optimize/.common.sh utils/optimize/optimize-python.sh ./
 RUN sh optimize-python.sh
 
@@ -293,13 +359,20 @@ RUN sh optimize-python.sh
 FROM composer:2.5.8 AS composer-bin
 
 # PHP/Composer #
-FROM debian:12.1-slim AS composer-vendor
+FROM debian:12.1-slim AS composer-vendor-base
 WORKDIR /app
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates composer jq moreutils php php-cli php-mbstring php-zip && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates composer php php-cli php-mbstring php-zip && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/composer.json linters/composer.lock ./
 RUN composer install --no-cache
+
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS composer-vendor-final
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
+    rm -rf /var/lib/apt/lists/*
+COPY --from=composer-vendor-base /app/vendor ./vendor
 COPY utils/optimize/.common.sh utils/optimize/optimize-composer.sh ./
 RUN sh optimize-composer.sh
 
@@ -370,11 +443,8 @@ COPY --from=brew-link /.rbenv/versions /.rbenv/versions
 ### Helpers ###
 
 # Main CLI #
-FROM node:20.5.0-slim AS cli
+FROM node:20.5.0-slim AS cli-base
 WORKDIR /app
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
-    rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
     npx modclean --patterns default:safe --run --error-halt && \
@@ -383,6 +453,14 @@ COPY tsconfig.json ./
 COPY src/ ./src/
 RUN npm run build && \
     npm prune --production
+
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS cli-final
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
+    rm -rf /var/lib/apt/lists/*
+COPY --from=cli-base /app/cli ./cli
+COPY --from=cli-base /app/node_modules ./node_modules
 COPY utils/optimize/.common.sh utils/optimize/optimize-nodejs.sh ./
 RUN sh optimize-nodejs.sh
 
@@ -412,15 +490,15 @@ COPY --from=azlint-bin /app/azlint /app/fmt /app/lint /usr/bin/
 WORKDIR /app
 COPY VERSION.txt ./
 WORKDIR /app/cli
-COPY --from=cli /app/cli ./
-COPY --from=cli /app/node_modules ./node_modules
+COPY --from=cli-final /app/cli ./
+COPY --from=cli-final /app/node_modules ./node_modules
 COPY src/shell-dry-run.sh src/shell-dry-run-utils.sh ./
 WORKDIR /app/linters
 COPY linters/Gemfile linters/Gemfile.lock linters/composer.json ./
-COPY --from=composer-vendor /app/vendor ./vendor
-COPY --from=node /app/node_modules ./node_modules
-COPY --from=python /app/python ./python
-COPY --from=ruby /app/bundle ./bundle
+COPY --from=composer-vendor-final /app/vendor ./vendor
+COPY --from=nodejs-final /app/node_modules ./node_modules
+COPY --from=python-final /app/python ./python
+COPY --from=ruby-final /app/bundle ./bundle
 WORKDIR /app/linters/bin
 COPY --from=composer-bin /usr/bin/composer ./
 COPY --from=hadolint-final /app ./
@@ -431,19 +509,20 @@ COPY --from=loksh-final /app ./
 COPY --from=oksh-final /app ./
 COPY --from=shellcheck-final /app ./
 WORKDIR /app-tmp
-COPY utils/sanity-check.sh ./
-ENV PATH="$PATH:/app/linters/bin:/app/linters/python/bin:/app/linters/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin" \
-    PYTHONPATH=/app/linters/python \
-    COMPOSER_ALLOW_SUPERUSER=1 \
-    BUNDLE_DISABLE_SHARED_GEMS=true \
+ENV BUNDLE_DISABLE_SHARED_GEMS=true \
+    BUNDLE_GEMFILE=/app/linters/Gemfile \
     BUNDLE_PATH__SYSTEM=false \
     BUNDLE_PATH=/app/linters/bundle \
-    BUNDLE_GEMFILE=/app/linters/Gemfile \
+    COMPOSER_ALLOW_SUPERUSER=1 \
+    HOMEBREW_NO_ANALYTICS=1 \
+    HOMEBREW_NO_AUTO_UPDATE=1 \
+    PATH="$PATH:/app/linters/bin:/app/linters/python/bin:/app/linters/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin" \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONPYCACHEPREFIX=/app-tmp/python-cache
+    PYTHONPATH=/app/linters/python
+COPY utils/sanity-check ./sanity-check
 RUN touch /.dockerenv && \
-    sh sanity-check.sh
+    sh sanity-check/.main.sh
 
 ### Final stage ###
 

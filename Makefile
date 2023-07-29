@@ -109,16 +109,16 @@ bootstrap:
 
 .PHONY: build
 build:
-	docker build . --tag matejkosiarcik/azlint:dev --pull
+	time docker build . --tag matejkosiarcik/azlint:dev --pull
 
 .PHONY: multibuild
 multibuild:
-	docker build . --tag matejkosiarcik/azlint:dev-amd64 --platform linux/amd64 --pull
-	docker build . --tag matejkosiarcik/azlint:dev-arm64 --platform linux/arm64 --pull
+	time docker build . --tag matejkosiarcik/azlint:dev-amd64 --platform linux/amd64 --pull
+	time docker build . --tag matejkosiarcik/azlint:dev-arm64 --platform linux/arm64 --pull
 
 .PHONY: run
 run:
-	docker run --interactive --tty --rm --volume "$$PWD:/project:ro" matejkosiarcik/azlint:dev lint
+	time docker run --interactive --tty --rm --volume "$$PWD:/project:ro" matejkosiarcik/azlint:dev lint
 
 .PHONY: test
 test:

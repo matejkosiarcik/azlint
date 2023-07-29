@@ -140,7 +140,6 @@ import { Linters } from './linters';
     process.env['HOMEBREW_NO_AUTO_UPDATE'] = '1';
     process.env['HOMEBREW_NO_ANALYTICS'] = '1';
     process.env['HOMEBREW_NO_ENV_HINTS'] = '1';
-    process.env['HOMEBREW_NO_INSTALL_CLEANUP'] = '1';
 
     process.env['COMPOSER_ALLOW_SUPERUSER'] = '1';
 
