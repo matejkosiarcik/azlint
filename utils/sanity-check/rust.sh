@@ -1,10 +1,10 @@
 #!/bin/sh
 set -euf
 
-dotenv-linter --help
-dotenv-linter --version
-hush --help
-hush --version
-printf 'true\n' | hush
-shellharden --help
-shellharden --version
+"${BINPREFIX:-}dotenv-linter" --help
+"${BINPREFIX:-}dotenv-linter" --version
+"${BINPREFIX:-}hush" --help
+"${BINPREFIX:-}hush" --version
+printf 'true\n' | "${BINPREFIX:-}hush"
+"${BINPREFIX:-}shellharden" --help
+"${BINPREFIX:-}shellharden" --version

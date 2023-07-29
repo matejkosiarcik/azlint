@@ -206,10 +206,11 @@ COPY --from=rust-builder /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/c
 # RUN parallel upx --best ::: /app/*
 
 FROM bins-aggregator AS rust-final
+COPY utils/sanity-check/rust.sh ./sanity-check-rust.sh
 COPY --from=rust-upx /app/dotenv-linter /app/hush /app/shellharden ./
-RUN /app/dotenv-linter --help && \
-    /app/hush --help && \
-    /app/shellharden --help
+ENV BINPREFIX=/app/
+RUN sh sanity-check-rust.sh && \
+    rm -f sanity-check-rust.sh
 
 # CircleCI CLI #
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
