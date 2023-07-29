@@ -88,9 +88,16 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         mv "./go/bin/linux_$TARGETARCH/stoml" './go/bin/stoml' && \
     true; fi
 
-FROM --platform=$BUILDPLATFORM upx-base AS go-stoml
+FROM --platform=$BUILDPLATFORM upx-base AS go-stoml-upx
 COPY --from=go-stoml-build /app/go/bin/stoml ./
 # RUN upx --best /app/stoml
+
+FROM bins-aggregator AS go-stoml-final
+COPY utils/sanity-check/go-stoml.sh ./sanity-check.sh
+COPY --from=go-stoml-upx /app/stoml ./
+ENV BINPREFIX=/app/
+RUN sh sanity-check.sh && \
+    rm -f sanity-check.sh
 
 FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-tomljson-build
 WORKDIR /app
@@ -140,14 +147,8 @@ COPY --from=go-actionlint /app/actionlint ./
 COPY --from=go-checkmake /app/checkmake ./
 COPY --from=go-editorconfig-checker /app/ec ./
 COPY --from=go-shfmt /app/shfmt ./
-COPY --from=go-stoml /app/stoml ./
+COPY --from=go-stoml-final /app/stoml ./
 COPY --from=go-tomljson /app/tomljson ./
-RUN /app/actionlint --help && \
-    /app/checkmake --help && \
-    /app/ec --help && \
-    /app/shfmt --help && \
-    /app/stoml --help && \
-    /app/tomljson --help
 
 # Rust #
 FROM rust:1.71.0-slim-bookworm AS rust-builder
