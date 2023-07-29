@@ -279,14 +279,18 @@ COPY --from=hadolint-base /bin/hadolint ./
 # RUN /app/hadolint --help
 
 # NodeJS/NPM #
-FROM node:20.5.0-slim AS node
+FROM node:20.5.0-slim AS nodejs-base
+WORKDIR /app
+COPY linters/package.json linters/package-lock.json ./
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
+    npm prune --production
+
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS nodejs-final
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
     rm -rf /var/lib/apt/lists/*
-COPY linters/package.json linters/package-lock.json ./
-RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
-    npm prune --production
+COPY --from=nodejs-base /app/node_modules ./node_modules
 COPY utils/optimize/.common.sh utils/optimize/optimize-nodejs.sh ./
 RUN sh optimize-nodejs.sh
 
@@ -463,7 +467,7 @@ COPY src/shell-dry-run.sh src/shell-dry-run-utils.sh ./
 WORKDIR /app/linters
 COPY linters/Gemfile linters/Gemfile.lock linters/composer.json ./
 COPY --from=composer-vendor-final /app/vendor ./vendor
-COPY --from=node /app/node_modules ./node_modules
+COPY --from=nodejs-final /app/node_modules ./node_modules
 COPY --from=python-final /app/python ./python
 COPY --from=ruby /app/bundle ./bundle
 WORKDIR /app/linters/bin
