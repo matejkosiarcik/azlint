@@ -7,8 +7,6 @@
 # hadolint global ignore=DL3042
 # ^^^ pip cache
 
-### Components/Linters ###
-
 # Upx #
 # NOTE: `upx-ucl` is no longer available in debian 12 bookworm
 # It is available in older versions, see https://packages.debian.org/bullseye/upx-ucl
@@ -19,6 +17,14 @@ WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends parallel upx-ucl && \
     rm -rf /var/lib/apt/lists/*
+
+FROM debian:12.1-slim AS bins-aggregator
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends file && \
+    rm -rf /var/lib/apt/lists/*
+
+### Components/Linters ###
 
 # Gitman #
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS gitman
@@ -129,8 +135,7 @@ FROM upx-base AS go-editorconfig-checker
 COPY --from=go-editorconfig-checker-build /app/editorconfig-checker/bin/ec ./
 # RUN upx --best /app/ec
 
-FROM debian:12.1-slim AS go-final
-WORKDIR /app
+FROM bins-aggregator AS go-final
 COPY --from=go-actionlint /app/actionlint ./
 COPY --from=go-checkmake /app/checkmake ./
 COPY --from=go-editorconfig-checker /app/ec ./
@@ -170,8 +175,7 @@ FROM upx-base AS rust-upx
 COPY --from=rust-builder /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden ./
 # RUN parallel upx --best ::: /app/*
 
-FROM debian:12.1-slim AS rust-final
-WORKDIR /app
+FROM bins-aggregator AS rust-final
 COPY --from=rust-upx /app/dotenv-linter /app/hush /app/shellharden ./
 RUN /app/dotenv-linter --help && \
     /app/hush --help && \
@@ -191,8 +195,7 @@ FROM upx-base AS circleci-upx
 COPY --from=circleci-base /usr/local/bin/circleci ./
 # RUN upx --best /app/circleci
 
-FROM debian:12.1-slim AS circleci-final
-WORKDIR /app
+FROM bins-aggregator AS circleci-final
 COPY --from=circleci-upx /app/circleci ./
 RUN /app/circleci --help
 
@@ -210,8 +213,7 @@ FROM upx-base AS loksh-upx
 COPY --from=loksh-base /app/loksh/install/bin/ksh /app/loksh
 # RUN upx --best /app/loksh
 
-FROM debian:12.1-slim AS loksh-final
-WORKDIR /app
+FROM bins-aggregator AS loksh-final
 COPY --from=loksh-upx /app/loksh ./
 RUN /app/loksh -c 'true'
 
@@ -230,8 +232,7 @@ FROM upx-base AS oksh-upx
 COPY --from=oksh-base /app/oksh/install/usr/local/bin/oksh ./
 # RUN upx --best /app/oksh
 
-FROM debian:12.1-slim AS oksh-final
-WORKDIR /app
+FROM bins-aggregator AS oksh-final
 COPY --from=oksh-upx /app/oksh ./
 RUN /app/oksh -c 'true'
 
@@ -242,16 +243,14 @@ FROM upx-base AS shellcheck-upx
 COPY --from=shellcheck-base /bin/shellcheck ./
 # RUN upx --best /app/shellcheck
 
-FROM debian:12.1-slim AS shellcheck-final
-WORKDIR /app
+FROM bins-aggregator AS shellcheck-final
 COPY --from=shellcheck-base /bin/shellcheck ./
 RUN /app/shellcheck --help
 
 # Hadolint #
 FROM hadolint/hadolint:v2.12.0 AS hadolint-base
 
-FROM debian:12.1-slim AS hadolint-final
-WORKDIR /app
+FROM bins-aggregator AS hadolint-final
 COPY --from=hadolint-base /bin/hadolint ./
 # TODO: Run this when qemu bugs are resolved
 # RUN /app/hadolint --help
