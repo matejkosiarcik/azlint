@@ -302,13 +302,23 @@ COPY utils/optimize/.common.sh utils/optimize/optimize-bundle.sh ./
 RUN sh optimize-bundle.sh
 
 # Python/Pip #
-FROM debian:12.1-slim AS python
+FROM debian:12.1-slim AS python-base
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-pip && \
+    rm -rf /var/lib/apt/lists/*
+COPY linters/requirements.txt ./
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONDONTWRITEBYTECODE=1
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python3 -m pip install --requirement requirements.txt --target python
+
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS python-final
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils python3 python3-pip && \
     rm -rf /var/lib/apt/lists/*
-COPY linters/requirements.txt ./
-RUN PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 PYTHONPYCACHEPREFIX=python-cache python3 -m pip install --no-cache-dir --requirement requirements.txt --target python
+COPY --from=python-base /app/python ./python
 COPY utils/optimize/.common.sh utils/optimize/optimize-python.sh ./
 RUN sh optimize-python.sh
 
@@ -442,7 +452,7 @@ WORKDIR /app/linters
 COPY linters/Gemfile linters/Gemfile.lock linters/composer.json ./
 COPY --from=composer-vendor /app/vendor ./vendor
 COPY --from=node /app/node_modules ./node_modules
-COPY --from=python /app/python ./python
+COPY --from=python-final /app/python ./python
 COPY --from=ruby /app/bundle ./bundle
 WORKDIR /app/linters/bin
 COPY --from=composer-bin /usr/bin/composer ./
