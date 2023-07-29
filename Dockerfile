@@ -27,7 +27,8 @@ COPY requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --requirement requirements.txt --target python
 COPY linters/gitman.yml ./
-RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
+RUN --mount=type=cache,target=/root/.gitcache \
+    PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 
 # GoLang #
 FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-actionlint
