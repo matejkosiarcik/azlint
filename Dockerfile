@@ -73,7 +73,6 @@ RUN --mount=type=cache,target=/app/go/pkg \
         mv "./go/bin/linux_$TARGETARCH/tomljson" './go/bin/tomljson' && \
     true; fi
 
-# GoLang + custom make #
 FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-checkmake
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends pandoc && \
@@ -81,7 +80,8 @@ RUN apt-get update && \
 COPY --from=gitman /app/gitman/checkmake /app/checkmake
 WORKDIR /app/checkmake
 ARG TARGETARCH TARGETOS
-RUN GOOS="$TARGETOS" GOARCH="$TARGETARCH" BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    GOOS="$TARGETOS" GOARCH="$TARGETARCH" BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
 
 FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-ec
 COPY --from=gitman /app/gitman/editorconfig-checker /app/editorconfig-checker
