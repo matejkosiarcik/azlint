@@ -168,7 +168,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
 
 FROM upx-base AS rust-upx
 COPY --from=rust-builder /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden ./
-# RUN parallel upx --best ::: /app/* && \
+# RUN parallel upx --best ::: /app/*
 
 FROM debian:12.1-slim AS rust-final
 WORKDIR /app
