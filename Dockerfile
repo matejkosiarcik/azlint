@@ -206,11 +206,11 @@ COPY --from=rust-builder /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/c
 # RUN parallel upx --best ::: /app/*
 
 FROM bins-aggregator AS rust-final
-COPY utils/sanity-check/rust.sh ./sanity-check-rust.sh
+COPY utils/sanity-check/rust.sh ./sanity-check.sh
 COPY --from=rust-upx /app/dotenv-linter /app/hush /app/shellharden ./
 ENV BINPREFIX=/app/
-RUN sh sanity-check-rust.sh && \
-    rm -f sanity-check-rust.sh
+RUN sh sanity-check.sh && \
+    rm -f sanity-check.sh
 
 # CircleCI CLI #
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
@@ -246,10 +246,10 @@ COPY --from=loksh-base /app/loksh/install/bin/ksh /app/loksh
 
 FROM bins-aggregator AS loksh-final
 COPY --from=loksh-upx /app/loksh ./
-COPY utils/sanity-check/shell-loksh.sh ./
+COPY utils/sanity-check/shell-loksh.sh ./sanity-check.sh
 ENV BINPREFIX=/app/
-RUN sh shell-loksh.sh && \
-    rm -f shell-loksh.sh
+RUN sh sanity-check.sh && \
+    rm -f sanity-check.sh
 
 # Shell - oksh #
 FROM debian:12.1-slim AS oksh-base
@@ -268,10 +268,10 @@ COPY --from=oksh-base /app/oksh/install/usr/local/bin/oksh ./
 
 FROM bins-aggregator AS oksh-final
 COPY --from=oksh-upx /app/oksh ./
-COPY utils/sanity-check/shell-oksh.sh ./
+COPY utils/sanity-check/shell-oksh.sh ./sanity-check.sh
 ENV BINPREFIX=/app/
-RUN sh shell-oksh.sh && \
-    rm -f shell-oksh.sh
+RUN sh sanity-check.sh && \
+    rm -f sanity-check.sh
 
 # ShellCheck #
 FROM koalaman/shellcheck:v0.9.0 AS shellcheck-base
