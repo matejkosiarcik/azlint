@@ -12,7 +12,7 @@
 # It is available in older versions, see https://packages.debian.org/bullseye/upx-ucl
 # However, there were upgrade problems for bookworm, see https://tracker.debian.org/pkg/upx-ucl
 # TODO: Change upx target from ubuntu to debian when possible
-FROM ubuntu:23.10 AS upx-base
+FROM --platform=$BUILDPLATFORM ubuntu:23.10 AS upx-base
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends parallel upx-ucl && \
@@ -52,7 +52,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         mv "./go/bin/linux_$TARGETARCH/actionlint" './go/bin/actionlint' && \
     true; fi
 
-FROM upx-base AS go-actionlint
+FROM --platform=$BUILDPLATFORM upx-base AS go-actionlint
 COPY --from=go-actionlint-build /app/go/bin/actionlint ./
 # RUN upx --best /app/actionlint
 
@@ -70,7 +70,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         mv "./go/bin/linux_$TARGETARCH/shfmt" './go/bin/shfmt' && \
     true; fi
 
-FROM upx-base AS go-shfmt
+FROM --platform=$BUILDPLATFORM upx-base AS go-shfmt
 COPY --from=go-shfmt-build /app/go/bin/shfmt ./
 # RUN upx --best /app/shfmt
 
@@ -88,7 +88,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         mv "./go/bin/linux_$TARGETARCH/stoml" './go/bin/stoml' && \
     true; fi
 
-FROM upx-base AS go-stoml
+FROM --platform=$BUILDPLATFORM upx-base AS go-stoml
 COPY --from=go-stoml-build /app/go/bin/stoml ./
 # RUN upx --best /app/stoml
 
@@ -104,7 +104,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         mv "./go/bin/linux_$TARGETARCH/tomljson" './go/bin/tomljson' && \
     true; fi
 
-FROM upx-base AS go-tomljson
+FROM --platform=$BUILDPLATFORM upx-base AS go-tomljson
 COPY --from=go-tomljson-build /app/go/bin/tomljson ./
 # RUN upx --best /app/tomljson
 
@@ -119,7 +119,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     GOOS="$TARGETOS" GOARCH="$TARGETARCH" BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
 
-FROM upx-base AS go-checkmake
+FROM --platform=$BUILDPLATFORM upx-base AS go-checkmake
 COPY --from=go-checkmake-build /app/checkmake/checkmake ./
 # RUN upx --best /app/checkmake
 
@@ -131,7 +131,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     GOOS="$TARGETOS" GOARCH="$TARGETARCH" make build
 
-FROM upx-base AS go-editorconfig-checker
+FROM --platform=$BUILDPLATFORM upx-base AS go-editorconfig-checker
 COPY --from=go-editorconfig-checker-build /app/editorconfig-checker/bin/ec ./
 # RUN upx --best /app/ec
 
@@ -194,7 +194,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
         ! file "/app/cargo/bin/$package" | grep "not stripped" && \
     true; done
 
-FROM upx-base AS rust-upx
+FROM --platform=$BUILDPLATFORM upx-base AS rust-upx
 COPY --from=rust-builder /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden ./
 # RUN parallel upx --best ::: /app/*
 
@@ -214,7 +214,7 @@ COPY --from=gitman /app/gitman/circleci-cli /app/circleci-cli
 WORKDIR /app/circleci-cli
 RUN bash install.sh
 
-FROM upx-base AS circleci-upx
+FROM --platform=$BUILDPLATFORM upx-base AS circleci-upx
 COPY --from=circleci-base /usr/local/bin/circleci ./
 # RUN upx --best /app/circleci
 
@@ -232,7 +232,7 @@ WORKDIR /app/loksh
 RUN meson setup --prefix="$PWD/install" build && \
     ninja -C build install
 
-FROM upx-base AS loksh-upx
+FROM --platform=$BUILDPLATFORM upx-base AS loksh-upx
 COPY --from=loksh-base /app/loksh/install/bin/ksh /app/loksh
 # RUN upx --best /app/loksh
 
@@ -251,7 +251,7 @@ RUN ./configure && \
     make && \
     DESTDIR="$PWD/install" make install
 
-FROM upx-base AS oksh-upx
+FROM --platform=$BUILDPLATFORM upx-base AS oksh-upx
 COPY --from=oksh-base /app/oksh/install/usr/local/bin/oksh ./
 # RUN upx --best /app/oksh
 
@@ -262,7 +262,7 @@ RUN /app/oksh -c 'true'
 # ShellCheck #
 FROM koalaman/shellcheck:v0.9.0 AS shellcheck-base
 
-FROM upx-base AS shellcheck-upx
+FROM --platform=$BUILDPLATFORM upx-base AS shellcheck-upx
 COPY --from=shellcheck-base /bin/shellcheck ./
 # RUN upx --best /app/shellcheck
 
