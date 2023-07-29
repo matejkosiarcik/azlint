@@ -187,10 +187,13 @@ COPY --from=gitman /app/gitman/circleci-cli /app/circleci-cli
 WORKDIR /app/circleci-cli
 RUN bash install.sh
 
-# CircleCI CLI -> UPX #
-FROM upx-base AS circleci
+FROM upx-base AS circleci-upx
 COPY --from=circleci-base /usr/local/bin/circleci ./
-# RUN upx --best /app/circleci && \
+# RUN upx --best /app/circleci
+
+FROM debian:12.1-slim AS circleci-final
+WORKDIR /app
+COPY --from=circleci-upx /app/circleci ./
 RUN /app/circleci --help
 
 # Shell - loksh #
@@ -402,7 +405,7 @@ COPY --from=composer-bin /usr/bin/composer ./
 COPY --from=hadolint /bin/hadolint ./
 COPY --from=go-final /app ./
 COPY --from=rust-final /app ./
-COPY --from=circleci /app ./
+COPY --from=circleci-final /app ./
 COPY --from=loksh /app ./
 COPY --from=oksh /app ./
 COPY --from=shellcheck /app ./
