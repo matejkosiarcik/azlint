@@ -29,12 +29,12 @@ COPY linters/gitman.yml ./
 RUN PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 
 # GoLang #
-FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-gitman-base
+FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-builder
 WORKDIR /app
 ENV GO111MODULE=on
 COPY utils/git-latest-version.sh ./
 
-FROM --platform=$BUILDPLATFORM go-gitman-base AS go-shfmt
+FROM --platform=$BUILDPLATFORM go-builder AS go-shfmt
 COPY --from=gitman /app/gitman/shfmt /app/shfmt
 ARG BUILDARCH TARGETARCH TARGETOS
 RUN GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" go install -ldflags='-s -w' "mvdan.cc/sh/v3/cmd/shfmt@v$(sh git-latest-version.sh shfmt)" && \
@@ -42,7 +42,7 @@ RUN GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" go install -ldflags='
         mv "./go/bin/linux_$TARGETARCH/shfmt" './go/bin/shfmt' && \
     true; fi
 
-FROM --platform=$BUILDPLATFORM go-gitman-base AS go-stoml
+FROM --platform=$BUILDPLATFORM go-builder AS go-stoml
 COPY --from=gitman /app/gitman/stoml /app/stoml
 ARG BUILDARCH TARGETARCH TARGETOS
 RUN GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" go install -ldflags='-s -w' "github.com/freshautomations/stoml@v$(sh git-latest-version.sh stoml)" && \
