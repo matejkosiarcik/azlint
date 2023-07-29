@@ -1,3 +1,3 @@
 #!/bin/sh
 
-oksh -c 'true'
+"${BINPREFIX:-}oksh" -c 'true'

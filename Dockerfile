@@ -238,7 +238,9 @@ COPY --from=loksh-base /app/loksh/install/bin/ksh /app/loksh
 
 FROM bins-aggregator AS loksh-final
 COPY --from=loksh-upx /app/loksh ./
-RUN /app/loksh -c 'true'
+COPY utils/sanity-check/shell-loksh.sh ./
+ENV BINPREFIX=/app/
+RUN sh shell-loksh.sh
 
 # Shell - oksh #
 FROM debian:12.1-slim AS oksh-base
@@ -257,7 +259,9 @@ COPY --from=oksh-base /app/oksh/install/usr/local/bin/oksh ./
 
 FROM bins-aggregator AS oksh-final
 COPY --from=oksh-upx /app/oksh ./
-RUN /app/oksh -c 'true'
+COPY utils/sanity-check/shell-oksh.sh ./
+ENV BINPREFIX=/app/
+RUN sh shell-oksh.sh
 
 # ShellCheck #
 FROM koalaman/shellcheck:v0.9.0 AS shellcheck-base

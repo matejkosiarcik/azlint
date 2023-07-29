@@ -1,4 +1,4 @@
 #!/bin/sh
 set -euf
 
-loksh -c 'true'
+"${BINPREFIX:-}loksh" -c 'true'
