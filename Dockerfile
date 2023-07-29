@@ -295,13 +295,20 @@ COPY utils/optimize/.common.sh utils/optimize/optimize-nodejs.sh ./
 RUN sh optimize-nodejs.sh
 
 # Ruby/Gem #
-FROM debian:12.1-slim AS ruby
+FROM debian:12.1-slim AS ruby-base
 WORKDIR /app
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bundler jq moreutils ruby ruby-build ruby-dev && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bundler ruby ruby-build ruby-dev && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/Gemfile linters/Gemfile.lock ./
 RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install
+
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS ruby-final
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
+    rm -rf /var/lib/apt/lists/*
+COPY --from=ruby-base /app/bundle ./bundle
 COPY utils/optimize/.common.sh utils/optimize/optimize-bundle.sh ./
 RUN sh optimize-bundle.sh
 
@@ -469,7 +476,7 @@ COPY linters/Gemfile linters/Gemfile.lock linters/composer.json ./
 COPY --from=composer-vendor-final /app/vendor ./vendor
 COPY --from=nodejs-final /app/node_modules ./node_modules
 COPY --from=python-final /app/python ./python
-COPY --from=ruby /app/bundle ./bundle
+COPY --from=ruby-final /app/bundle ./bundle
 WORKDIR /app/linters/bin
 COPY --from=composer-bin /usr/bin/composer ./
 COPY --from=hadolint-final /app ./
