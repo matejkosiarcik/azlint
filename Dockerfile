@@ -351,14 +351,21 @@ RUN --mount=type=cache,target=/.rbenv/cache \
     rbenv install "$ruby_version_short" && \
     find /.rbenv/versions -mindepth 1 -maxdepth 1 -type d -not -name "$ruby_version_short" -exec rm -rf {} \;
 
-# LinuxBrew - final #
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-final
+# LinuxBrew - join brew & rbenv #
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-link
 WORKDIR /app
 COPY --from=brew-install /home/linuxbrew /home/linuxbrew
 COPY --from=brew-rbenv /.rbenv/versions /.rbenv/versions
 RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
     ruby_version_short="$(sed -E 's~_.+$~~' </home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
     ln -sf "/.rbenv/versions/$ruby_version_short" "/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby/$ruby_version_full"
+
+# LinuxBrew - final #
+FROM debian:12.1-slim AS brew-final
+WORKDIR /app
+COPY --from=brew-link /home/linuxbrew /home/linuxbrew
+COPY --from=brew-link /.rbenv/versions /.rbenv/versions
+# TODO: individual sanity-check here
 
 ### Helpers ###
 
