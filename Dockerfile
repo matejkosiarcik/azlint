@@ -1,6 +1,6 @@
 #
 # checkov:skip=CKV_DOCKER_2:Disable HEALTHCHECK
-# ^^^ Healhcheck doesn't make sense for us here, because we are building a CLI tool, not server program
+# ^^^ Healhcheck doesn't make sense, because we are building a CLI tool, not server program
 # checkov:skip=CKV_DOCKER_7:Disable FROM :latest
 # ^^^ false positive for `--platform=$BUILDPLATFORM`
 
