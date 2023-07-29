@@ -1,4 +1,4 @@
-#!/binsh
+#!/bin/sh
 set -euf
 
 composer --help
