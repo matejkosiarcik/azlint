@@ -316,7 +316,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS python-final
 WORKDIR /app
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils python3 python3-pip && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=python-base /app/python ./python
 COPY utils/optimize/.common.sh utils/optimize/optimize-python.sh ./
@@ -326,13 +326,20 @@ RUN sh optimize-python.sh
 FROM composer:2.5.8 AS composer-bin
 
 # PHP/Composer #
-FROM debian:12.1-slim AS composer-vendor
+FROM debian:12.1-slim AS composer-vendor-base
 WORKDIR /app
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates composer jq moreutils php php-cli php-mbstring php-zip && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates composer php php-cli php-mbstring php-zip && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/composer.json linters/composer.lock ./
 RUN composer install --no-cache
+
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS composer-vendor-final
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
+    rm -rf /var/lib/apt/lists/*
+COPY --from=composer-vendor-base /app/vendor ./vendor
 COPY utils/optimize/.common.sh utils/optimize/optimize-composer.sh ./
 RUN sh optimize-composer.sh
 
@@ -450,7 +457,7 @@ COPY --from=cli /app/node_modules ./node_modules
 COPY src/shell-dry-run.sh src/shell-dry-run-utils.sh ./
 WORKDIR /app/linters
 COPY linters/Gemfile linters/Gemfile.lock linters/composer.json ./
-COPY --from=composer-vendor /app/vendor ./vendor
+COPY --from=composer-vendor-final /app/vendor ./vendor
 COPY --from=node /app/node_modules ./node_modules
 COPY --from=python-final /app/python ./python
 COPY --from=ruby /app/bundle ./bundle
