@@ -410,11 +410,8 @@ COPY --from=brew-link /.rbenv/versions /.rbenv/versions
 ### Helpers ###
 
 # Main CLI #
-FROM node:20.5.0-slim AS cli
+FROM node:20.5.0-slim AS cli-base
 WORKDIR /app
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
-    rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
     npx modclean --patterns default:safe --run --error-halt && \
@@ -423,6 +420,14 @@ COPY tsconfig.json ./
 COPY src/ ./src/
 RUN npm run build && \
     npm prune --production
+
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS cli-final
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
+    rm -rf /var/lib/apt/lists/*
+COPY --from=cli-base /app/cli ./cli
+COPY --from=cli-base /app/node_modules ./node_modules
 COPY utils/optimize/.common.sh utils/optimize/optimize-nodejs.sh ./
 RUN sh optimize-nodejs.sh
 
@@ -452,8 +457,8 @@ COPY --from=azlint-bin /app/azlint /app/fmt /app/lint /usr/bin/
 WORKDIR /app
 COPY VERSION.txt ./
 WORKDIR /app/cli
-COPY --from=cli /app/cli ./
-COPY --from=cli /app/node_modules ./node_modules
+COPY --from=cli-final /app/cli ./
+COPY --from=cli-final /app/node_modules ./node_modules
 COPY src/shell-dry-run.sh src/shell-dry-run-utils.sh ./
 WORKDIR /app/linters
 COPY linters/Gemfile linters/Gemfile.lock linters/composer.json ./
