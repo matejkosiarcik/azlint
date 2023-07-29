@@ -4,6 +4,9 @@
 # checkov:skip=CKV_DOCKER_7:Disable FROM :latest
 # ^^^ false positive for `--platform=$BUILDPLATFORM`
 
+# hadolint global ignore=DL3042
+# ^^^ pip cache
+
 ### Components/Linters ###
 
 # Upx #
@@ -324,7 +327,8 @@ RUN bash rbenv-installer/bin/rbenv-installer
 COPY --from=brew-install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
 RUN --mount=type=cache,target=/.rbenv/cache \
     ruby_version_short="$(sed -E 's~_.*$~~' <portable-ruby-version)" && \
-    rbenv install "$ruby_version_short"
+    rbenv install "$ruby_version_short" && \
+    find /.rbenv/versions -mindepth 1 -maxdepth 1 -type d -not -name "$ruby_version_short" -exec rm -rf {} \;
 
 # LinuxBrew - final #
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-final
