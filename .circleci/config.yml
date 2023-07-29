@@ -96,6 +96,11 @@ jobs:
             eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
             brew --help
             brew bundle --help
+      - run:
+          name: Sanity check
+          command: |
+            export PATH="$PATH:/app/linters/bin:/app/linters/python/bin:/app/linters/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin"
+            sh utils/sanity-check/.main.sh
       - azlint-lint:
           command-base: PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" npm run azlint --
       - azlint-fmt:
