@@ -1,5 +1,5 @@
 #!/bin/sh
 set -euf
 
-shfmt --help
-shfmt --version
+"${BINPREFIX:-}shfmt" --help
+"${BINPREFIX:-}shfmt" --version

@@ -34,6 +34,9 @@ pip --version
 pip install --help
 
 # PHP
+composer --help
+composer --version
+composer install --help
 php --help
 php --version
 

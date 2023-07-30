@@ -1,5 +1,5 @@
 #!/bin/sh
 set -euf
 
-ec --help
-ec --version
+"${BINPREFIX:-}ec" --help
+"${BINPREFIX:-}ec" --version

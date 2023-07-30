@@ -9,34 +9,34 @@ pip --version
 pip install --help
 
 # Python - python proper
-autopep8 --help
-autopep8 --version
-isort --help
-isort --version
-pycodestyle --help
-pycodestyle --version
-pylint --help
-pylint --version
-bandit --help
-bandit --version
-flake8 --help
-flake8 --version
-black --help
-black --version
-mypy --help
-mypy --version
+"${BINPREFIX:-}autopep8" --help
+"${BINPREFIX:-}autopep8" --version
+"${BINPREFIX:-}isort" --help
+"${BINPREFIX:-}isort" --version
+"${BINPREFIX:-}pycodestyle" --help
+"${BINPREFIX:-}pycodestyle" --version
+"${BINPREFIX:-}pylint" --help
+"${BINPREFIX:-}pylint" --version
+"${BINPREFIX:-}bandit" --help
+"${BINPREFIX:-}bandit" --version
+"${BINPREFIX:-}flake8" --help
+"${BINPREFIX:-}flake8" --version
+"${BINPREFIX:-}black" --help
+"${BINPREFIX:-}black" --version
+"${BINPREFIX:-}mypy" --help
+"${BINPREFIX:-}mypy" --version
 
 # Python - other
-bashate --help
-bashate --version
-bashate --show
-checkov --help
-checkov --version
-# TODO: add # gitman --help
-# TODO: add # gitman --version
-proselint --help
-proselint --version
-sqlfluff --help
-sqlfluff --version
-yamllint --help
-yamllint --version
+"${BINPREFIX:-}bashate" --help
+"${BINPREFIX:-}bashate" --version
+"${BINPREFIX:-}bashate" --show
+"${BINPREFIX:-}checkov" --help
+"${BINPREFIX:-}checkov" --version
+# TODO: "${BINPREFIX:-}gitman" --help
+# TODO: "${BINPREFIX:-}gitman" --version
+"${BINPREFIX:-}proselint" --help
+"${BINPREFIX:-}proselint" --version
+"${BINPREFIX:-}sqlfluff" --help
+"${BINPREFIX:-}sqlfluff" --version
+"${BINPREFIX:-}yamllint" --help
+"${BINPREFIX:-}yamllint" --version

@@ -1,5 +1,5 @@
 #!/bin/sh
 set -euf
 
-actionlint --help
-actionlint --version
+"${BINPREFIX:-}actionlint" --help
+"${BINPREFIX:-}actionlint" --version

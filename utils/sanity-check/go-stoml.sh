@@ -1,5 +1,5 @@
 #!/bin/sh
 set -euf
 
-stoml --help
-stoml --version
+"${BINPREFIX:-}stoml" --help
+"${BINPREFIX:-}stoml" --version

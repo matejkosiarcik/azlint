@@ -1,6 +1,6 @@
 #!/bin/sh
 set -euf
 
-brew --help
-brew --version
-brew bundle --help
+"${BINPREFIX:-}brew" --help
+"${BINPREFIX:-}brew" --version
+"${BINPREFIX:-}brew" bundle --help

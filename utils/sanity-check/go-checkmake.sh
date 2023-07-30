@@ -1,6 +1,6 @@
 #!/bin/sh
 set -euf
 
-checkmake --help
-checkmake --list-rules
-checkmake --version
+"${BINPREFIX:-}checkmake" --help
+"${BINPREFIX:-}checkmake" --version
+"${BINPREFIX:-}checkmake" --list-rules
