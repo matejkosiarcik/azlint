@@ -407,7 +407,7 @@ RUN apt-get update && \
 COPY linters/composer.json linters/composer.lock ./
 RUN composer install --no-cache
 
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS composer-vendor-final
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS composer-vendor-optimize
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
@@ -415,6 +415,19 @@ RUN apt-get update && \
 COPY --from=composer-vendor-base /app/vendor ./vendor
 COPY utils/optimize/.common.sh utils/optimize/optimize-composer.sh ./
 RUN sh optimize-composer.sh
+
+FROM debian:12.1-slim AS composer-vendor-final
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates composer php php-cli php-mbstring php-zip && \
+    rm -rf /var/lib/apt/lists/*
+COPY utils/sanity-check/composer.sh ./sanity-check.sh
+COPY linters/composer.json ./linters/
+COPY --from=composer-vendor-optimize /app/vendor ./linters/vendor
+ENV BINPREFIX=/app/ \
+    COMPOSER_ALLOW_SUPERUSER=1
+RUN sh sanity-check.sh && \
+    rm -f sanity-check.sh
 
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it
@@ -539,7 +552,7 @@ COPY --from=cli-final /app/node_modules ./node_modules
 COPY src/shell-dry-run.sh src/shell-dry-run-utils.sh ./
 WORKDIR /app/linters
 COPY linters/Gemfile linters/Gemfile.lock linters/composer.json ./
-COPY --from=composer-vendor-final /app/vendor ./vendor
+COPY --from=composer-vendor-final /app/linters/vendor ./vendor
 COPY --from=nodejs-final /app/node_modules ./node_modules
 COPY --from=python-final /app/python ./python
 COPY --from=ruby-final /app/bundle ./bundle

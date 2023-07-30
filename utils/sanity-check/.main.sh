@@ -7,7 +7,7 @@ set -euf
 
 # sh "$(dirname "$0")/brew.sh"
 # sh "$(dirname "$0")/circleci.sh"
-sh "$(dirname "$0")/composer.sh"
+# sh "$(dirname "$0")/composer.sh"
 # sh "$(dirname "$0")/go-actionlint.sh"
 # sh "$(dirname "$0")/go-checkmake.sh"
 # sh "$(dirname "$0")/go-editorconfig-checker.sh"
