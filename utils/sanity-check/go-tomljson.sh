@@ -1,4 +1,4 @@
 #!/bin/sh
 set -euf
 
-tomljson /dev/null
+"${BINPREFIX:-}tomljson" /dev/null
