@@ -376,7 +376,7 @@ RUN apt-get update && \
 COPY linters/Gemfile linters/Gemfile.lock ./
 RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install
 
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS ruby-final
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS ruby-optimize
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
@@ -384,6 +384,21 @@ RUN apt-get update && \
 COPY --from=ruby-base /app/bundle ./bundle
 COPY utils/optimize/.common.sh utils/optimize/optimize-bundle.sh ./
 RUN sh optimize-bundle.sh
+
+FROM debian:12.1-slim AS ruby-final
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bundler ruby ruby-build ruby-dev && \
+    rm -rf /var/lib/apt/lists/*
+COPY utils/sanity-check/ruby.sh ./sanity-check.sh
+COPY linters/Gemfile ./
+COPY --from=ruby-optimize /app/bundle ./bundle
+ENV BUNDLE_DISABLE_SHARED_GEMS=true \
+    BUNDLE_GEMFILE="/app/Gemfile" \
+    BUNDLE_PATH__SYSTEM=false \
+    BUNDLE_PATH="/app/bundle"
+RUN sh sanity-check.sh && \
+    rm -f sanity-check.sh
 
 # Python/Pip #
 FROM debian:12.1-slim AS python-base
