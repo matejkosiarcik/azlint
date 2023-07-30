@@ -24,6 +24,10 @@ gmake -n -f /dev/null /dev/null
 
 # Other
 git --help
+(tmpdir="$(mkdtemp)" &&
+    cd "$tmpdir" &&
+    git init &&
+    rm -rf "$tmpdir")
 xmllint --version
 
 # Python - main
