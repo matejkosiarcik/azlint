@@ -8,10 +8,10 @@
 # ^^^ pip cache
 
 # Upx #
+# TODO: Change upx target from ubuntu to debian when possible
 # NOTE: `upx-ucl` is no longer available in debian 12 bookworm
 # It is available in older versions, see https://packages.debian.org/bullseye/upx-ucl
 # However, there were upgrade problems for bookworm, see https://tracker.debian.org/pkg/upx-ucl
-# TODO: Change upx target from ubuntu to debian when possible
 FROM --platform=$BUILDPLATFORM ubuntu:23.10 AS upx-base
 WORKDIR /app
 RUN apt-get update && \
@@ -438,6 +438,11 @@ RUN sh sanity-check.sh && \
 # Composer #
 FROM composer:2.5.8 AS composer-bin
 
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS composer-bin-optimize
+WORKDIR /app
+COPY --from=composer-bin /usr/bin/composer ./
+# TODO: optimize `composer` script
+
 # PHP/Composer #
 FROM debian:12.1-slim AS composer-vendor-base
 WORKDIR /app
@@ -464,7 +469,7 @@ RUN apt-get update && \
 COPY utils/sanity-check/composer.sh ./sanity-check.sh
 COPY linters/composer.json ./linters/
 COPY --from=composer-vendor-optimize /app/vendor ./linters/vendor
-COPY --from=composer-bin /usr/bin/composer ./
+COPY --from=composer-bin-optimize /app/composer ./
 ENV BINPREFIX=/app/ \
     COMPOSER_ALLOW_SUPERUSER=1
 RUN sh sanity-check.sh && \
