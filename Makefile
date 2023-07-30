@@ -109,12 +109,12 @@ bootstrap:
 
 .PHONY: build
 build:
-	time docker build . --tag matejkosiarcik/azlint:dev --pull
+	time docker build . --tag matejkosiarcik/azlint:dev
 
 .PHONY: multibuild
 multibuild:
-	time docker build . --tag matejkosiarcik/azlint:dev-amd64 --platform linux/amd64 --pull
-	time docker build . --tag matejkosiarcik/azlint:dev-arm64 --platform linux/arm64 --pull
+	time docker build . --tag matejkosiarcik/azlint:dev-amd64 --platform linux/amd64
+	time docker build . --tag matejkosiarcik/azlint:dev-arm64 --platform linux/arm64
 
 .PHONY: run
 run:
