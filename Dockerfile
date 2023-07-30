@@ -442,7 +442,7 @@ FROM composer:2.5.8 AS composer-bin
 FROM debian:12.1-slim AS composer-vendor-base
 WORKDIR /app
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates composer php php-cli php-mbstring php-zip && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates composer php php-mbstring php-zip && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/composer.json linters/composer.lock ./
 RUN composer install --no-cache
@@ -456,14 +456,15 @@ COPY --from=composer-vendor-base /app/vendor ./vendor
 COPY utils/optimize/.common.sh utils/optimize/optimize-composer.sh ./
 RUN sh optimize-composer.sh
 
-FROM debian:12.1-slim AS composer-vendor-final
+FROM debian:12.1-slim AS composer-final
 WORKDIR /app
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates composer php php-cli php-mbstring php-zip && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates php && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/composer.sh ./sanity-check.sh
 COPY linters/composer.json ./linters/
 COPY --from=composer-vendor-optimize /app/vendor ./linters/vendor
+COPY --from=composer-bin /usr/bin/composer ./
 ENV BINPREFIX=/app/ \
     COMPOSER_ALLOW_SUPERUSER=1
 RUN sh sanity-check.sh && \
@@ -592,12 +593,12 @@ COPY --from=cli-final /app/node_modules ./node_modules
 COPY src/shell-dry-run.sh src/shell-dry-run-utils.sh ./
 WORKDIR /app/linters
 COPY linters/Gemfile linters/Gemfile.lock linters/composer.json ./
-COPY --from=composer-vendor-final /app/linters/vendor ./vendor
+COPY --from=composer-final /app/linters/vendor ./vendor
 COPY --from=nodejs-final /app/node_modules ./node_modules
 COPY --from=python-final /app/python ./python
 COPY --from=ruby-final /app/bundle ./bundle
 WORKDIR /app/linters/bin
-COPY --from=composer-bin /usr/bin/composer ./
+COPY --from=composer-final /app/composer ./
 COPY --from=hadolint-final /app ./
 COPY --from=go-final /app ./
 COPY --from=rust-final /app ./
