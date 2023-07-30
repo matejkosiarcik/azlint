@@ -22,4 +22,4 @@ set -euf
 # sh "$(dirname "$0")/rust.sh"
 # sh "$(dirname "$0")/shell-loksh.sh"
 # sh "$(dirname "$0")/shell-oksh.sh"
-sh "$(dirname "$0")/system.sh"
+# sh "$(dirname "$0")/system.sh"

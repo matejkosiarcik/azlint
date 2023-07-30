@@ -617,8 +617,8 @@ ENV BUNDLE_DISABLE_SHARED_GEMS=true \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app/linters/python
-COPY utils/sanity-check ./sanity-check
-RUN sh sanity-check/.main.sh
+COPY utils/sanity-check/system.sh ./sanity-check.sh
+RUN sh sanity-check.sh
 
 ### Final stage ###
 
