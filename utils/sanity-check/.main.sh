@@ -16,7 +16,7 @@ set -euf
 # sh "$(dirname "$0")/go-tomljson.sh"
 # sh "$(dirname "$0")/haskell-hadolint.sh"
 # sh "$(dirname "$0")/haskell-shellcheck.sh"
-sh "$(dirname "$0")/nodejs.sh"
+# sh "$(dirname "$0")/nodejs.sh"
 sh "$(dirname "$0")/python.sh"
 sh "$(dirname "$0")/ruby.sh"
 # sh "$(dirname "$0")/rust.sh"

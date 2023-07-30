@@ -347,7 +347,7 @@ COPY linters/package.json linters/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
     npm prune --production
 
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS nodejs-final
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS nodejs-optimize
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
@@ -355,6 +355,17 @@ RUN apt-get update && \
 COPY --from=nodejs-base /app/node_modules ./node_modules
 COPY utils/optimize/.common.sh utils/optimize/optimize-nodejs.sh ./
 RUN sh optimize-nodejs.sh
+
+FROM debian:12.1-slim AS nodejs-final
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nodejs npm && \
+    rm -rf /var/lib/apt/lists/*
+COPY utils/sanity-check/nodejs.sh ./sanity-check.sh
+COPY --from=nodejs-optimize /app/node_modules ./node_modules
+ENV BINPREFIX=/app/node_modules/.bin/
+RUN sh sanity-check.sh && \
+    rm -f sanity-check.sh
 
 # Ruby/Gem #
 FROM debian:12.1-slim AS ruby-base
