@@ -612,17 +612,11 @@ COPY --from=loksh-final /app ./
 COPY --from=oksh-final /app ./
 COPY --from=shellcheck-final /app ./
 WORKDIR /app-tmp
-ENV BUNDLE_DISABLE_SHARED_GEMS=true \
-    BUNDLE_GEMFILE=/app/linters/Gemfile \
-    BUNDLE_PATH__SYSTEM=false \
-    BUNDLE_PATH=/app/linters/bundle \
-    COMPOSER_ALLOW_SUPERUSER=1 \
+ENV COMPOSER_ALLOW_SUPERUSER=1 \
     HOMEBREW_NO_ANALYTICS=1 \
     HOMEBREW_NO_AUTO_UPDATE=1 \
-    PATH="$PATH:/app/linters/bin:/app/linters/python/bin:/app/linters/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin" \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONPATH=/app/linters/python
+    PATH="$PATH:/app/linters/bin:/home/linuxbrew/.linuxbrew/bin" \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 COPY utils/sanity-check/system.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
