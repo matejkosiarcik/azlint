@@ -397,7 +397,7 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --requirement requirements.txt --target python
 
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS python-final
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS python-optimize
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
@@ -405,6 +405,20 @@ RUN apt-get update && \
 COPY --from=python-base /app/python ./python
 COPY utils/optimize/.common.sh utils/optimize/optimize-python.sh ./
 RUN sh optimize-python.sh
+
+FROM debian:12.1-slim AS python-final
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python-is-python3 python3 python3-pip && \
+    rm -rf /var/lib/apt/lists/*
+COPY utils/sanity-check/python.sh ./sanity-check.sh
+COPY --from=python-optimize /app/python ./python
+ENV BINPREFIX=/app/python/bin/ \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/app/python
+RUN sh sanity-check.sh && \
+    rm -f sanity-check.sh
 
 # Composer #
 FROM composer:2.5.8 AS composer-bin
