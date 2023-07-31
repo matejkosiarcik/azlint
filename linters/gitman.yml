@@ -163,7 +163,7 @@ sources_locked:
       -
   - repo: https://github.com/CircleCI-Public/circleci-cli.git
     name: circleci-cli
-    rev: 458f94e02dce1ea0eb4fe608cd2943a32de9578e
+    rev: 0fd0133721c20a21e8a062ae6fe3ff8bca18fc69
     type: git
     sparse_paths:
       -
@@ -223,7 +223,7 @@ sources_locked:
       -
   - repo: https://github.com/rhysd/actionlint.git
     name: actionlint
-    rev: 571fff48ad5eccf236f90aada2123c457253a023
+    rev: a3d10ef1b6bb7ff13bb8b146d8bc913b57861139
     type: git
     sparse_paths:
       -
@@ -243,7 +243,7 @@ sources_locked:
       -
   - repo: https://github.com/koalaman/shellcheck.git
     name: shellcheck
-    rev: c9e27c24700cdc5b84cfca1f7a90fe07f542867c
+    rev: dd747b2a98c3214978a97b9ee0ec38e635b6e621
     type: git
     sparse_paths:
       -
