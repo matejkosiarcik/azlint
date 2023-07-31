@@ -473,7 +473,7 @@ RUN sh sanity-check.sh && \
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it
 # We have to provide our custom `uname`, because HomeBrew prohibits installation on non-x64 Linux systems
-FROM debian:12.1-slim AS brew-install
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-install
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl git procps ruby && \

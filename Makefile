@@ -120,6 +120,11 @@ multibuild:
 run:
 	time docker run --interactive --tty --rm --volume "$$PWD:/project:ro" matejkosiarcik/azlint:dev lint
 
+.PHONY: multirun
+multirun:
+	time docker run --interactive --tty --rm --volume "$$PWD:/project:ro" --platform linux/amd64 matejkosiarcik/azlint:dev-amd64 lint
+	time docker run --interactive --tty --rm --volume "$$PWD:/project:ro" --platform linux/arm64 matejkosiarcik/azlint:dev-arm64 lint
+
 .PHONY: test
 test:
 	npm test
