@@ -184,6 +184,7 @@ COPY utils/sanity-check/go-editorconfig-checker.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
 FROM bins-aggregator AS go-final
+WORKDIR /app/bin
 COPY --from=go-actionlint-final /app/bin/actionlint ./
 COPY --from=go-checkmake-final /app/bin/checkmake ./
 COPY --from=go-editorconfig-checker-final /app/bin/ec ./
@@ -243,11 +244,12 @@ COPY --from=rust-builder /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/c
 # RUN parallel upx --best ::: /app/*
 
 FROM bins-aggregator AS rust-final
-COPY utils/sanity-check/rust.sh ./sanity-check.sh
+WORKDIR /app/bin
+ENV BINPREFIX=/app/bin/
 COPY --from=rust-upx /app/dotenv-linter /app/hush /app/shellharden ./
-ENV BINPREFIX=/app/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+WORKDIR /app
+COPY utils/sanity-check/rust.sh ./sanity-check.sh
+RUN sh sanity-check.sh
 
 # CircleCI CLI #
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
@@ -321,11 +323,12 @@ COPY --from=shellcheck-base /bin/shellcheck ./
 # RUN upx --best /app/shellcheck
 
 FROM bins-aggregator AS shellcheck-final
-COPY utils/sanity-check/haskell-shellcheck.sh ./sanity-check.sh
+WORKDIR /app/bin
+ENV BINPREFIX=/app/bin/
 COPY --from=shellcheck-upx /app/shellcheck ./
-ENV BINPREFIX=/app/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+WORKDIR /app
+COPY utils/sanity-check/haskell-shellcheck.sh ./sanity-check.sh
+RUN sh sanity-check.sh
 
 # Hadolint #
 FROM hadolint/hadolint:v2.12.0 AS hadolint-base
@@ -335,11 +338,17 @@ COPY --from=hadolint-base /bin/hadolint ./
 # RUN upx --best /app/hadolint
 
 FROM bins-aggregator AS hadolint-final
-COPY utils/sanity-check/haskell-hadolint.sh ./sanity-check.sh
+WORKDIR /app/bin
+ENV BINPREFIX=/app/bin/
 COPY --from=hadolint-upx /app/hadolint ./
-ENV BINPREFIX=/app/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+WORKDIR /app
+COPY utils/sanity-check/haskell-hadolint.sh ./sanity-check.sh
+RUN sh sanity-check.sh
+
+FROM bins-aggregator AS haskell-final
+WORKDIR /app/bin
+COPY --from=hadolint-final /app/bin/hadolint ./
+COPY --from=shellcheck-final /app/bin/shellcheck ./
 
 # NodeJS/NPM #
 FROM --platform=$BUILDPLATFORM node:20.5.0-slim AS nodejs-base
@@ -601,13 +610,12 @@ COPY --from=python-final /app/python ./python
 COPY --from=ruby-final /app/bundle ./bundle
 WORKDIR /app/linters/bin
 COPY --from=composer-final /app/composer ./
-COPY --from=hadolint-final /app ./
-COPY --from=go-final /app ./
-COPY --from=rust-final /app ./
+COPY --from=haskell-final /app/bin ./
+COPY --from=go-final /app/bin ./
+COPY --from=rust-final /app/bin ./
 COPY --from=circleci-final /app ./
 COPY --from=loksh-final /app ./
 COPY --from=oksh-final /app ./
-COPY --from=shellcheck-final /app ./
 WORKDIR /app-tmp
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     HOMEBREW_NO_ANALYTICS=1 \
