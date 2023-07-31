@@ -57,11 +57,12 @@ COPY --from=go-actionlint-build /app/go/bin/actionlint ./
 # RUN upx --best /app/actionlint
 
 FROM bins-aggregator AS go-actionlint-final
-COPY utils/sanity-check/go-actionlint.sh ./sanity-check.sh
+WORKDIR /app/bin
+ENV BINPREFIX=/app/bin/
 COPY --from=go-actionlint-upx /app/actionlint ./
-ENV BINPREFIX=/app/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+WORKDIR /app
+COPY utils/sanity-check/go-actionlint.sh ./sanity-check.sh
+RUN sh sanity-check.sh
 
 FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-shfmt-build
 WORKDIR /app
@@ -82,11 +83,12 @@ COPY --from=go-shfmt-build /app/go/bin/shfmt ./
 # RUN upx --best /app/shfmt
 
 FROM bins-aggregator AS go-shfmt-final
-COPY utils/sanity-check/go-shfmt.sh ./sanity-check.sh
+WORKDIR /app/bin
+ENV BINPREFIX=/app/bin/
 COPY --from=go-shfmt-upx /app/shfmt ./
-ENV BINPREFIX=/app/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+WORKDIR /app
+COPY utils/sanity-check/go-shfmt.sh ./sanity-check.sh
+RUN sh sanity-check.sh
 
 FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-stoml-build
 WORKDIR /app
@@ -107,11 +109,12 @@ COPY --from=go-stoml-build /app/go/bin/stoml ./
 # RUN upx --best /app/stoml
 
 FROM bins-aggregator AS go-stoml-final
-COPY utils/sanity-check/go-stoml.sh ./sanity-check.sh
+WORKDIR /app/bin
+ENV BINPREFIX=/app/bin/
 COPY --from=go-stoml-upx /app/stoml ./
-ENV BINPREFIX=/app/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+WORKDIR /app
+COPY utils/sanity-check/go-stoml.sh ./sanity-check.sh
+RUN sh sanity-check.sh
 
 FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-tomljson-build
 WORKDIR /app
@@ -130,11 +133,12 @@ COPY --from=go-tomljson-build /app/go/bin/tomljson ./
 # RUN upx --best /app/tomljson
 
 FROM bins-aggregator AS go-tomljson-final
-COPY utils/sanity-check/go-tomljson.sh ./sanity-check.sh
+WORKDIR /app/bin
+ENV BINPREFIX=/app/bin/
 COPY --from=go-tomljson-upx /app/tomljson ./
-ENV BINPREFIX=/app/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+WORKDIR /app
+COPY utils/sanity-check/go-tomljson.sh ./sanity-check.sh
+RUN sh sanity-check.sh
 
 FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-checkmake-build
 RUN apt-get update && \
@@ -152,11 +156,12 @@ COPY --from=go-checkmake-build /app/checkmake/checkmake ./
 # RUN upx --best /app/checkmake
 
 FROM bins-aggregator AS go-checkmake-final
-COPY utils/sanity-check/go-checkmake.sh ./sanity-check.sh
+WORKDIR /app/bin
+ENV BINPREFIX=/app/bin/
 COPY --from=go-checkmake-upx /app/checkmake ./
-ENV BINPREFIX=/app/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+WORKDIR /app
+COPY utils/sanity-check/go-checkmake.sh ./sanity-check.sh
+RUN sh sanity-check.sh
 
 FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-editorconfig-checker-build
 COPY --from=gitman /app/gitman/editorconfig-checker /app/editorconfig-checker
@@ -171,19 +176,20 @@ COPY --from=go-editorconfig-checker-build /app/editorconfig-checker/bin/ec ./
 # RUN upx --best /app/ec
 
 FROM bins-aggregator AS go-editorconfig-checker-final
-COPY utils/sanity-check/go-editorconfig-checker.sh ./sanity-check.sh
+WORKDIR /app/bin
+ENV BINPREFIX=/app/bin/
 COPY --from=go-editorconfig-checker-upx /app/ec ./
-ENV BINPREFIX=/app/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+WORKDIR /app
+COPY utils/sanity-check/go-editorconfig-checker.sh ./sanity-check.sh
+RUN sh sanity-check.sh
 
 FROM bins-aggregator AS go-final
-COPY --from=go-actionlint-final /app/actionlint ./
-COPY --from=go-checkmake-final /app/checkmake ./
-COPY --from=go-editorconfig-checker-final /app/ec ./
-COPY --from=go-shfmt-final /app/shfmt ./
-COPY --from=go-stoml-final /app/stoml ./
-COPY --from=go-tomljson-final /app/tomljson ./
+COPY --from=go-actionlint-final /app/bin/actionlint ./
+COPY --from=go-checkmake-final /app/bin/checkmake ./
+COPY --from=go-editorconfig-checker-final /app/bin/ec ./
+COPY --from=go-shfmt-final /app/bin/shfmt ./
+COPY --from=go-stoml-final /app/bin/stoml ./
+COPY --from=go-tomljson-final /app/bin/tomljson ./
 
 # Rust #
 FROM --platform=$BUILDPLATFORM rust:1.71.0-slim-bookworm AS rust-builder
