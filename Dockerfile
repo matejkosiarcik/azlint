@@ -363,7 +363,7 @@ RUN sh sanity-check.sh && \
     rm -f sanity-check.sh
 
 # Ruby/Gem #
-FROM debian:12.1-slim AS ruby-base
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS ruby-base
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bundler ruby ruby-build ruby-dev && \
