@@ -186,28 +186,27 @@ COPY --from=go-stoml-final /app/stoml ./
 COPY --from=go-tomljson-final /app/tomljson ./
 
 # Rust #
-FROM rust:1.71.0-slim-bookworm AS rust-builder
-# FROM --platform=$BUILDPLATFORM rust:1.71.0-slim-bookworm AS rust-builder
+FROM --platform=$BUILDPLATFORM rust:1.71.0-slim-bookworm AS rust-builder
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends file nodejs npm && \
     rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm
-# ARG BUILDARCH BUILDOS TARGETARCH TARGETOS
-# COPY utils/rust/get-target-arch.sh ./
-# RUN if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
-#         apt-get update && \
-#         DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
-#             "gcc-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" \
-#             "g++-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" \
-#             "libc6-dev-$TARGETARCH-cross" && \
-#         rm -rf /var/lib/apt/lists/* && \
-#     true; fi
-# COPY utils/rust/get-target-tripple.sh ./
-# RUN if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
-#         rustup target add "$(sh get-target-tripple.sh)" && \
-#     true; fi
+ARG BUILDARCH BUILDOS TARGETARCH TARGETOS
+COPY utils/rust/get-target-arch.sh ./
+RUN if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
+        apt-get update && \
+        DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
+            "gcc-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" \
+            "g++-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" \
+            "libc6-dev-$TARGETARCH-cross" && \
+        rm -rf /var/lib/apt/lists/* && \
+    true; fi
+COPY utils/rust/get-target-tripple.sh ./
+RUN if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
+        rustup target add "$(sh get-target-tripple.sh)" && \
+    true; fi
 ENV CARGO_PROFILE_RELEASE_LTO=true \
     CARGO_PROFILE_RELEASE_PANIC=abort \
     CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
@@ -215,24 +214,20 @@ ENV CARGO_PROFILE_RELEASE_LTO=true \
     RUSTFLAGS='-Cstrip=symbols'
 COPY utils/cargo-packages.js ./utils/
 COPY linters/Cargo.toml ./linters/
-# RUN --mount=type=cache,target=/usr/local/cargo/registry \
-#     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
-#         HOST_CC=gcc \
-#         HOST_CXX=g++ \
-#         AR_x86_64_unknown_linux_gnu="/usr/bin/$(sh get-target-arch.sh)-linux-gnu-ar" \
-#         CC_x86_64_unknown_linux_gnu="/usr/bin/$(sh get-target-arch.sh)-linux-gnu-gcc" \
-#         CXX_x86_64_unknown_linux_gnu="/usr/bin/$(sh get-target-arch.sh)-linux-gnu-g++" \
-#         CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER="/usr/bin/$(sh get-target-arch.sh)-linux-gnu-gcc" \
-#         export HOST_CC HOST_CXX AR_x86_64_unknown_linux_gnu CC_x86_64_unknown_linux_gnu CXX_x86_64_unknown_linux_gnu CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER && \
-#     true; fi && \
-#     node utils/cargo-packages.js | while read -r package version; do \
-#         cargo install "$package" --force --version "$version" --root "$PWD/cargo" --target "$(sh get-target-tripple.sh)" && \
-#         file "/app/cargo/bin/$package" | grep "stripped" && \
-#         ! file "/app/cargo/bin/$package" | grep "not stripped" && \
-#     true; done
+# TODO: Add `CRATE_CC_NO_DEFAULTS=1` if compiler errors
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
+        export \
+            HOST_CC=gcc \
+            HOST_CXX=g++ \
+            "AR_$(sh get-target-arch.sh)_unknown_linux_gnu=/usr/bin/$(sh get-target-arch.sh)-linux-gnu-ar" \
+            "CC_$(sh get-target-arch.sh)_unknown_linux_gnu=/usr/bin/$(sh get-target-arch.sh)-linux-gnu-gcc" \
+            "CXX_$(sh get-target-arch.sh)_unknown_linux_gnu=/usr/bin/$(sh get-target-arch.sh)-linux-gnu-g++" \
+            "CARGO_TARGET_$(sh get-target-arch.sh | tr '[:lower:]' '[:upper:]')_UNKNOWN_LINUX_GNU_LINKER=/usr/bin/$(sh get-target-arch.sh)-linux-gnu-gcc" \
+        && \
+    true; fi && \
     node utils/cargo-packages.js | while read -r package version; do \
-        cargo install "$package" --force --version "$version" --root "$PWD/cargo" && \
+        cargo install "$package" --force --version "$version" --root "$PWD/cargo" --target "$(sh get-target-tripple.sh)" && \
         file "/app/cargo/bin/$package" | grep "stripped" && \
         ! file "/app/cargo/bin/$package" | grep "not stripped" && \
     true; done
