@@ -359,8 +359,7 @@ RUN apt-get update && \
 COPY utils/sanity-check/nodejs.sh ./sanity-check.sh
 COPY --from=nodejs-optimize /app/node_modules ./node_modules
 ENV BINPREFIX=/app/node_modules/.bin/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+RUN sh sanity-check.sh
 
 # Ruby/Gem #
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS ruby-base
@@ -392,8 +391,7 @@ ENV BUNDLE_DISABLE_SHARED_GEMS=true \
     BUNDLE_GEMFILE="/app/Gemfile" \
     BUNDLE_PATH__SYSTEM=false \
     BUNDLE_PATH="/app/bundle"
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+RUN sh sanity-check.sh
 
 # Python/Pip #
 FROM debian:12.1-slim AS python-base
@@ -427,8 +425,7 @@ ENV BINPREFIX=/app/python/bin/ \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app/python
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+RUN sh sanity-check.sh
 
 # Composer #
 FROM composer:2.5.8 AS composer-bin
@@ -467,8 +464,7 @@ COPY --from=composer-vendor-optimize /app/vendor ./linters/vendor
 COPY --from=composer-bin-optimize /app/composer ./
 ENV BINPREFIX=/app/ \
     COMPOSER_ALLOW_SUPERUSER=1
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+RUN sh sanity-check.sh
 
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it
