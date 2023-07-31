@@ -336,7 +336,7 @@ RUN sh sanity-check.sh && \
     rm -f sanity-check.sh
 
 # NodeJS/NPM #
-FROM node:20.5.0-slim AS nodejs-base
+FROM --platform=$BUILDPLATFORM node:20.5.0-slim AS nodejs-base
 WORKDIR /app
 COPY linters/package.json linters/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
@@ -541,7 +541,7 @@ RUN touch /.dockerenv && \
 ### Helpers ###
 
 # Main CLI #
-FROM node:20.5.0-slim AS cli-base
+FROM --platform=$BUILDPLATFORM node:20.5.0-slim AS cli-base
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
