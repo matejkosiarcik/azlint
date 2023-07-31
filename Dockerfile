@@ -512,7 +512,7 @@ RUN NONINTERACTIVE=1 bash brew-installer/install.sh && \
 # LinuxBrew - rbenv #
 # We need to replace ruby bundled with HomeBrew, because it is only a x64 version
 # Instead we install the same ruby version via rbenv and replace it in HomeBrew
-FROM debian:12.1-slim AS brew-rbenv
+FROM debian:12.1-slim AS brew-rbenv-install
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
@@ -529,11 +529,21 @@ RUN --mount=type=cache,target=/.rbenv/cache \
     rbenv install "$ruby_version_short" && \
     find /.rbenv/versions -mindepth 1 -maxdepth 1 -type d -not -name "$ruby_version_short" -exec rm -rf {} \;
 
+# LinuxBrew - optimize rbenv #
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-rbenv-optimize
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
+    rm -rf /var/lib/apt/lists/*
+COPY --from=brew-rbenv-install /.rbenv/versions /.rbenv/versions
+COPY utils/optimize/.common.sh utils/optimize/optimize-rbenv.sh ./
+RUN sh optimize-rbenv.sh
+
 # LinuxBrew - join brew & rbenv #
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-link
 WORKDIR /app
 COPY --from=brew-install /home/linuxbrew /home/linuxbrew
-COPY --from=brew-rbenv /.rbenv/versions /.rbenv/versions
+COPY --from=brew-rbenv-optimize /.rbenv/versions /.rbenv/versions
 RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
     ruby_version_short="$(sed -E 's~_.+$~~' </home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
     ln -sf "/.rbenv/versions/$ruby_version_short" "/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby/$ruby_version_full"
@@ -541,13 +551,16 @@ RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebre
 # LinuxBrew - final #
 FROM debian:12.1-slim AS brew-final
 WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends curl git && \
+    rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/brew.sh ./sanity-check.sh
 COPY --from=brew-link /home/linuxbrew /home/linuxbrew
 COPY --from=brew-link /.rbenv/versions /.rbenv/versions
 ENV BINPREFIX=/home/linuxbrew/.linuxbrew/bin/
 RUN touch /.dockerenv && \
     sh sanity-check.sh && \
-    rm -f sanity-check.sh
+    rm -f /.dockerenv
 
 ### Helpers ###
 
