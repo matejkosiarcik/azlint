@@ -9,8 +9,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        platform: [linux/amd64, linux/arm64]
+        platform:
+          - linux/amd64
+          - linux/arm64
     name: Build - ${{ matrix.platform }}
     steps:
       - name: Checkout
