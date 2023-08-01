@@ -6,28 +6,40 @@ on:
   push:
     branches:
       - main
+      - develop
     tags:
       - "v*.*.*"
 
+env:
+  REGISTRY_IMAGE: matejkosiarcik/azlint
+
 jobs:
-  deploy-container:
-    name: Build and Push images
+  build-images:
+    name: Build image - ${{ matrix.platform }}
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux/amd64
+          - linux/arm64
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3.5.3
 
-      - name: Docker tags
-        uses: docker/metadata-action@v4.6.0
-        id: tags
-        with:
-          images: matejkosiarcik/azlint
-          # NOTE: `:latest` tag is added automatically on `type=semver`
-          tags: |
-            type=edge,branch=main
-            type=semver,pattern={{major}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}.{{minor}}.{{patch}}
+      # - name: Docker tags
+      #   uses: docker/metadata-action@v4.6.0
+      #   id: meta
+      #   with:
+      #     images: matejkosiarcik/azlint
+      #     # NOTE: `:latest` tag is added automatically on `type=semver`
+      #     tags: |
+      #       type=edge,branch=main
+      #       type=semver,pattern={{major}}
+      #       type=semver,pattern={{major}}.{{minor}}
+      #       type=semver,pattern={{major}}.{{minor}}.{{patch}}
 
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v2.2.0
@@ -36,10 +48,10 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v2.9.1
 
-      - name: Debug logs
-        run: |
-          printf "Available platforms:\n%s\n" "${{ steps.buildx.outputs.platforms }}"
-          printf "Building tags:\n%s\n" "${{ steps.tags.outputs.tags }}"
+      # - name: Debug logs
+      #   run: |
+      #     printf "Available platforms:\n%s\n" "${{ steps.buildx.outputs.platforms }}"
+      #     printf "Building tags:\n%s\n" "${{ steps.meta.outputs.tags }}"
 
       - name: Login to DockerHub
         uses: docker/login-action@v2.2.0
@@ -48,13 +60,15 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and Publish
+        id: build
         uses: docker/build-push-action@v4.1.1
         with:
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.tags.outputs.tags }}
+          platforms: ${{ matrix.platform }}
+          # push: true
+          # tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,name-canonical=true,push=true
 
   deploy-description:
     name: Update description
