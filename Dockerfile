@@ -507,7 +507,8 @@ RUN NONINTERACTIVE=1 bash brew-installer/install.sh && \
     brew update && \
     brew bundle --help && \
     ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
-    rm -rf "/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby/$ruby_version_full"
+    rm -rf "/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby/$ruby_version_full" && \
+    find /home/linuxbrew -type d -name .git -prune -exec rm -rf {} \;
 
 # LinuxBrew - rbenv #
 # We need to replace ruby bundled with HomeBrew, because it is only a x64 version
@@ -549,19 +550,21 @@ COPY --from=brew-link-rbenv /.rbenv/versions /.rbenv/versions
 ENV BINPREFIX=/home/linuxbrew/.linuxbrew/bin/ \
     HOMEBREW_NO_ANALYTICS=1 \
     HOMEBREW_NO_AUTO_UPDATE=1
-RUN touch /.dockerenv rbenv-list.txt && \
+RUN touch /.dockerenv rbenv-list.txt brew-list.txt && \
     inotifywait --daemon --recursive --event access /.rbenv/versions --outfile rbenv-list.txt --format '%w%f' && \
+    inotifywait --daemon --recursive --event access /home/linuxbrew --outfile brew-list.txt --format '%w%f' && \
     sh sanity-check.sh && \
     killall inotifywait
 
 # Use trace information to optimize rbenv and brew directories
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-optimize
 WORKDIR /app
-COPY utils/optimize/.common.sh utils/optimize/optimize-rbenv.sh ./
+COPY utils/optimize/.common.sh utils/optimize/optimize-rbenv.sh utils/optimize/optimize-brew.sh ./
 COPY --from=brew-trace /home/linuxbrew /home/linuxbrew
 COPY --from=brew-trace /.rbenv/versions /.rbenv/versions
-COPY --from=brew-trace /app/rbenv-list.txt ./
-RUN sh optimize-rbenv.sh
+COPY --from=brew-trace /app/rbenv-list.txt /app/brew-list.txt ./
+RUN sh optimize-rbenv.sh && \
+    sh optimize-brew.sh
 
 # Aggregate everything brew here and do one more sanity-check
 FROM debian:12.1-slim AS brew-final
