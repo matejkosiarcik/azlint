@@ -526,41 +526,57 @@ RUN bash rbenv-installer/bin/rbenv-installer
 COPY --from=brew-install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
 RUN --mount=type=cache,target=/.rbenv/cache \
     ruby_version_short="$(sed -E 's~_.*$~~' <portable-ruby-version)" && \
-    rbenv install "$ruby_version_short" && \
-    find /.rbenv/versions -mindepth 1 -maxdepth 1 -type d -not -name "$ruby_version_short" -exec rm -rf {} \;
+    rbenv install "$ruby_version_short"
 
-# LinuxBrew - optimize rbenv #
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-rbenv-optimize
-WORKDIR /app
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
-    rm -rf /var/lib/apt/lists/*
-COPY --from=brew-rbenv-install /.rbenv/versions /.rbenv/versions
-COPY utils/optimize/.common.sh utils/optimize/optimize-rbenv.sh ./
-RUN sh optimize-rbenv.sh
-
-# LinuxBrew - join brew & rbenv #
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-link
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-link-rbenv
 WORKDIR /app
 COPY --from=brew-install /home/linuxbrew /home/linuxbrew
-COPY --from=brew-rbenv-optimize /.rbenv/versions /.rbenv/versions
+COPY --from=brew-rbenv-install /.rbenv/versions /.rbenv/versions
 RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
     ruby_version_short="$(sed -E 's~_.+$~~' </home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
-    ln -sf "/.rbenv/versions/$ruby_version_short" "/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby/$ruby_version_full"
+    ln -sf "/.rbenv/versions/$ruby_version_short" "/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby/$ruby_version_full" && \
+    find /.rbenv/versions -mindepth 1 -maxdepth 1 -type d -not -name "$ruby_version_short" -exec rm -rf {} \;
 
-# LinuxBrew - final #
+# In this stage we collect trace information about which files from linuxbrew and rbenv's ruby are actually neeeded
+FROM debian:12.1-slim AS brew-trace
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends curl git inotify-tools psmisc && \
+    rm -rf /var/lib/apt/lists/*
+COPY utils/sanity-check/brew.sh ./sanity-check.sh
+COPY --from=brew-link-rbenv /home/linuxbrew /home/linuxbrew
+COPY --from=brew-link-rbenv /.rbenv/versions /.rbenv/versions
+ENV BINPREFIX=/home/linuxbrew/.linuxbrew/bin/ \
+    HOMEBREW_NO_ANALYTICS=1 \
+    HOMEBREW_NO_AUTO_UPDATE=1
+RUN touch /.dockerenv rbenv-list.txt && \
+    inotifywait --daemon --recursive --event access /.rbenv/versions --outfile rbenv-list.txt --format '%w%f' && \
+    sh sanity-check.sh && \
+    killall inotifywait
+
+# Use trace information to optimize rbenv and brew directories
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-optimize
+WORKDIR /app
+COPY utils/optimize/.common.sh utils/optimize/optimize-rbenv.sh ./
+COPY --from=brew-trace /home/linuxbrew /home/linuxbrew
+COPY --from=brew-trace /.rbenv/versions /.rbenv/versions
+COPY --from=brew-trace /app/rbenv-list.txt ./
+RUN sh optimize-rbenv.sh
+
+# Aggregate everything brew here and do one more sanity-check
 FROM debian:12.1-slim AS brew-final
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends curl git && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/brew.sh ./sanity-check.sh
-COPY --from=brew-link /home/linuxbrew /home/linuxbrew
-COPY --from=brew-link /.rbenv/versions /.rbenv/versions
-ENV BINPREFIX=/home/linuxbrew/.linuxbrew/bin/
+COPY --from=brew-optimize /home/linuxbrew /home/linuxbrew
+COPY --from=brew-optimize /.rbenv/versions /.rbenv/versions
+ENV BINPREFIX=/home/linuxbrew/.linuxbrew/bin/ \
+    HOMEBREW_NO_ANALYTICS=1 \
+    HOMEBREW_NO_AUTO_UPDATE=1
 RUN touch /.dockerenv && \
-    sh sanity-check.sh && \
-    rm -f /.dockerenv
+    sh sanity-check.sh
 
 ### Helpers ###
 
