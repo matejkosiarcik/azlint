@@ -4,10 +4,9 @@ set -euf
 # shellcheck source=utils/optimize/.common.sh
 . "$(dirname "$0")/.common.sh"
 
+# Remove all files not found in access log
 accesslist="$(mktemp)"
 sort </app/brew-list.txt | uniq >"$accesslist"
-
-# Remove all files not found in access log
 find /home/linuxbrew -type f | while read -r file; do
     file_found=1
     grep -- "$file" <"$accesslist" || file_found=0
@@ -15,6 +14,7 @@ find /home/linuxbrew -type f | while read -r file; do
         rm -f "$file"
     fi
 done
+rm -f "$accesslist"
 
 find /home/linuxbrew -type d \( \
     -name .bundle -or \
@@ -38,6 +38,3 @@ find /home/linuxbrew -type d \( \
     \) -prune -exec rm -rf {} \;
 
 removeEmptyDirectories /home/linuxbrew
-
-# Cleanup tmpfile
-rm -f "$accesslist"

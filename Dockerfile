@@ -539,7 +539,7 @@ RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebre
     find /.rbenv/versions -mindepth 1 -maxdepth 1 -type d -not -name "$ruby_version_short" -exec rm -rf {} \;
 
 # In this stage we collect trace information about which files from linuxbrew and rbenv's ruby are actually neeeded
-FROM debian:12.1-slim AS brew-trace
+FROM debian:12.1-slim AS brew-optimize-trace
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends curl git inotify-tools psmisc && \
@@ -560,9 +560,9 @@ RUN touch /.dockerenv rbenv-list.txt brew-list.txt && \
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-optimize
 WORKDIR /app
 COPY utils/optimize/.common.sh utils/optimize/optimize-rbenv.sh utils/optimize/optimize-brew.sh ./
-COPY --from=brew-trace /home/linuxbrew /home/linuxbrew
-COPY --from=brew-trace /.rbenv/versions /.rbenv/versions
-COPY --from=brew-trace /app/rbenv-list.txt /app/brew-list.txt ./
+COPY --from=brew-optimize-trace /home/linuxbrew /home/linuxbrew
+COPY --from=brew-optimize-trace /.rbenv/versions /.rbenv/versions
+COPY --from=brew-optimize-trace /app/rbenv-list.txt /app/brew-list.txt ./
 RUN sh optimize-rbenv.sh && \
     sh optimize-brew.sh
 
