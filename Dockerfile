@@ -57,11 +57,12 @@ COPY --from=go-actionlint-build /app/go/bin/actionlint ./
 # RUN upx --best /app/actionlint
 
 FROM bins-aggregator AS go-actionlint-final
-COPY utils/sanity-check/go-actionlint.sh ./sanity-check.sh
+WORKDIR /app/bin
+ENV BINPREFIX=/app/bin/
 COPY --from=go-actionlint-upx /app/actionlint ./
-ENV BINPREFIX=/app/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+WORKDIR /app
+COPY utils/sanity-check/go-actionlint.sh ./sanity-check.sh
+RUN sh sanity-check.sh
 
 FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-shfmt-build
 WORKDIR /app
@@ -82,11 +83,12 @@ COPY --from=go-shfmt-build /app/go/bin/shfmt ./
 # RUN upx --best /app/shfmt
 
 FROM bins-aggregator AS go-shfmt-final
-COPY utils/sanity-check/go-shfmt.sh ./sanity-check.sh
+WORKDIR /app/bin
+ENV BINPREFIX=/app/bin/
 COPY --from=go-shfmt-upx /app/shfmt ./
-ENV BINPREFIX=/app/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+WORKDIR /app
+COPY utils/sanity-check/go-shfmt.sh ./sanity-check.sh
+RUN sh sanity-check.sh
 
 FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-stoml-build
 WORKDIR /app
@@ -107,11 +109,12 @@ COPY --from=go-stoml-build /app/go/bin/stoml ./
 # RUN upx --best /app/stoml
 
 FROM bins-aggregator AS go-stoml-final
-COPY utils/sanity-check/go-stoml.sh ./sanity-check.sh
+WORKDIR /app/bin
+ENV BINPREFIX=/app/bin/
 COPY --from=go-stoml-upx /app/stoml ./
-ENV BINPREFIX=/app/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+WORKDIR /app
+COPY utils/sanity-check/go-stoml.sh ./sanity-check.sh
+RUN sh sanity-check.sh
 
 FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-tomljson-build
 WORKDIR /app
@@ -130,11 +133,12 @@ COPY --from=go-tomljson-build /app/go/bin/tomljson ./
 # RUN upx --best /app/tomljson
 
 FROM bins-aggregator AS go-tomljson-final
-COPY utils/sanity-check/go-tomljson.sh ./sanity-check.sh
+WORKDIR /app/bin
+ENV BINPREFIX=/app/bin/
 COPY --from=go-tomljson-upx /app/tomljson ./
-ENV BINPREFIX=/app/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+WORKDIR /app
+COPY utils/sanity-check/go-tomljson.sh ./sanity-check.sh
+RUN sh sanity-check.sh
 
 FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-checkmake-build
 RUN apt-get update && \
@@ -152,11 +156,12 @@ COPY --from=go-checkmake-build /app/checkmake/checkmake ./
 # RUN upx --best /app/checkmake
 
 FROM bins-aggregator AS go-checkmake-final
-COPY utils/sanity-check/go-checkmake.sh ./sanity-check.sh
+WORKDIR /app/bin
+ENV BINPREFIX=/app/bin/
 COPY --from=go-checkmake-upx /app/checkmake ./
-ENV BINPREFIX=/app/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+WORKDIR /app
+COPY utils/sanity-check/go-checkmake.sh ./sanity-check.sh
+RUN sh sanity-check.sh
 
 FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-editorconfig-checker-build
 COPY --from=gitman /app/gitman/editorconfig-checker /app/editorconfig-checker
@@ -171,19 +176,21 @@ COPY --from=go-editorconfig-checker-build /app/editorconfig-checker/bin/ec ./
 # RUN upx --best /app/ec
 
 FROM bins-aggregator AS go-editorconfig-checker-final
-COPY utils/sanity-check/go-editorconfig-checker.sh ./sanity-check.sh
+WORKDIR /app/bin
+ENV BINPREFIX=/app/bin/
 COPY --from=go-editorconfig-checker-upx /app/ec ./
-ENV BINPREFIX=/app/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+WORKDIR /app
+COPY utils/sanity-check/go-editorconfig-checker.sh ./sanity-check.sh
+RUN sh sanity-check.sh
 
 FROM bins-aggregator AS go-final
-COPY --from=go-actionlint-final /app/actionlint ./
-COPY --from=go-checkmake-final /app/checkmake ./
-COPY --from=go-editorconfig-checker-final /app/ec ./
-COPY --from=go-shfmt-final /app/shfmt ./
-COPY --from=go-stoml-final /app/stoml ./
-COPY --from=go-tomljson-final /app/tomljson ./
+WORKDIR /app/bin
+COPY --from=go-actionlint-final /app/bin/actionlint ./
+COPY --from=go-checkmake-final /app/bin/checkmake ./
+COPY --from=go-editorconfig-checker-final /app/bin/ec ./
+COPY --from=go-shfmt-final /app/bin/shfmt ./
+COPY --from=go-stoml-final /app/bin/stoml ./
+COPY --from=go-tomljson-final /app/bin/tomljson ./
 
 # Rust #
 FROM --platform=$BUILDPLATFORM rust:1.71.0-slim-bookworm AS rust-builder
@@ -237,11 +244,12 @@ COPY --from=rust-builder /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/c
 # RUN parallel upx --best ::: /app/*
 
 FROM bins-aggregator AS rust-final
-COPY utils/sanity-check/rust.sh ./sanity-check.sh
+WORKDIR /app/bin
+ENV BINPREFIX=/app/bin/
 COPY --from=rust-upx /app/dotenv-linter /app/hush /app/shellharden ./
-ENV BINPREFIX=/app/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+WORKDIR /app
+COPY utils/sanity-check/rust.sh ./sanity-check.sh
+RUN sh sanity-check.sh
 
 # CircleCI CLI #
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
@@ -315,11 +323,12 @@ COPY --from=shellcheck-base /bin/shellcheck ./
 # RUN upx --best /app/shellcheck
 
 FROM bins-aggregator AS shellcheck-final
-COPY utils/sanity-check/haskell-shellcheck.sh ./sanity-check.sh
+WORKDIR /app/bin
+ENV BINPREFIX=/app/bin/
 COPY --from=shellcheck-upx /app/shellcheck ./
-ENV BINPREFIX=/app/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+WORKDIR /app
+COPY utils/sanity-check/haskell-shellcheck.sh ./sanity-check.sh
+RUN sh sanity-check.sh
 
 # Hadolint #
 FROM hadolint/hadolint:v2.12.0 AS hadolint-base
@@ -329,14 +338,20 @@ COPY --from=hadolint-base /bin/hadolint ./
 # RUN upx --best /app/hadolint
 
 FROM bins-aggregator AS hadolint-final
-COPY utils/sanity-check/haskell-hadolint.sh ./sanity-check.sh
+WORKDIR /app/bin
+ENV BINPREFIX=/app/bin/
 COPY --from=hadolint-upx /app/hadolint ./
-ENV BINPREFIX=/app/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+WORKDIR /app
+COPY utils/sanity-check/haskell-hadolint.sh ./sanity-check.sh
+RUN sh sanity-check.sh
+
+FROM bins-aggregator AS haskell-final
+WORKDIR /app/bin
+COPY --from=hadolint-final /app/bin/hadolint ./
+COPY --from=shellcheck-final /app/bin/shellcheck ./
 
 # NodeJS/NPM #
-FROM node:20.5.0-slim AS nodejs-base
+FROM --platform=$BUILDPLATFORM node:20.5.0-slim AS nodejs-base
 WORKDIR /app
 COPY linters/package.json linters/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
@@ -359,11 +374,10 @@ RUN apt-get update && \
 COPY utils/sanity-check/nodejs.sh ./sanity-check.sh
 COPY --from=nodejs-optimize /app/node_modules ./node_modules
 ENV BINPREFIX=/app/node_modules/.bin/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+RUN sh sanity-check.sh
 
 # Ruby/Gem #
-FROM debian:12.1-slim AS ruby-base
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS ruby-base
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends bundler ruby ruby-build ruby-dev && \
@@ -392,8 +406,7 @@ ENV BUNDLE_DISABLE_SHARED_GEMS=true \
     BUNDLE_GEMFILE="/app/Gemfile" \
     BUNDLE_PATH__SYSTEM=false \
     BUNDLE_PATH="/app/bundle"
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+RUN sh sanity-check.sh
 
 # Python/Pip #
 FROM debian:12.1-slim AS python-base
@@ -427,8 +440,7 @@ ENV BINPREFIX=/app/python/bin/ \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app/python
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+RUN sh sanity-check.sh
 
 # Composer #
 FROM composer:2.5.8 AS composer-bin
@@ -467,8 +479,7 @@ COPY --from=composer-vendor-optimize /app/vendor ./linters/vendor
 COPY --from=composer-bin-optimize /app/composer ./
 ENV BINPREFIX=/app/ \
     COMPOSER_ALLOW_SUPERUSER=1
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+RUN sh sanity-check.sh
 
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it
@@ -501,7 +512,7 @@ RUN NONINTERACTIVE=1 bash brew-installer/install.sh && \
 # LinuxBrew - rbenv #
 # We need to replace ruby bundled with HomeBrew, because it is only a x64 version
 # Instead we install the same ruby version via rbenv and replace it in HomeBrew
-FROM debian:12.1-slim AS brew-rbenv
+FROM debian:12.1-slim AS brew-rbenv-install
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
@@ -518,11 +529,21 @@ RUN --mount=type=cache,target=/.rbenv/cache \
     rbenv install "$ruby_version_short" && \
     find /.rbenv/versions -mindepth 1 -maxdepth 1 -type d -not -name "$ruby_version_short" -exec rm -rf {} \;
 
+# LinuxBrew - optimize rbenv #
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-rbenv-optimize
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends jq moreutils && \
+    rm -rf /var/lib/apt/lists/*
+COPY --from=brew-rbenv-install /.rbenv/versions /.rbenv/versions
+COPY utils/optimize/.common.sh utils/optimize/optimize-rbenv.sh ./
+RUN sh optimize-rbenv.sh
+
 # LinuxBrew - join brew & rbenv #
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-link
 WORKDIR /app
 COPY --from=brew-install /home/linuxbrew /home/linuxbrew
-COPY --from=brew-rbenv /.rbenv/versions /.rbenv/versions
+COPY --from=brew-rbenv-optimize /.rbenv/versions /.rbenv/versions
 RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
     ruby_version_short="$(sed -E 's~_.+$~~' </home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
     ln -sf "/.rbenv/versions/$ruby_version_short" "/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby/$ruby_version_full"
@@ -530,18 +551,21 @@ RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebre
 # LinuxBrew - final #
 FROM debian:12.1-slim AS brew-final
 WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends curl git && \
+    rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/brew.sh ./sanity-check.sh
 COPY --from=brew-link /home/linuxbrew /home/linuxbrew
 COPY --from=brew-link /.rbenv/versions /.rbenv/versions
 ENV BINPREFIX=/home/linuxbrew/.linuxbrew/bin/
 RUN touch /.dockerenv && \
     sh sanity-check.sh && \
-    rm -f sanity-check.sh
+    rm -f /.dockerenv
 
 ### Helpers ###
 
 # Main CLI #
-FROM node:20.5.0-slim AS cli-base
+FROM --platform=$BUILDPLATFORM node:20.5.0-slim AS cli-base
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
@@ -599,13 +623,12 @@ COPY --from=python-final /app/python ./python
 COPY --from=ruby-final /app/bundle ./bundle
 WORKDIR /app/linters/bin
 COPY --from=composer-final /app/composer ./
-COPY --from=hadolint-final /app ./
-COPY --from=go-final /app ./
-COPY --from=rust-final /app ./
+COPY --from=haskell-final /app/bin ./
+COPY --from=go-final /app/bin ./
+COPY --from=rust-final /app/bin ./
 COPY --from=circleci-final /app ./
 COPY --from=loksh-final /app ./
 COPY --from=oksh-final /app ./
-COPY --from=shellcheck-final /app ./
 WORKDIR /app-tmp
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     HOMEBREW_NO_ANALYTICS=1 \

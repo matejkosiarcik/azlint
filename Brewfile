@@ -1,5 +1,3 @@
-tap "homebrew/cask"
-
 # For development
 cask "docker"
 brew "node"
