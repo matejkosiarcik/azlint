@@ -40,7 +40,7 @@ RUN --mount=type=cache,target=/root/.gitcache \
     PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
 
 # GoLang #
-FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-actionlint-build
+FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-actionlint-build
 WORKDIR /app
 ARG BUILDARCH TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
@@ -64,7 +64,7 @@ WORKDIR /app
 COPY utils/sanity-check/go-actionlint.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
-FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-shfmt-build
+FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-shfmt-build
 WORKDIR /app
 COPY --from=gitman /app/gitman/shfmt /app/shfmt
 COPY utils/git-latest-version.sh ./
@@ -90,7 +90,7 @@ WORKDIR /app
 COPY utils/sanity-check/go-shfmt.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
-FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-stoml-build
+FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-stoml-build
 WORKDIR /app
 COPY --from=gitman /app/gitman/stoml /app/stoml
 COPY utils/git-latest-version.sh ./
@@ -116,7 +116,7 @@ WORKDIR /app
 COPY utils/sanity-check/go-stoml.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
-FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-tomljson-build
+FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-tomljson-build
 WORKDIR /app
 ARG BUILDARCH TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
@@ -140,7 +140,7 @@ WORKDIR /app
 COPY utils/sanity-check/go-tomljson.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
-FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-checkmake-build
+FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-checkmake-build
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends pandoc && \
     rm -rf /var/lib/apt/lists/*
@@ -163,7 +163,7 @@ WORKDIR /app
 COPY utils/sanity-check/go-checkmake.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
-FROM --platform=$BUILDPLATFORM golang:1.20.6-bookworm AS go-editorconfig-checker-build
+FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-editorconfig-checker-build
 COPY --from=gitman /app/gitman/editorconfig-checker /app/editorconfig-checker
 WORKDIR /app/editorconfig-checker
 ARG TARGETARCH TARGETOS
