@@ -28,7 +28,7 @@ bootstrap:
 		pip install --requirement requirements.txt
 
 	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
-		find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d | while read -r dir; do
+		find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d | while read -r dir; do \
 			(cd "$$0" && gitman install --force'); \
 		done && \
 		sh utils/apply-gitman-patches.sh
