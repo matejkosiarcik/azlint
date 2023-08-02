@@ -24,10 +24,10 @@ bootstrap:
 		|| virtualenv venv \
 		|| mkvirtualenv venv
 
-	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
+	export PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" && \
 		pip install --requirement requirements.txt
 
-	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
+	export PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" && \
 		find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d | while read -r dir; do \
 			(cd "$$dir" && gitman install --force); \
 		done && \
