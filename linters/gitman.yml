@@ -223,7 +223,7 @@ sources_locked:
       -
   - repo: https://github.com/rhysd/actionlint.git
     name: actionlint
-    rev: a3d10ef1b6bb7ff13bb8b146d8bc913b57861139
+    rev: 0f7cd695d111dcfd2470d55f5e8bb9e45d4612e4
     type: git
     sparse_paths:
       -
@@ -253,7 +253,7 @@ sources_locked:
       -
   - repo: https://github.com/mvdan/sh.git
     name: shfmt
-    rev: 25abe062fd9f3fb0bfddab17d1941bee8f7ad9b6
+    rev: ed991baba344d25bc02c881e4deff645f5c5f993
     type: git
     sparse_paths:
       -

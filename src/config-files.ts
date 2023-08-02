@@ -79,7 +79,78 @@ export const configFiles = {
     yamllint: ['.yamllint', '.yamllint.{yaml,yml}'],
 };
 
+export const pythonGeneralConfigFiles = {
+    // https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-via-a-file
+    black: [
+        {
+            file: 'pyproject.toml',
+            content: "[tool.black]",
+        }
+    ],
+
+    // https://flake8.pycqa.org/en/latest/user/configuration.html
+    flake8: [
+        {
+            file: 'setup.cfg',
+            content: "[flake8]",
+        }, {
+            file: 'tox.ini',
+            content: "[flake8]",
+        }
+    ],
+
+    // https://pycqa.github.io/isort/docs/configuration/config_files.html
+    isort: [
+        {
+            file: 'pyproject.toml',
+            content: '[tool.isort]',
+        },
+        {
+            file: 'setup.cfg',
+            content: "[isort]",
+        },
+        {
+            file: 'tox.ini',
+            content: "[isort]",
+        },
+    ],
+
+    // https://pycodestyle.pycqa.org/en/latest/intro.html#configuration
+    pycodestyle: [
+        {
+            file: 'setup.cfg',
+            content: "[pycodestyle]",
+        },
+        {
+            file: 'tox.ini',
+            content: "[pycodestyle]",
+        },
+    ],
+
+    // https://pylint.pycqa.org/en/latest/user_guide/usage/run.html#command-line-options
+    pylint: [
+        {
+            file: 'pyproject.toml',
+            content: "[tool.pylint.",
+        },
+        {
+            file: 'setup.cfg',
+            content: "[pylint.",
+        },
+        {
+            file: 'tox.ini',
+            content: "[pylint.",
+        },
+    ],
+};
+
 export function findConfigFile(linter: keyof typeof configFiles): string {
+    const envName = linter.replace(/\-/g, '_').toUpperCase();
+    console.log(linter, envName);
+    return ''; // TODO: Finish function
+}
+
+export function findPythonConfigFile(linter: keyof typeof pythonGeneralConfigFiles): string {
     const envName = linter.replace(/\-/g, '_').toUpperCase();
     console.log(linter, envName);
     return ''; // TODO: Finish function

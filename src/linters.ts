@@ -5,7 +5,7 @@ import os from 'os';
 import { Options as ExecaOptions } from "@esm2cjs/execa";
 import pLimit, { LimitFunction } from "@esm2cjs/p-limit";
 import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from "./log";
-import { combine, customExeca, getConfigArgs, getPythonConfigArgs, hashFile, isCwdGitRepo, matchFiles, OneOrArray, ProgressOptions, resolveLintArgs, resolveLintOptions, resolveLintSuccessExitCode, resolvePromiseOrValue } from "./utils";
+import { combine, customExeca, getConfigArgs, getPythonConfigArgs, hashFile, isCwdGitRepo, matchFiles, OneOrArray, resolveLintArgs, resolveLintOptions, resolveLintSuccessExitCode, resolvePromiseOrValue } from "./utils";
 
 function shouldSkipLinter(envName: string, linterName: string): boolean {
     const envEnable = 'VALIDATE_' + envName;
@@ -18,12 +18,11 @@ function shouldSkipLinter(envName: string, linterName: string): boolean {
 }
 
 export class Linters {
-    readonly mode: 'lint' | 'fmt';
-    readonly files: string[];
-    readonly progress: ProgressOptions;
-    private _randomDir: string = '';
+    private readonly mode: 'lint' | 'fmt';
+    private readonly files: string[];
+    private readonly _randomDir: string;
     private readonly savedJobs: Promise<void>[] = [];
-    private limit: LimitFunction; // = pLimit(os.cpus().length * 10);
+    private readonly limit: LimitFunction;
 
     foundProblems = 0;
     fixedProblems = 0;
@@ -31,13 +30,12 @@ export class Linters {
     constructor(options: {
         mode: 'lint' | 'fmt',
         files: string[],
-        progress: ProgressOptions,
         jobs: number,
     }) {
         this.mode = options.mode;
         this.files = options.files;
-        this.progress = options.progress;
         this.limit = pLimit(options.jobs);
+        this._randomDir = fsSync.mkdtempSync(path.join(os.tmpdir(), 'azlint-'));
     }
 
     private async randomDir(): Promise<string> {
@@ -186,8 +184,6 @@ export class Linters {
     }
 
     async run(): Promise<boolean> {
-        this._randomDir = await fs.mkdtemp(path.join(os.tmpdir(), 'azlint-'));
-
         const matchers = {
             json: '*.{json,json5,jsonl,geojson,babelrc,ecrc,eslintrc,htmlhintrc,htmllintrc,jscsrc,jshintrc,jslintrc,prettierrc,remarkrc}',
             yaml: '*.{yml,yaml}',

@@ -176,7 +176,9 @@ cleanDependencies() {
 
 # Remove leftover empty directories
 removeEmptyDirectories() {
-    find "$1" -type d -empty -prune -exec rm -rf {} \;
+    while [ "$(find "$1" -type d -empty | wc -l)" -ne 0 ]; do
+        find "$1" -type d -empty -prune -exec rm -rf {} \;
+    done
 }
 
 ### Minification ###

@@ -4,7 +4,7 @@ import path from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import dotenv from 'dotenv';
-import { ColorOptions, ProgressOptions, findFiles } from './utils';
+import { ColorOptions, findFiles } from './utils';
 import { LogLevel, logExtraExtraVerbose, logVerbose, setLogSettings } from './log';
 import { Linters } from './linters';
 
@@ -100,7 +100,6 @@ import { Linters } from './linters';
         process.exit(1);
     })();
     const color = args.color as ColorOptions;
-    const progress: ProgressOptions = 'no'; // = argv.progress as ProgressOptions;
     const jobs = (() => {
         if (args.jobs <= 0) {
             return os.cpus().length * 10;
@@ -152,7 +151,6 @@ import { Linters } from './linters';
     const linters = new Linters({
         mode: command,
         files: projectFiles,
-        progress: progress,
         jobs: jobs,
     });
     const success = await linters.run();
