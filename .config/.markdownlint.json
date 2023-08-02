@@ -10,7 +10,10 @@
   },
   "no-inline-html": {
     "allowed_elements": [
+      "br",
       "details",
+      "img",
+      "p",
       "summary"
     ]
   },
