@@ -210,7 +210,7 @@ export class Linters {
             linterName: 'markdown-link-check',
             envName: 'MARKDOWN_LINK_CHECK',
             fileMatch: matchers.markdown,
-            lintFile: { args: ['markdown-link-check', ...markdownLinkCheckConfigArgs, '--retry', '--verbose', "#file#"] },
+            lintFile: { args: ['markdown-link-check', ...markdownLinkCheckConfigArgs, '--retry', '--quiet', "#file#"] },
             // lintFile: async (file: string, toolName: string) => {
             //     let attempt = 0;
             //     const self = this;
