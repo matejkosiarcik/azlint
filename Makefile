@@ -75,7 +75,7 @@ bootstrap:
 	cp linters/gitman/editorconfig-checker/bin/ec linters/bin/
 
 	GOPATH="$$PWD/linters/go" GO111MODULE=on \
-		go install github.com/mikefarah/yq/v4@latest
+		go install -modcacherw github.com/mikefarah/yq/v4@latest
 
 	# GOPATH="$$PWD/linters/go" GO111MODULE=on parallel ::: \
 	# 	'go install -modcacherw "mvdan.cc/sh/v3/cmd/shfmt@v$(shell sh utils/git-latest-version.sh linters/gitman/shfmt)"' \
