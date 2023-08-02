@@ -12,7 +12,6 @@
     "allowed_elements": [
       "br",
       "details",
-      "img",
       "p",
       "summary"
     ]
