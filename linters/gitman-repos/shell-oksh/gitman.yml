@@ -1,0 +1,26 @@
+location: gitman/
+sources:
+  - repo: https://github.com/ibara/oksh.git
+    name: oksh
+    rev: main
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+sources_locked:
+  - repo: https://github.com/ibara/oksh.git
+    name: oksh
+    rev: 5858a92b6dfbb67087a8b0f396964acc66ccb4e0
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+default_group: ""
+groups:
+  -

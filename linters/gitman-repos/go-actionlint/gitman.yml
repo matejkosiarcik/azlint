@@ -1,0 +1,26 @@
+location: gitman/
+sources:
+  - repo: https://github.com/rhysd/actionlint.git
+    name: actionlint
+    rev: main
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+sources_locked:
+  - repo: https://github.com/rhysd/actionlint.git
+    name: actionlint
+    rev: 5c1678e7755886bd1f1cc1c5cab4fb921716f761
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+default_group: ""
+groups:
+  -

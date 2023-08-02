@@ -1,0 +1,26 @@
+location: gitman/
+sources:
+  - repo: https://github.com/pelletier/go-toml.git
+    name: go-toml
+    rev: v2
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+sources_locked:
+  - repo: https://github.com/pelletier/go-toml.git
+    name: go-toml
+    rev: e183db7e69f2c8da8ddff8be040ce1f79024d075
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+default_group: ""
+groups:
+  -

@@ -1,0 +1,26 @@
+location: gitman/
+sources:
+  - repo: https://github.com/hadolint/hadolint.git
+    name: hadolint
+    rev: master
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+sources_locked:
+  - repo: https://github.com/hadolint/hadolint.git
+    name: hadolint
+    rev: 024fd640378acd5d8218f77ec2c744826cdda5ce
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+default_group: ""
+groups:
+  -

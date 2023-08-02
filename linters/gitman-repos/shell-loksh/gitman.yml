@@ -1,0 +1,26 @@
+location: gitman/
+sources:
+  - repo: https://github.com/dimkr/loksh.git
+    name: loksh
+    rev: master
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+sources_locked:
+  - repo: https://github.com/dimkr/loksh.git
+    name: loksh
+    rev: e88658fefa1d1ac3cf0699a666f5f7056664089a
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+default_group: ""
+groups:
+  -
