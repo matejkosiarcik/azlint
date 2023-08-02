@@ -24,10 +24,8 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends file && \
     rm -rf /var/lib/apt/lists/*
 
-### Components/Linters ###
-
 # Gitman #
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS gitman
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS gitman-base
 WORKDIR /app
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends python3 python3-pip git && \
@@ -35,9 +33,10 @@ RUN apt-get update && \
 COPY requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --requirement requirements.txt --target python
-COPY linters/gitman.yml ./
-RUN --mount=type=cache,target=/root/.gitcache \
-    PYTHONPATH=/app/python PATH="/app/python/bin:$PATH" gitman install
+ENV PATH="/app/python/bin:$PATH" \
+    PYTHONPATH=/app/python
+
+### Components/Linters ###
 
 # GoLang #
 FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-actionlint-build
@@ -64,9 +63,14 @@ WORKDIR /app
 COPY utils/sanity-check/go-actionlint.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
+FROM --platform=$BUILDPLATFORM gitman-base AS go-shfmt-gitman
+COPY linters/gitman-repos/go-shfmt/gitman.yml ./
+RUN --mount=type=cache,target=/root/.gitcache \
+    gitman install
+
 FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-shfmt-build
 WORKDIR /app
-COPY --from=gitman /app/gitman/shfmt /app/shfmt
+COPY --from=go-shfmt-gitman /app/gitman/shfmt ./shfmt
 COPY utils/git-latest-version.sh ./
 ARG BUILDARCH TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
@@ -90,9 +94,14 @@ WORKDIR /app
 COPY utils/sanity-check/go-shfmt.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
+FROM --platform=$BUILDPLATFORM gitman-base AS go-stoml-gitman
+COPY linters/gitman-repos/go-stoml/gitman.yml ./
+RUN --mount=type=cache,target=/root/.gitcache \
+    gitman install
+
 FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-stoml-build
 WORKDIR /app
-COPY --from=gitman /app/gitman/stoml /app/stoml
+COPY --from=go-stoml-gitman /app/gitman/stoml ./stoml
 COPY utils/git-latest-version.sh ./
 ARG BUILDARCH TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
@@ -140,11 +149,16 @@ WORKDIR /app
 COPY utils/sanity-check/go-tomljson.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
+FROM --platform=$BUILDPLATFORM gitman-base AS go-checkmake-gitman
+COPY linters/gitman-repos/go-checkmake/gitman.yml ./
+RUN --mount=type=cache,target=/root/.gitcache \
+    gitman install
+
 FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-checkmake-build
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends pandoc && \
     rm -rf /var/lib/apt/lists/*
-COPY --from=gitman /app/gitman/checkmake /app/checkmake
+COPY --from=go-checkmake-gitman /app/gitman/checkmake /app/checkmake
 WORKDIR /app/checkmake
 ARG TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
@@ -163,8 +177,13 @@ WORKDIR /app
 COPY utils/sanity-check/go-checkmake.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
+FROM --platform=$BUILDPLATFORM gitman-base AS go-editorconfig-checker-gitman
+COPY linters/gitman-repos/go-editorconfig-checker/gitman.yml ./
+RUN --mount=type=cache,target=/root/.gitcache \
+    gitman install
+
 FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-editorconfig-checker-build
-COPY --from=gitman /app/gitman/editorconfig-checker /app/editorconfig-checker
+COPY --from=go-editorconfig-checker-gitman /app/gitman/editorconfig-checker /app/editorconfig-checker
 WORKDIR /app/editorconfig-checker
 ARG TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
@@ -252,12 +271,17 @@ COPY utils/sanity-check/rust.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
 # CircleCI CLI #
+FROM --platform=$BUILDPLATFORM gitman-base AS circleci-gitman
+COPY linters/gitman-repos/circleci-cli/gitman.yml ./
+RUN --mount=type=cache,target=/root/.gitcache \
+    gitman install
+
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
 FROM debian:12.1-slim AS circleci-base
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends ca-certificates curl && \
     rm -rf /var/lib/apt/lists/*
-COPY --from=gitman /app/gitman/circleci-cli /app/circleci-cli
+COPY --from=circleci-gitman /app/gitman/circleci-cli /app/circleci-cli
 WORKDIR /app/circleci-cli
 RUN bash install.sh
 
@@ -273,11 +297,16 @@ RUN sh sanity-check.sh && \
     rm -f sanity-check.sh
 
 # Shell - loksh #
+FROM --platform=$BUILDPLATFORM gitman-base AS loksh-gitman
+COPY linters/gitman-repos/shell-loksh/gitman.yml ./
+RUN --mount=type=cache,target=/root/.gitcache \
+    gitman install
+
 FROM debian:12.1-slim AS loksh-base
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends build-essential ca-certificates git meson && \
     rm -rf /var/lib/apt/lists/*
-COPY --from=gitman /app/gitman/loksh /app/loksh
+COPY --from=loksh-gitman /app/gitman/loksh /app/loksh
 WORKDIR /app/loksh
 RUN meson setup --prefix="$PWD/install" build && \
     ninja -C build install
@@ -294,11 +323,16 @@ RUN sh sanity-check.sh && \
     rm -f sanity-check.sh
 
 # Shell - oksh #
+FROM --platform=$BUILDPLATFORM gitman-base AS oksh-gitman
+COPY linters/gitman-repos/shell-oksh/gitman.yml ./
+RUN --mount=type=cache,target=/root/.gitcache \
+    gitman install
+
 FROM debian:12.1-slim AS oksh-base
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends build-essential && \
     rm -rf /var/lib/apt/lists/*
-COPY --from=gitman /app/gitman/oksh /app/oksh
+COPY --from=oksh-gitman /app/gitman/oksh /app/oksh
 WORKDIR /app/oksh
 RUN ./configure && \
     make && \
@@ -481,6 +515,12 @@ ENV BINPREFIX=/app/ \
     COMPOSER_ALLOW_SUPERUSER=1
 RUN sh sanity-check.sh
 
+# LinuxBrew - gitman #
+FROM --platform=$BUILDPLATFORM gitman-base AS brew-gitman
+COPY linters/gitman-repos/brew-install/gitman.yml ./
+RUN --mount=type=cache,target=/root/.gitcache \
+    gitman install
+
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it
 # We have to provide our custom `uname`, because HomeBrew prohibits installation on non-x64 Linux systems
@@ -501,7 +541,7 @@ RUN if [ "$(uname -m)" != 'amd64' ]; then \
         mv /usr/bin/uname /usr/bin/uname-bak && \
         mv /usr/bin/uname-x64 /usr/bin/uname && \
     true; fi
-COPY --from=gitman /app/gitman/brew-installer ./brew-installer
+COPY --from=brew-gitman /app/gitman/brew-installer ./brew-installer
 RUN NONINTERACTIVE=1 bash brew-installer/install.sh && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
     brew update && \
@@ -511,6 +551,11 @@ RUN NONINTERACTIVE=1 bash brew-installer/install.sh && \
     find /home/linuxbrew -type d -name .git -prune -exec rm -rf {} \;
 
 # LinuxBrew - rbenv #
+FROM --platform=$BUILDPLATFORM gitman-base AS rbenv-gitman
+COPY linters/gitman-repos/rbenv-install/gitman.yml ./
+RUN --mount=type=cache,target=/root/.gitcache \
+    gitman install
+
 # We need to replace ruby bundled with HomeBrew, because it is only a x64 version
 # Instead we install the same ruby version via rbenv and replace it in HomeBrew
 FROM debian:12.1-slim AS brew-rbenv-install
@@ -520,7 +565,7 @@ RUN apt-get update && \
         autoconf bison build-essential ca-certificates curl git \
         libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev && \
     rm -rf /var/lib/apt/lists/*
-COPY --from=gitman /app/gitman/rbenv-installer ./rbenv-installer
+COPY --from=rbenv-gitman /app/gitman/rbenv-installer ./rbenv-installer
 ENV PATH="$PATH:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims" \
     RBENV_ROOT=/.rbenv
 RUN bash rbenv-installer/bin/rbenv-installer

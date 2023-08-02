@@ -2,8 +2,22 @@
 
 > Lint everything From A to Z
 
-[![dockerhub tag](https://img.shields.io/docker/v/matejkosiarcik/azlint?label=dockerhub&sort=semver)](https://hub.docker.com/r/matejkosiarcik/azlint)
-[![github release](https://img.shields.io/github/v/release/matejkosiarcik/azlint?sort=semver)](https://github.com/matejkosiarcik/azlint/releases)
+Project links:
+
+- GitHub: <https://github.com/matejkosiarcik/azlint>
+- DockerHub: <https://hub.docker.com/r/matejkosiarcik/azlint>
+
+| Platform  | Latest version                    |
+|-----------|-----------------------------------|
+| GitHub    | ![github release] <br> ![git tag] |
+| DockerHub | ![dockerhub tag]                  |
+
+[github release]: https://img.shields.io/github/v/release/matejkosiarcik/azlint?sort=semver&style=flat-square&logo=github&logoColor=white&label=release
+[git tag]: https://img.shields.io/github/v/tag/matejkosiarcik/azlint?sort=semver&style=flat-square&logo=git&logoColor=white&label=git%20tag
+[dockerhub tag]: https://img.shields.io/docker/v/matejkosiarcik/azlint?sort=semver&style=flat-square&logo=docker&logoColor=white&label=image%20tag
+
+<details>
+<summary>Table of contents</summary>
 
 <!-- toc -->
 
@@ -34,6 +48,8 @@
 - [Alternatives](#alternatives)
 
 <!-- tocstop -->
+
+</details>
 
 ## About
 

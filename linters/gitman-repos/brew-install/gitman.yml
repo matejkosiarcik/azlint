@@ -1,0 +1,26 @@
+location: gitman/
+sources:
+  - repo: https://github.com/Homebrew/install.git
+    name: brew-installer
+    rev: master
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+sources_locked:
+  - repo: https://github.com/Homebrew/install.git
+    name: brew-installer
+    rev: 5e7f30635a945f475a557240f006973c81c71324
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+default_group: ""
+groups:
+  -

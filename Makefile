@@ -15,9 +15,7 @@ all: bootstrap test build run
 bootstrap:
 	mkdir -p linters/bin
 
-	parallel ::: \
-		'npm install --no-save' \
-		'npm install --no-save --prefix linters'
+	parallel npm install --no-save --prefix ::: . linters
 
 	# check if virtual environment exists or create it
 	[ -n "$${VIRTUAL_ENV+x}" ] || [ -d venv ] \
@@ -26,24 +24,28 @@ bootstrap:
 		|| virtualenv venv \
 		|| mkvirtualenv venv
 
-	PATH="$$PWD/venv/bin:$(PATH)" PYTHONPATH="$$PWD/python" \
+	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
 		pip install --requirement requirements.txt
 
-	cd linters && \
-		PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
-			gitman install --force
-	sh utils/apply-gitman-patches.sh
+	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
+		parallel gitman install --force --root ::: $(shell find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d) && \
+		sh utils/apply-gitman-patches.sh
 
-	cd linters/gitman/loksh && \
+	# find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d | while read -r dir; do \
+	# 	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" gitman install --force --root "$$dir"; \
+	# done && \
+	# 	sh utils/apply-gitman-patches.sh
+
+	cd linters/gitman-repos/shell-loksh/gitman/loksh && \
 		meson setup --prefix="$$PWD/install" build && \
-		ninja -C build install
-	cp linters/gitman/loksh/install/bin/ksh linters/bin/loksh
+		ninja -C build install && \
+		cp install/bin/ksh "$(PROJECT_DIR)/linters/bin/loksh"
 
-	cd linters/gitman/oksh && \
+	cd linters/gitman-repos/shell-oksh/gitman/oksh && \
 		./configure && \
 		make && \
-		DESTDIR="$$PWD/install" make install
-	cp linters/gitman/oksh/install/usr/local/bin/oksh linters/bin/oksh
+		DESTDIR="$$PWD/install" make install && \
+		cp install/usr/local/bin/oksh "$(PROJECT_DIR)/linters/bin/"
 
 	PATH="$$PWD/venv/bin:$(PATH)" \
 	PYTHONPATH="$$PWD/linters/python" \
@@ -66,22 +68,16 @@ bootstrap:
 	cd linters && \
 		composer install
 
-	cd linters/gitman/checkmake && \
-		BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
-	cp linters/gitman/checkmake/checkmake linters/bin/
+	cd linters/gitman-repos/go-checkmake/gitman/checkmake && \
+		BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make && \
+		cp checkmake "$(PROJECT_DIR)/linters/bin/"
 
-	cd linters/gitman/editorconfig-checker && \
-		make build
-	cp linters/gitman/editorconfig-checker/bin/ec linters/bin/
+	cd linters/gitman-repos/go-editorconfig-checker/gitman/editorconfig-checker && \
+		make build && \
+		cp bin/ec "$(PROJECT_DIR)/linters/bin/"
 
-	GOPATH="$$PWD/linters/go" GO111MODULE=on \
-		go install github.com/mikefarah/yq/v4@latest
-
-	# GOPATH="$$PWD/linters/go" GO111MODULE=on parallel ::: \
-	# 	'go install -modcacherw "mvdan.cc/sh/v3/cmd/shfmt@v$(shell sh utils/git-latest-version.sh linters/gitman/shfmt)"' \
-	# 	'go install -modcacherw "github.com/freshautomations/stoml@v$(shell sh utils/git-latest-version.sh linters/gitman/stoml)"' \
-	# 	'go install -modcacherw "github.com/pelletier/go-toml/cmd/tomljson@latest"' \
-	# 	'go install -modcacherw "github.com/rhysd/actionlint/cmd/actionlint@latest"'
+	# GOPATH="$$PWD/linters/go" GO111MODULE=on \
+	# 	go install -modcacherw github.com/mikefarah/yq/v4@latest
 
 	GOPATH="$$PWD/linters/go" GO111MODULE=on parallel ::: \
 		'go install -modcacherw "mvdan.cc/sh/v3/cmd/shfmt@latest"' \
@@ -94,14 +90,14 @@ bootstrap:
 	# 	'cabal install hadolint-2.12.0' \
 	# 	'cabal install ShellCheck-0.9.0'
 
-	cd linters/gitman/circleci-cli && \
+	cd linters/gitman-repos/circleci-cli/gitman/circleci-cli && \
 		mkdir -p install && \
 		if [ "$(shell uname)" = Darwin ] && [ "$(shell uname -m)" = arm64 ]; then \
 			DESTDIR="$$PWD/install/" arch -x86_64 /bin/bash install.sh; \
 		else \
 			DESTDIR="$$PWD/install/" bash install.sh; \
-		fi
-	cp linters/gitman/circleci-cli/install/circleci linters/bin/
+		fi && \
+		cp install/circleci "$(PROJECT_DIR)/linters/bin/"
 
 	if command -v brew >/dev/null 2>&1; then \
 		brew bundle --help >/dev/null; \
@@ -131,11 +127,12 @@ test:
 
 .PHONY: clean
 clean:
+	find linters/gitman-repos -name gitman -type d -prune -exec rm -rf {} \;
+
 	rm -rf "$$PWD/docs/demo/gitman" \
 		"$$PWD/linters/bin" \
 		"$$PWD/linters/bundle" \
 		"$$PWD/linters/cargo" \
-		"$$PWD/linters/gitman" \
 		"$$PWD/linters/go" \
 		"$$PWD/linters/node_modules" \
 		"$$PWD/linters/python" \

@@ -1,0 +1,26 @@
+location: gitman/
+sources:
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker.git
+    name: editorconfig-checker
+    rev: main
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+sources_locked:
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker.git
+    name: editorconfig-checker
+    rev: ec7b7cf258ad12f99ef5b5a05cb62e522c878d5c
+    type: git
+    sparse_paths:
+      -
+    links:
+      -
+    scripts:
+      -
+default_group: ""
+groups:
+  -
