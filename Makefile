@@ -24,14 +24,16 @@ bootstrap:
 		|| virtualenv venv \
 		|| mkvirtualenv venv
 
-	export PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" && \
+	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
 		pip install --requirement requirements.txt
 
-	export PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" && \
-		find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d | while read -r dir; do \
-			(cd "$$dir" && gitman install --force); \
-		done && \
-		sh utils/apply-gitman-patches.sh
+	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
+		parallel gitman install --force --root ::: $(find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d)
+
+	# find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d | while read -r dir; do \
+	# 	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" gitman install --force --root "$$dir"; \
+	# done && \
+	# 	sh utils/apply-gitman-patches.sh
 
 	cd linters/gitman-repos/shell-loksh/gitman/loksh && \
 		meson setup --prefix="$$PWD/install" build && \
