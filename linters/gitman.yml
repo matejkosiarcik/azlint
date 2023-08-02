@@ -223,7 +223,7 @@ sources_locked:
       -
   - repo: https://github.com/rhysd/actionlint.git
     name: actionlint
-    rev: 0f7cd695d111dcfd2470d55f5e8bb9e45d4612e4
+    rev: 5c1678e7755886bd1f1cc1c5cab4fb921716f761
     type: git
     sparse_paths:
       -
