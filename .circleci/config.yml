@@ -92,7 +92,7 @@ jobs:
       - run:
           name: Install HomeBrew
           command: |
-            bash linters/gitman/brew-installer/install.sh
+            bash linters/gitman-repos/brew-install/gitman/brew-installer/install.sh
             eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
       - run:
           name: Sanity check
