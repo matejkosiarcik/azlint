@@ -24,12 +24,11 @@ bootstrap:
 		|| virtualenv venv \
 		|| mkvirtualenv venv
 
-	PATH="$$PWD/venv/bin:$(PATH)" PYTHONPATH="$$PWD/python" \
+	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
 		pip install --requirement requirements.txt
 
 	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
-		find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d -print0 | \
-		xargs -0 -n1 -P4 sh -c 'cd "$$0" && gitman install --force' && \
+		find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -n1 -P4 sh -c 'cd "$$0" && gitman install --force' && \
 		sh utils/apply-gitman-patches.sh
 
 	cd linters/gitman-repos/shell-loksh/gitman/loksh && \
