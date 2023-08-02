@@ -13,7 +13,7 @@ sources:
 sources_locked:
   - repo: https://github.com/CircleCI-Public/circleci-cli.git
     name: circleci-cli
-    rev: 0fd0133721c20a21e8a062ae6fe3ff8bca18fc69
+    rev: 4bc986fa3965665cce4684922f17c85900cd5999
     type: git
     sparse_paths:
       -
