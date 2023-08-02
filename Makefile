@@ -28,7 +28,7 @@ bootstrap:
 		pip install --requirement requirements.txt
 
 	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
-		parallel gitman install --force --root ::: $(find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d)
+		parallel gitman install --force --root ::: $(shell find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d)
 
 	# find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d | while read -r dir; do \
 	# 	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" gitman install --force --root "$$dir"; \
