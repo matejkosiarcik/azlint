@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - New linters:
     - `actionlint` for GitHub Action workflow files
 - Miscellaneous
-  - Optimize dependencies in published docker image (total improvement ~310 MB-> ___ MB)
+  - Optimize dependencies in published docker image (-> improves total images size by ~90MB)
     - Remove unused files from linuxbrew and associated rbenv's ruby
     - Remove unecessary files from directories (`bundle`, `node_modules`, `python` and `vendor`)
     - Remove unecessary properties from `package.json`s
