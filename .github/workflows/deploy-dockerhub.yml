@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
-      fail-fast: false
+      # fail-fast: false
       matrix:
         platform:
           - linux/amd64
@@ -70,6 +70,7 @@ jobs:
           retention-days: 1
 
   merge-images:
+    name: Merge multiplatform digests into tags
     runs-on: ubuntu-latest
     needs:
       - build-images
@@ -107,7 +108,10 @@ jobs:
 
       - name: Debug digests
         working-directory: /tmp/digests
-        run: ls -lah
+        run: |
+          ls -lah
+          echo "Tags: $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")"
+          echo "Digests: $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)"
 
       - name: Create manifest list and push
         working-directory: /tmp/digests
