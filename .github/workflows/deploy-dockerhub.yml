@@ -116,6 +116,7 @@ jobs:
       - name: Create manifest list and push
         working-directory: /tmp/digests
         run: |
+          # shellcheck disable=SC2046
           docker buildx imagetools create \
             $(printf '%s' ${{ steps.meta.outputs.tags }} | sed -E 's~^[ \n]+~~;s~[ \n]+$~~;s~[\n ]~ -t ~g;s~^~-t ~') \
             $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
@@ -125,6 +126,7 @@ jobs:
 
       - name: Inspect image
         run: |
+          # shellcheck disable=SC2046
           docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ steps.meta.outputs.version }}
 
   deploy-description:
