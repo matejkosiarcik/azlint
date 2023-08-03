@@ -86,13 +86,13 @@ for all project versions.
 
 ### Local - Linux & macOS
 
-To **lint** files in current folder:
+To **lint** files in current directory:
 
 ```sh
 docker run -itv "$PWD:/project:ro" matejkosiarcik/azlint:latest lint
 ```
 
-To **format** files in current folder:
+To **format** files in current directory:
 
 ```sh
 docker run -itv "$PWD:/project" matejkosiarcik/azlint:latest fmt
@@ -149,12 +149,13 @@ workflows:
     jobs:
       - azlint
 
-azlint:
-  docker:
-    - image: matejkosiarcik/azlint:latest
-  steps:
-    - checkout
-    - run: lint
+jobs:
+  azlint:
+    docker:
+      - image: matejkosiarcik/azlint:latest
+    steps:
+      - checkout
+      - run: lint
 ```
 
 ### GitHub Actions
@@ -189,13 +190,24 @@ jobs:
 
 ## Configuration
 
-AZLint expects to find config files in the root directory you are calling from.
-Eg. repository root.
-AZLint relies on bundled linters to pick their own config file automatically.
+AZLint is configured by environment variables with `AZLINT_` prefix.
+<!-- TODO: Add configuration via config-file -->
 
-You can turn of linters/formatters using environment variables. Example:
-`docker run -itv "$PWD:/project:ro" -e VALIDATE_FOO=false matejkosiarcik/azlint`.
-Where `VALIDATE_FOO` can be found in the following section.
+AZLint looks for config files in following places by default: `[git-root]/` and `[git-root]/.config/`.
+You can specify a custom config directory with: `AZLINT_CONFIG_DIR=some/config/directory`
+(note: _path_ value is relative to `[git-root]`).
+
+AZLint will find config files and pass them to linters automatically.
+If you want to specify a custom config file for a specific linter, set `AZLINT_FOO_CONFIG_FILE=some/path/file.json`
+(note 1: replace `FOO` with specific linter's name;
+note 2: file path is relative to specified config directory).
+
+You can turn of linters/formatters by specifying environment variable `AZLINT_FOO=false`
+(note: replace `FOO` with specific linter's name).
+
+A note about linter names, if a linter is named `foo-bar`,
+then you need to specify environment variable named `FOO_BAR`
+(so capitalized and underscores instead of dashes).
 
 ## Included linters
 
