@@ -46,13 +46,23 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     --mount=type=cache,target=/app/go/pkg \
     export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
-    go install -ldflags='-s -w' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
+    go install -ldflags='-s -w -buildid=' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         mv "./go/bin/linux_$TARGETARCH/actionlint" './go/bin/actionlint' && \
     true; fi
 
-FROM --platform=$BUILDPLATFORM upx-base AS go-actionlint-upx
+FROM debian:12.1-slim AS go-actionlint-optimize
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends binutils file && \
+    rm -rf /var/lib/apt/lists/*
 COPY --from=go-actionlint-build /app/go/bin/actionlint ./
+RUN strip --strip-all actionlint
+COPY utils/check-executable.sh ./
+RUN sh check-executable.sh actionlint
+
+FROM --platform=$BUILDPLATFORM upx-base AS go-actionlint-upx
+COPY --from=go-actionlint-optimize /app/actionlint ./
 # RUN upx --best /app/actionlint
 
 FROM bins-aggregator AS go-actionlint-final
@@ -77,13 +87,23 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     --mount=type=cache,target=/app/go/pkg \
     export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
-    go install -ldflags='-s -w' "mvdan.cc/sh/v3/cmd/shfmt@v$(sh git-latest-version.sh shfmt)" && \
+    go install -ldflags='-s -w -buildid=' "mvdan.cc/sh/v3/cmd/shfmt@v$(sh git-latest-version.sh shfmt)" && \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         mv "./go/bin/linux_$TARGETARCH/shfmt" './go/bin/shfmt' && \
     true; fi
 
-FROM --platform=$BUILDPLATFORM upx-base AS go-shfmt-upx
+FROM debian:12.1-slim AS go-shfmt-optimize
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends binutils file && \
+    rm -rf /var/lib/apt/lists/*
 COPY --from=go-shfmt-build /app/go/bin/shfmt ./
+RUN strip --strip-all shfmt
+COPY utils/check-executable.sh ./
+RUN sh check-executable.sh shfmt
+
+FROM --platform=$BUILDPLATFORM upx-base AS go-shfmt-upx
+COPY --from=go-shfmt-optimize /app/shfmt ./
 # RUN upx --best /app/shfmt
 
 FROM bins-aggregator AS go-shfmt-final
@@ -108,13 +128,23 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     --mount=type=cache,target=/app/go/pkg \
     export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
-    go install -ldflags='-s -w' "github.com/freshautomations/stoml@v$(sh git-latest-version.sh stoml)" && \
+    go install -ldflags='-s -w -buildid=' "github.com/freshautomations/stoml@v$(sh git-latest-version.sh stoml)" && \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         mv "./go/bin/linux_$TARGETARCH/stoml" './go/bin/stoml' && \
     true; fi
 
-FROM --platform=$BUILDPLATFORM upx-base AS go-stoml-upx
+FROM debian:12.1-slim AS go-stoml-optimize
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends binutils file && \
+    rm -rf /var/lib/apt/lists/*
 COPY --from=go-stoml-build /app/go/bin/stoml ./
+RUN strip --strip-all stoml
+COPY utils/check-executable.sh ./
+RUN sh check-executable.sh stoml
+
+FROM --platform=$BUILDPLATFORM upx-base AS go-stoml-upx
+COPY --from=go-stoml-optimize /app/stoml ./
 # RUN upx --best /app/stoml
 
 FROM bins-aggregator AS go-stoml-final
@@ -132,13 +162,23 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     --mount=type=cache,target=/app/go/pkg \
     export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
-    go install -ldflags='-s -w' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
+    go install -ldflags='-s -w -buildid=' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         mv "./go/bin/linux_$TARGETARCH/tomljson" './go/bin/tomljson' && \
     true; fi
 
-FROM --platform=$BUILDPLATFORM upx-base AS go-tomljson-upx
+FROM debian:12.1-slim AS go-tomljson-optimize
+WORKDIR /app
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends binutils file && \
+    rm -rf /var/lib/apt/lists/*
 COPY --from=go-tomljson-build /app/go/bin/tomljson ./
+RUN strip --strip-all tomljson
+COPY utils/check-executable.sh ./
+RUN sh check-executable.sh tomljson
+
+FROM --platform=$BUILDPLATFORM upx-base AS go-tomljson-upx
+COPY --from=go-tomljson-optimize /app/tomljson ./
 # RUN upx --best /app/tomljson
 
 FROM bins-aggregator AS go-tomljson-final
