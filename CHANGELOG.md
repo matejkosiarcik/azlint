@@ -5,13 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## \[Unreleased\]
+## \[0.6.8\] - 2023-08-04
 
 - Added
   - New linters:
     - `actionlint` for GitHub Action workflow files
 - Miscellaneous
   - Optimize dependencies in published docker image (total improvement ~310 MB-> ___ MB)
+    - Remove unused files from linuxbrew and associated rbenv's ruby
     - Remove unecessary files from directories (`bundle`, `node_modules`, `python` and `vendor`)
     - Remove unecessary properties from `package.json`s
 
