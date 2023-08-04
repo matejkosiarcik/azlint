@@ -15,7 +15,7 @@ all: bootstrap test build run
 bootstrap:
 	mkdir -p linters/bin
 
-	parallel npm install --no-save --prefix ::: . linters
+	parallel npm install --no-save --no-progress --no-audit --quiet --prefix ::: . linters
 
 	# check if virtual environment exists or create it
 	[ -n "$${VIRTUAL_ENV+x}" ] || [ -d venv ] \
@@ -25,10 +25,10 @@ bootstrap:
 		|| mkvirtualenv venv
 
 	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
-		pip install --requirement requirements.txt
+		pip install --requirement requirements.txt --quiet
 
 	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
-		parallel gitman install --force --root ::: $(shell find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d) && \
+		parallel gitman install --quiet --force --root ::: $(shell find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d) && \
 		sh utils/apply-gitman-patches.sh
 
 	# find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d | while read -r dir; do \
@@ -49,7 +49,8 @@ bootstrap:
 
 	PATH="$$PWD/venv/bin:$(PATH)" \
 	PYTHONPATH="$$PWD/linters/python" \
-		pip install --requirement linters/requirements.txt --target linters/python
+	PIP_DISABLE_PIP_VERSION_CHECK=1 \
+		pip install --requirement linters/requirements.txt --target linters/python --quiet --force-reinstall
 
 	# Create cache ahead of time, because it can fail when creating during runtime
 	mkdir -p "$$HOME/.cache/proselint"
@@ -60,13 +61,13 @@ bootstrap:
 	BUNDLE_PATH__SYSTEM=false \
 	BUNDLE_PATH="$$PWD/linters/bundle" \
 	BUNDLE_GEMFILE="$$PWD/linters/Gemfile" \
-		bundle install
+		bundle install --quiet
 
 	node utils/cargo-packages.js | xargs -n2 -P0 sh -c \
-		'cargo install "$$0" --force --root "$$PWD/linters/cargo" --version "$$1" --profile dev'
+		'cargo install "$$0" --quiet --force --root "$$PWD/linters/cargo" --version "$$1" --profile dev'
 
 	cd linters && \
-		composer install
+		composer install --quiet
 
 	cd linters/gitman-repos/go-checkmake/gitman/checkmake && \
 		BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make && \

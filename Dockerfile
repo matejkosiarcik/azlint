@@ -32,7 +32,7 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install --requirement requirements.txt --target python
+    python3 -m pip install --requirement requirements.txt --target python --quiet
 ENV PATH="/app/python/bin:$PATH" \
     PYTHONPATH=/app/python
 
@@ -76,7 +76,7 @@ RUN sh sanity-check.sh
 FROM --platform=$BUILDPLATFORM gitman-base AS go-shfmt-gitman
 COPY linters/gitman-repos/go-shfmt/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
-    gitman install
+    gitman install --quiet
 
 FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-shfmt-build
 WORKDIR /app
@@ -117,7 +117,7 @@ RUN sh sanity-check.sh
 FROM --platform=$BUILDPLATFORM gitman-base AS go-stoml-gitman
 COPY linters/gitman-repos/go-stoml/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
-    gitman install
+    gitman install --quiet
 
 FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-stoml-build
 WORKDIR /app
@@ -192,7 +192,7 @@ RUN sh sanity-check.sh
 FROM --platform=$BUILDPLATFORM gitman-base AS go-checkmake-gitman
 COPY linters/gitman-repos/go-checkmake/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
-    gitman install
+    gitman install --quiet
 
 FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-checkmake-build
 RUN apt-get update -qq && \
@@ -220,7 +220,7 @@ RUN sh sanity-check.sh
 FROM --platform=$BUILDPLATFORM gitman-base AS go-editorconfig-checker-gitman
 COPY linters/gitman-repos/go-editorconfig-checker/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
-    gitman install
+    gitman install --quiet
 
 FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-editorconfig-checker-build
 COPY --from=go-editorconfig-checker-gitman /app/gitman/editorconfig-checker /app/editorconfig-checker
@@ -258,7 +258,7 @@ RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends file nodejs npm && \
     rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
-RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet
 ARG BUILDARCH BUILDOS TARGETARCH TARGETOS
 COPY utils/rust/get-target-arch.sh ./
 RUN if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
@@ -293,7 +293,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
         && \
     true; fi && \
     node utils/cargo-packages.js | while read -r package version; do \
-        cargo install "$package" --force --version "$version" --root "$PWD/cargo" --target "$(sh get-target-tripple.sh)" && \
+        cargo install "$package" --quiet --force --version "$version" --root "$PWD/cargo" --target "$(sh get-target-tripple.sh)" && \
         file "/app/cargo/bin/$package" | grep "stripped" && \
         ! file "/app/cargo/bin/$package" | grep "not stripped" && \
     true; done
@@ -314,7 +314,7 @@ RUN sh sanity-check.sh
 FROM --platform=$BUILDPLATFORM gitman-base AS circleci-gitman
 COPY linters/gitman-repos/circleci-cli/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
-    gitman install
+    gitman install --quiet
 
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
 FROM debian:12.1-slim AS circleci-base
@@ -340,7 +340,7 @@ RUN sh sanity-check.sh && \
 FROM --platform=$BUILDPLATFORM gitman-base AS loksh-gitman
 COPY linters/gitman-repos/shell-loksh/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
-    gitman install
+    gitman install --quiet
 
 FROM debian:12.1-slim AS loksh-base
 RUN apt-get update -qq && \
@@ -366,7 +366,7 @@ RUN sh sanity-check.sh && \
 FROM --platform=$BUILDPLATFORM gitman-base AS oksh-gitman
 COPY linters/gitman-repos/shell-oksh/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
-    gitman install
+    gitman install --quiet
 
 FROM debian:12.1-slim AS oksh-base
 RUN apt-get update -qq && \
@@ -428,7 +428,7 @@ COPY --from=shellcheck-final /app/bin/shellcheck ./
 FROM --platform=$BUILDPLATFORM node:20.5.0-slim AS nodejs-base
 WORKDIR /app
 COPY linters/package.json linters/package-lock.json ./
-RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet && \
     npm prune --production
 
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS nodejs-optimize
@@ -457,7 +457,7 @@ RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends bundler ruby ruby-build ruby-dev && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/Gemfile linters/Gemfile.lock ./
-RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install
+RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install --quiet
 
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS ruby-optimize
 WORKDIR /app
@@ -531,7 +531,7 @@ RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends ca-certificates composer php php-mbstring php-zip && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/composer.json linters/composer.lock ./
-RUN composer install --no-cache
+RUN composer install --no-cache --quiet
 
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS composer-vendor-optimize
 WORKDIR /app
@@ -559,7 +559,7 @@ RUN sh sanity-check.sh
 FROM --platform=$BUILDPLATFORM gitman-base AS brew-gitman
 COPY linters/gitman-repos/brew-install/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
-    gitman install
+    gitman install --quiet
 
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it
@@ -594,7 +594,7 @@ RUN NONINTERACTIVE=1 bash brew-installer/install.sh && \
 FROM --platform=$BUILDPLATFORM gitman-base AS rbenv-gitman
 COPY linters/gitman-repos/rbenv-install/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
-    gitman install
+    gitman install --quiet
 
 # We need to replace ruby bundled with HomeBrew, because it is only a x64 version
 # Instead we install the same ruby version via rbenv and replace it in HomeBrew
@@ -672,7 +672,7 @@ RUN touch /.dockerenv && \
 FROM --platform=$BUILDPLATFORM node:20.5.0-slim AS cli-base
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet && \
     npx modclean --patterns default:safe --run --error-halt && \
     npx node-prune
 COPY tsconfig.json ./
