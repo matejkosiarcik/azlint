@@ -5,7 +5,7 @@
 # ^^^ false positive for `--platform=$BUILDPLATFORM`
 
 # hadolint global ignore=DL3042
-# ^^^ pip cache
+# ^^^ Allow pip's cache, because we use it for cache mount
 
 # Upx #
 # TODO: Change upx target from ubuntu to debian when possible
