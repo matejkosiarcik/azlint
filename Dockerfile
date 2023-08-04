@@ -348,8 +348,8 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=loksh-gitman /app/gitman/loksh /app/loksh
 WORKDIR /app/loksh
-RUN meson setup --prefix="$PWD/install" build && \
-    ninja -C build install
+RUN meson setup --fatal-meson-warnings --prefix="$PWD/install" build && \
+    ninja --quiet -C build install
 
 FROM --platform=$BUILDPLATFORM upx-base AS loksh-upx
 COPY --from=loksh-base /app/loksh/install/bin/ksh /app/loksh

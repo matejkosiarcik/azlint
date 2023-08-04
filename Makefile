@@ -31,14 +31,9 @@ bootstrap:
 		parallel gitman install --quiet --force --root ::: $(shell find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d) && \
 		sh utils/apply-gitman-patches.sh
 
-	# find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d | while read -r dir; do \
-	# 	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" gitman install --force --root "$$dir"; \
-	# done && \
-	# 	sh utils/apply-gitman-patches.sh
-
 	cd linters/gitman-repos/shell-loksh/gitman/loksh && \
-		meson setup --prefix="$$PWD/install" build && \
-		ninja -C build install && \
+		meson setup --fatal-meson-warnings --prefix="$$PWD/install" build && \
+		ninja --quiet -C build install && \
 		cp install/bin/ksh "$(PROJECT_DIR)/linters/bin/loksh"
 
 	cd linters/gitman-repos/shell-oksh/gitman/oksh && \
