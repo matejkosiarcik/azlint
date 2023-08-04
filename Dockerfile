@@ -258,7 +258,7 @@ RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends file nodejs npm && \
     rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
-RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet
 ARG BUILDARCH BUILDOS TARGETARCH TARGETOS
 COPY utils/rust/get-target-arch.sh ./
 RUN if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
@@ -428,7 +428,7 @@ COPY --from=shellcheck-final /app/bin/shellcheck ./
 FROM --platform=$BUILDPLATFORM node:20.5.0-slim AS nodejs-base
 WORKDIR /app
 COPY linters/package.json linters/package-lock.json ./
-RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet && \
     npm prune --production
 
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS nodejs-optimize
@@ -672,7 +672,7 @@ RUN touch /.dockerenv && \
 FROM --platform=$BUILDPLATFORM node:20.5.0-slim AS cli-base
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm && \
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet && \
     npx modclean --patterns default:safe --run --error-halt && \
     npx node-prune
 COPY tsconfig.json ./

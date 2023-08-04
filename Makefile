@@ -15,7 +15,7 @@ all: bootstrap test build run
 bootstrap:
 	mkdir -p linters/bin
 
-	parallel npm install --no-save --prefix ::: . linters
+	parallel npm install --no-save --no-progress --no-audit --quiet --prefix ::: . linters
 
 	# check if virtual environment exists or create it
 	[ -n "$${VIRTUAL_ENV+x}" ] || [ -d venv ] \
