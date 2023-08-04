@@ -492,7 +492,7 @@ COPY linters/requirements.txt ./
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PYTHONDONTWRITEBYTECODE=1
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install --requirement requirements.txt --target python
+    python3 -m pip install --requirement requirements.txt --target python --quiet
 
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS python-optimize
 WORKDIR /app

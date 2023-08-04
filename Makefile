@@ -25,7 +25,8 @@ bootstrap:
 		|| mkvirtualenv venv
 
 	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
-		pip install --requirement requirements.txt --quiet
+	PIP_DISABLE_PIP_VERSION_CHECK=1 \
+		pip install --requirement requirements.txt --quiet --upgrade
 
 	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
 		parallel gitman install --quiet --force --root ::: $(shell find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d) && \
@@ -45,7 +46,7 @@ bootstrap:
 	PATH="$$PWD/venv/bin:$(PATH)" \
 	PYTHONPATH="$$PWD/linters/python" \
 	PIP_DISABLE_PIP_VERSION_CHECK=1 \
-		pip install --requirement linters/requirements.txt --target linters/python --quiet --force-reinstall
+		pip install --requirement linters/requirements.txt --target linters/python --quiet --upgrade
 
 	# Create cache ahead of time, because it can fail when creating during runtime
 	mkdir -p "$$HOME/.cache/proselint"
