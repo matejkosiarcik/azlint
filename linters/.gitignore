@@ -2,7 +2,6 @@ bin/
 bundle/
 cargo/
 composer.phar
-editorconfig-checker/
 gitman/
 go/
 node_modules/

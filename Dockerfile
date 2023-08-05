@@ -242,6 +242,9 @@ FROM --platform=$BUILDPLATFORM gitman-base AS go-editorconfig-checker-gitman
 COPY linters/gitman-repos/go-editorconfig-checker/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
+COPY utils/apply-git-patches.sh ./
+COPY linters/git-patches/editorconfig-checker ./git-patches
+RUN sh apply-git-patches.sh git-patches gitman/editorconfig-checker
 
 FROM --platform=$BUILDPLATFORM go-builder-base AS go-editorconfig-checker-build
 COPY --from=go-editorconfig-checker-gitman /app/gitman/editorconfig-checker /app/editorconfig-checker
@@ -251,8 +254,14 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     GOOS="$TARGETOS" GOARCH="$TARGETARCH" make build
 
+FROM --platform=$BUILDPLATFORM executable-optimizer-base AS go-editorconfig-checker-optimize
+COPY --from=go-editorconfig-checker-build /app/editorconfig-checker/bin/ec ./bin/
+ARG TARGETARCH
+RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/ec && \
+    sh check-executable.sh bin/ec
+
 FROM --platform=$BUILDPLATFORM upx-base AS go-editorconfig-checker-upx
-COPY --from=go-editorconfig-checker-build /app/editorconfig-checker/bin/ec ./
+COPY --from=go-editorconfig-checker-optimize /app/bin/ec ./
 # RUN upx --best /app/ec
 
 FROM bins-aggregator AS go-editorconfig-checker-final
