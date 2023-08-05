@@ -388,11 +388,19 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=loksh-gitman /app/gitman/loksh /app/loksh
 WORKDIR /app/loksh
-RUN meson setup --fatal-meson-warnings --prefix="$PWD/install" build && \
-    ninja --quiet -C build install
+RUN CC="gcc -flto -fuse-linker-plugin -mtune=generic -pipe -Wl,--build-id=none" \
+    meson setup --fatal-meson-warnings --buildtype release --optimization s --strip --prefix="$PWD/install" build && \
+    ninja --quiet -C build install && \
+    mv /app/loksh/install/bin/ksh /app/loksh/install/bin/loksh
+
+FROM --platform=$BUILDPLATFORM executable-optimizer-base AS shell-loksh-optimize
+COPY --from=loksh-base /app/loksh/install/bin/loksh ./bin/
+ARG TARGETARCH
+RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/loksh && \
+    sh check-executable.sh bin/loksh
 
 FROM --platform=$BUILDPLATFORM upx-base AS loksh-upx
-COPY --from=loksh-base /app/loksh/install/bin/ksh /app/loksh
+COPY --from=shell-loksh-optimize /app/bin/loksh ./
 # RUN upx --best /app/loksh
 
 FROM bins-aggregator AS loksh-final
