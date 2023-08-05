@@ -48,6 +48,7 @@ find bundle -type f \( \
 
 removeEmptyDirectories bundle
 
-### Minification ###
+### Minify files ###
 
 minifyJsonFiles bundle
+minifyYamlFiles bundle

@@ -1,4 +1,4 @@
-# For development
+# For development/build
 cask "docker"
 brew "node"
 brew "python3"
@@ -8,6 +8,7 @@ brew "ruby-build"
 # brew "cabal-install"
 brew "meson"
 brew "ninja"
+brew "jq"
 
 # Makes
 brew "make"

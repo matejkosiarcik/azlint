@@ -41,9 +41,21 @@ workflows:
   version: 2
   circleci:
     jobs:
-      - test
-      - native-build
-      - docker-build
+      - test:
+          filters:
+            branches:
+              ignore:
+                - main
+      - native-build:
+          filters:
+            branches:
+              ignore:
+                - main
+      - docker-build:
+          filters:
+            branches:
+              ignore:
+                - main
 
 jobs:
   test:
@@ -74,7 +86,7 @@ jobs:
             apt-get update -qq
             DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes \
               apt-get install -qq --yes --no-install-recommends \
-              ca-certificates curl git pandoc parallel libxml2-utils \
+              ca-certificates curl git jq libxml2-utils pandoc parallel \
               build-essential meson \
               bmake make \
               nodejs npm \

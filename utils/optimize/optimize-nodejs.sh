@@ -57,7 +57,7 @@ find node_modules -type f \( \
 
 removeEmptyDirectories node_modules
 
-### Minification ###
+### Minify files ###
 
 minifyJsonFiles node_modules
 
@@ -65,3 +65,5 @@ minifyJsonFiles node_modules
 find node_modules -iname 'package.json' | while read -r file; do
     jq -c '. | to_entries | map(select(.key | test("^(description|engine|engines|exports|imports|main|module|name|type|version)$"))) | from_entries' <"$file" | sponge "$file"
 done
+
+minifyYamlFiles node_modules

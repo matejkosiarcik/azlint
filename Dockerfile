@@ -30,39 +30,66 @@ WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends python3 python3-pip git >/dev/null && \
     rm -rf /var/lib/apt/lists/*
-COPY requirements.txt ./
+COPY build-dependencies/python-gitman/requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --requirement requirements.txt --target python --quiet
 ENV PATH="/app/python/bin:$PATH" \
     PYTHONPATH=/app/python
 
+# Golang builder #
+FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-builder-base
+RUN apt-get update -qq && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends moreutils >/dev/null && \
+    rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+
+# Executable optimizer #
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS executable-optimizer-base
+WORKDIR /app
+COPY utils/rust/get-target-arch.sh ./
+ARG TARGETARCH
+RUN apt-get update -qq && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        "binutils-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" file moreutils >/dev/null && \
+    rm -rf /var/lib/apt/lists/*
+COPY utils/check-executable.sh ./
+
+# Executable optimizer #
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS directory-optimizer-base
+WORKDIR /optimizations
+RUN apt-get update -qq && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends file jq moreutils python3 python3-pip >/dev/null && \
+    rm -rf /var/lib/apt/lists/*
+COPY build-dependencies/yq/requirements.txt ./
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python3 -m pip install --requirement requirements.txt --target python --quiet
+ENV PATH="/optimizations/python/bin:$PATH" \
+    PYTHONPATH=/optimizations/python
+COPY utils/optimize/.common.sh ./
+WORKDIR /app
+
 ### Components/Linters ###
 
 # GoLang #
-FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-actionlint-build
-WORKDIR /app
+FROM --platform=$BUILDPLATFORM go-builder-base AS go-actionlint-build
 ARG BUILDARCH TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     --mount=type=cache,target=/app/go/pkg \
     export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
-    go install -ldflags='-s -w -buildid=' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
+    chronic go install -ldflags='-s -w -buildid=' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         mv "./go/bin/linux_$TARGETARCH/actionlint" './go/bin/actionlint' && \
     true; fi
 
-FROM debian:12.1-slim AS go-actionlint-optimize
-WORKDIR /app
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends binutils file >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
-COPY --from=go-actionlint-build /app/go/bin/actionlint ./
-RUN strip --strip-all actionlint
-COPY utils/check-executable.sh ./
-RUN sh check-executable.sh actionlint
+FROM --platform=$BUILDPLATFORM executable-optimizer-base AS go-actionlint-optimize
+COPY --from=go-actionlint-build /app/go/bin/actionlint ./bin/
+ARG TARGETARCH
+RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/actionlint && \
+    sh check-executable.sh bin/actionlint
 
 FROM --platform=$BUILDPLATFORM upx-base AS go-actionlint-upx
-COPY --from=go-actionlint-optimize /app/actionlint ./
+COPY --from=go-actionlint-optimize /app/bin/actionlint ./
 # RUN upx --best /app/actionlint
 
 FROM bins-aggregator AS go-actionlint-final
@@ -78,8 +105,7 @@ COPY linters/gitman-repos/go-shfmt/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
 
-FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-shfmt-build
-WORKDIR /app
+FROM --platform=$BUILDPLATFORM go-builder-base AS go-shfmt-build
 COPY --from=go-shfmt-gitman /app/gitman/shfmt ./shfmt
 COPY utils/git-latest-version.sh ./
 ARG BUILDARCH TARGETARCH TARGETOS
@@ -87,23 +113,19 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     --mount=type=cache,target=/app/go/pkg \
     export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
-    go install -ldflags='-s -w -buildid=' "mvdan.cc/sh/v3/cmd/shfmt@v$(sh git-latest-version.sh shfmt)" && \
+    chronic go install -ldflags='-s -w -buildid=' "mvdan.cc/sh/v3/cmd/shfmt@v$(sh git-latest-version.sh shfmt)" && \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         mv "./go/bin/linux_$TARGETARCH/shfmt" './go/bin/shfmt' && \
     true; fi
 
-FROM debian:12.1-slim AS go-shfmt-optimize
-WORKDIR /app
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends binutils file >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
-COPY --from=go-shfmt-build /app/go/bin/shfmt ./
-RUN strip --strip-all shfmt
-COPY utils/check-executable.sh ./
-RUN sh check-executable.sh shfmt
+FROM --platform=$BUILDPLATFORM executable-optimizer-base AS go-shfmt-optimize
+COPY --from=go-shfmt-build /app/go/bin/shfmt ./bin/
+ARG TARGETARCH
+RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/shfmt && \
+    sh check-executable.sh bin/shfmt
 
 FROM --platform=$BUILDPLATFORM upx-base AS go-shfmt-upx
-COPY --from=go-shfmt-optimize /app/shfmt ./
+COPY --from=go-shfmt-optimize /app/bin/shfmt ./
 # RUN upx --best /app/shfmt
 
 FROM bins-aggregator AS go-shfmt-final
@@ -119,8 +141,7 @@ COPY linters/gitman-repos/go-stoml/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
 
-FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-stoml-build
-WORKDIR /app
+FROM --platform=$BUILDPLATFORM go-builder-base AS go-stoml-build
 COPY --from=go-stoml-gitman /app/gitman/stoml ./stoml
 COPY utils/git-latest-version.sh ./
 ARG BUILDARCH TARGETARCH TARGETOS
@@ -128,23 +149,19 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     --mount=type=cache,target=/app/go/pkg \
     export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
-    go install -ldflags='-s -w -buildid=' "github.com/freshautomations/stoml@v$(sh git-latest-version.sh stoml)" && \
+    chronic go install -ldflags='-s -w -buildid=' "github.com/freshautomations/stoml@v$(sh git-latest-version.sh stoml)" && \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         mv "./go/bin/linux_$TARGETARCH/stoml" './go/bin/stoml' && \
     true; fi
 
-FROM debian:12.1-slim AS go-stoml-optimize
-WORKDIR /app
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends binutils file >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
-COPY --from=go-stoml-build /app/go/bin/stoml ./
-RUN strip --strip-all stoml
-COPY utils/check-executable.sh ./
-RUN sh check-executable.sh stoml
+FROM --platform=$BUILDPLATFORM executable-optimizer-base AS go-stoml-optimize
+COPY --from=go-stoml-build /app/go/bin/stoml ./bin/
+ARG TARGETARCH
+RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/stoml && \
+    sh check-executable.sh bin/stoml
 
 FROM --platform=$BUILDPLATFORM upx-base AS go-stoml-upx
-COPY --from=go-stoml-optimize /app/stoml ./
+COPY --from=go-stoml-optimize /app/bin/stoml ./
 # RUN upx --best /app/stoml
 
 FROM bins-aggregator AS go-stoml-final
@@ -155,30 +172,25 @@ WORKDIR /app
 COPY utils/sanity-check/go-stoml.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
-FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-tomljson-build
-WORKDIR /app
+FROM --platform=$BUILDPLATFORM go-builder-base AS go-tomljson-build
 ARG BUILDARCH TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     --mount=type=cache,target=/app/go/pkg \
     export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
-    go install -ldflags='-s -w -buildid=' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
+    chronic go install -ldflags='-s -w -buildid=' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         mv "./go/bin/linux_$TARGETARCH/tomljson" './go/bin/tomljson' && \
     true; fi
 
-FROM debian:12.1-slim AS go-tomljson-optimize
-WORKDIR /app
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends binutils file >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
-COPY --from=go-tomljson-build /app/go/bin/tomljson ./
-RUN strip --strip-all tomljson
-COPY utils/check-executable.sh ./
-RUN sh check-executable.sh tomljson
+FROM --platform=$BUILDPLATFORM executable-optimizer-base AS go-tomljson-optimize
+COPY --from=go-tomljson-build /app/go/bin/tomljson ./bin/
+ARG TARGETARCH
+RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/tomljson && \
+    sh check-executable.sh bin/tomljson
 
 FROM --platform=$BUILDPLATFORM upx-base AS go-tomljson-upx
-COPY --from=go-tomljson-optimize /app/tomljson ./
+COPY --from=go-tomljson-optimize /app/bin/tomljson ./
 # RUN upx --best /app/tomljson
 
 FROM bins-aggregator AS go-tomljson-final
@@ -194,7 +206,7 @@ COPY linters/gitman-repos/go-checkmake/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
 
-FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-checkmake-build
+FROM --platform=$BUILDPLATFORM go-builder-base AS go-checkmake-build
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends pandoc >/dev/null && \
     rm -rf /var/lib/apt/lists/*
@@ -222,7 +234,7 @@ COPY linters/gitman-repos/go-editorconfig-checker/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
 
-FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-editorconfig-checker-build
+FROM --platform=$BUILDPLATFORM go-builder-base AS go-editorconfig-checker-build
 COPY --from=go-editorconfig-checker-gitman /app/gitman/editorconfig-checker /app/editorconfig-checker
 WORKDIR /app/editorconfig-checker
 ARG TARGETARCH TARGETOS
@@ -252,13 +264,25 @@ COPY --from=go-stoml-final /app/bin/stoml ./
 COPY --from=go-tomljson-final /app/bin/tomljson ./
 
 # Rust #
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS rust-dependencies-versions
+WORKDIR /app
+RUN apt-get update -qq && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends jq python3 python3-pip >/dev/null && \
+    rm -rf /var/lib/apt/lists/*
+COPY build-dependencies/yq/requirements.txt ./
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python3 -m pip install --requirement requirements.txt --target python --quiet
+ENV PATH="/app/python/bin:$PATH" \
+    PYTHONPATH=/app/python
+COPY linters/Cargo.toml ./
+RUN tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' Cargo.toml >cargo-dependencies.txt
+
+# Rust #
 FROM --platform=$BUILDPLATFORM rust:1.71.0-slim-bookworm AS rust-builder
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends file nodejs npm >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends file >/dev/null && \
     rm -rf /var/lib/apt/lists/*
-COPY package.json package-lock.json ./
-RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet
 ARG BUILDARCH BUILDOS TARGETARCH TARGETOS
 COPY utils/rust/get-target-arch.sh ./
 RUN if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
@@ -278,9 +302,7 @@ ENV CARGO_PROFILE_RELEASE_LTO=true \
     CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
     CARGO_PROFILE_RELEASE_OPT_LEVEL=s \
     RUSTFLAGS='-Cstrip=symbols'
-COPY utils/cargo-packages.js ./utils/
-COPY linters/Cargo.toml ./linters/
-# TODO: Add `CRATE_CC_NO_DEFAULTS=1` if compiler errors
+COPY --from=rust-dependencies-versions /app/cargo-dependencies.txt ./
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         export \
@@ -292,11 +314,11 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
             "CARGO_TARGET_$(sh get-target-arch.sh | tr '[:lower:]' '[:upper:]')_UNKNOWN_LINUX_GNU_LINKER=/usr/bin/$(sh get-target-arch.sh)-linux-gnu-gcc" \
         && \
     true; fi && \
-    node utils/cargo-packages.js | while read -r package version; do \
+    while read -r package version; do \
         cargo install "$package" --quiet --force --version "$version" --root "$PWD/cargo" --target "$(sh get-target-tripple.sh)" && \
         file "/app/cargo/bin/$package" | grep "stripped" && \
         ! file "/app/cargo/bin/$package" | grep "not stripped" && \
-    true; done
+    true; done <cargo-dependencies.txt
 
 FROM --platform=$BUILDPLATFORM upx-base AS rust-upx
 COPY --from=rust-builder /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden ./
@@ -331,8 +353,8 @@ COPY --from=circleci-base /usr/local/bin/circleci ./
 
 FROM bins-aggregator AS circleci-final
 COPY utils/sanity-check/circleci.sh ./sanity-check.sh
-COPY --from=circleci-upx /app/circleci ./
-ENV BINPREFIX=/app/
+COPY --from=circleci-upx /app/circleci ./bin/
+ENV BINPREFIX=/app/bin/
 RUN sh sanity-check.sh && \
     rm -f sanity-check.sh
 
@@ -356,9 +378,9 @@ COPY --from=loksh-base /app/loksh/install/bin/ksh /app/loksh
 # RUN upx --best /app/loksh
 
 FROM bins-aggregator AS loksh-final
-COPY --from=loksh-upx /app/loksh ./
+COPY --from=loksh-upx /app/loksh ./bin/
 COPY utils/sanity-check/shell-loksh.sh ./sanity-check.sh
-ENV BINPREFIX=/app/
+ENV BINPREFIX=/app/bin/
 RUN sh sanity-check.sh && \
     rm -f sanity-check.sh
 
@@ -383,9 +405,9 @@ COPY --from=oksh-base /app/oksh/install/usr/local/bin/oksh ./
 # RUN upx --best /app/oksh
 
 FROM bins-aggregator AS oksh-final
-COPY --from=oksh-upx /app/oksh ./
+COPY --from=oksh-upx /app/oksh ./bin/
 COPY utils/sanity-check/shell-oksh.sh ./sanity-check.sh
-ENV BINPREFIX=/app/
+ENV BINPREFIX=/app/bin/
 RUN sh sanity-check.sh && \
     rm -f sanity-check.sh
 
@@ -431,14 +453,10 @@ COPY linters/package.json linters/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet && \
     npm prune --production
 
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS nodejs-optimize
-WORKDIR /app
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends jq moreutils >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
+FROM --platform=$BUILDPLATFORM directory-optimizer-base AS nodejs-optimize
 COPY --from=nodejs-base /app/node_modules ./node_modules
-COPY utils/optimize/.common.sh utils/optimize/optimize-nodejs.sh ./
-RUN sh optimize-nodejs.sh
+COPY utils/optimize/optimize-nodejs.sh /optimizations/
+RUN sh /optimizations/optimize-nodejs.sh
 
 FROM debian:12.1-slim AS nodejs-final
 WORKDIR /app
@@ -459,14 +477,10 @@ RUN apt-get update -qq && \
 COPY linters/Gemfile linters/Gemfile.lock ./
 RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install --quiet
 
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS ruby-optimize
-WORKDIR /app
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends jq moreutils >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
+FROM --platform=$BUILDPLATFORM directory-optimizer-base AS ruby-optimize
 COPY --from=ruby-base /app/bundle ./bundle
-COPY utils/optimize/.common.sh utils/optimize/optimize-bundle.sh ./
-RUN sh optimize-bundle.sh
+COPY utils/optimize/optimize-bundle.sh /optimizations/
+RUN sh /optimizations/optimize-bundle.sh
 
 FROM debian:12.1-slim AS ruby-final
 WORKDIR /app
@@ -494,14 +508,10 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --requirement requirements.txt --target python --quiet
 
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS python-optimize
-WORKDIR /app
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends jq moreutils >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
+FROM --platform=$BUILDPLATFORM directory-optimizer-base AS python-optimize
 COPY --from=python-base /app/python ./python
-COPY utils/optimize/.common.sh utils/optimize/optimize-python.sh ./
-RUN sh optimize-python.sh
+COPY utils/optimize/optimize-python.sh /optimizations/
+RUN sh /optimizations/optimize-python.sh
 
 FROM debian:12.1-slim AS python-final
 WORKDIR /app
@@ -521,7 +531,7 @@ FROM composer:2.5.8 AS composer-bin
 
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS composer-bin-optimize
 WORKDIR /app
-COPY --from=composer-bin /usr/bin/composer ./
+COPY --from=composer-bin /usr/bin/composer ./bin/
 # TODO: optimize `composer` script
 
 # PHP/Composer #
@@ -533,14 +543,10 @@ RUN apt-get update -qq && \
 COPY linters/composer.json linters/composer.lock ./
 RUN composer install --no-cache --quiet
 
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS composer-vendor-optimize
-WORKDIR /app
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends jq moreutils >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
+FROM --platform=$BUILDPLATFORM directory-optimizer-base AS composer-vendor-optimize
 COPY --from=composer-vendor-base /app/vendor ./vendor
-COPY utils/optimize/.common.sh utils/optimize/optimize-composer.sh ./
-RUN sh optimize-composer.sh
+COPY utils/optimize/optimize-composer.sh /optimizations/
+RUN sh /optimizations/optimize-composer.sh
 
 FROM debian:12.1-slim AS composer-final
 WORKDIR /app
@@ -550,8 +556,9 @@ RUN apt-get update -qq && \
 COPY utils/sanity-check/composer.sh ./sanity-check.sh
 COPY linters/composer.json ./linters/
 COPY --from=composer-vendor-optimize /app/vendor ./linters/vendor
-COPY --from=composer-bin-optimize /app/composer ./
-ENV BINPREFIX=/app/ \
+COPY --from=composer-bin-optimize /app/bin/composer ./bin/
+ENV BINPREFIX=/app/bin/ \
+    VENDORPREFIX=/app/linters/ \
     COMPOSER_ALLOW_SUPERUSER=1
 RUN sh sanity-check.sh
 
@@ -727,13 +734,13 @@ COPY --from=nodejs-final /app/node_modules ./node_modules
 COPY --from=python-final /app/python ./python
 COPY --from=ruby-final /app/bundle ./bundle
 WORKDIR /app/linters/bin
-COPY --from=composer-final /app/composer ./
+COPY --from=composer-final /app/bin ./
 COPY --from=haskell-final /app/bin ./
 COPY --from=go-final /app/bin ./
 COPY --from=rust-final /app/bin ./
-COPY --from=circleci-final /app ./
-COPY --from=loksh-final /app ./
-COPY --from=oksh-final /app ./
+COPY --from=circleci-final /app/bin ./
+COPY --from=loksh-final /app/bin ./
+COPY --from=oksh-final /app/bin ./
 WORKDIR /app-tmp
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     HOMEBREW_NO_ANALYTICS=1 \

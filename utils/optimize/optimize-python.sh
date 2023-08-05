@@ -40,10 +40,11 @@ find python -type f \( \
 rm -rf python/cloudsplaining/output
 find python -type f -iname '*.json.gz' -delete
 
-### Minification ###
-
-minifyJsonFiles python
-
 ### Rest ###
 
 removeEmptyDirectories python
+
+### Minify files ###
+
+minifyJsonFiles python
+minifyYamlFiles python

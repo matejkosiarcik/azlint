@@ -4,7 +4,7 @@ set -euf
 "${BINPREFIX:-}composer" --help
 "${BINPREFIX:-}composer" --version
 "${BINPREFIX:-}composer" install --help
-(cd "${BINPREFIX:-}linters" && "${BINPREFIX:-}composer" normalize --help)
-(cd "${BINPREFIX:-}linters" && "${BINPREFIX:-}composer" validate --help)
+(cd "${VENDORPREFIX:-}" && "${BINPREFIX:-}composer" normalize --help)
+(cd "${VENDORPREFIX:-}" && "${BINPREFIX:-}composer" validate --help)
 php --help
 php --version

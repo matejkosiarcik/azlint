@@ -18,18 +18,19 @@ bootstrap:
 
 	parallel npm install --no-save --no-progress --no-audit --quiet --prefix ::: . linters
 
-	# check if virtual environment exists or create it
-	[ -n "$${VIRTUAL_ENV+x}" ] || [ -d venv ] \
-		|| python3 -m venv venv \
-		|| python -m venv venv \
-		|| virtualenv venv \
-		|| mkvirtualenv venv
+	parallel python3 -m venv ::: build-dependencies/python-gitman/venv build-dependencies/yq/venv
 
-	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
-	PIP_DISABLE_PIP_VERSION_CHECK=1 \
-		pip install --requirement requirements.txt --quiet --upgrade
+	cd "$(PROJECT_DIR)/build-dependencies/python-gitman" && \
+		PATH="$$PWD/venv/bin:$(PATH)" \
+		PIP_DISABLE_PIP_VERSION_CHECK=1 \
+			pip install --requirement requirements.txt --quiet --upgrade
 
-	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
+	cd "$(PROJECT_DIR)/build-dependencies/yq" && \
+		PATH="$$PWD/venv/bin:$(PATH)" \
+		PIP_DISABLE_PIP_VERSION_CHECK=1 \
+			pip install --requirement requirements.txt --quiet --upgrade
+
+	PATH="$(PROJECT_DIR)/build-dependencies/python-gitman/venv/bin:$(PATH)" \
 		parallel gitman install --quiet --force --root ::: $(shell find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d) && \
 		sh utils/apply-gitman-patches.sh
 
@@ -60,8 +61,10 @@ bootstrap:
 	BUNDLE_GEMFILE="$$PWD/linters/Gemfile" \
 		bundle install --quiet
 
-	node utils/cargo-packages.js | xargs -n2 -P0 sh -c \
-		'cargo install "$$0" --quiet --force --root "$$PWD/linters/cargo" --version "$$1" --profile dev'
+	PATH="$(PROJECT_DIR)/build-dependencies/yq/venv/bin:$(PATH)" \
+		tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' linters/Cargo.toml | \
+		xargs -n2 -P0 sh -c \
+		'cd "$(PROJECT_DIR)" && cargo install "$$0" --quiet --force --root "$$PWD/linters/cargo" --version "$$1" --profile dev'
 
 	cd linters && \
 		composer install --quiet
@@ -125,7 +128,9 @@ test:
 .PHONY: clean
 clean:
 	find linters/gitman-repos -name gitman -type d -prune -exec rm -rf {} \;
-	rm -rf "$$PWD/docs/demo/gitman" \
+	rm -rf "$$PWD/build-dependencies/python-gitman/venv" \
+		"$$PWD/build-dependencies/yq/venv" \
+		"$$PWD/docs/demo/gitman" \
 		"$$PWD/linters/bin" \
 		"$$PWD/linters/bundle" \
 		"$$PWD/linters/cargo" \
