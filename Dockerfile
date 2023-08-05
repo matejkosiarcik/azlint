@@ -319,7 +319,7 @@ ENV CARGO_PROFILE_RELEASE_LTO=true \
     CARGO_PROFILE_RELEASE_PANIC=abort \
     CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
     CARGO_PROFILE_RELEASE_OPT_LEVEL=s \
-    RUSTFLAGS='-Cstrip=symbols'
+    RUSTFLAGS='-Cstrip=symbols -Clink-args=-Wl,--build-id=none'
 COPY --from=rust-dependencies-versions /app/cargo-dependencies.txt ./
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
@@ -339,13 +339,13 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
     true; done <cargo-dependencies.txt
 
 FROM --platform=$BUILDPLATFORM upx-base AS rust-upx
-COPY --from=rust-builder /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden ./
+COPY --from=rust-builder /app/cargo/bin ./
 # RUN parallel upx --best ::: /app/*
 
 FROM bins-aggregator AS rust-final
 WORKDIR /app/bin
 ENV BINPREFIX=/app/bin/
-COPY --from=rust-upx /app/dotenv-linter /app/hush /app/shellharden ./
+COPY --from=rust-upx /app ./
 WORKDIR /app
 COPY utils/sanity-check/rust.sh ./sanity-check.sh
 RUN sh sanity-check.sh
