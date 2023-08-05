@@ -6,6 +6,7 @@ SHELL := /bin/sh
 PROJECT_DIR := $(abspath $(dir $(MAKEFILE_LIST)))
 
 .POSIX:
+.SILENT:
 
 .DEFAULT: all
 .PHONY: all
@@ -73,9 +74,6 @@ bootstrap:
 		make build && \
 		cp bin/ec "$(PROJECT_DIR)/linters/bin/"
 
-	# GOPATH="$$PWD/linters/go" GO111MODULE=on \
-	# 	go install -modcacherw github.com/mikefarah/yq/v4@latest
-
 	GOPATH="$$PWD/linters/go" GO111MODULE=on parallel ::: \
 		'go install -modcacherw "mvdan.cc/sh/v3/cmd/shfmt@latest"' \
 		'go install -modcacherw "github.com/freshautomations/stoml@latest"' \
@@ -97,7 +95,9 @@ bootstrap:
 		cp install/circleci "$(PROJECT_DIR)/linters/bin/"
 
 	if command -v brew >/dev/null 2>&1; then \
-		brew bundle --help >/dev/null; \
+		HOMEBREW_NO_ANALYTICS=1 \
+		HOMEBREW_NO_AUTO_UPDATE=1 \
+			brew bundle --help --quiet >/dev/null; \
 	fi
 
 .PHONY: build
@@ -125,7 +125,6 @@ test:
 .PHONY: clean
 clean:
 	find linters/gitman-repos -name gitman -type d -prune -exec rm -rf {} \;
-
 	rm -rf "$$PWD/docs/demo/gitman" \
 		"$$PWD/linters/bin" \
 		"$$PWD/linters/bundle" \
