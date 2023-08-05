@@ -604,7 +604,7 @@ FROM debian:12.1-slim AS brew-rbenv-install
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
-        autoconf bison build-essential ca-certificates curl git \
+        autoconf bison build-essential ca-certificates curl git moreutils \
         libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=rbenv-gitman /app/gitman/rbenv-installer ./rbenv-installer
@@ -614,7 +614,7 @@ RUN bash rbenv-installer/bin/rbenv-installer
 COPY --from=brew-install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
 RUN --mount=type=cache,target=/.rbenv/cache \
     ruby_version_short="$(sed -E 's~_.*$~~' <portable-ruby-version)" && \
-    rbenv install "$ruby_version_short"
+    chronic rbenv install "$ruby_version_short"
 
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-link-rbenv
 WORKDIR /app
