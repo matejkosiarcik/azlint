@@ -348,8 +348,8 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=loksh-gitman /app/gitman/loksh /app/loksh
 WORKDIR /app/loksh
-RUN meson setup --prefix="$PWD/install" build && \
-    ninja -C build install
+RUN meson setup --fatal-meson-warnings --prefix="$PWD/install" build && \
+    ninja --quiet -C build install
 
 FROM --platform=$BUILDPLATFORM upx-base AS loksh-upx
 COPY --from=loksh-base /app/loksh/install/bin/ksh /app/loksh
@@ -492,7 +492,7 @@ COPY linters/requirements.txt ./
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PYTHONDONTWRITEBYTECODE=1
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install --requirement requirements.txt --target python
+    python3 -m pip install --requirement requirements.txt --target python --quiet
 
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS python-optimize
 WORKDIR /app
