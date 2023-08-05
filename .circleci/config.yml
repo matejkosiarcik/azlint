@@ -72,7 +72,8 @@ jobs:
           name: Install system dependencies
           command: |
             apt-get update -qq
-            DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes \
+            DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes \
+              apt-get install -qq --yes --no-install-recommends \
               ca-certificates curl git pandoc parallel libxml2-utils \
               build-essential meson \
               bmake make \
@@ -83,7 +84,8 @@ jobs:
               rust-all \
               golang \
               ash bash dash ksh ksh93u+m mksh posh yash zsh \
-              shellcheck
+              shellcheck \
+              >/dev/null
             # Haskell packages skipped: cabal-install ghc
             git config --global user.email nobody@example.com
             git config --global user.name Nobody
