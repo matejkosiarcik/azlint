@@ -62,13 +62,17 @@ jobs:
       - image: debian:12.1
     environment:
       VALIDATE_HADOLINT: "false"
+      HOMEBREW_NO_ANALYTICS: 1
+      HOMEBREW_NO_AUTO_UPDATE: 1
+      PIP_DISABLE_PIP_VERSION_CHECK: 1
+      PYTHONDONTWRITEBYTECODE: 1
     steps:
       - checkout
       - run:
           name: Install system dependencies
           command: |
-            apt-get update
-            DEBIAN_FRONTEND=noninteractive apt-get install --yes \
+            apt-get update -qq
+            DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes \
               ca-certificates curl git pandoc parallel libxml2-utils \
               build-essential meson \
               bmake make \
@@ -80,10 +84,7 @@ jobs:
               golang \
               ash bash dash ksh ksh93u+m mksh posh yash zsh \
               shellcheck
-              # Haskell packages skipped: cabal-install ghc
-      - run:
-          name: Configure git
-          command: |
+            # Haskell packages skipped: cabal-install ghc
             git config --global user.email nobody@example.com
             git config --global user.name Nobody
       - run:
@@ -102,12 +103,8 @@ jobs:
               BUNDLE_GEMFILE="$PWD/linters/Gemfile" \
               BUNDLE_PATH__SYSTEM=false \
               BUNDLE_PATH="$PWD/linters/bundle" \
-              HOMEBREW_NO_ANALYTICS=1 \
-              HOMEBREW_NO_AUTO_UPDATE=1 \
               PATH="$PATH:$PWD/linters/bin:$PWD/linters/python/bin:$PWD/linters/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin" \
-              PIP_DISABLE_PIP_VERSION_CHECK=1 \
-              PYTHONPATH="$PWD/linters/python" \
-              PYTHONDONTWRITEBYTECODE=1
+              PYTHONPATH="$PWD/linters/python"
             # TODO: Run sanity check
             # sh utils/sanity-check/.main.sh
       - azlint-lint:
