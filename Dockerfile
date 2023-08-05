@@ -43,6 +43,17 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
+# Executable optimizer #
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS executable-optimizer-base
+WORKDIR /app
+COPY utils/rust/get-target-arch.sh ./
+ARG TARGETARCH
+RUN apt-get update -qq && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        "binutils-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" file moreutils >/dev/null && \
+    rm -rf /var/lib/apt/lists/*
+COPY utils/check-executable.sh ./
+
 ### Components/Linters ###
 
 # GoLang #
@@ -57,18 +68,14 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         mv "./go/bin/linux_$TARGETARCH/actionlint" './go/bin/actionlint' && \
     true; fi
 
-FROM debian:12.1-slim AS go-actionlint-optimize
-WORKDIR /app
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends binutils file >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
-COPY --from=go-actionlint-build /app/go/bin/actionlint ./
-RUN strip --strip-all actionlint
-COPY utils/check-executable.sh ./
-RUN sh check-executable.sh actionlint
+FROM --platform=$BUILDPLATFORM executable-optimizer-base AS go-actionlint-optimize
+COPY --from=go-actionlint-build /app/go/bin/actionlint ./bin/
+ARG TARGETARCH
+RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/actionlint && \
+    sh check-executable.sh bin/actionlint
 
 FROM --platform=$BUILDPLATFORM upx-base AS go-actionlint-upx
-COPY --from=go-actionlint-optimize /app/actionlint ./
+COPY --from=go-actionlint-optimize /app/bin/actionlint ./
 # RUN upx --best /app/actionlint
 
 FROM bins-aggregator AS go-actionlint-final
@@ -97,18 +104,14 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         mv "./go/bin/linux_$TARGETARCH/shfmt" './go/bin/shfmt' && \
     true; fi
 
-FROM debian:12.1-slim AS go-shfmt-optimize
-WORKDIR /app
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends binutils file >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
-COPY --from=go-shfmt-build /app/go/bin/shfmt ./
-RUN strip --strip-all shfmt
-COPY utils/check-executable.sh ./
-RUN sh check-executable.sh shfmt
+FROM --platform=$BUILDPLATFORM executable-optimizer-base AS go-shfmt-optimize
+COPY --from=go-shfmt-build /app/go/bin/shfmt ./bin/
+ARG TARGETARCH
+RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/shfmt && \
+    sh check-executable.sh bin/shfmt
 
 FROM --platform=$BUILDPLATFORM upx-base AS go-shfmt-upx
-COPY --from=go-shfmt-optimize /app/shfmt ./
+COPY --from=go-shfmt-optimize /app/bin/shfmt ./
 # RUN upx --best /app/shfmt
 
 FROM bins-aggregator AS go-shfmt-final
@@ -137,18 +140,14 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         mv "./go/bin/linux_$TARGETARCH/stoml" './go/bin/stoml' && \
     true; fi
 
-FROM debian:12.1-slim AS go-stoml-optimize
-WORKDIR /app
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends binutils file >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
-COPY --from=go-stoml-build /app/go/bin/stoml ./
-RUN strip --strip-all stoml
-COPY utils/check-executable.sh ./
-RUN sh check-executable.sh stoml
+FROM --platform=$BUILDPLATFORM executable-optimizer-base AS go-stoml-optimize
+COPY --from=go-stoml-build /app/go/bin/stoml ./bin/
+ARG TARGETARCH
+RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/stoml && \
+    sh check-executable.sh bin/stoml
 
 FROM --platform=$BUILDPLATFORM upx-base AS go-stoml-upx
-COPY --from=go-stoml-optimize /app/stoml ./
+COPY --from=go-stoml-optimize /app/bin/stoml ./
 # RUN upx --best /app/stoml
 
 FROM bins-aggregator AS go-stoml-final
@@ -170,18 +169,14 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         mv "./go/bin/linux_$TARGETARCH/tomljson" './go/bin/tomljson' && \
     true; fi
 
-FROM debian:12.1-slim AS go-tomljson-optimize
-WORKDIR /app
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends binutils file >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
-COPY --from=go-tomljson-build /app/go/bin/tomljson ./
-RUN strip --strip-all tomljson
-COPY utils/check-executable.sh ./
-RUN sh check-executable.sh tomljson
+FROM --platform=$BUILDPLATFORM executable-optimizer-base AS go-tomljson-optimize
+COPY --from=go-tomljson-build /app/go/bin/tomljson ./bin/
+ARG TARGETARCH
+RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/tomljson && \
+    sh check-executable.sh bin/tomljson
 
 FROM --platform=$BUILDPLATFORM upx-base AS go-tomljson-upx
-COPY --from=go-tomljson-optimize /app/tomljson ./
+COPY --from=go-tomljson-optimize /app/bin/tomljson ./
 # RUN upx --best /app/tomljson
 
 FROM bins-aggregator AS go-tomljson-final
