@@ -307,7 +307,6 @@ RUN if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         apt-get update -qq && \
         DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
             "gcc-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" \
-            "g++-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" \
             "libc6-dev-$TARGETARCH-cross" >/dev/null && \
         rm -rf /var/lib/apt/lists/* && \
     true; fi
@@ -328,7 +327,6 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
             HOST_CXX=g++ \
             "AR_$(sh get-target-arch.sh)_unknown_linux_gnu=/usr/bin/$(sh get-target-arch.sh)-linux-gnu-ar" \
             "CC_$(sh get-target-arch.sh)_unknown_linux_gnu=/usr/bin/$(sh get-target-arch.sh)-linux-gnu-gcc" \
-            "CXX_$(sh get-target-arch.sh)_unknown_linux_gnu=/usr/bin/$(sh get-target-arch.sh)-linux-gnu-g++" \
             "CARGO_TARGET_$(sh get-target-arch.sh | tr '[:lower:]' '[:upper:]')_UNKNOWN_LINUX_GNU_LINKER=/usr/bin/$(sh get-target-arch.sh)-linux-gnu-gcc" \
         && \
     true; fi && \
