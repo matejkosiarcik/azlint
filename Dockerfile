@@ -454,8 +454,8 @@ RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress
     npm prune --production
 
 FROM --platform=$BUILDPLATFORM directory-optimizer-base AS nodejs-optimize
-COPY --from=nodejs-base /app/node_modules ./node_modules
 COPY utils/optimize/optimize-nodejs.sh /optimizations/
+COPY --from=nodejs-base /app/node_modules ./node_modules
 RUN sh /optimizations/optimize-nodejs.sh
 
 FROM debian:12.1-slim AS nodejs-final
@@ -478,8 +478,8 @@ COPY linters/Gemfile linters/Gemfile.lock ./
 RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install --quiet
 
 FROM --platform=$BUILDPLATFORM directory-optimizer-base AS ruby-optimize
-COPY --from=ruby-base /app/bundle ./bundle
 COPY utils/optimize/optimize-bundle.sh /optimizations/
+COPY --from=ruby-base /app/bundle ./bundle
 RUN sh /optimizations/optimize-bundle.sh
 
 FROM debian:12.1-slim AS ruby-final
@@ -509,8 +509,8 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --requirement requirements.txt --target python --quiet
 
 FROM --platform=$BUILDPLATFORM directory-optimizer-base AS python-optimize
-COPY --from=python-base /app/python ./python
 COPY utils/optimize/optimize-python.sh /optimizations/
+COPY --from=python-base /app/python ./python
 RUN sh /optimizations/optimize-python.sh
 
 FROM debian:12.1-slim AS python-final
@@ -544,8 +544,8 @@ COPY linters/composer.json linters/composer.lock ./
 RUN composer install --no-cache --quiet
 
 FROM --platform=$BUILDPLATFORM directory-optimizer-base AS composer-vendor-optimize
-COPY --from=composer-vendor-base /app/vendor ./vendor
 COPY utils/optimize/optimize-composer.sh /optimizations/
+COPY --from=composer-vendor-base /app/vendor ./vendor
 RUN sh /optimizations/optimize-composer.sh
 
 FROM debian:12.1-slim AS composer-final
@@ -650,14 +650,13 @@ RUN touch /.dockerenv rbenv-list.txt brew-list.txt && \
     killall inotifywait
 
 # Use trace information to optimize rbenv and brew directories
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-optimize
-WORKDIR /app
-COPY utils/optimize/.common.sh utils/optimize/optimize-rbenv.sh utils/optimize/optimize-brew.sh ./
+FROM --platform=$BUILDPLATFORM directory-optimizer-base AS brew-optimize
+COPY utils/optimize/optimize-rbenv.sh utils/optimize/optimize-brew.sh /optimizations/
 COPY --from=brew-optimize-trace /home/linuxbrew /home/linuxbrew
 COPY --from=brew-optimize-trace /.rbenv/versions /.rbenv/versions
 COPY --from=brew-optimize-trace /app/rbenv-list.txt /app/brew-list.txt ./
-RUN sh optimize-rbenv.sh && \
-    sh optimize-brew.sh
+RUN sh /optimizations/optimize-rbenv.sh && \
+    sh /optimizations/optimize-brew.sh
 
 # Aggregate everything brew here and do one more sanity-check
 FROM debian:12.1-slim AS brew-final
@@ -688,15 +687,15 @@ COPY src/ ./src/
 RUN npm run build && \
     npm prune --production
 
+FROM --platform=$BUILDPLATFORM directory-optimizer-base AS cli-optimize
+COPY utils/optimize/optimize-nodejs.sh /optimizations/
+COPY --from=cli-base /app/node_modules ./node_modules
+RUN sh /optimizations/optimize-nodejs.sh
+
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS cli-final
 WORKDIR /app
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends jq moreutils >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
 COPY --from=cli-base /app/cli ./cli
-COPY --from=cli-base /app/node_modules ./node_modules
-COPY utils/optimize/.common.sh utils/optimize/optimize-nodejs.sh ./
-RUN sh optimize-nodejs.sh
+COPY --from=cli-optimize /app/node_modules ./node_modules
 
 # AZLint binaries #
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS azlint-bin
