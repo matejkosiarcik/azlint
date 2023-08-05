@@ -329,8 +329,8 @@ COPY --from=circleci-base /usr/local/bin/circleci ./
 
 FROM bins-aggregator AS circleci-final
 COPY utils/sanity-check/circleci.sh ./sanity-check.sh
-COPY --from=circleci-upx /app/circleci ./
-ENV BINPREFIX=/app/
+COPY --from=circleci-upx /app/circleci ./bin/
+ENV BINPREFIX=/app/bin/
 RUN sh sanity-check.sh && \
     rm -f sanity-check.sh
 
@@ -354,9 +354,9 @@ COPY --from=loksh-base /app/loksh/install/bin/ksh /app/loksh
 # RUN upx --best /app/loksh
 
 FROM bins-aggregator AS loksh-final
-COPY --from=loksh-upx /app/loksh ./
+COPY --from=loksh-upx /app/loksh ./bin/
 COPY utils/sanity-check/shell-loksh.sh ./sanity-check.sh
-ENV BINPREFIX=/app/
+ENV BINPREFIX=/app/bin/
 RUN sh sanity-check.sh && \
     rm -f sanity-check.sh
 
@@ -381,9 +381,9 @@ COPY --from=oksh-base /app/oksh/install/usr/local/bin/oksh ./
 # RUN upx --best /app/oksh
 
 FROM bins-aggregator AS oksh-final
-COPY --from=oksh-upx /app/oksh ./
+COPY --from=oksh-upx /app/oksh ./bin/
 COPY utils/sanity-check/shell-oksh.sh ./sanity-check.sh
-ENV BINPREFIX=/app/
+ENV BINPREFIX=/app/bin/
 RUN sh sanity-check.sh && \
     rm -f sanity-check.sh
 
@@ -729,9 +729,9 @@ COPY --from=composer-final /app/composer ./
 COPY --from=haskell-final /app/bin ./
 COPY --from=go-final /app/bin ./
 COPY --from=rust-final /app/bin ./
-COPY --from=circleci-final /app ./
-COPY --from=loksh-final /app ./
-COPY --from=oksh-final /app ./
+COPY --from=circleci-final /app/bin ./
+COPY --from=loksh-final /app/bin ./
+COPY --from=oksh-final /app/bin ./
 WORKDIR /app-tmp
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     HOMEBREW_NO_ANALYTICS=1 \
