@@ -250,13 +250,25 @@ COPY --from=go-stoml-final /app/bin/stoml ./
 COPY --from=go-tomljson-final /app/bin/tomljson ./
 
 # Rust #
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS rust-dependencies-versions
+WORKDIR /app
+RUN apt-get update -qq && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends jq python3 python3-pip >/dev/null && \
+    rm -rf /var/lib/apt/lists/*
+COPY build-dependencies/yq/requirements.txt ./
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python3 -m pip install --requirement requirements.txt --target python --quiet
+ENV PATH="/app/python/bin:$PATH" \
+    PYTHONPATH=/app/python
+COPY linters/Cargo.toml ./
+RUN tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' Cargo.toml >cargo-dependencies.txt
+
+# Rust #
 FROM --platform=$BUILDPLATFORM rust:1.71.0-slim-bookworm AS rust-builder
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends file nodejs npm >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends file >/dev/null && \
     rm -rf /var/lib/apt/lists/*
-COPY package.json package-lock.json ./
-RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet
 ARG BUILDARCH BUILDOS TARGETARCH TARGETOS
 COPY utils/rust/get-target-arch.sh ./
 RUN if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
@@ -276,9 +288,7 @@ ENV CARGO_PROFILE_RELEASE_LTO=true \
     CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
     CARGO_PROFILE_RELEASE_OPT_LEVEL=s \
     RUSTFLAGS='-Cstrip=symbols'
-COPY utils/cargo-packages.js ./utils/
-COPY linters/Cargo.toml ./linters/
-# TODO: Add `CRATE_CC_NO_DEFAULTS=1` if compiler errors
+COPY --from=rust-dependencies-versions /app/cargo-dependencies.txt ./
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         export \
@@ -290,11 +300,11 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
             "CARGO_TARGET_$(sh get-target-arch.sh | tr '[:lower:]' '[:upper:]')_UNKNOWN_LINUX_GNU_LINKER=/usr/bin/$(sh get-target-arch.sh)-linux-gnu-gcc" \
         && \
     true; fi && \
-    node utils/cargo-packages.js | while read -r package version; do \
+    while read -r package version; do \
         cargo install "$package" --quiet --force --version "$version" --root "$PWD/cargo" --target "$(sh get-target-tripple.sh)" && \
         file "/app/cargo/bin/$package" | grep "stripped" && \
         ! file "/app/cargo/bin/$package" | grep "not stripped" && \
-    true; done
+    true; done <cargo-dependencies.txt
 
 FROM --platform=$BUILDPLATFORM upx-base AS rust-upx
 COPY --from=rust-builder /app/cargo/bin/dotenv-linter /app/cargo/bin/hush /app/cargo/bin/shellharden ./
