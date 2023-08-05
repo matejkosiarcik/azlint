@@ -567,7 +567,7 @@ RUN --mount=type=cache,target=/root/.gitcache \
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-install
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends ca-certificates curl git procps ruby >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends ca-certificates curl git moreutils procps ruby >/dev/null && \
     if [ "$(uname -m)" != 'amd64' ]; then \
         dpkg --add-architecture amd64 && \
         apt-get update -qq && \
@@ -582,7 +582,7 @@ RUN if [ "$(uname -m)" != 'amd64' ]; then \
         mv /usr/bin/uname-x64 /usr/bin/uname && \
     true; fi
 COPY --from=brew-gitman /app/gitman/brew-installer ./brew-installer
-RUN NONINTERACTIVE=1 bash brew-installer/install.sh && \
+RUN NONINTERACTIVE=1 chronic bash brew-installer/install.sh && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
     brew update --quiet && \
     brew bundle --help >/dev/null && \
