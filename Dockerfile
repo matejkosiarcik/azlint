@@ -205,6 +205,9 @@ FROM --platform=$BUILDPLATFORM gitman-base AS go-checkmake-gitman
 COPY linters/gitman-repos/go-checkmake/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
+COPY utils/apply-git-patches.sh ./
+COPY linters/git-patches/checkmake2 ./git-patches
+RUN sh apply-git-patches.sh git-patches gitman/checkmake
 
 FROM --platform=$BUILDPLATFORM go-builder-base AS go-checkmake-build
 RUN apt-get update -qq && \
@@ -215,10 +218,16 @@ WORKDIR /app/checkmake
 ARG TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
-    GOOS="$TARGETOS" GOARCH="$TARGETARCH" BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
+    GOOS="$TARGETOS" GOARCH="$TARGETARCH" BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make --silent
+
+FROM --platform=$BUILDPLATFORM executable-optimizer-base AS go-checkmake-optimize
+COPY --from=go-checkmake-build /app/checkmake/checkmake ./bin/
+ARG TARGETARCH
+RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/checkmake && \
+    sh check-executable.sh bin/checkmake
 
 FROM --platform=$BUILDPLATFORM upx-base AS go-checkmake-upx
-COPY --from=go-checkmake-build /app/checkmake/checkmake ./
+COPY --from=go-checkmake-optimize /app/bin/checkmake ./
 # RUN upx --best /app/checkmake
 
 FROM bins-aggregator AS go-checkmake-final
@@ -233,6 +242,9 @@ FROM --platform=$BUILDPLATFORM gitman-base AS go-editorconfig-checker-gitman
 COPY linters/gitman-repos/go-editorconfig-checker/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
+COPY utils/apply-git-patches.sh ./
+COPY linters/git-patches/editorconfig-checker2 ./git-patches
+RUN sh apply-git-patches.sh git-patches gitman/editorconfig-checker
 
 FROM --platform=$BUILDPLATFORM go-builder-base AS go-editorconfig-checker-build
 COPY --from=go-editorconfig-checker-gitman /app/gitman/editorconfig-checker /app/editorconfig-checker
@@ -240,10 +252,16 @@ WORKDIR /app/editorconfig-checker
 ARG TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
-    GOOS="$TARGETOS" GOARCH="$TARGETARCH" make build
+    GOOS="$TARGETOS" GOARCH="$TARGETARCH" make build --silent
+
+FROM --platform=$BUILDPLATFORM executable-optimizer-base AS go-editorconfig-checker-optimize
+COPY --from=go-editorconfig-checker-build /app/editorconfig-checker/bin/ec ./bin/
+ARG TARGETARCH
+RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/ec && \
+    sh check-executable.sh bin/ec
 
 FROM --platform=$BUILDPLATFORM upx-base AS go-editorconfig-checker-upx
-COPY --from=go-editorconfig-checker-build /app/editorconfig-checker/bin/ec ./
+COPY --from=go-editorconfig-checker-optimize /app/bin/ec ./
 # RUN upx --best /app/ec
 
 FROM bins-aggregator AS go-editorconfig-checker-final
@@ -397,8 +415,8 @@ RUN apt-get update -qq && \
 COPY --from=oksh-gitman /app/gitman/oksh /app/oksh
 WORKDIR /app/oksh
 RUN ./configure && \
-    make && \
-    DESTDIR="$PWD/install" make install
+    make --silent && \
+    DESTDIR="$PWD/install" make install --silent
 
 FROM --platform=$BUILDPLATFORM upx-base AS oksh-upx
 COPY --from=oksh-base /app/oksh/install/usr/local/bin/oksh ./
@@ -454,8 +472,8 @@ RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress
     npm prune --production
 
 FROM --platform=$BUILDPLATFORM directory-optimizer-base AS nodejs-optimize
-COPY --from=nodejs-base /app/node_modules ./node_modules
 COPY utils/optimize/optimize-nodejs.sh /optimizations/
+COPY --from=nodejs-base /app/node_modules ./node_modules
 RUN sh /optimizations/optimize-nodejs.sh
 
 FROM debian:12.1-slim AS nodejs-final
@@ -478,8 +496,8 @@ COPY linters/Gemfile linters/Gemfile.lock ./
 RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install --quiet
 
 FROM --platform=$BUILDPLATFORM directory-optimizer-base AS ruby-optimize
-COPY --from=ruby-base /app/bundle ./bundle
 COPY utils/optimize/optimize-bundle.sh /optimizations/
+COPY --from=ruby-base /app/bundle ./bundle
 RUN sh /optimizations/optimize-bundle.sh
 
 FROM debian:12.1-slim AS ruby-final
@@ -504,13 +522,14 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/requirements.txt ./
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_ROOT_USER_ACTION=ignore \
     PYTHONDONTWRITEBYTECODE=1
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --requirement requirements.txt --target python --quiet
 
 FROM --platform=$BUILDPLATFORM directory-optimizer-base AS python-optimize
-COPY --from=python-base /app/python ./python
 COPY utils/optimize/optimize-python.sh /optimizations/
+COPY --from=python-base /app/python ./python
 RUN sh /optimizations/optimize-python.sh
 
 FROM debian:12.1-slim AS python-final
@@ -522,6 +541,7 @@ COPY utils/sanity-check/python.sh ./sanity-check.sh
 COPY --from=python-optimize /app/python ./python
 ENV BINPREFIX=/app/python/bin/ \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_ROOT_USER_ACTION=ignore \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app/python
 RUN sh sanity-check.sh
@@ -544,8 +564,8 @@ COPY linters/composer.json linters/composer.lock ./
 RUN composer install --no-cache --quiet
 
 FROM --platform=$BUILDPLATFORM directory-optimizer-base AS composer-vendor-optimize
-COPY --from=composer-vendor-base /app/vendor ./vendor
 COPY utils/optimize/optimize-composer.sh /optimizations/
+COPY --from=composer-vendor-base /app/vendor ./vendor
 RUN sh /optimizations/optimize-composer.sh
 
 FROM debian:12.1-slim AS composer-final
@@ -650,14 +670,13 @@ RUN touch /.dockerenv rbenv-list.txt brew-list.txt && \
     killall inotifywait
 
 # Use trace information to optimize rbenv and brew directories
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-optimize
-WORKDIR /app
-COPY utils/optimize/.common.sh utils/optimize/optimize-rbenv.sh utils/optimize/optimize-brew.sh ./
+FROM --platform=$BUILDPLATFORM directory-optimizer-base AS brew-optimize
+COPY utils/optimize/optimize-rbenv.sh utils/optimize/optimize-brew.sh /optimizations/
 COPY --from=brew-optimize-trace /home/linuxbrew /home/linuxbrew
 COPY --from=brew-optimize-trace /.rbenv/versions /.rbenv/versions
 COPY --from=brew-optimize-trace /app/rbenv-list.txt /app/brew-list.txt ./
-RUN sh optimize-rbenv.sh && \
-    sh optimize-brew.sh
+RUN sh /optimizations/optimize-rbenv.sh && \
+    sh /optimizations/optimize-brew.sh
 
 # Aggregate everything brew here and do one more sanity-check
 FROM debian:12.1-slim AS brew-final
@@ -688,15 +707,15 @@ COPY src/ ./src/
 RUN npm run build && \
     npm prune --production
 
+FROM --platform=$BUILDPLATFORM directory-optimizer-base AS cli-optimize
+COPY utils/optimize/optimize-nodejs.sh /optimizations/
+COPY --from=cli-base /app/node_modules ./node_modules
+RUN sh /optimizations/optimize-nodejs.sh
+
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS cli-final
 WORKDIR /app
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends jq moreutils >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
 COPY --from=cli-base /app/cli ./cli
-COPY --from=cli-base /app/node_modules ./node_modules
-COPY utils/optimize/.common.sh utils/optimize/optimize-nodejs.sh ./
-RUN sh optimize-nodejs.sh
+COPY --from=cli-optimize /app/node_modules ./node_modules
 
 # AZLint binaries #
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS azlint-bin
@@ -746,7 +765,8 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
     HOMEBREW_NO_ANALYTICS=1 \
     HOMEBREW_NO_AUTO_UPDATE=1 \
     PATH="$PATH:/app/linters/bin:/home/linuxbrew/.linuxbrew/bin" \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_ROOT_USER_ACTION=ignore
 COPY utils/sanity-check/system.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
@@ -777,6 +797,7 @@ COPY --from=pre-final /app/ ./
 ENV NODE_OPTIONS=--dns-result-order=ipv4first \
     PATH="$PATH:/app/bin:/home/linuxbrew/.linuxbrew/bin" \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_ROOT_USER_ACTION=ignore \
     PYTHONDONTWRITEBYTECODE=1
 USER azlint
 WORKDIR /project

@@ -1,0 +1,16 @@
+diff --git a/Makefile b/Makefile
+index e792990..732d1eb 100644
+--- a/Makefile
++++ b/Makefile
+@@ -37,10 +37,7 @@ BUILDER := $(shell echo "${BUILDER_NAME} <${EMAIL}>")
+
+ PKG_RELEASE ?= 1
+ PROJECT_URL := "https://github.com/mrtazz/$(NAME)"
+-LDFLAGS := -X 'main.version=$(VERSION)' \
+-           -X 'main.buildTime=$(BUILDTIME)' \
+-           -X 'main.builder=$(BUILDER)' \
+-           -X 'main.goversion=$(GOVERSION)'
++LDFLAGS := -s -w -buildid=
+
+ PACKAGES := $(shell find ./* -type d | grep -v vendor)
+ TEST_PKG ?= $(shell go list ./... | grep -v /vendor/)

@@ -38,3 +38,8 @@ find /home/linuxbrew -type d \( \
     \) -prune -exec rm -rf {} \;
 
 removeEmptyDirectories /home/linuxbrew
+
+### Minify files ###
+
+minifyJsonFiles /home/linuxbrew
+minifyYamlFiles /home/linuxbrew
