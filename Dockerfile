@@ -388,11 +388,13 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=loksh-gitman /app/gitman/loksh /app/loksh
 WORKDIR /app/loksh
-RUN meson setup --fatal-meson-warnings --prefix="$PWD/install" build && \
-    ninja --quiet -C build install
+RUN CC="gcc -flto -fuse-linker-plugin -mtune=generic -pipe -Wl,--build-id=none" \
+    meson setup --fatal-meson-warnings --buildtype release --optimization s --strip --prefix="$PWD/install" build && \
+    ninja --quiet -C build install && \
+    mv /app/loksh/install/bin/ksh /app/loksh/install/bin/loksh
 
 FROM --platform=$BUILDPLATFORM upx-base AS loksh-upx
-COPY --from=loksh-base /app/loksh/install/bin/ksh /app/loksh
+COPY --from=loksh-base /app/loksh/install/bin/loksh ./
 # RUN upx --best /app/loksh
 
 FROM bins-aggregator AS loksh-final
@@ -414,7 +416,7 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=oksh-gitman /app/gitman/oksh /app/oksh
 WORKDIR /app/oksh
-RUN ./configure && \
+RUN ./configure --enable-small --enable-lto --cc='gcc -Os -Wl,--build-id=none' && \
     make --silent && \
     DESTDIR="$PWD/install" make install --silent
 
