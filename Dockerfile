@@ -388,7 +388,7 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=loksh-gitman /app/gitman/loksh /app/loksh
 WORKDIR /app/loksh
-RUN CC="gcc -flto -fuse-linker-plugin -mtune=generic -pipe -Wl,--build-id=none" \
+RUN CC="gcc -flto -fuse-linker-plugin -Wl,--build-id=none" \
     meson setup --fatal-meson-warnings --buildtype release --optimization s --strip --prefix="$PWD/install" build && \
     ninja --quiet -C build install && \
     mv /app/loksh/install/bin/ksh /app/loksh/install/bin/loksh
