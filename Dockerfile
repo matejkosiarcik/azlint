@@ -519,7 +519,7 @@ FROM composer:2.5.8 AS composer-bin
 
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS composer-bin-optimize
 WORKDIR /app
-COPY --from=composer-bin /usr/bin/composer ./
+COPY --from=composer-bin /usr/bin/composer ./bin/
 # TODO: optimize `composer` script
 
 # PHP/Composer #
@@ -548,8 +548,9 @@ RUN apt-get update -qq && \
 COPY utils/sanity-check/composer.sh ./sanity-check.sh
 COPY linters/composer.json ./linters/
 COPY --from=composer-vendor-optimize /app/vendor ./linters/vendor
-COPY --from=composer-bin-optimize /app/composer ./
-ENV BINPREFIX=/app/ \
+COPY --from=composer-bin-optimize /app/bin/composer ./bin/
+ENV BINPREFIX=/app/bin/ \
+    VENDORPREFIX=/app/linters/ \
     COMPOSER_ALLOW_SUPERUSER=1
 RUN sh sanity-check.sh
 
@@ -725,7 +726,7 @@ COPY --from=nodejs-final /app/node_modules ./node_modules
 COPY --from=python-final /app/python ./python
 COPY --from=ruby-final /app/bundle ./bundle
 WORKDIR /app/linters/bin
-COPY --from=composer-final /app/composer ./
+COPY --from=composer-final /app/bin ./
 COPY --from=haskell-final /app/bin ./
 COPY --from=go-final /app/bin ./
 COPY --from=rust-final /app/bin ./
