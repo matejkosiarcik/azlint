@@ -393,14 +393,8 @@ RUN CC="gcc -flto -fuse-linker-plugin -mtune=generic -pipe -Wl,--build-id=none" 
     ninja --quiet -C build install && \
     mv /app/loksh/install/bin/ksh /app/loksh/install/bin/loksh
 
-FROM --platform=$BUILDPLATFORM executable-optimizer-base AS shell-loksh-optimize
-COPY --from=loksh-base /app/loksh/install/bin/loksh ./bin/
-ARG TARGETARCH
-RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/loksh && \
-    sh check-executable.sh bin/loksh
-
 FROM --platform=$BUILDPLATFORM upx-base AS loksh-upx
-COPY --from=shell-loksh-optimize /app/bin/loksh ./
+COPY --from=loksh-base /app/loksh/install/bin/loksh ./
 # RUN upx --best /app/loksh
 
 FROM bins-aggregator AS loksh-final
