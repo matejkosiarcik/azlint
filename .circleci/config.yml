@@ -41,9 +41,21 @@ workflows:
   version: 2
   circleci:
     jobs:
-      - test
-      - native-build
-      - docker-build
+      - test:
+          filters:
+            branches:
+              ignore:
+                - main
+      - native-build:
+          filters:
+            branches:
+              ignore:
+                - main
+      - docker-build:
+          filters:
+            branches:
+              ignore:
+                - main
 
 jobs:
   test:
