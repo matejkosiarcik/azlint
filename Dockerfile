@@ -30,7 +30,7 @@ WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends python3 python3-pip git >/dev/null && \
     rm -rf /var/lib/apt/lists/*
-COPY requirements.txt ./
+COPY build-dependencies/python-gitman/requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --requirement requirements.txt --target python --quiet
 ENV PATH="/app/python/bin:$PATH" \

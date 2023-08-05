@@ -27,7 +27,7 @@ bootstrap:
 
 	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
 	PIP_DISABLE_PIP_VERSION_CHECK=1 \
-		pip install --requirement requirements.txt --quiet --upgrade
+		pip install --requirement build-dependencies/python-gitman/requirements.txt --quiet --upgrade
 
 	PATH="$(PROJECT_DIR)/venv/bin:$(PATH)" \
 		parallel gitman install --quiet --force --root ::: $(shell find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d) && \
