@@ -95,7 +95,9 @@ bootstrap:
 		cp install/circleci "$(PROJECT_DIR)/linters/bin/"
 
 	if command -v brew >/dev/null 2>&1; then \
-		brew bundle --help >/dev/null; \
+		HOMEBREW_NO_ANALYTICS=1 \
+		HOMEBREW_NO_AUTO_UPDATE=1 \
+			brew bundle --help --quiet >/dev/null; \
 	fi
 
 .PHONY: build

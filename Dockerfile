@@ -582,10 +582,12 @@ RUN if [ "$(uname -m)" != 'amd64' ]; then \
         mv /usr/bin/uname-x64 /usr/bin/uname && \
     true; fi
 COPY --from=brew-gitman /app/gitman/brew-installer ./brew-installer
+ENV HOMEBREW_NO_ANALYTICS=1 \
+    HOMEBREW_NO_AUTO_UPDATE=1
 RUN NONINTERACTIVE=1 chronic bash brew-installer/install.sh && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
     brew update --quiet && \
-    brew bundle --help >/dev/null && \
+    brew bundle --help --quiet >/dev/null && \
     ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
     rm -rf "/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby/$ruby_version_full" && \
     find /home/linuxbrew -type d -name .git -prune -exec rm -rf {} \;
