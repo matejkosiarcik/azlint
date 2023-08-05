@@ -504,6 +504,7 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/requirements.txt ./
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_ROOT_USER_ACTION=ignore \
     PYTHONDONTWRITEBYTECODE=1
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --requirement requirements.txt --target python --quiet
@@ -522,6 +523,7 @@ COPY utils/sanity-check/python.sh ./sanity-check.sh
 COPY --from=python-optimize /app/python ./python
 ENV BINPREFIX=/app/python/bin/ \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_ROOT_USER_ACTION=ignore \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app/python
 RUN sh sanity-check.sh
@@ -745,7 +747,8 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
     HOMEBREW_NO_ANALYTICS=1 \
     HOMEBREW_NO_AUTO_UPDATE=1 \
     PATH="$PATH:/app/linters/bin:/home/linuxbrew/.linuxbrew/bin" \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_ROOT_USER_ACTION=ignore
 COPY utils/sanity-check/system.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
@@ -776,6 +779,7 @@ COPY --from=pre-final /app/ ./
 ENV NODE_OPTIONS=--dns-result-order=ipv4first \
     PATH="$PATH:/app/bin:/home/linuxbrew/.linuxbrew/bin" \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_ROOT_USER_ACTION=ignore \
     PYTHONDONTWRITEBYTECODE=1
 USER azlint
 WORKDIR /project
