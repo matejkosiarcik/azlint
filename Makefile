@@ -32,7 +32,7 @@ bootstrap:
 
 	PATH="$(PROJECT_DIR)/build-dependencies/python-gitman/venv/bin:$(PATH)" \
 		parallel gitman install --quiet --force --root ::: $(shell find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d) && \
-		sh utils/apply-gitman-patches.sh
+		sh utils/git-patch/apply-loksh-patches.sh
 
 	cd linters/gitman-repos/shell-loksh/gitman/loksh && \
 		meson setup --fatal-meson-warnings --prefix="$$PWD/install" build && \
