@@ -15,20 +15,20 @@
 FROM --platform=$BUILDPLATFORM ubuntu:23.10 AS upx-base
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends parallel upx-ucl && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends parallel upx-ucl >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 
 FROM debian:12.1-slim AS bins-aggregator
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends file && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends file && \
     rm -rf /var/lib/apt/lists/*
 
 # Gitman #
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS gitman-base
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends python3 python3-pip git && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends python3 python3-pip git && \
     rm -rf /var/lib/apt/lists/*
 COPY requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
@@ -54,7 +54,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 FROM debian:12.1-slim AS go-actionlint-optimize
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends binutils file && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends binutils file && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=go-actionlint-build /app/go/bin/actionlint ./
 RUN strip --strip-all actionlint
@@ -95,7 +95,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 FROM debian:12.1-slim AS go-shfmt-optimize
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends binutils file && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends binutils file && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=go-shfmt-build /app/go/bin/shfmt ./
 RUN strip --strip-all shfmt
@@ -136,7 +136,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 FROM debian:12.1-slim AS go-stoml-optimize
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends binutils file && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends binutils file && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=go-stoml-build /app/go/bin/stoml ./
 RUN strip --strip-all stoml
@@ -170,7 +170,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 FROM debian:12.1-slim AS go-tomljson-optimize
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends binutils file && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends binutils file && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=go-tomljson-build /app/go/bin/tomljson ./
 RUN strip --strip-all tomljson
@@ -196,7 +196,7 @@ RUN --mount=type=cache,target=/root/.gitcache \
 
 FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-checkmake-build
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends pandoc && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends pandoc && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=go-checkmake-gitman /app/gitman/checkmake /app/checkmake
 WORKDIR /app/checkmake
@@ -255,7 +255,7 @@ COPY --from=go-tomljson-final /app/bin/tomljson ./
 FROM --platform=$BUILDPLATFORM rust:1.71.0-slim-bookworm AS rust-builder
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends file nodejs npm && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends file nodejs npm && \
     rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet
@@ -263,7 +263,7 @@ ARG BUILDARCH BUILDOS TARGETARCH TARGETOS
 COPY utils/rust/get-target-arch.sh ./
 RUN if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         apt-get update -qq && \
-        DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends \
+        DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
             "gcc-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" \
             "g++-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" \
             "libc6-dev-$TARGETARCH-cross" && \
@@ -319,7 +319,7 @@ RUN --mount=type=cache,target=/root/.gitcache \
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
 FROM debian:12.1-slim AS circleci-base
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends ca-certificates curl && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends ca-certificates curl && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=circleci-gitman /app/gitman/circleci-cli /app/circleci-cli
 WORKDIR /app/circleci-cli
@@ -344,7 +344,7 @@ RUN --mount=type=cache,target=/root/.gitcache \
 
 FROM debian:12.1-slim AS loksh-base
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends build-essential ca-certificates git meson && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends build-essential ca-certificates git meson && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=loksh-gitman /app/gitman/loksh /app/loksh
 WORKDIR /app/loksh
@@ -370,7 +370,7 @@ RUN --mount=type=cache,target=/root/.gitcache \
 
 FROM debian:12.1-slim AS oksh-base
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends build-essential && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends build-essential && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=oksh-gitman /app/gitman/oksh /app/oksh
 WORKDIR /app/oksh
@@ -434,7 +434,7 @@ RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS nodejs-optimize
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends jq moreutils && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends jq moreutils && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=nodejs-base /app/node_modules ./node_modules
 COPY utils/optimize/.common.sh utils/optimize/optimize-nodejs.sh ./
@@ -443,7 +443,7 @@ RUN sh optimize-nodejs.sh
 FROM debian:12.1-slim AS nodejs-final
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends nodejs npm && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends nodejs npm && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/nodejs.sh ./sanity-check.sh
 COPY --from=nodejs-optimize /app/node_modules ./node_modules
@@ -454,7 +454,7 @@ RUN sh sanity-check.sh
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS ruby-base
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends bundler ruby ruby-build ruby-dev && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends bundler ruby ruby-build ruby-dev && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/Gemfile linters/Gemfile.lock ./
 RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install --quiet
@@ -462,7 +462,7 @@ RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS ruby-optimize
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends jq moreutils && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends jq moreutils && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=ruby-base /app/bundle ./bundle
 COPY utils/optimize/.common.sh utils/optimize/optimize-bundle.sh ./
@@ -471,7 +471,7 @@ RUN sh optimize-bundle.sh
 FROM debian:12.1-slim AS ruby-final
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends bundler ruby ruby-build ruby-dev && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends bundler ruby ruby-build ruby-dev && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/ruby.sh ./sanity-check.sh
 COPY linters/Gemfile ./
@@ -486,7 +486,7 @@ RUN sh sanity-check.sh
 FROM debian:12.1-slim AS python-base
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends python3 python3-pip && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends python3 python3-pip && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/requirements.txt ./
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
@@ -497,7 +497,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS python-optimize
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends jq moreutils && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends jq moreutils && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=python-base /app/python ./python
 COPY utils/optimize/.common.sh utils/optimize/optimize-python.sh ./
@@ -506,7 +506,7 @@ RUN sh optimize-python.sh
 FROM debian:12.1-slim AS python-final
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends python-is-python3 python3 python3-pip && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends python-is-python3 python3 python3-pip && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/python.sh ./sanity-check.sh
 COPY --from=python-optimize /app/python ./python
@@ -528,7 +528,7 @@ COPY --from=composer-bin /usr/bin/composer ./
 FROM debian:12.1-slim AS composer-vendor-base
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends ca-certificates composer php php-mbstring php-zip && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends ca-certificates composer php php-mbstring php-zip && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/composer.json linters/composer.lock ./
 RUN composer install --no-cache --quiet
@@ -536,7 +536,7 @@ RUN composer install --no-cache --quiet
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS composer-vendor-optimize
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends jq moreutils && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends jq moreutils && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=composer-vendor-base /app/vendor ./vendor
 COPY utils/optimize/.common.sh utils/optimize/optimize-composer.sh ./
@@ -545,7 +545,7 @@ RUN sh optimize-composer.sh
 FROM debian:12.1-slim AS composer-final
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends ca-certificates php && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends ca-certificates php && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/composer.sh ./sanity-check.sh
 COPY linters/composer.json ./linters/
@@ -567,11 +567,11 @@ RUN --mount=type=cache,target=/root/.gitcache \
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS brew-install
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends ca-certificates curl git procps ruby && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends ca-certificates curl git procps ruby && \
     if [ "$(uname -m)" != 'amd64' ]; then \
         dpkg --add-architecture amd64 && \
         apt-get update -qq && \
-        DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends libc6:amd64 && \
+        DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends libc6:amd64 && \
     true; fi && \
     rm -rf /var/lib/apt/lists/* && \
     touch /.dockerenv
@@ -601,7 +601,7 @@ RUN --mount=type=cache,target=/root/.gitcache \
 FROM debian:12.1-slim AS brew-rbenv-install
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         autoconf bison build-essential ca-certificates curl git \
         libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev && \
     rm -rf /var/lib/apt/lists/*
@@ -627,7 +627,7 @@ RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebre
 FROM debian:12.1-slim AS brew-optimize-trace
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends curl git inotify-tools psmisc && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends curl git inotify-tools psmisc && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/brew.sh ./sanity-check.sh
 COPY --from=brew-link-rbenv /home/linuxbrew /home/linuxbrew
@@ -655,7 +655,7 @@ RUN sh optimize-rbenv.sh && \
 FROM debian:12.1-slim AS brew-final
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends curl git && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends curl git && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/brew.sh ./sanity-check.sh
 COPY --from=brew-optimize /home/linuxbrew /home/linuxbrew
@@ -683,7 +683,7 @@ RUN npm run build && \
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS cli-final
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends jq moreutils && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends jq moreutils && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=cli-base /app/cli ./cli
 COPY --from=cli-base /app/node_modules ./node_modules
@@ -701,7 +701,7 @@ RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azl
 # Pre-Final #
 FROM debian:12.1-slim AS pre-final
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         curl git libxml2-utils \
         bmake make \
         nodejs npm \
@@ -747,7 +747,7 @@ RUN sh sanity-check.sh
 FROM debian:12.1-slim
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         curl git libxml2-utils \
         bmake make \
         nodejs npm \
