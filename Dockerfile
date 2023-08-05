@@ -206,7 +206,7 @@ COPY linters/gitman-repos/go-checkmake/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
 COPY utils/apply-git-patches.sh ./
-COPY linters/git-patches/checkmake2 ./git-patches
+COPY linters/git-patches/checkmake ./git-patches
 RUN sh apply-git-patches.sh git-patches gitman/checkmake
 
 FROM --platform=$BUILDPLATFORM go-builder-base AS go-checkmake-build
@@ -243,7 +243,7 @@ COPY linters/gitman-repos/go-editorconfig-checker/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
 COPY utils/apply-git-patches.sh ./
-COPY linters/git-patches/editorconfig-checker2 ./git-patches
+COPY linters/git-patches/editorconfig-checker ./git-patches
 RUN sh apply-git-patches.sh git-patches gitman/editorconfig-checker
 
 FROM --platform=$BUILDPLATFORM go-builder-base AS go-editorconfig-checker-build
