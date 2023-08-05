@@ -36,17 +36,23 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 ENV PATH="/app/python/bin:$PATH" \
     PYTHONPATH=/app/python
 
+# Golang builder #
+FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-builder-base
+RUN apt-get update -qq && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends moreutils >/dev/null && \
+    rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+
 ### Components/Linters ###
 
 # GoLang #
-FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-actionlint-build
-WORKDIR /app
+FROM --platform=$BUILDPLATFORM go-builder-base AS go-actionlint-build
 ARG BUILDARCH TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     --mount=type=cache,target=/app/go/pkg \
     export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
-    go install -ldflags='-s -w -buildid=' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
+    chronic go install -ldflags='-s -w -buildid=' 'github.com/rhysd/actionlint/cmd/actionlint@latest' && \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         mv "./go/bin/linux_$TARGETARCH/actionlint" './go/bin/actionlint' && \
     true; fi
@@ -78,8 +84,7 @@ COPY linters/gitman-repos/go-shfmt/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
 
-FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-shfmt-build
-WORKDIR /app
+FROM --platform=$BUILDPLATFORM go-builder-base AS go-shfmt-build
 COPY --from=go-shfmt-gitman /app/gitman/shfmt ./shfmt
 COPY utils/git-latest-version.sh ./
 ARG BUILDARCH TARGETARCH TARGETOS
@@ -87,7 +92,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     --mount=type=cache,target=/app/go/pkg \
     export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
-    go install -ldflags='-s -w -buildid=' "mvdan.cc/sh/v3/cmd/shfmt@v$(sh git-latest-version.sh shfmt)" && \
+    chronic go install -ldflags='-s -w -buildid=' "mvdan.cc/sh/v3/cmd/shfmt@v$(sh git-latest-version.sh shfmt)" && \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         mv "./go/bin/linux_$TARGETARCH/shfmt" './go/bin/shfmt' && \
     true; fi
@@ -119,8 +124,7 @@ COPY linters/gitman-repos/go-stoml/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
 
-FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-stoml-build
-WORKDIR /app
+FROM --platform=$BUILDPLATFORM go-builder-base AS go-stoml-build
 COPY --from=go-stoml-gitman /app/gitman/stoml ./stoml
 COPY utils/git-latest-version.sh ./
 ARG BUILDARCH TARGETARCH TARGETOS
@@ -128,7 +132,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     --mount=type=cache,target=/app/go/pkg \
     export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
-    go install -ldflags='-s -w -buildid=' "github.com/freshautomations/stoml@v$(sh git-latest-version.sh stoml)" && \
+    chronic go install -ldflags='-s -w -buildid=' "github.com/freshautomations/stoml@v$(sh git-latest-version.sh stoml)" && \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         mv "./go/bin/linux_$TARGETARCH/stoml" './go/bin/stoml' && \
     true; fi
@@ -155,14 +159,13 @@ WORKDIR /app
 COPY utils/sanity-check/go-stoml.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
-FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-tomljson-build
-WORKDIR /app
+FROM --platform=$BUILDPLATFORM go-builder-base AS go-tomljson-build
 ARG BUILDARCH TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     --mount=type=cache,target=/app/go/pkg \
     export GOPATH="$PWD/go" GOOS="$TARGETOS" GOARCH="$TARGETARCH" GO111MODULE=on && \
-    go install -ldflags='-s -w -buildid=' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
+    chronic go install -ldflags='-s -w -buildid=' 'github.com/pelletier/go-toml/cmd/tomljson@latest' && \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         mv "./go/bin/linux_$TARGETARCH/tomljson" './go/bin/tomljson' && \
     true; fi
@@ -194,7 +197,7 @@ COPY linters/gitman-repos/go-checkmake/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
 
-FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-checkmake-build
+FROM --platform=$BUILDPLATFORM go-builder-base AS go-checkmake-build
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends pandoc >/dev/null && \
     rm -rf /var/lib/apt/lists/*
@@ -222,7 +225,7 @@ COPY linters/gitman-repos/go-editorconfig-checker/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
 
-FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-editorconfig-checker-build
+FROM --platform=$BUILDPLATFORM go-builder-base AS go-editorconfig-checker-build
 COPY --from=go-editorconfig-checker-gitman /app/gitman/editorconfig-checker /app/editorconfig-checker
 WORKDIR /app/editorconfig-checker
 ARG TARGETARCH TARGETOS
