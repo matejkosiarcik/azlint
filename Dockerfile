@@ -584,8 +584,8 @@ RUN if [ "$(uname -m)" != 'amd64' ]; then \
 COPY --from=brew-gitman /app/gitman/brew-installer ./brew-installer
 RUN NONINTERACTIVE=1 bash brew-installer/install.sh && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
-    brew update && \
-    brew bundle --help && \
+    brew update --quiet && \
+    brew bundle --help >/dev/null && \
     ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
     rm -rf "/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby/$ruby_version_full" && \
     find /home/linuxbrew -type d -name .git -prune -exec rm -rf {} \;
