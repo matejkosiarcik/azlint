@@ -218,7 +218,7 @@ WORKDIR /app/checkmake
 ARG TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
-    GOOS="$TARGETOS" GOARCH="$TARGETARCH" BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
+    GOOS="$TARGETOS" GOARCH="$TARGETARCH" BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make --silent
 
 FROM --platform=$BUILDPLATFORM executable-optimizer-base AS go-checkmake-optimize
 COPY --from=go-checkmake-build /app/checkmake/checkmake ./bin/
@@ -252,7 +252,7 @@ WORKDIR /app/editorconfig-checker
 ARG TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
-    GOOS="$TARGETOS" GOARCH="$TARGETARCH" make build
+    GOOS="$TARGETOS" GOARCH="$TARGETARCH" make build --silent
 
 FROM --platform=$BUILDPLATFORM executable-optimizer-base AS go-editorconfig-checker-optimize
 COPY --from=go-editorconfig-checker-build /app/editorconfig-checker/bin/ec ./bin/
@@ -415,8 +415,8 @@ RUN apt-get update -qq && \
 COPY --from=oksh-gitman /app/gitman/oksh /app/oksh
 WORKDIR /app/oksh
 RUN ./configure && \
-    make && \
-    DESTDIR="$PWD/install" make install
+    make --silent && \
+    DESTDIR="$PWD/install" make install --silent
 
 FROM --platform=$BUILDPLATFORM upx-base AS oksh-upx
 COPY --from=oksh-base /app/oksh/install/usr/local/bin/oksh ./
