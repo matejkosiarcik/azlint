@@ -422,7 +422,7 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=oksh-gitman /app/gitman/oksh /app/oksh
 WORKDIR /app/oksh
-RUN ./configure && \
+RUN ./configure --enable-small --enable-lto --cc='gcc -Os -Wl,--build-id=none' && \
     make --silent && \
     DESTDIR="$PWD/install" make install --silent
 
