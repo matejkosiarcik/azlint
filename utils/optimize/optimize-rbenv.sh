@@ -105,3 +105,8 @@ rm -f "$accesslist"
 # find /.rbenv/versions -type f -path '*/openssl/bin/*' -delete
 
 removeEmptyDirectories /.rbenv/versions
+
+# Minify files #
+
+minifyJsonFiles /.rbenv/versions
+minifyYamlFiles /.rbenv/versions

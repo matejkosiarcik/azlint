@@ -10,6 +10,7 @@ find vendor -type f -iname '*.lock' -delete
 
 removeEmptyDirectories vendor
 
-### Minification ###
+### Minify files ###
 
 minifyJsonFiles vendor
+minifyYamlFiles vendor

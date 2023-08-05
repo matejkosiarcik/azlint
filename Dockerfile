@@ -54,6 +54,20 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/check-executable.sh ./
 
+# Executable optimizer #
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS directory-optimizer-base
+WORKDIR /optimizations
+RUN apt-get update -qq && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends file jq moreutils python3 python3-pip >/dev/null && \
+    rm -rf /var/lib/apt/lists/*
+COPY build-dependencies/yq/requirements.txt ./
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python3 -m pip install --requirement requirements.txt --target python --quiet
+ENV PATH="/optimizations/python/bin:$PATH" \
+    PYTHONPATH=/optimizations/python
+COPY utils/optimize/.common.sh ./
+WORKDIR /app
+
 ### Components/Linters ###
 
 # GoLang #
@@ -439,14 +453,10 @@ COPY linters/package.json linters/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet && \
     npm prune --production
 
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS nodejs-optimize
-WORKDIR /app
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends jq moreutils >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
+FROM --platform=$BUILDPLATFORM directory-optimizer-base AS nodejs-optimize
 COPY --from=nodejs-base /app/node_modules ./node_modules
-COPY utils/optimize/.common.sh utils/optimize/optimize-nodejs.sh ./
-RUN sh optimize-nodejs.sh
+COPY utils/optimize/optimize-nodejs.sh /optimizations/
+RUN sh /optimizations/optimize-nodejs.sh
 
 FROM debian:12.1-slim AS nodejs-final
 WORKDIR /app
@@ -467,14 +477,10 @@ RUN apt-get update -qq && \
 COPY linters/Gemfile linters/Gemfile.lock ./
 RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install --quiet
 
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS ruby-optimize
-WORKDIR /app
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends jq moreutils >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
+FROM --platform=$BUILDPLATFORM directory-optimizer-base AS ruby-optimize
 COPY --from=ruby-base /app/bundle ./bundle
-COPY utils/optimize/.common.sh utils/optimize/optimize-bundle.sh ./
-RUN sh optimize-bundle.sh
+COPY utils/optimize/optimize-bundle.sh /optimizations/
+RUN sh /optimizations/optimize-bundle.sh
 
 FROM debian:12.1-slim AS ruby-final
 WORKDIR /app
@@ -502,14 +508,10 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --requirement requirements.txt --target python --quiet
 
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS python-optimize
-WORKDIR /app
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends jq moreutils >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
+FROM --platform=$BUILDPLATFORM directory-optimizer-base AS python-optimize
 COPY --from=python-base /app/python ./python
-COPY utils/optimize/.common.sh utils/optimize/optimize-python.sh ./
-RUN sh optimize-python.sh
+COPY utils/optimize/optimize-python.sh /optimizations/
+RUN sh /optimizations/optimize-python.sh
 
 FROM debian:12.1-slim AS python-final
 WORKDIR /app
@@ -541,14 +543,10 @@ RUN apt-get update -qq && \
 COPY linters/composer.json linters/composer.lock ./
 RUN composer install --no-cache --quiet
 
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS composer-vendor-optimize
-WORKDIR /app
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends jq moreutils >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
+FROM --platform=$BUILDPLATFORM directory-optimizer-base AS composer-vendor-optimize
 COPY --from=composer-vendor-base /app/vendor ./vendor
-COPY utils/optimize/.common.sh utils/optimize/optimize-composer.sh ./
-RUN sh optimize-composer.sh
+COPY utils/optimize/optimize-composer.sh /optimizations/
+RUN sh /optimizations/optimize-composer.sh
 
 FROM debian:12.1-slim AS composer-final
 WORKDIR /app
