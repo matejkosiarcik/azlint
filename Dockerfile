@@ -205,6 +205,9 @@ FROM --platform=$BUILDPLATFORM gitman-base AS go-checkmake-gitman
 COPY linters/gitman-repos/go-checkmake/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
+COPY utils/apply-git-patches.sh ./
+COPY linters/git-patches/checkmake ./git-patches
+RUN sh apply-git-patches.sh git-patches gitman/checkmake
 
 FROM --platform=$BUILDPLATFORM go-builder-base AS go-checkmake-build
 RUN apt-get update -qq && \
@@ -217,8 +220,14 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     GOOS="$TARGETOS" GOARCH="$TARGETARCH" BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make
 
+FROM --platform=$BUILDPLATFORM executable-optimizer-base AS go-checkmake-optimize
+COPY --from=go-checkmake-build /app/checkmake/checkmake ./bin/
+ARG TARGETARCH
+RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/checkmake && \
+    sh check-executable.sh bin/checkmake
+
 FROM --platform=$BUILDPLATFORM upx-base AS go-checkmake-upx
-COPY --from=go-checkmake-build /app/checkmake/checkmake ./
+COPY --from=go-checkmake-optimize /app/bin/checkmake ./
 # RUN upx --best /app/checkmake
 
 FROM bins-aggregator AS go-checkmake-final
