@@ -377,55 +377,55 @@ RUN sh sanity-check.sh && \
     rm -f sanity-check.sh
 
 # Shell - loksh #
-FROM --platform=$BUILDPLATFORM gitman-base AS loksh-gitman
+FROM --platform=$BUILDPLATFORM gitman-base AS shell-loksh-gitman
 COPY linters/gitman-repos/shell-loksh/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
 
-FROM debian:12.1-slim AS loksh-base
+FROM debian:12.1-slim AS shell-loksh-base
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends build-essential ca-certificates git meson >/dev/null && \
     rm -rf /var/lib/apt/lists/*
-COPY --from=loksh-gitman /app/gitman/loksh /app/loksh
+COPY --from=shell-loksh-gitman /app/gitman/loksh /app/loksh
 WORKDIR /app/loksh
 RUN CC="gcc -flto -fuse-linker-plugin -Wl,--build-id=none" \
     meson setup --fatal-meson-warnings --buildtype release --optimization s --strip --prefix="$PWD/install" build && \
     ninja --quiet -C build install && \
     mv /app/loksh/install/bin/ksh /app/loksh/install/bin/loksh
 
-FROM --platform=$BUILDPLATFORM upx-base AS loksh-upx
-COPY --from=loksh-base /app/loksh/install/bin/loksh ./
+FROM --platform=$BUILDPLATFORM upx-base AS shell-loksh-upx
+COPY --from=shell-loksh-base /app/loksh/install/bin/loksh ./
 # RUN upx --best /app/loksh
 
-FROM bins-aggregator AS loksh-final
-COPY --from=loksh-upx /app/loksh ./bin/
+FROM bins-aggregator AS shell-loksh-final
+COPY --from=shell-loksh-upx /app/loksh ./bin/
 COPY utils/sanity-check/shell-loksh.sh ./sanity-check.sh
 ENV BINPREFIX=/app/bin/
 RUN sh sanity-check.sh && \
     rm -f sanity-check.sh
 
 # Shell - oksh #
-FROM --platform=$BUILDPLATFORM gitman-base AS oksh-gitman
+FROM --platform=$BUILDPLATFORM gitman-base AS shell-oksh-gitman
 COPY linters/gitman-repos/shell-oksh/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
 
-FROM debian:12.1-slim AS oksh-base
+FROM debian:12.1-slim AS shell-oksh-base
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends build-essential >/dev/null && \
     rm -rf /var/lib/apt/lists/*
-COPY --from=oksh-gitman /app/gitman/oksh /app/oksh
+COPY --from=shell-oksh-gitman /app/gitman/oksh /app/oksh
 WORKDIR /app/oksh
 RUN ./configure --enable-small --enable-lto --cc='gcc -Os -Wl,--build-id=none' && \
     make --silent && \
     DESTDIR="$PWD/install" make install --silent
 
-FROM --platform=$BUILDPLATFORM upx-base AS oksh-upx
-COPY --from=oksh-base /app/oksh/install/usr/local/bin/oksh ./
+FROM --platform=$BUILDPLATFORM upx-base AS shell-oksh-upx
+COPY --from=shell-oksh-base /app/oksh/install/usr/local/bin/oksh ./
 # RUN upx --best /app/oksh
 
-FROM bins-aggregator AS oksh-final
-COPY --from=oksh-upx /app/oksh ./bin/
+FROM bins-aggregator AS shell-oksh-final
+COPY --from=shell-oksh-upx /app/oksh ./bin/
 COPY utils/sanity-check/shell-oksh.sh ./sanity-check.sh
 ENV BINPREFIX=/app/bin/
 RUN sh sanity-check.sh && \
@@ -760,8 +760,8 @@ COPY --from=haskell-final /app/bin ./
 COPY --from=go-final /app/bin ./
 COPY --from=rust-final /app/bin ./
 COPY --from=circleci-final /app/bin ./
-COPY --from=loksh-final /app/bin ./
-COPY --from=oksh-final /app/bin ./
+COPY --from=shell-loksh-final /app/bin ./
+COPY --from=shell-oksh-final /app/bin ./
 WORKDIR /app-tmp
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     HOMEBREW_NO_ANALYTICS=1 \
