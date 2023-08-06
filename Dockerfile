@@ -307,7 +307,6 @@ RUN if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         apt-get update -qq && \
         DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
             "gcc-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" \
-            "g++-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" \
             "libc6-dev-$TARGETARCH-cross" >/dev/null && \
         rm -rf /var/lib/apt/lists/* && \
     true; fi
@@ -328,18 +327,20 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
             HOST_CXX=g++ \
             "AR_$(sh get-target-arch.sh)_unknown_linux_gnu=/usr/bin/$(sh get-target-arch.sh)-linux-gnu-ar" \
             "CC_$(sh get-target-arch.sh)_unknown_linux_gnu=/usr/bin/$(sh get-target-arch.sh)-linux-gnu-gcc" \
-            "CXX_$(sh get-target-arch.sh)_unknown_linux_gnu=/usr/bin/$(sh get-target-arch.sh)-linux-gnu-g++" \
             "CARGO_TARGET_$(sh get-target-arch.sh | tr '[:lower:]' '[:upper:]')_UNKNOWN_LINUX_GNU_LINKER=/usr/bin/$(sh get-target-arch.sh)-linux-gnu-gcc" \
         && \
     true; fi && \
     while read -r package version; do \
         cargo install "$package" --quiet --force --version "$version" --root "$PWD/cargo" --target "$(sh get-target-tripple.sh)" && \
-        file "/app/cargo/bin/$package" | grep "stripped" && \
-        ! file "/app/cargo/bin/$package" | grep "not stripped" && \
     true; done <cargo-dependencies.txt
 
+FROM --platform=$BUILDPLATFORM executable-optimizer-base AS rust-optimize
+COPY --from=rust-builder /app/cargo/bin ./bin/
+# NOTE: `strip` is skipped, because it has no effect here
+RUN find bin -type f -exec sh check-executable.sh {} \;
+
 FROM --platform=$BUILDPLATFORM upx-base AS rust-upx
-COPY --from=rust-builder /app/cargo/bin ./
+COPY --from=rust-optimize /app/bin ./
 # RUN parallel upx --best ::: /app/*
 
 FROM bins-aggregator AS rust-final
@@ -393,8 +394,13 @@ RUN CC="gcc -flto -fuse-linker-plugin -Wl,--build-id=none" \
     ninja --quiet -C build install && \
     mv /app/loksh/install/bin/ksh /app/loksh/install/bin/loksh
 
+FROM --platform=$BUILDPLATFORM executable-optimizer-base AS shell-loksh-optimize
+COPY --from=shell-loksh-base /app/loksh/install/bin/loksh ./bin/
+# NOTE: `strip` is skipped, because it has no effect here
+RUN sh check-executable.sh bin/loksh
+
 FROM --platform=$BUILDPLATFORM upx-base AS shell-loksh-upx
-COPY --from=shell-loksh-base /app/loksh/install/bin/loksh ./
+COPY --from=shell-loksh-optimize /app/bin/loksh ./
 # RUN upx --best /app/loksh
 
 FROM bins-aggregator AS shell-loksh-final
@@ -420,8 +426,13 @@ RUN ./configure --enable-small --enable-lto --cc='gcc -Os -Wl,--build-id=none' &
     make --silent && \
     DESTDIR="$PWD/install" make install --silent
 
+FROM --platform=$BUILDPLATFORM executable-optimizer-base AS shell-oksh-optimize
+COPY --from=shell-oksh-base /app/oksh/install/usr/local/bin/oksh ./bin/
+# NOTE: `strip` is skipped, because it has no effect here
+RUN sh check-executable.sh bin/oksh
+
 FROM --platform=$BUILDPLATFORM upx-base AS shell-oksh-upx
-COPY --from=shell-oksh-base /app/oksh/install/usr/local/bin/oksh ./
+COPY --from=shell-oksh-optimize /app/bin/oksh ./
 # RUN upx --best /app/oksh
 
 FROM bins-aggregator AS shell-oksh-final
