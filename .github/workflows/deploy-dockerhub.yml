@@ -111,6 +111,7 @@ jobs:
           ls -lah
           echo "Tags: $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")"
           echo "Tags2: ${{ steps.meta.outputs.tags }}"
+          echo "Tags3: $(printf '%s' ${{ steps.meta.outputs.tags }} | sed -E 's~^[ \n]+~~;s~[ \n]+$~~;s~[\n ]~ -t ~g;s~^~-t ~')"
           echo "Digests: $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)"
 
       - name: Create manifest list and push
