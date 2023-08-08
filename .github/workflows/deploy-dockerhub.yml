@@ -109,8 +109,9 @@ jobs:
         working-directory: /tmp/digests
         run: |
           ls -lah
-          echo "Tags: $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")"
-          echo "Tags2: ${{ steps.meta.outputs.tags }}"
+          echo "Tags raw: ${{ steps.meta.outputs.tags }}"
+          echo "Tags raw: $DOCKER_METADATA_OUTPUT_JSON"
+          echo "Tags2: $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")"
           echo "Tags3: $(printf '%s' ${{ steps.meta.outputs.tags }} | sed -E 's~^[ \n]+~~;s~[ \n]+$~~;s~[\n ]~ -t ~g;s~^~-t ~')"
           echo "Digests: $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)"
 
@@ -119,12 +120,12 @@ jobs:
         run: |
           set -x
           # shellcheck disable=SC2046
-          docker buildx imagetools create \
-            $(printf '%s' ${{ steps.meta.outputs.tags }} | sed -E 's~^[ \n]+~~;s~[ \n]+$~~;s~[\n ]~ -t ~g;s~^~-t ~') \
-            $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
           # docker buildx imagetools create \
-          #   $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+          #   $(printf '%s' ${{ steps.meta.outputs.tags }} | sed -E 's~^[ \n]+~~;s~[ \n]+$~~;s~[\n ]~ -t ~g;s~^~-t ~') \
           #   $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
+          docker buildx imagetools create \
+            $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
 
       - name: Inspect image
         run: |
