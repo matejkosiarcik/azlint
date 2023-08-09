@@ -37,7 +37,7 @@ ENV PATH="/app/python/bin:$PATH" \
     PYTHONPATH=/app/python
 
 # Golang builder #
-FROM --platform=$BUILDPLATFORM golang:1.20.7-bookworm AS go-builder-base
+FROM --platform=$BUILDPLATFORM golang:1.21.0-bookworm AS go-builder-base
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends moreutils >/dev/null && \
     rm -rf /var/lib/apt/lists/*
