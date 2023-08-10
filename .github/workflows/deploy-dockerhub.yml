@@ -83,7 +83,7 @@ jobs:
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v2.9.1
 
-      - name: Docker meta
+      - name: Docker metadata
         uses: docker/metadata-action@v4.6.0
         id: meta
         with:
@@ -91,9 +91,9 @@ jobs:
           # NOTE: `:latest` tag is added automatically on `type=semver`
           tags: |
             type=edge,branch=main
-            type=semver,pattern={{major}}
-            type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}.{{minor}}.{{patch}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
 
       - name: Login to DockerHub
         uses: docker/login-action@v2.2.0
@@ -106,9 +106,9 @@ jobs:
         run: |
           echo "Digests: $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)"
 
-      - name: Debug tags
-        working-directory: /tmp/digests
+      - name: Debug metadata
         run: |
+          echo "Version: ${{ steps.meta.outputs.version }}"
           echo "Tags raw: ${{ steps.meta.outputs.tags }}"
           echo "Tags json: $DOCKER_METADATA_OUTPUT_JSON"
           echo "Tags parsed raw: $(printf '%s' ${{ steps.meta.outputs.tags }} | sed -E 's~^[ \n]+~~;s~[ \n]+$~~;s~[\n ]~ -t ~g;s~^~-t ~')"
