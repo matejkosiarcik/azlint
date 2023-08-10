@@ -195,29 +195,12 @@ minifyJsonFiles() {
 }
 
 minifyYamlFile() {
-    tmpdir="$(mktemp -d)"
-
-    yq -c '.' <"$1" >"$tmpdir/1.txt"
-    yq --yaml-output --indentless-lists -c '.' <"$1" >"$tmpdir/2.txt"
-
-    finalfile="$(mktemp)"
-    cat <"$1" >"$finalfile"
-    find "$tmpdir" -type f -name '*.txt' | while read -r file; do
-        if [ "$(wc -c <"$file")" -lt "$(wc -c <"$finalfile")" ]; then
-            cat <"$file" >"$finalfile"
-        fi
-    done
-
-    if [ "$(wc -c <"$finalfile")" -lt "$(wc -c <"$1")" ]; then
-        cat <"$finalfile" >"$1"
-    fi
-
-    rm -rf "$tmpdir" "$finalfile"
+    node /optimizations/yaml-minifier/minify-yaml.js "$1"
 }
 
 # Minify JSONs
 minifyYamlFiles() {
-    find "$1" -type f -iname '*.yml' -or -iname '*.yml' | while read -r file; do
+    find "$1" -type f \( -iname '*.yaml' -or -iname '*.yml' \) | while read -r file; do
         minifyYamlFile "$file"
     done
 }

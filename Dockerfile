@@ -61,13 +61,16 @@ COPY utils/rust/get-target-arch.sh ./
 ARG TARGETARCH
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
-        "binutils-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" file jq moreutils python3 python3-pip >/dev/null && \
+        "binutils-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" file jq moreutils nodejs npm python3 python3-pip >/dev/null && \
     rm -rf /var/lib/apt/lists/*
-COPY build-dependencies/yq/requirements.txt ./
+COPY build-dependencies/yq/requirements.txt ./yq/
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install --requirement requirements.txt --target python --quiet
-ENV PATH="/optimizations/python/bin:$PATH" \
-    PYTHONPATH=/optimizations/python
+    python3 -m pip install --requirement yq/requirements.txt --target yq/python --quiet
+COPY build-dependencies/yaml-minifier/package.json build-dependencies/yaml-minifier/package-lock.json ./yaml-minifier/
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet --prefix yaml-minifier
+ENV PATH="/optimizations/yq/python/bin:$PATH" \
+    PYTHONPATH=/optimizations/yq/python
+COPY build-dependencies/yaml-minifier/minify-yaml.js ./yaml-minifier/
 COPY utils/optimize/.common.sh ./
 WORKDIR /app
 
