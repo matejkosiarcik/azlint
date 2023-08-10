@@ -24,25 +24,6 @@ RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends file >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 
-# Gitman #
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS gitman-base
-WORKDIR /app
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends python3 python3-pip git >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
-COPY build-dependencies/python-gitman/requirements.txt ./
-RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install --requirement requirements.txt --target python --quiet
-ENV PATH="/app/python/bin:$PATH" \
-    PYTHONPATH=/app/python
-
-# Golang builder #
-FROM --platform=$BUILDPLATFORM golang:1.21.0-bookworm AS go-builder-base
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends moreutils >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
-WORKDIR /app
-
 # Executable optimizer #
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS executable-optimizer-base
 WORKDIR /app
@@ -54,17 +35,42 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/check-executable.sh ./
 
-# Executable optimizer #
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS directory-optimizer-base
-WORKDIR /optimizations
+# Golang builder #
+FROM --platform=$BUILDPLATFORM golang:1.21.0-bookworm AS go-builder-base
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends file jq moreutils python3 python3-pip >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends moreutils >/dev/null && \
     rm -rf /var/lib/apt/lists/*
-COPY build-dependencies/yq/requirements.txt ./
+WORKDIR /app
+
+# Gitman #
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS gitman-base
+WORKDIR /app
+RUN apt-get update -qq && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends python3 python3-pip git >/dev/null && \
+    rm -rf /var/lib/apt/lists/*
+COPY build-dependencies/gitman2/requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --requirement requirements.txt --target python --quiet
-ENV PATH="/optimizations/python/bin:$PATH" \
-    PYTHONPATH=/optimizations/python
+ENV PATH="/app/python/bin:$PATH" \
+    PYTHONPATH=/app/python
+
+# Dependency optimizer #
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS directory-optimizer-base
+WORKDIR /optimizations
+COPY utils/rust/get-target-arch.sh ./
+ARG TARGETARCH
+RUN apt-get update -qq && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        "binutils-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" file jq moreutils nodejs npm python3 python3-pip >/dev/null && \
+    rm -rf /var/lib/apt/lists/*
+COPY build-dependencies/yq/requirements.txt ./yq/
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python3 -m pip install --requirement yq/requirements.txt --target yq/python --quiet
+COPY build-dependencies/yaml-minifier/package.json build-dependencies/yaml-minifier/package-lock.json ./yaml-minifier/
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet --prefix yaml-minifier
+ENV PATH="/optimizations/yq/python/bin:$PATH" \
+    PYTHONPATH=/optimizations/yq/python
+COPY build-dependencies/yaml-minifier/minify-yaml.js ./yaml-minifier/
 COPY utils/optimize/.common.sh ./
 WORKDIR /app
 
