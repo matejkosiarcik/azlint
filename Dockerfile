@@ -24,6 +24,24 @@ RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends file >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 
+# Executable optimizer #
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS executable-optimizer-base
+WORKDIR /app
+COPY utils/rust/get-target-arch.sh ./
+ARG TARGETARCH
+RUN apt-get update -qq && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        "binutils-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" file moreutils >/dev/null && \
+    rm -rf /var/lib/apt/lists/*
+COPY utils/check-executable.sh ./
+
+# Golang builder #
+FROM --platform=$BUILDPLATFORM golang:1.21.0-bookworm AS go-builder-base
+RUN apt-get update -qq && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends moreutils >/dev/null && \
+    rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+
 # Gitman #
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS gitman-base
 WORKDIR /app
@@ -36,29 +54,14 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 ENV PATH="/app/python/bin:$PATH" \
     PYTHONPATH=/app/python
 
-# Golang builder #
-FROM --platform=$BUILDPLATFORM golang:1.21.0-bookworm AS go-builder-base
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends moreutils >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
-WORKDIR /app
-
-# Executable optimizer #
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS executable-optimizer-base
-WORKDIR /app
+# Dependency optimizer #
+FROM --platform=$BUILDPLATFORM debian:12.1-slim AS directory-optimizer-base
+WORKDIR /optimizations
 COPY utils/rust/get-target-arch.sh ./
 ARG TARGETARCH
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
-        "binutils-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" file moreutils >/dev/null && \
-    rm -rf /var/lib/apt/lists/*
-COPY utils/check-executable.sh ./
-
-# Executable optimizer #
-FROM --platform=$BUILDPLATFORM debian:12.1-slim AS directory-optimizer-base
-WORKDIR /optimizations
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends file jq moreutils python3 python3-pip >/dev/null && \
+        "binutils-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" file jq moreutils python3 python3-pip >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY build-dependencies/yq/requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
