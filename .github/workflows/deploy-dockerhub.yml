@@ -88,7 +88,7 @@ jobs:
         id: meta
         with:
           images: ${{ env.REGISTRY_IMAGE }}
-          # NOTE: `:latest` tag is added automatically on `type=semver`
+          # NOTE: ":latest" tag is added automatically on "type=semver"
           tags: |
             type=edge,branch=main
             type=semver,pattern={{major}}.{{minor}}.{{patch}}
@@ -104,15 +104,15 @@ jobs:
       - name: Debug digests
         working-directory: /tmp/digests
         run: |
-          echo "Digests: $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)"
+          printf 'Digests: %s\n' "$(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)"
 
       - name: Debug metadata
         run: |
-          echo "Version: ${{ steps.meta.outputs.version }}"
-          echo "Tags raw: ${{ steps.meta.outputs.tags }}"
-          echo "Tags json: $DOCKER_METADATA_OUTPUT_JSON"
-          echo "Tags parsed raw: $(printf '%s' ${{ steps.meta.outputs.tags }} | sed -E 's~^[ \n]+~~;s~[ \n]+$~~;s~[\n ]~ -t ~g;s~^~-t ~')"
-          echo "Tags parsed json: $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")"
+          printf 'Version: %s\n' "${{ steps.meta.outputs.version }}"
+          printf 'Tags raw: %s\n' "${{ steps.meta.outputs.tags }}"
+          printf 'Tags json: %s\n' "$DOCKER_METADATA_OUTPUT_JSON"
+          printf 'Tags parsed raw: %s\n' "$(printf '%s' ${{ steps.meta.outputs.tags }} | sed -E 's~^[ \n]+~~;s~[ \n]+$~~;s~[\n ]~ -t ~g;s~^~-t ~')"
+          printf 'Tags parsed json: %s\n' "$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")"
 
       - name: Create manifest list and push
         working-directory: /tmp/digests
@@ -124,9 +124,7 @@ jobs:
 
       - name: Inspect image
         run: |
-          set -x
-          # shellcheck disable=SC2046
-          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ steps.meta.outputs.version }}
+          docker buildx imagetools inspect "${{ env.REGISTRY_IMAGE }}:${{ steps.meta.outputs.version }}"
 
   deploy-description:
     name: Update description
