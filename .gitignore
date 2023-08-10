@@ -14,16 +14,10 @@ Package Control.*
 
 # dependencies
 Brewfile.lock.json
-gitman/
 node_modules/
-dist-newstyle/
-.mypy_cache/
-venv/
-python/
 
 # build artifacts
 /cli/
 
 # misc
 .env
-report/

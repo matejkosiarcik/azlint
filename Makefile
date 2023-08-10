@@ -18,9 +18,9 @@ bootstrap:
 
 	parallel npm install --no-save --no-progress --no-audit --quiet --prefix ::: . linters
 
-	parallel python3 -m venv ::: build-dependencies/python-gitman/venv build-dependencies/yq/venv
+	parallel python3 -m venv ::: build-dependencies/gitman/venv build-dependencies/yq/venv
 
-	cd "$(PROJECT_DIR)/build-dependencies/python-gitman" && \
+	cd "$(PROJECT_DIR)/build-dependencies/gitman" && \
 		PATH="$$PWD/venv/bin:$(PATH)" \
 		PIP_DISABLE_PIP_VERSION_CHECK=1 \
 			pip install --requirement requirements.txt --quiet --upgrade
@@ -30,7 +30,7 @@ bootstrap:
 		PIP_DISABLE_PIP_VERSION_CHECK=1 \
 			pip install --requirement requirements.txt --quiet --upgrade
 
-	PATH="$(PROJECT_DIR)/build-dependencies/python-gitman/venv/bin:$(PATH)" \
+	PATH="$(PROJECT_DIR)/build-dependencies/gitman/venv/bin:$(PATH)" \
 		parallel gitman install --quiet --force --root ::: $(shell find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d) && \
 		if [ "$(shell uname -s)" != Linux ]; then \
 			sh utils/apply-git-patches.sh linters/git-patches/loksh linters/gitman-repos/shell-loksh/gitman/loksh && \
