@@ -1,3 +1,7 @@
+import fsSync from 'fs';
+import path from 'path';
+import { listFilesInDirectory, matchFiles } from './utils';
+
 export const configFiles = {
     // https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-via-a-file
     black: ['black', '.black'],
@@ -144,14 +148,137 @@ export const pythonGeneralConfigFiles = {
     ],
 };
 
-export function findConfigFile(linter: keyof typeof configFiles): string {
-    const envName = linter.replace(/\-/g, '_').toUpperCase();
-    console.log(linter, envName);
-    return ''; // TODO: Finish function
+/**
+ * Returns config directories in the following order:
+ * - AZLINT_FOO_CONFIG_DIR
+ * - AZLINT_CONFIG_DIR
+ * - . (project root)
+ * - ./.config
+ */
+function getConfigDirs(envName: string): string[] {
+    const output: string[] = [];
+
+    // First check if specific FOO_CONFIG_DIR is set
+    const linterConfigDir = process.env[`AZLINT_${envName}_CONFIG_DIR`];
+    if (linterConfigDir) {
+        output.push(linterConfigDir);
+    }
+
+    // Check if global CONFIG_DIR is set
+    const generalConfigDir = process.env['AZLINT_CONFIG_DIR'];
+    if (generalConfigDir) {
+        output.push(generalConfigDir);
+    }
+
+    // Add CWD as default
+    output.push('.');
+
+    // Check .config/ subdirectory
+    if (fsSync.existsSync('.config')) {
+        output.push('.config');
+    }
+
+    return output;
 }
 
-export function findPythonConfigFile(linter: keyof typeof pythonGeneralConfigFiles): string {
-    const envName = linter.replace(/\-/g, '_').toUpperCase();
-    console.log(linter, envName);
-    return ''; // TODO: Finish function
+async function findConfigFile(options: {
+    linter: keyof typeof configFiles,
+    linterType?: 'generic' | 'python' | undefined,
+}): Promise<string | undefined> {
+    const linter = options.linter;
+    const envName = options.linter.replace(/\-/g, '_').toUpperCase();
+    const customConfigFilePath = process.env[`AZLINT_${envName}_CONFIG_FILE`];
+    const linterType = options.linterType ?? 'generic';
+
+    const configDirectories = getConfigDirs(envName);
+
+    if (customConfigFilePath) {
+        const foundConfigFile = configDirectories
+            .map((configDir) => {
+                const overrideConfigFile = path.join(configDir, customConfigFilePath);
+                return fsSync.existsSync(overrideConfigFile) ? overrideConfigFile : undefined;
+            })
+            .filter((el) => el)
+            .at(0);
+        if (foundConfigFile) {
+            return foundConfigFile;
+        }
+    }
+
+    if (linterType === 'python') {
+        const pythonConfigFiles = (() => {
+            let files = pythonGeneralConfigFiles[linter as keyof typeof pythonGeneralConfigFiles];
+            if (!files) {
+                return [];
+            }
+            return Array.isArray(files) ? files : [files];
+        })();
+
+        const pythonConfigFile = (await Promise.all(configDirectories
+            .map(async (configDir) => {
+                const allFilesInConfigDirectory = await listFilesInDirectory(configDir, { recursive: false });
+                return (await Promise.all(pythonConfigFiles.map(async (configEntry) => {
+                    const existingConfigFiles = matchFiles(allFilesInConfigDirectory, configEntry.file);
+                    return existingConfigFiles.filter((existingConfigFile) => {
+                        const configContent = fsSync.readFileSync(existingConfigFile, 'utf8');
+                        return configContent.split('\n').some((line) => line.includes(configEntry.content))
+                    }).at(0);
+                })))
+                .filter((file) => file)
+                .at(0);
+            })))
+            .filter((file) => file)
+            .at(0);
+
+        if (pythonConfigFile) {
+            return pythonConfigFile;
+        }
+    }
+
+    const defaultConfigFiles = (() => {
+        let files = configFiles[linter];
+        return Array.isArray(files) ? files : [files];
+    })();
+
+    const foundConfigFile = (await Promise.all(configDirectories
+        .map(async (configDir) => {
+            const filesInConfig = await listFilesInDirectory(configDir, { recursive: false });
+            const configFiles = matchFiles(filesInConfig, defaultConfigFiles);
+            return configFiles.at(0);
+        })))
+        .filter((file) => file)
+        .at(0);
+    if (foundConfigFile) {
+        return foundConfigFile;
+    }
+
+    return undefined;
+}
+
+/**
+ * Determine config arguments to use for linter FOO
+ * @returns array of arguments to use in when calling the linter FOO as subprocess
+ */
+export async function getConfigArgs(options: {
+    linter: keyof typeof configFiles,
+    configMode?: 'file' | 'directory' | undefined,
+    linterType?: 'generic' | 'python' | undefined,
+    configArgName: string,
+}): Promise<string[]> {
+    let configFile = await findConfigFile({
+        linter: options.linter,
+        linterType: options.linterType,
+    });
+
+    if (!configFile) {
+        return [];
+    }
+
+    if (options.configMode === 'directory') {
+        configFile = path.dirname(configFile);
+    }
+
+    return options.configArgName.endsWith('=') ?
+        [`${options.configArgName}${configFile}`] :
+        [options.configArgName, configFile];
 }
