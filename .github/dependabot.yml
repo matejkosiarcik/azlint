@@ -1,20 +1,7 @@
 version: 2
 
 updates:
-  # CI
-  - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: daily
-      time: "01:00"
-      timezone: Europe/Bratislava
-    reviewers:
-      - matejkosiarcik
-    assignees:
-      - matejkosiarcik
-    open-pull-requests-limit: 1
-
-  # Main
+  # Main Dockerfile
   - package-ecosystem: docker
     directory: /
     schedule:
@@ -26,6 +13,8 @@ updates:
     assignees:
       - matejkosiarcik
     open-pull-requests-limit: 1
+
+  # Main CLI
   - package-ecosystem: npm
     directory: /
     schedule:
@@ -38,9 +27,9 @@ updates:
       - matejkosiarcik
     open-pull-requests-limit: 1
 
-  # Tests
-  - package-ecosystem: npm
-    directory: /tests
+  # CI
+  - package-ecosystem: github-actions
+    directory: /
     schedule:
       interval: daily
       time: "01:00"
@@ -100,6 +89,42 @@ updates:
     open-pull-requests-limit: 1
   - package-ecosystem: cargo
     directory: /linters
+    schedule:
+      interval: daily
+      time: "01:00"
+      timezone: Europe/Bratislava
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+    open-pull-requests-limit: 1
+
+  # Build dependencies
+  - package-ecosystem: npm
+    directory: /build-dependencies/yaml-minifier
+    versioning-strategy: increase
+    schedule:
+      interval: daily
+      time: "01:00"
+      timezone: Europe/Bratislava
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+    open-pull-requests-limit: 1
+  - package-ecosystem: pip
+    directory: /build-dependencies/gitman
+    schedule:
+      interval: daily
+      time: "01:00"
+      timezone: Europe/Bratislava
+    reviewers:
+      - matejkosiarcik
+    assignees:
+      - matejkosiarcik
+    open-pull-requests-limit: 1
+  - package-ecosystem: pip
+    directory: /build-dependencies/yq
     schedule:
       interval: daily
       time: "01:00"
