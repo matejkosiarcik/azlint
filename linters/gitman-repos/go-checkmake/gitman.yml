@@ -13,7 +13,7 @@ sources:
 sources_locked:
   - repo: https://github.com/mrtazz/checkmake.git
     name: checkmake
-    rev: 48ab7819837d1bdfcbac58e301478a06efebf4a8
+    rev: 717134f5d60e8ecfb800dc5dbdbb00fbd1ce2577
     type: git
     sparse_paths:
       -
