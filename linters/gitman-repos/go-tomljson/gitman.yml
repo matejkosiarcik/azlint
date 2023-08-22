@@ -4,6 +4,7 @@ sources:
     name: go-toml
     rev: v2
     type: git
+    params:
     sparse_paths:
       -
     links:
@@ -15,6 +16,7 @@ sources_locked:
     name: go-toml
     rev: bb026cae89ad5bdd861d6ed8134a2e1b86cd3dc0
     type: git
+    params:
     sparse_paths:
       -
     links:

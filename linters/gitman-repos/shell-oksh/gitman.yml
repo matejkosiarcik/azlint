@@ -4,6 +4,7 @@ sources:
     name: oksh
     rev: main
     type: git
+    params:
     sparse_paths:
       -
     links:
@@ -15,6 +16,7 @@ sources_locked:
     name: oksh
     rev: f067067da3ddbb5f3a0e9d3f0bec5e3032b5ffa4
     type: git
+    params:
     sparse_paths:
       -
     links:

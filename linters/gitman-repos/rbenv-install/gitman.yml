@@ -4,6 +4,7 @@ sources:
     name: rbenv-installer
     rev: main
     type: git
+    params:
     sparse_paths:
       -
     links:
@@ -15,6 +16,7 @@ sources_locked:
     name: rbenv-installer
     rev: 33926644327c067be973c8e1c6c4f5c2178d4ead
     type: git
+    params:
     sparse_paths:
       -
     links:

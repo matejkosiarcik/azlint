@@ -4,6 +4,7 @@ sources:
     name: shfmt
     rev: master
     type: git
+    params:
     sparse_paths:
       -
     links:
@@ -15,6 +16,7 @@ sources_locked:
     name: shfmt
     rev: 1cb239665c27678542e5f0695631bd3dcdb0a351
     type: git
+    params:
     sparse_paths:
       -
     links:

@@ -4,6 +4,7 @@ sources:
     name: loksh
     rev: master
     type: git
+    params:
     sparse_paths:
       -
     links:
@@ -15,6 +16,7 @@ sources_locked:
     name: loksh
     rev: e88658fefa1d1ac3cf0699a666f5f7056664089a
     type: git
+    params:
     sparse_paths:
       -
     links:
