@@ -363,8 +363,8 @@ export class Linters {
             linterName: 'prettier',
             envName: 'PRETTIER',
             fileMatch: matchers.json,
-            lintFile: { args: ['prettier', ...prettierConfigArgs, '--parser', 'json-stringify', '--list-different', '#file#'] },
-            fmtFile: { args: ['prettier', ...prettierConfigArgs, '--parser', 'json-stringify', '--write', '#file#'] },
+            lintFile: { args: ['prettier', ...prettierConfigArgs, '--parser', 'json5', '--list-different', '#file#'] },
+            fmtFile: { args: ['prettier', ...prettierConfigArgs, '--parser', 'json5', '--write', '#file#'] },
         });
         await this.runLinter({
             linterName: 'prettier',
