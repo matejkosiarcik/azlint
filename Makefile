@@ -16,9 +16,13 @@ all: bootstrap test build run
 bootstrap:
 	mkdir -p linters/bin
 
-	printf '.\nlinters\n' | xargs -P0 -n1 npm install --no-save --no-progress --no-audit --quiet --prefix
+	# printf '.\nlinters\n' | xargs -P0 -n1 npm install --no-save --no-progress --no-audit --quiet --prefix
+	npm install --no-save --no-progress --no-audit --quiet
+	npm install --no-save --no-progress --no-audit --quiet --prefix linters
 
-	printf 'build-dependencies/gitman/venv\nbuild-dependencies/yq/venv\n' | xargs -P0 -n1 python3 -m venv
+	# printf 'build-dependencies/gitman/venv\nbuild-dependencies/yq/venv\n' | xargs -P0 -n1 python3 -m venv
+	python3 -m venv build-dependencies/gitman/venv
+	python3 -m venv build-dependencies/yq/venv
 
 	cd "$(PROJECT_DIR)/build-dependencies/gitman" && \
 		PATH="$$PWD/venv/bin:$(PATH)" \
@@ -31,7 +35,9 @@ bootstrap:
 			pip install --requirement requirements.txt --quiet --upgrade
 
 	PATH="$(PROJECT_DIR)/build-dependencies/gitman/venv/bin:$(PATH)" \
-		find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -P0 -n1 gitman install --quiet --force --root && \
+		find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d | while read -r dir; do \
+			gitman install --quiet --force --root "$$dir" && \
+		true; done \
 		if [ "$(shell uname -s)" != Linux ]; then \
 			sh utils/apply-git-patches.sh linters/git-patches/loksh linters/gitman-repos/shell-loksh/gitman/loksh && \
 		true; fi
