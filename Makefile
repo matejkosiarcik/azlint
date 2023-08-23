@@ -37,7 +37,7 @@ bootstrap:
 	PATH="$(PROJECT_DIR)/build-dependencies/gitman/venv/bin:$(PATH)" \
 		find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d | while read -r dir; do \
 			gitman install --quiet --force --root "$$dir" && \
-		true; done \
+		true; done && \
 		if [ "$(shell uname -s)" != Linux ]; then \
 			sh utils/apply-git-patches.sh linters/git-patches/loksh linters/gitman-repos/shell-loksh/gitman/loksh && \
 		true; fi
