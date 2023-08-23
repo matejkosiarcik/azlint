@@ -4,6 +4,7 @@ sources:
     name: circleci-cli
     rev: main
     type: git
+    params:
     sparse_paths:
       -
     links:
@@ -15,6 +16,7 @@ sources_locked:
     name: circleci-cli
     rev: b8e132d73d997d28a56e1ad4a20a5bc0ba4c5935
     type: git
+    params:
     sparse_paths:
       -
     links:

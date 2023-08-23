@@ -4,6 +4,7 @@ sources:
     name: editorconfig-checker
     rev: main
     type: git
+    params:
     sparse_paths:
       -
     links:
@@ -15,6 +16,7 @@ sources_locked:
     name: editorconfig-checker
     rev: 36a8a7f3fe883053bb6e7c260585152c7b7f6037
     type: git
+    params:
     sparse_paths:
       -
     links:

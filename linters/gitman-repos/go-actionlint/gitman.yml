@@ -4,6 +4,7 @@ sources:
     name: actionlint
     rev: main
     type: git
+    params:
     sparse_paths:
       -
     links:
@@ -15,6 +16,7 @@ sources_locked:
     name: actionlint
     rev: f1d409537e61a3df9206bcdf8c2548e34cb9b16d
     type: git
+    params:
     sparse_paths:
       -
     links:

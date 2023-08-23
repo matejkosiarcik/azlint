@@ -4,6 +4,7 @@ sources:
     name: brew-installer
     rev: master
     type: git
+    params:
     sparse_paths:
       -
     links:
@@ -15,6 +16,7 @@ sources_locked:
     name: brew-installer
     rev: 5e7f30635a945f475a557240f006973c81c71324
     type: git
+    params:
     sparse_paths:
       -
     links:

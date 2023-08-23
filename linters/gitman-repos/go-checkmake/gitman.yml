@@ -4,6 +4,7 @@ sources:
     name: checkmake
     rev: main
     type: git
+    params:
     sparse_paths:
       -
     links:
@@ -15,6 +16,7 @@ sources_locked:
     name: checkmake
     rev: bd26d7905e47713ff0bf3b0e5e7b9c55f0d24e53
     type: git
+    params:
     sparse_paths:
       -
     links:

@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## \[0.6.9\] - 2023-08-09
 
 - Miscellaneous
-  - Maintenance release (DEploy during previous version failed to push to dockerhub)
+  - Maintenance release (Deploy during previous version failed to push to dockerhub)
 
 ## \[0.6.8\] - 2023-08-06
 

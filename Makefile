@@ -16,25 +16,29 @@ all: bootstrap test build run
 bootstrap:
 	mkdir -p linters/bin
 
-	parallel npm install --no-save --no-progress --no-audit --quiet --prefix ::: . linters
+	printf '. linters ' | \
+		tr ' ' '\n' | \
+		xargs -P0 -n1 npm install --no-save --no-progress --no-audit --quiet --prefix
 
-	parallel python3 -m venv ::: build-dependencies/gitman/venv build-dependencies/yq/venv
+	printf 'build-dependencies/gitman/venv build-dependencies/yq/venv ' | \
+		tr ' ' '\n' | \
+		xargs -P0 -n1 python3 -m venv
 
 	cd "$(PROJECT_DIR)/build-dependencies/gitman" && \
-		PATH="$$PWD/venv/bin:$(PATH)" \
+		PATH="$$PWD/venv/bin:$$PATH" \
 		PIP_DISABLE_PIP_VERSION_CHECK=1 \
 			pip install --requirement requirements.txt --quiet --upgrade
 
 	cd "$(PROJECT_DIR)/build-dependencies/yq" && \
-		PATH="$$PWD/venv/bin:$(PATH)" \
+		PATH="$$PWD/venv/bin:$$PATH" \
 		PIP_DISABLE_PIP_VERSION_CHECK=1 \
 			pip install --requirement requirements.txt --quiet --upgrade
 
-	PATH="$(PROJECT_DIR)/build-dependencies/gitman/venv/bin:$(PATH)" \
-		parallel gitman install --quiet --force --root ::: $(shell find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d) && \
-		if [ "$(shell uname -s)" != Linux ]; then \
-			sh utils/apply-git-patches.sh linters/git-patches/loksh linters/gitman-repos/shell-loksh/gitman/loksh && \
-		true; fi
+	find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d -print0 | \
+		PATH="$(PROJECT_DIR)/build-dependencies/gitman/venv/bin:$$PATH" xargs -0 -n1 -P0 gitman install --quiet --force --root
+	if [ "$(shell uname -s)" != Linux ]; then \
+		sh utils/apply-git-patches.sh linters/git-patches/loksh linters/gitman-repos/shell-loksh/gitman/loksh && \
+	true; fi
 
 	cd linters/gitman-repos/shell-loksh/gitman/loksh && \
 		meson setup --fatal-meson-warnings --prefix="$$PWD/install" build && \
@@ -47,8 +51,8 @@ bootstrap:
 		DESTDIR="$$PWD/install" make install && \
 		cp install/usr/local/bin/oksh "$(PROJECT_DIR)/linters/bin/"
 
-	PATH="$$PWD/venv/bin:$(PATH)" \
-	PYTHONPATH="$$PWD/linters/python" \
+	PATH="$(PROJECT_DIR)/venv/bin:$$PATH" \
+	PYTHONPATH="$(PROJECT_DIR)/linters/python" \
 	PIP_DISABLE_PIP_VERSION_CHECK=1 \
 		pip install --requirement linters/requirements.txt --target linters/python --quiet --upgrade
 
@@ -56,17 +60,17 @@ bootstrap:
 	mkdir -p "$$HOME/.cache/proselint"
 
 	gem install bundler --install-dir linters/ruby
-	PATH="$$PWD/linters/ruby/bin:$(PATH)" \
+	PATH="$(PROJECT_DIR)/linters/ruby/bin:$$PATH" \
 	BUNDLE_DISABLE_SHARED_GEMS=true \
 	BUNDLE_PATH__SYSTEM=false \
-	BUNDLE_PATH="$$PWD/linters/bundle" \
-	BUNDLE_GEMFILE="$$PWD/linters/Gemfile" \
+	BUNDLE_PATH="$(PROJECT_DIR)/linters/bundle" \
+	BUNDLE_GEMFILE="$(PROJECT_DIR)/linters/Gemfile" \
 		bundle install --quiet
 
-	PATH="$(PROJECT_DIR)/build-dependencies/yq/venv/bin:$(PATH)" \
+	PATH="$(PROJECT_DIR)/build-dependencies/yq/venv/bin:$$PATH" \
 		tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' linters/Cargo.toml | \
 		xargs -n2 -P0 sh -c \
-		'cd "$(PROJECT_DIR)" && cargo install "$$0" --quiet --force --root "$$PWD/linters/cargo" --version "$$1" --profile dev'
+		'cd "$$PWD" && cargo install "$$0" --quiet --force --root "$(PROJECT_DIR)/linters/cargo" --version "$$1" --profile dev'
 
 	cd linters && \
 		composer install --quiet
@@ -79,16 +83,8 @@ bootstrap:
 		make build && \
 		cp bin/ec "$(PROJECT_DIR)/linters/bin/"
 
-	GOPATH="$$PWD/linters/go" GO111MODULE=on parallel ::: \
-		'go install -modcacherw "mvdan.cc/sh/v3/cmd/shfmt@latest"' \
-		'go install -modcacherw "github.com/freshautomations/stoml@latest"' \
-		'go install -modcacherw "github.com/pelletier/go-toml/cmd/tomljson@latest"' \
-		'go install -modcacherw "github.com/rhysd/actionlint/cmd/actionlint@latest"'
-
-	# cabal update
-	# parallel ::: \
-	# 	'cabal install hadolint-2.12.0' \
-	# 	'cabal install ShellCheck-0.9.0'
+	printf 'mvdan.cc/sh/v3/cmd/shfmt@latest\ngithub.com/freshautomations/stoml@latest\ngithub.com/pelletier/go-toml/cmd/tomljson@latest\ngithub.com/rhysd/actionlint/cmd/actionlint@latest\n' | \
+		GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on xargs -P0 -n1 go install -modcacherw
 
 	cd linters/gitman-repos/circleci-cli/gitman/circleci-cli && \
 		mkdir -p install && \
@@ -116,12 +112,12 @@ multibuild:
 
 .PHONY: run
 run:
-	time docker run --interactive --tty --rm --volume "$$PWD:/project:ro" matejkosiarcik/azlint:dev lint
+	time docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project:ro" matejkosiarcik/azlint:dev lint
 
 .PHONY: multirun
 multirun:
-	time docker run --interactive --tty --rm --volume "$$PWD:/project:ro" --platform linux/amd64 matejkosiarcik/azlint:dev-amd64 lint
-	time docker run --interactive --tty --rm --volume "$$PWD:/project:ro" --platform linux/arm64 matejkosiarcik/azlint:dev-arm64 lint
+	time docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project:ro" --platform linux/amd64 matejkosiarcik/azlint:dev-amd64 lint
+	time docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project:ro" --platform linux/arm64 matejkosiarcik/azlint:dev-arm64 lint
 
 .PHONY: test
 test:
@@ -130,20 +126,20 @@ test:
 .PHONY: clean
 clean:
 	find linters/gitman-repos -name gitman -type d -prune -exec rm -rf {} \;
-	rm -rf "$$PWD/build-dependencies/python-gitman/venv" \
-		"$$PWD/build-dependencies/yq/venv" \
-		"$$PWD/docs/demo/gitman" \
-		"$$PWD/linters/bin" \
-		"$$PWD/linters/bundle" \
-		"$$PWD/linters/cargo" \
-		"$$PWD/linters/go" \
-		"$$PWD/linters/node_modules" \
-		"$$PWD/linters/python" \
-		"$$PWD/linters/ruby" \
-		"$$PWD/linters/target" \
-		"$$PWD/linters/vendor" \
-		"$$PWD/node_modules" \
-		"$$PWD/venv"
+	rm -rf "$(PROJECT_DIR)/build-dependencies/python-gitman/venv" \
+		"$(PROJECT_DIR)/build-dependencies/yq/venv" \
+		"$(PROJECT_DIR)/docs/demo/gitman" \
+		"$(PROJECT_DIR)/linters/bin" \
+		"$(PROJECT_DIR)/linters/bundle" \
+		"$(PROJECT_DIR)/linters/cargo" \
+		"$(PROJECT_DIR)/linters/go" \
+		"$(PROJECT_DIR)/linters/node_modules" \
+		"$(PROJECT_DIR)/linters/python" \
+		"$(PROJECT_DIR)/linters/ruby" \
+		"$(PROJECT_DIR)/linters/target" \
+		"$(PROJECT_DIR)/linters/vendor" \
+		"$(PROJECT_DIR)/node_modules" \
+		"$(PROJECT_DIR)/venv"
 
 .PHONY: demo
 demo:

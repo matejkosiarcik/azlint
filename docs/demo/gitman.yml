@@ -4,6 +4,7 @@ sources:
     name: demo-magic
     rev: master
     type: git
+    params:
     sparse_paths:
       -
     links:
@@ -15,6 +16,7 @@ sources_locked:
     name: demo-magic
     rev: a938137035b73105d09347a91f9fd5e9722b617a
     type: git
+    params:
     sparse_paths:
       -
     links:
