@@ -16,7 +16,7 @@ all: bootstrap test build run
 bootstrap:
 	mkdir -p linters/bin
 
-	printf '.' 'linters' | \
+	printf '. linters ' | \
 		tr ' ' '\n' | \
 		xargs -P0 -n1 npm install --no-save --no-progress --no-audit --quiet --prefix
 
