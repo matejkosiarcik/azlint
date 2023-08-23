@@ -25,12 +25,12 @@ bootstrap:
 	python3 -m venv build-dependencies/yq/venv
 
 	cd "$(PROJECT_DIR)/build-dependencies/gitman" && \
-		PATH="$$PWD/venv/bin:$(PATH)" \
+		PATH="$$PWD/venv/bin:$$PATH" \
 		PIP_DISABLE_PIP_VERSION_CHECK=1 \
 			pip install --requirement requirements.txt --quiet --upgrade
 
 	cd "$(PROJECT_DIR)/build-dependencies/yq" && \
-		PATH="$$PWD/venv/bin:$(PATH)" \
+		PATH="$$PWD/venv/bin:$$PATH" \
 		PIP_DISABLE_PIP_VERSION_CHECK=1 \
 			pip install --requirement requirements.txt --quiet --upgrade
 
