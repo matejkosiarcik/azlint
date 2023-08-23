@@ -16,9 +16,9 @@ all: bootstrap test build run
 bootstrap:
 	mkdir -p linters/bin
 
-	parallel npm install --no-save --no-progress --no-audit --quiet --prefix ::: . linters
+	printf '.\nlinters\n' | xargs -P0 -n1 npm install --no-save --no-progress --no-audit --quiet --prefix
 
-	parallel python3 -m venv ::: build-dependencies/gitman/venv build-dependencies/yq/venv
+	printf 'build-dependencies/gitman/venv\nbuild-dependencies/yq/venv\n' | xargs -P0 -n1 python3 -m venv
 
 	cd "$(PROJECT_DIR)/build-dependencies/gitman" && \
 		PATH="$$PWD/venv/bin:$(PATH)" \
@@ -31,7 +31,7 @@ bootstrap:
 			pip install --requirement requirements.txt --quiet --upgrade
 
 	PATH="$(PROJECT_DIR)/build-dependencies/gitman/venv/bin:$(PATH)" \
-		parallel gitman install --quiet --force --root ::: $(shell find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d) && \
+		find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -P0 -n1 gitman install --quiet --force --root && \
 		if [ "$(shell uname -s)" != Linux ]; then \
 			sh utils/apply-git-patches.sh linters/git-patches/loksh linters/gitman-repos/shell-loksh/gitman/loksh && \
 		true; fi
@@ -79,16 +79,8 @@ bootstrap:
 		make build && \
 		cp bin/ec "$(PROJECT_DIR)/linters/bin/"
 
-	GOPATH="$$PWD/linters/go" GO111MODULE=on parallel ::: \
-		'go install -modcacherw "mvdan.cc/sh/v3/cmd/shfmt@latest"' \
-		'go install -modcacherw "github.com/freshautomations/stoml@latest"' \
-		'go install -modcacherw "github.com/pelletier/go-toml/cmd/tomljson@latest"' \
-		'go install -modcacherw "github.com/rhysd/actionlint/cmd/actionlint@latest"'
-
-	# cabal update
-	# parallel ::: \
-	# 	'cabal install hadolint-2.12.0' \
-	# 	'cabal install ShellCheck-0.9.0'
+	printf 'mvdan.cc/sh/v3/cmd/shfmt@latest\ngithub.com/freshautomations/stoml@latest\ngithub.com/pelletier/go-toml/cmd/tomljson@latest\ngithub.com/rhysd/actionlint/cmd/actionlint@latest\n' | \
+		GOPATH="$$PWD/linters/go" GO111MODULE=on xargs -P0 -n1 go install -modcacherw
 
 	cd linters/gitman-repos/circleci-cli/gitman/circleci-cli && \
 		mkdir -p install && \
