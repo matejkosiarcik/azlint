@@ -18,7 +18,7 @@
     "@tsconfig/strictest": "^2.0.1",
     "@types/chai": "^4.3.5",
     "@types/mocha": "^10.0.1",
-    "@types/node": "^20.5.4",
+    "@types/node": "^20.5.6",
     "@types/yargs": "^17.0.24",
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
