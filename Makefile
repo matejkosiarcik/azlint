@@ -16,23 +16,17 @@ all: bootstrap test build run
 bootstrap:
 	mkdir -p linters/bin
 
-	printf '. linters ' | \
-		tr ' ' '\n' | \
-		xargs -P0 -n1 npm install --no-save --no-progress --no-audit --quiet --prefix
+	printf '%s\0%s\0' . linters | \
+		xargs -0 -P0 -n1 npm install --no-save --no-progress --no-audit --quiet --prefix
 
-	printf 'build-dependencies/gitman/venv build-dependencies/yq/venv ' | \
-		tr ' ' '\n' | \
-		xargs -P0 -n1 python3 -m venv
-
-	cd "$(PROJECT_DIR)/build-dependencies/gitman" && \
-		PATH="$$PWD/venv/bin:$$PATH" \
-		PIP_DISABLE_PIP_VERSION_CHECK=1 \
-			pip install --requirement requirements.txt --quiet --upgrade
-
-	cd "$(PROJECT_DIR)/build-dependencies/yq" && \
-		PATH="$$PWD/venv/bin:$$PATH" \
-		PIP_DISABLE_PIP_VERSION_CHECK=1 \
-			pip install --requirement requirements.txt --quiet --upgrade
+	printf '%s\0%s\0' build-dependencies/gitman build-dependencies/yq | \
+		xargs -0 -P0 -n1 sh -c ' \
+			cd "$$0" && \
+			python3 -m venv venv && \
+			PATH="$$PWD/venv/bin:$$PATH" \
+			PIP_DISABLE_PIP_VERSION_CHECK=1 \
+				python3 -m pip install --requirement requirements.txt --quiet --upgrade \
+		'
 
 	find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d -print0 | \
 		PATH="$(PROJECT_DIR)/build-dependencies/gitman/venv/bin:$$PATH" xargs -0 -n1 -P0 gitman install --quiet --force --root
@@ -54,7 +48,7 @@ bootstrap:
 	PATH="$(PROJECT_DIR)/venv/bin:$$PATH" \
 	PYTHONPATH="$(PROJECT_DIR)/linters/python" \
 	PIP_DISABLE_PIP_VERSION_CHECK=1 \
-		pip install --requirement linters/requirements.txt --target linters/python --quiet --upgrade
+		python3 -m pip install --requirement linters/requirements.txt --target linters/python --quiet --upgrade
 
 	# Create cache ahead of time, because it can fail when creating during runtime
 	mkdir -p "$$HOME/.cache/proselint"
