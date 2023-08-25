@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed
   - Fix problems these mypy problems: `Failed to find builtin module ..., perhaps typeshed is broken?` - Caused by removed `.pyi` files
+- Miscellaneous
+  - Update internal packages
 
 ## \[0.6.9\] - 2023-08-09
 
