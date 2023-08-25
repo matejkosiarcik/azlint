@@ -13,7 +13,7 @@ function stringifyYaml(value) {
         return value.toString();
     } else if (typeof value === 'boolean') {
         return value ? 'yes' : 'no';
-    } else if (typeof value === 'null') {
+    } else if (value === null) {
         return 'null';
     } else if (Array.isArray(value)) {
         const content = value.map((el) => stringifyYaml(el)).join(',');
