@@ -12,7 +12,7 @@ function stringifyYaml(value) {
     } else if (typeof value === 'number') {
         return value.toString();
     } else if (typeof value === 'boolean') {
-        return value ? 'yes' : 'no';
+        return value ? 'y' : 'n';
     } else if (value === null) {
         return 'null';
     } else if (Array.isArray(value)) {
