@@ -14,9 +14,7 @@ find python -type d \( \
     \) -prune -exec rm -rf {} \;
 
 # Compiled python files
-find python -type f -iname '*.py[cio]' -delete
-
-# -iname '*.json' \
+find python -type f -iname '*.py[co]' -delete
 
 # Misc
 find python -type f \( \
