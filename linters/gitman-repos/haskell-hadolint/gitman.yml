@@ -14,7 +14,7 @@ sources:
 sources_locked:
   - repo: https://github.com/hadolint/hadolint.git
     name: hadolint
-    rev: 024fd640378acd5d8218f77ec2c744826cdda5ce
+    rev: b264eaa92ca2fe7df22a480a67b1c16e6e3e5f7c
     type: git
     params:
     sparse_paths:
