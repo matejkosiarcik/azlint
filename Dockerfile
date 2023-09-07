@@ -566,7 +566,7 @@ ENV BINPREFIX=/app/python/bin/ \
 RUN sh sanity-check.sh
 
 # Composer #
-FROM composer:2.5.8 AS composer-bin
+FROM composer:2.6.2 AS composer-bin
 
 FROM --platform=$BUILDPLATFORM debian:12.1-slim AS composer-bin-optimize
 WORKDIR /app
