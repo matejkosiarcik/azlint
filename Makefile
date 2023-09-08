@@ -78,7 +78,7 @@ bootstrap:
 		cp bin/ec "$(PROJECT_DIR)/linters/bin/"
 
 	printf '%s\n%s\n%s\n%s\n' mvdan.cc/sh/v3/cmd/shfmt@latest github.com/freshautomations/stoml@latest github.com/pelletier/go-toml/cmd/tomljson@latest github.com/rhysd/actionlint/cmd/actionlint@latest | \
-		GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on xargs -n1 go install -modcacherw
+		GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on xargs -P0 -n1 go install -modcacherw
 
 	cd linters/gitman-repos/circleci-cli/gitman/circleci-cli && \
 		mkdir -p install && \
@@ -119,6 +119,12 @@ test:
 
 .PHONY: clean
 clean:
+	if [ -e "$(PROJECT_DIR)/linters/go" ]; then \
+		chown -R "$(shell whoami)" "$(PROJECT_DIR)/linters/go" && \
+		find "$(PROJECT_DIR)/linters/go" -type f -exec chmod 0644 {} \; && \
+		find "$(PROJECT_DIR)/linters/go" -type d -exec chmod 0755 {} \; && \
+	true; fi
+
 	find linters/gitman-repos -name gitman -type d -prune -exec rm -rf {} \;
 	rm -rf "$(PROJECT_DIR)/build-dependencies/python-gitman/venv" \
 		"$(PROJECT_DIR)/build-dependencies/yq/venv" \
