@@ -119,6 +119,12 @@ test:
 
 .PHONY: clean
 clean:
+	if [ -e "$(PROJECT_DIR)/linters/go" ]; then \
+		chown -R "$(shell whoami)" "$(PROJECT_DIR)/linters/go" && \
+		find "$(PROJECT_DIR)/linters/go" -type f -exec chmod 0644 {} \; && \
+		find "$(PROJECT_DIR)/linters/go" -type d -exec chmod 0755 {} \; && \
+	true; fi
+
 	find linters/gitman-repos -name gitman -type d -prune -exec rm -rf {} \;
 	rm -rf "$(PROJECT_DIR)/build-dependencies/python-gitman/venv" \
 		"$(PROJECT_DIR)/build-dependencies/yq/venv" \
