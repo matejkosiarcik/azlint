@@ -7,9 +7,9 @@ import { listProjectFiles } from "../src/utils";
 import { execa as baseExeca } from '@esm2cjs/execa';
 
 async function touch(...files: string[]) {
-    // const files = Array.isArray(file) ? file : [file];
-    await Promise.all(files.map(async (file) => fs.appendFile(file, Buffer.from(''))));
+    await Promise.all(files.map(async (file) => fs.appendFile(file, Buffer.from([]))));
 }
+
 /**
  * Custom `execa` wrapper with useful default options
  */
