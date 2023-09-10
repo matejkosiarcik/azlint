@@ -138,4 +138,6 @@ context('Find files', function () {
         await execa('git', 'commit', '-m', 'message');
         expect(await listProjectFiles(true)).deep.eq(['2.txt']);
     });
+
+    // TODO: Add test for --only-changed with commits in a feature branch
 });

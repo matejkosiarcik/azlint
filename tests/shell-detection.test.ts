@@ -62,7 +62,7 @@ context('Test', function () {
     };
     for (const shellTarget of Object.keys(testShells)) {
         for (const shebang of testShells[shellTarget]) {
-            it(`Shell detection for shebang ${shellTarget}`, async function () {
+            it(`Shell detection for shebang ${shellTarget}-${shebang}`, async function () {
                 const filePath = path.join(tmpDir, `file.sh`);
                 await fs.writeFile(filePath, `#!/bin/${shebang}`, 'utf8');
                 const output = await detectShell(filePath);

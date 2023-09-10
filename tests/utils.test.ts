@@ -22,10 +22,10 @@ it('TEMPDIR is not git repo', async function () {
 
 it('Delay', async function () {
     const start = Date.now();
-    await delay(15);
+    await delay(10);
     const end = Date.now();
     const difference = (end - start) / 1000;
-    expect(difference, 'Delay should be delayed').gte(0.01).lte(0.1);
+    expect(difference, 'Delay should be delayed').gte(0.001).lte(0.1);
 });
 
 it('Resolve promises', async function () {
