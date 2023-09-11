@@ -4,7 +4,7 @@ import path from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import dotenv from 'dotenv';
-import { ColorOptions, findFiles } from './utils';
+import { ColorOptions, listProjectFiles } from './utils';
 import { LogLevel, logExtraExtraVerbose, logVerbose, setLogSettings } from './log';
 import { Linters } from './linters';
 
@@ -145,7 +145,7 @@ import { Linters } from './linters';
     logVerbose(`Performing: ${command}`);
     logVerbose(`Project path: ${path.resolve(process.cwd())}`);
 
-    const projectFiles = await findFiles(onlyChanged);
+    const projectFiles = await listProjectFiles(onlyChanged);
     logExtraExtraVerbose(`Found ${projectFiles.length} project files:\n${projectFiles.map((el) => `- ${el}`).join('\n')}`);
 
     const linters = new Linters({

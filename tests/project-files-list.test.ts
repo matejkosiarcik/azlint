@@ -3,13 +3,13 @@ import os from 'os';
 import path from 'path';
 import process from 'process';
 import { expect } from 'chai';
-import { findFiles } from "../src/utils";
+import { listProjectFiles } from "../src/utils";
 import { execa as baseExeca } from '@esm2cjs/execa';
 
 async function touch(...files: string[]) {
-    // const files = Array.isArray(file) ? file : [file];
-    await Promise.all(files.map(async (file) => fs.appendFile(file, Buffer.from(''))));
+    await Promise.all(files.map(async (file) => fs.appendFile(file, Buffer.from([]))));
 }
+
 /**
  * Custom `execa` wrapper with useful default options
  */
@@ -34,12 +34,12 @@ context('Find files in raw directory', function () {
 
     it('Find single file', async () => {
         await touch('foo.txt');
-        expect(await findFiles(false)).deep.eq(['foo.txt']);
+        expect(await listProjectFiles(false)).deep.eq(['foo.txt']);
     });
 
     it('Find multiple file with sorting', async () => {
         await touch('1.txt', '4.txt', '2.txt');
-        expect(await findFiles(false)).deep.eq(['1.txt', '2.txt', '4.txt']);
+        expect(await listProjectFiles(false)).deep.eq(['1.txt', '2.txt', '4.txt']);
     });
 });
 
@@ -60,37 +60,37 @@ context('Find files', function () {
     });
 
     it('Empty repo', async () => {
-        expect(await findFiles(false)).deep.eq([]);
+        expect(await listProjectFiles(false)).deep.eq([]);
     });
 
     it('Single dirty file', async () => {
         await touch('foo.txt');
-        expect(await findFiles(false)).deep.eq(['foo.txt']);
+        expect(await listProjectFiles(false)).deep.eq(['foo.txt']);
     });
 
     it('Two dirty files', async () => {
         await touch('foo', 'bar.txt');
-        expect(await findFiles(false)).deep.eq(['bar.txt', 'foo']);
+        expect(await listProjectFiles(false)).deep.eq(['bar.txt', 'foo']);
     });
 
     it('Single staged file', async () => {
         await touch('foo.txt');
         await execa('git', 'add', 'foo.txt');
-        expect(await findFiles(false)).deep.eq(['foo.txt']);
+        expect(await listProjectFiles(false)).deep.eq(['foo.txt']);
     });
 
     it('Single commited file', async () => {
         await touch('foo.txt');
         await execa('git', 'add', 'foo.txt');
         await execa('git', 'commit', '-m', 'message');
-        expect(await findFiles(false)).deep.eq(['foo.txt']);
+        expect(await listProjectFiles(false)).deep.eq(['foo.txt']);
     });
 
     it('Staged and deleted file', async () => {
         await touch('foo.txt');
         await execa('git', 'add', 'foo.txt');
         await fs.rm('foo.txt');
-        expect(await findFiles(false)).deep.eq([]);
+        expect(await listProjectFiles(false)).deep.eq([]);
     });
 
     it('Commited and deleted file', async () => {
@@ -98,7 +98,7 @@ context('Find files', function () {
         await execa('git', 'add', 'foo.txt');
         await execa('git', 'commit', '-m', 'message');
         await fs.rm('foo.txt');
-        expect(await findFiles(false)).deep.eq([]);
+        expect(await listProjectFiles(false)).deep.eq([]);
     });
 
     it('Commited and deleted file', async () => {
@@ -106,7 +106,7 @@ context('Find files', function () {
         await execa('git', 'add', 'foo.txt');
         await execa('git', 'commit', '-m', 'message');
         await fs.rm('foo.txt');
-        expect(await findFiles(false)).deep.eq([]);
+        expect(await listProjectFiles(false)).deep.eq([]);
     });
 
     it('Complicated scenario 1', async () => {
@@ -114,7 +114,7 @@ context('Find files', function () {
         await execa('git', 'add', '1.txt');
         await execa('git', 'commit', '-m', 'message');
         await execa('git', 'add', '2.txt');
-        expect(await findFiles(false)).deep.eq(['1.txt', '2.txt', '3.txt']);
+        expect(await listProjectFiles(false)).deep.eq(['1.txt', '2.txt', '3.txt']);
     });
 
     it('Complicated scenario 2', async () => {
@@ -125,7 +125,7 @@ context('Find files', function () {
         await fs.rm('1.txt');
         await fs.rm('2.txt');
         await fs.rm('3.txt');
-        expect(await findFiles(false)).deep.eq([]);
+        expect(await listProjectFiles(false)).deep.eq([]);
     });
 
     it('Only-changed', async () => {
@@ -136,6 +136,8 @@ context('Find files', function () {
         await touch('2.txt');
         await execa('git', 'add', '2.txt');
         await execa('git', 'commit', '-m', 'message');
-        expect(await findFiles(true)).deep.eq(['2.txt']);
+        expect(await listProjectFiles(true)).deep.eq(['2.txt']);
     });
+
+    // TODO: Add test for --only-changed with commits in a feature branch
 });

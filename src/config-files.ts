@@ -1,6 +1,6 @@
 import fsSync from 'fs';
 import path from 'path';
-import { listFilesInDirectory, matchFiles } from './utils';
+import { listDirectory, matchFiles } from './utils';
 
 export const configFiles = {
     // https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-via-a-file
@@ -216,7 +216,7 @@ async function findConfigFile(options: {
 
         const pythonConfigFile = (await Promise.all(configDirectories
             .map(async (configDir) => {
-                const allFilesInConfigDirectory = await listFilesInDirectory(configDir, { recursive: false });
+                const allFilesInConfigDirectory = await listDirectory(configDir, { recursive: false });
                 return (await Promise.all(pythonConfigFiles.map(async (configEntry) => {
                     const existingConfigFiles = matchFiles(allFilesInConfigDirectory, configEntry.file);
                     return existingConfigFiles.filter((existingConfigFile) => {
@@ -242,7 +242,7 @@ async function findConfigFile(options: {
 
     const foundConfigFile = (await Promise.all(configDirectories
         .map(async (configDir) => {
-            const filesInConfig = await listFilesInDirectory(configDir, { recursive: false });
+            const filesInConfig = await listDirectory(configDir, { recursive: false });
             const configFiles = matchFiles(filesInConfig, defaultConfigFiles);
             return configFiles.at(0);
         })))

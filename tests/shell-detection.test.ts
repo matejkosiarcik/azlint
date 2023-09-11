@@ -1,9 +1,10 @@
 import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
+import { expect } from 'chai';
+import { detectShell } from '../src/utils';
 
-// TODO: Reenable shell-detection tests
-context.skip('Test', function () {
+context('Test', function () {
     let tmpDir: string;
 
     this.beforeEach(async function () {
@@ -14,22 +15,58 @@ context.skip('Test', function () {
         await fs.rm(tmpDir, { force: true, recursive: true });
     });
 
-    const fileTypes = {
-        'bash': ['bash'],
-        'ksh': ['ksh', 'ksh93', 'mksh', 'oksh', 'loksh'],
+    for (const shell of ['bash', 'ksh', 'yash', 'zsh']) {
+        it(`Shell detection for .${shell}`, async function () {
+            const filePath = path.join(tmpDir, `file.${shell}`);
+            await fs.writeFile(filePath, '', 'utf8');
+            const output = await detectShell(filePath);
+            expect(output).eq(shell);
+        });
+    }
+
+    it(`Shell detection with shebang and more content`, async function () {
+        const filePath = path.join(tmpDir, 'file.sh');
+        await fs.writeFile(filePath, `#!/usr/bin/env zsh\nsomethingelse\n`, 'utf8');
+        const output = await detectShell(filePath);
+        expect(output).eq('zsh');
+    });
+
+    it(`Shell detection with only shebang`, async function () {
+        const filePath = path.join(tmpDir, 'file.sh');
+        await fs.writeFile(filePath, `#!/usr/bin/env zsh`, 'utf8');
+        const output = await detectShell(filePath);
+        expect(output).eq('zsh');
+    });
+
+    it(`Shell detection for "#!/bin/shell"`, async function () {
+        const filePath = path.join(tmpDir, 'file.sh');
+        await fs.writeFile(filePath, `#!/bin/yash`, 'utf8');
+        const output = await detectShell(filePath);
+        expect(output).eq('yash');
+    });
+
+    it(`Shell detection for "#!/usr/bin/env shell"`, async function () {
+        const filePath = path.join(tmpDir, 'file.sh');
+        await fs.writeFile(filePath, `#!/bin/yash`, 'utf8');
+        const output = await detectShell(filePath);
+        expect(output).eq('yash');
+    });
+
+    let testShells: { [key: string]: string[] } = {
+        'bash': ['bash', 'bash4'],
+        'dash': ['ash', 'dash'],
+        'ksh': ['ksh', 'ksh93', 'mksh'],
+        'sh': ['sh'],
         'yash': ['yash'],
         'zsh': ['zsh'],
     };
-
-    for (const fileType of Object.keys(fileTypes)) {
-        const target = fileType;
-        const files = fileTypes[fileType as keyof typeof fileTypes].map((ext) => `file.${ext}`);
-
-        for (const file of files) {
-            it(`Shell detection ${target}`, async function () {
-                const filePath = path.join(tmpDir, file);
-                await fs.writeFile(filePath, Buffer.from(''));
-                console.log(`Example - ${target}!`);
+    for (const shellTarget of Object.keys(testShells)) {
+        for (const shebang of testShells[shellTarget]) {
+            it(`Shell detection for shebang ${shellTarget}-${shebang}`, async function () {
+                const filePath = path.join(tmpDir, `file.sh`);
+                await fs.writeFile(filePath, `#!/bin/${shebang}`, 'utf8');
+                const output = await detectShell(filePath);
+                expect(output).eq(shellTarget);
             });
         }
     }

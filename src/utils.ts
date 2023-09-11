@@ -75,43 +75,39 @@ export async function resolveLintOptions(options: ExecaOptions | ((file: string)
 /**
  * Turn arguments into a predicate
  */
-export function resolveLintSuccessExitCode(successExitCode: number | number[] | ((status: number) => boolean) |  undefined): ((status: number) => boolean) {
-    if (successExitCode === undefined) {
-        successExitCode = 0;
+export function resolveLintSuccessExitCode(successStatus: number | number[] | ((exitCode: number) => boolean) |  undefined): ((exitCode: number) => boolean) {
+    if (successStatus === undefined) {
+        successStatus = 0;
     }
 
-    if (typeof successExitCode === 'number') {
-        const staticSuccessExitCode = successExitCode;
-        successExitCode = (success: number) => {
-            return success === staticSuccessExitCode;
-        }
+    if (typeof successStatus === 'number') {
+        const successExitCode = successStatus;
+        return (exitCode: number) => exitCode === successExitCode;
     }
 
-    if (Array.isArray(successExitCode)) {
-        const staticSuccessExitCodes = successExitCode;
-        successExitCode = (success: number) => {
-            return staticSuccessExitCodes.includes(success);
-        }
+    if (Array.isArray(successStatus)) {
+        const successExitCodes = successStatus;
+        return (exitCode: number) => successExitCodes.includes(exitCode);
     }
 
-    return successExitCode;
+    return successStatus;
 }
 
-export async function listFilesInDirectory(dir: string, options?: { recursive?: boolean }): Promise<string[]>  {
+/**
+ * List files in a directory (be default recursive)
+ */
+export async function listDirectory(directory: string, options?: { recursive?: boolean }): Promise<string[]>  {
     const recursive = options?.recursive ?? true;
-    const rawFileList = (await fs.readdir(dir, { recursive: recursive })).sort().map((file) => path.join(dir, file));
-
-    const files = await Promise.all(rawFileList.map(async (file) => {
-        const stats = await fs.stat(file);
-        return { file: file, isFile: stats.isFile };
-    }));
-    return files.filter((el) => el.isFile).map((el) => el.file);
+    return (await fs.readdir(directory, { withFileTypes: true, recursive: recursive }))
+        .filter((el) => el.isFile())
+        .map((file) => path.join(directory, file.name))
+        .sort();
 }
 
 /**
  * Return a list of files in current project
  */
-export async function findFiles(onlyChanged: boolean): Promise<string[]> {
+export async function listProjectFiles(onlyChanged: boolean): Promise<string[]> {
     const isGit = await isCwdGitRepo();
     logVerbose(`Project is git repository: ${isGit ? 'yes' : 'no'}`);
 
@@ -120,7 +116,7 @@ export async function findFiles(onlyChanged: boolean): Promise<string[]> {
             logAlways(`Could not get only-changed files - not a git repository`);
         }
 
-        return await listFilesInDirectory('.');
+        return await listDirectory('.');
     }
 
     // NOTE: `git ls-files` accepts kinda non-standard globs
@@ -185,8 +181,7 @@ export async function findFiles(onlyChanged: boolean): Promise<string[]> {
  */
 export async function hashFile(file: string): Promise<string> {
     const fileContent = await fs.readFile(file, 'utf8');
-    const sha1 = crypto.createHash('sha1');
-    return sha1.update(fileContent).digest('base64');
+    return crypto.createHash('sha1').update(fileContent).digest('base64');
 }
 
 /**
@@ -212,20 +207,19 @@ export function wildcard2regex(wildcard: string): RegExp {
 /**
  * Custom `execa` wrapper with useful default options
  */
-export async function customExeca(command: string[], _options?: ExecaOptions<string>): Promise<ExecaReturnValue<string>> {
-    const options: ExecaOptions = {
-        timeout: 300_000,
+export async function customExeca(command: string[], options?: ExecaOptions<string>): Promise<ExecaReturnValue<string>> {
+    options = {
+        timeout: 300_000, // 5 minutes
         stdio: 'pipe', // Capture output
         all: true, // Merge stdout and stderr
-        ..._options ?? {},
+        ...options ?? {},
     };
 
     try {
-        const cmd = await execa(command[0], command.slice(1), options);
-        return cmd;
+        const program = await execa(command[0], command.slice(1), options);
+        return program;
     } catch (error) {
-        const cmdError = error as ExecaError;
-        return cmdError;
+        return error as ExecaError;
     }
 }
 
@@ -247,4 +241,44 @@ export function matchFiles(allFiles: string[], fileMatch: OneOrArray<string | Re
     });
 
     return allFiles.filter((file) => predicates.some((predicate) => predicate(file)));
+}
+
+/**
+ * Detect shell
+ */
+export async function detectShell(file: string): Promise<string> {
+    const extension = path.extname(file).slice(1);
+    let likelyShell = '';
+    if (['bash', 'ksh', 'yash', 'zsh'].includes(extension)) {
+        likelyShell = extension;
+    }
+
+    if (extension === 'sh') {
+        const fileContent = await fs.readFile(file, 'utf8');
+        if (fileContent.length === 0) {
+            return likelyShell;
+        }
+        const shebang = fileContent.split('\n')[0].trim();
+        const execPath = shebang.split(' ').at(-1)!.split('/').at(-1)!;
+        const possibleShells: { [key: string]: (string | RegExp)[]} = {
+            'bash': ['bash', /bash\d+/],
+            'yash': ['yash', /yash\d+/],
+            'zsh': ['zsh', /zsh\d+/],
+            'ksh': ['ksh', 'ksh88', 'ksh93', 'loksh', 'mksh', 'oksh', 'pdksh', /ksh\d+/],
+            'sh': ['sh'],
+            'dash': ['ash', /ash\d+/, 'dash', /dash\d+/],
+        };
+
+        for (const shell of Object.keys(possibleShells)) {
+            for (const predicate of possibleShells[shell]) {
+                if (typeof predicate === 'string' && execPath === predicate) {
+                    return shell;
+                } else if (typeof predicate === 'object' && predicate.test(execPath)) {
+                    return shell;
+                }
+            }
+        }
+    }
+
+    return  likelyShell;
 }
