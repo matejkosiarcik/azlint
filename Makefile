@@ -25,7 +25,7 @@ bootstrap:
 		python3 -m venv venv && \
 		PATH="$$PWD/venv/bin:$$PATH" \
 		PIP_DISABLE_PIP_VERSION_CHECK=1 \
-			python3 -m pip install --requirement requirements.txt --target python --quiet --upgrade && \
+			python3 -m pip install --requirement requirements.txt --quiet --upgrade && \
 	true; done
 
 	find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d -print0 | \
