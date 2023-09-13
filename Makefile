@@ -19,14 +19,14 @@ bootstrap:
 	printf '%s\0%s\0' . linters | \
 		xargs -0 -P0 -n1 npm install --no-save --no-progress --no-audit --quiet --prefix
 
-	printf '%s\0%s\0' build-dependencies/gitman build-dependencies/yq | \
-		xargs -0 -P0 -n1 sh -c ' \
-			cd "$$0" && \
-			python3 -m venv venv && \
-			PATH="$$PWD/venv/bin:$$PATH" \
-			PIP_DISABLE_PIP_VERSION_CHECK=1 \
-				python3 -m pip install --requirement requirements.txt --quiet --upgrade \
-		'
+	# Python dependencies
+	printf '%s\n%s\n' build-dependencies/gitman build-dependencies/yq | while read -r dir; do \
+		cd "$(PROJECT_DIR)/$$dir" && \
+		python3 -m venv venv && \
+		PATH="$$PWD/venv/bin:$$PATH" \
+		PIP_DISABLE_PIP_VERSION_CHECK=1 \
+			python3 -m pip install --requirement requirements.txt --quiet --upgrade && \
+	true; done
 
 	find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d -print0 | \
 		PATH="$(PROJECT_DIR)/build-dependencies/gitman/venv/bin:$$PATH" xargs -0 -n1 -P0 gitman install --quiet --force --root
