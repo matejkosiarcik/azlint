@@ -33,7 +33,7 @@ jobs:
 
       - name: Setup Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2.10.0
+        uses: docker/setup-buildx-action@v3.0.0
 
       - name: Debug logs
         run: |
@@ -81,7 +81,7 @@ jobs:
           path: /tmp/digests
 
       - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v2.10.0
+        uses: docker/setup-buildx-action@v3.0.0
 
       - name: Docker metadata
         uses: docker/metadata-action@v5.0.0
