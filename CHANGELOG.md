@@ -5,10 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## \[0.6.11\] - 2023-09-23
+
+- Maintenance
+  - Update dependencies
+
 ## \[0.6.10\] - 2023-08-25
 
 - Fixed
-  - Fix problems these mypy problems: `Failed to find builtin module [redacted], perhaps typeshed is broken?` - Caused by removed `.pyi` files
+  - Fix these mypy problems: `Failed to find builtin module [redacted], perhaps typeshed is broken?` (caused by removed `.pyi` files)
 - Miscellaneous
   - Update internal packages
 
@@ -23,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - New linters:
     - `actionlint` for GitHub Action workflow files
 - Miscellaneous
-  - Optimize dependencies in published docker image (-> improves total images size by ~90MB)
+  - Optimize dependencies in published docker image (-> reduces total image size by ~90MB)
     - Remove unused files from linuxbrew and associated rbenv's ruby
     - Remove unecessary files from directories (`bundle`, `node_modules`, `python` and `vendor`)
     - Remove unecessary properties from `package.json`s
