@@ -90,7 +90,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - New CLI is written in TypeScript (previously Python)
     - Add dir positional argument to lint outside of `CWD`
     - Improve logging output
-    - Add CLI option --color (auto|never|always), similar to grep's
+    - Add CLI option --color (auto,never,always), similar to grep's
   - Add new linters
     - `eclint` for all files
     - `stoml` for `*.{toml,svg,ini}` files
