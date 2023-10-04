@@ -8,9 +8,9 @@ GEM
       tzinfo (~> 1.1)
     addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
-    chef-utils (18.0.161)
+    chef-utils (18.3.0)
       concurrent-ruby
-    concurrent-ruby (1.1.10)
+    concurrent-ruby (1.2.2)
     faraday (1.10.0)
       faraday-em_http (~> 1.0)
       faraday-em_synchrony (~> 1.0)
@@ -55,7 +55,7 @@ GEM
       kramdown (~> 2.0)
     launchy (2.4.3)
       addressable (~> 2.3)
-    mdl (0.12.0)
+    mdl (0.13.0)
       kramdown (~> 2.3)
       kramdown-parser-gfm (~> 1.1)
       mixlib-cli (~> 2.1, >= 2.1.1)
@@ -75,7 +75,7 @@ GEM
     pusher-client (0.6.2)
       json
       websocket (~> 1.0)
-    rexml (3.2.5)
+    rexml (3.2.6)
     ruby2_keywords (0.0.5)
     thread_safe (0.3.6)
     tomlrb (2.0.3)
@@ -95,7 +95,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  mdl (= 0.12.0)
+  mdl (= 0.13.0)
   travis (= 1.11.1)
 
 RUBY VERSION
