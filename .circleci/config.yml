@@ -60,7 +60,7 @@ workflows:
 jobs:
   test:
     docker:
-      - image: node:20.5.1
+      - image: node:20.8.0
     steps:
       - checkout
       - run: |
@@ -71,9 +71,9 @@ jobs:
 
   native-build:
     docker:
-      - image: debian:12.1
+      - image: debian:12.2
     environment:
-      VALIDATE_HADOLINT: "false"
+      VALIDATE_HADOLINT: "false" # TODO: Enable hadolint validation
       HOMEBREW_NO_ANALYTICS: 1
       HOMEBREW_NO_AUTO_UPDATE: 1
       PIP_DISABLE_PIP_VERSION_CHECK: 1
@@ -81,7 +81,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install system dependencies
+          name: Install system APT dependencies
           command: |
             apt-get update -qq
             DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes \
@@ -93,7 +93,6 @@ jobs:
               composer php php-cli php-common php-mbstring php-zip \
               python3 python3-pip python3-venv \
               bundler ruby ruby-build ruby-dev \
-              rust-all \
               golang \
               ash bash dash ksh ksh93u+m mksh posh yash zsh \
               shellcheck \
@@ -102,8 +101,13 @@ jobs:
             git config --global user.email nobody@example.com
             git config --global user.name Nobody
       - run:
+          name: Install system Rust
+          command: curl -sSf https://sh.rustup.rs | sh -s -- -y
+      - run:
           name: Install project dependencies
-          command: make bootstrap
+          command: |
+            export PATH="$PATH:$HOME/.cargo/bin"
+            make bootstrap
       - run:
           name: Install HomeBrew
           command: |
