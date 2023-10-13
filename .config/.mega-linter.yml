@@ -28,4 +28,4 @@ RUBY_RUBOCOP_CONFIG_FILE: .rubocop.yml
 YAML_YAMLLINT_CONFIG_FILE: .yamllint.yml
 
 # Config
-JSON_V8R_FILTER_REGEX_EXCLUDE: composer.json
+JSON_V8R_FILTER_REGEX_EXCLUDE: (composer.json\|package\.json\|package\-lock\.json)
