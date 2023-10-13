@@ -104,6 +104,7 @@ jobs:
           name: Install system Rust
           command: |
             curl -sSf https://sh.rustup.rs | sh -s -- -y
+            . "$HOME/.cargo/env"
       - run:
           name: Install project dependencies
           command: make bootstrap
