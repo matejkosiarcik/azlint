@@ -71,7 +71,7 @@ jobs:
 
   native-build:
     docker:
-      - image: debian:12.2
+      - image: debian:unstable
     environment:
       VALIDATE_HADOLINT: "false" # TODO: Enable hadolint validation
       HOMEBREW_NO_ANALYTICS: 1
@@ -89,6 +89,7 @@ jobs:
               ca-certificates curl git jq libxml2-utils pandoc parallel \
               build-essential meson \
               bmake make \
+              rust-all \
               nodejs npm \
               composer php php-cli php-common php-mbstring php-zip \
               python3 python3-pip python3-venv \
@@ -100,9 +101,6 @@ jobs:
             # Haskell packages skipped: cabal-install ghc
             git config --global user.email nobody@example.com
             git config --global user.name Nobody
-      - run:
-          name: Install system Rust
-          command: curl -sSf https://sh.rustup.rs | sh -s -- -y
       - run:
           name: Install project dependencies
           command: |
