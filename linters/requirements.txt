@@ -1,16 +1,16 @@
 # python
 autopep8==2.0.4
 bandit==1.7.5
-black==23.9.1
+black==23.10.0
 flake8==6.1.0
 isort==5.12.0
-mypy==1.6.0
+mypy==1.6.1
 pycodestyle==2.11.1
 pylint==3.0.1
 
 # other
 bashate==2.1.1
-checkov==2.5.10
+checkov==2.5.15
 proselint==0.13.0
-sqlfluff==2.3.3
+sqlfluff==2.3.4
 yamllint==1.32.0
