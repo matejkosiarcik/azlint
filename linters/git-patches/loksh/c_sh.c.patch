@@ -1,0 +1,22 @@
+diff --git a/c_sh.c b/c_sh.c
+index 32e6926..3364f17 100644
+--- a/c_sh.c
++++ b/c_sh.c
+@@ -18,6 +18,17 @@
+ 
+ #include "sh.h"
+ 
++#if defined(__APPLE__) || defined(__NetBSD__)
++#define TIMEVAL_TO_TIMESPEC(tv, ts) {          \
++	(ts)->tv_sec = (tv)->tv_sec;               \
++	(ts)->tv_nsec = (tv)->tv_usec * 1000;      \
++}
++#define TIMESPEC_TO_TIMEVAL(tv, ts) {          \
++	(tv)->tv_sec = (ts)->tv_sec;               \
++	(tv)->tv_usec = (ts)->tv_nsec / 1000;      \
++}
++#endif
++
+ static void p_tv(struct shf *, int, struct timeval *, int, char *, char *);
+ static void p_ts(struct shf *, int, struct timespec *, int, char *, char *);
+ 
