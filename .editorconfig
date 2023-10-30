@@ -21,6 +21,11 @@ indent_style = unset
 insert_final_newline = unset
 trim_trailing_whitespace = unset
 
+[*.patch]
+indent_size = unset
+indent_style = unset
+trim_trailing_whitespace = unset
+
 # files to keep directories in version systems, usually empty
 [*.{,git,hg}{empty,keep}]
 insert_final_newline = false
