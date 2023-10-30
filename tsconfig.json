@@ -1,22 +1,16 @@
 {
+  "extends": "@tsconfig/strictest/tsconfig.json",
   "compilerOptions": {
     "outDir": "cli",
-    "target": "ES5",
+    "target": "ES6",
     "module": "CommonJS",
-    "lib": [
-      "es5"
-    ],
-    "esModuleInterop": true,
     "moduleResolution": "node",
+    "lib": [
+      "ESNext"
+    ],
     "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "allowJs": false,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "verbatimModuleSyntax": false,
+    "noUncheckedIndexedAccess": false
   },
   "include": [
     "src"

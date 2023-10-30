@@ -237,19 +237,22 @@ export class Linters {
         });
 
         // NPM install
+        // NOTE: npm sometimes touch files when running in a directory
+        // And since sometimes the project can be mounted as read-only, we need to execute it somewhere else
         await this.runLinter({
             linterName: 'npm-install',
             envName: 'NPM_INSTALL',
             fileMatch: ['package.json'],
             lintFile: {
-                args: ['npm', 'install', '--dry-run'],
+                args: ['npm', 'install', '--dry-run', '--no-package-lock', '--prefix', '#directory#'],
                 options: async (file) => {
                     const workdir = await this.randomDir();
-                    await fs.copyFile(file, path.join(workdir, path.basename(file)));
+                    await fs.mkdir(path.join(workdir, path.dirname(file)), { recursive: true });
+                    await fs.copyFile(file, path.join(workdir, file));
                     return {
                         cwd: workdir,
                     };
-                }
+                },
             },
         });
 
@@ -301,7 +304,7 @@ export class Linters {
             linterName: 'eclint',
             envName: 'ECLINT',
             fileMatch: '*',
-            lintFile: { args: ['eclint', '#file#'] },
+            lintFile: { args: ['eclint', 'check', '#file#'] },
         });
 
         /* Package Managers */
@@ -331,6 +334,8 @@ export class Linters {
         });
 
         // NPM install - lockfile
+        // NOTE: npm sometimes touch files when running in a directory
+        // And since sometimes the project can be mounted as read-only, we need to execute it somewhere else
         await this.runLinter({
             linterName: 'npm-install-lock',
             envName: 'NPM_INSTALL_LOCK',
@@ -343,15 +348,16 @@ export class Linters {
                 return skip;
             },
             lintFile: {
-                args: ['npm', 'ci', '--dry-run'],
+                args: ['npm', 'ci', '--dry-run', '--prefix', '#directory#'],
                 options: async (file) => {
                     const workdir = await this.randomDir();
-                    await fs.copyFile(file, path.join(workdir, path.basename(file)));
-                    await fs.copyFile(path.join(path.dirname(file), 'package.json'), path.join(workdir, 'package.json'));
+                    await fs.mkdir(path.join(workdir, path.dirname(file)), { recursive: true });
+                    await fs.copyFile(file, path.join(workdir, file));
+                    await fs.copyFile(path.join(path.dirname(file), 'package.json'), path.join(workdir, path.dirname(file), 'package.json'));
                     return {
                         cwd: workdir,
                     };
-                }
+                },
             },
         });
 
