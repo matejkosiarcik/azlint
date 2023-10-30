@@ -301,7 +301,7 @@ export class Linters {
             linterName: 'eclint',
             envName: 'ECLINT',
             fileMatch: '*',
-            lintFile: { args: ['eclint', '#file#'] },
+            lintFile: { args: ['eclint', 'check', '#file#'] },
         });
 
         /* Package Managers */
