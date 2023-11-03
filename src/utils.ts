@@ -6,14 +6,13 @@ import { execa, ExecaError, Options as ExecaOptions, ExecaReturnValue } from "@e
 import { logAlways, logVerbose } from './log';
 
 export type OneOrArray<T> = T | T[];
-
 export type ColorOptions = 'auto' | 'never' | 'always';
 export type ProgressOptions = 'no' | 'yes';
 
 /**
  * Check if `cwd` is a git repository
  */
-export async function isCwdGitRepo(): Promise<boolean> {
+export async function isProjectGitRepo(): Promise<boolean> {
     try {
         await execa('git', ['rev-parse']);
         return true;
@@ -42,58 +41,6 @@ export async function resolvePromiseOrValue<T>(value: T | Promise<T>): Promise<T
 }
 
 /**
- * Turn arguments into executable command
- * Replace occurences of #file# and similar with actual filepaths
- */
-export async function resolveLintArgs(args: string[] | ((file: string) => (string[] | Promise<string[]>)), file: string): Promise<string[]> {
-    if (Array.isArray(args)) {
-        return args.map((el) => el
-            .replace('#file#', file)
-            .replace('#filename#', path.basename(file))
-            .replace('#directory#', path.dirname(file))
-            .replace('#file[abs]#', path.resolve(file))
-            .replace('#directory[abs]#', path.resolve(path.dirname(file)))
-        );
-    }
-
-    return resolvePromiseOrValue(args(file));
-}
-
-/**
- * Turn arguments into Execa options
- */
-export async function resolveLintOptions(options: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined, file: string): Promise<ExecaOptions> {
-    if (options === undefined) {
-        return {};
-    } else if (typeof options === 'object') {
-        return options;
-    } else {
-        return resolvePromiseOrValue(options(file));
-    }
-}
-
-/**
- * Turn arguments into a predicate
- */
-export function resolveLintSuccessExitCode(successStatus: number | number[] | ((exitCode: number) => boolean) |  undefined): ((exitCode: number) => boolean) {
-    if (successStatus === undefined) {
-        successStatus = 0;
-    }
-
-    if (typeof successStatus === 'number') {
-        const successExitCode = successStatus;
-        return (exitCode: number) => exitCode === successExitCode;
-    }
-
-    if (Array.isArray(successStatus)) {
-        const successExitCodes = successStatus;
-        return (exitCode: number) => successExitCodes.includes(exitCode);
-    }
-
-    return successStatus;
-}
-
-/**
  * List files in a directory (be default recursive)
  */
 export async function listDirectory(directory: string, options?: { recursive?: boolean }): Promise<string[]>  {
@@ -108,7 +55,7 @@ export async function listDirectory(directory: string, options?: { recursive?: b
  * Return a list of files in current project
  */
 export async function listProjectFiles(onlyChanged: boolean): Promise<string[]> {
-    const isGit = await isCwdGitRepo();
+    const isGit = await isProjectGitRepo();
     logVerbose(`Project is git repository: ${isGit ? 'yes' : 'no'}`);
 
     if (!isGit) {
@@ -246,7 +193,7 @@ export function matchFiles(allFiles: string[], fileMatch: OneOrArray<string | Re
 /**
  * Detect shell
  */
-export async function detectShell(file: string): Promise<string> {
+export async function detectShell(file: string): Promise<'bash' | 'dash' | 'ksh' | 'sh' | 'yash' | 'zsh' | string> {
     const extension = path.extname(file).slice(1);
     let likelyShell = '';
     if (['bash', 'ksh', 'yash', 'zsh'].includes(extension)) {
