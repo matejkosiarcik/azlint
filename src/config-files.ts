@@ -181,6 +181,13 @@ function getConfigDirs(envName: string): string[] {
     return output;
 }
 
+/**
+ * Find config file for given linter
+ *
+ * NOTE: Has a special mode for python, because most python linters can be configured with:
+ * - a) specific config file, eg. `.isort.cfg`
+ * - b) common config file, eg. `setup.cfg` - but only when it contains eg. `[isort]` section
+ */
 async function findConfigFile(options: {
     linter: keyof typeof configFiles,
     linterType?: 'generic' | 'python' | undefined,
@@ -256,8 +263,8 @@ async function findConfigFile(options: {
 }
 
 /**
- * Determine config arguments to use for linter FOO
- * @returns array of arguments to use in when calling the linter FOO as subprocess
+ * Determine config arguments to use for any linter
+ * @returns array of CLI arguments to use when calling the linter as subprocess
  */
 export async function getConfigArgs(options: {
     linter: keyof typeof configFiles,
