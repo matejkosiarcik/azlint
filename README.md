@@ -254,11 +254,11 @@ This verifies the given config files are actually working in that respective pac
 Extra validators for package-manager files.
 These check additional rules, which are recommended, but not required for the config files to be valid.
 
-| tool                   | links                                                                                                                                           | disable                       | files           | autofix |
-|------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------|-----------------|---------|
-| composer-normalize     | [github](https://github.com/ergebnis/composer-normalize) <br> [blogpost](https://localheinz.com/articles/2018/01/15/normalizing-composer.json/) | `VALIDATE_COMPOSER_NORMALIZE` | `composer.json` | ✅       |
-| composer-validate      | [docs](https://getcomposer.org/doc/03-cli.md#validate)                                                                                          | `VALIDATE_COMPOSER_VALIDATE`  | `composer.json` | ❌       |
-| package-json-validator | [github](https://github.com/gorillamania/package.json-validator)                                                                                | `VALIDATE_PACKAGE_JSON`       | `package.json`  | ❌       |
+| tool                   | links                                                                                                                                          | disable                       | files           | autofix |
+|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------|-----------------|---------|
+| composer-normalize     | [github](https://github.com/ergebnis/composer-normalize) <br> [blogpost](https://localheinz.com/articles/2018/01/15/normalizing-composer.json) | `VALIDATE_COMPOSER_NORMALIZE` | `composer.json` | ✅       |
+| composer-validate      | [docs](https://getcomposer.org/doc/03-cli.md#validate)                                                                                         | `VALIDATE_COMPOSER_VALIDATE`  | `composer.json` | ❌       |
+| package-json-validator | [github](https://github.com/gorillamania/package.json-validator)                                                                               | `VALIDATE_PACKAGE_JSON`       | `package.json`  | ❌       |
 
 ### CI/CD services
 
@@ -304,15 +304,15 @@ These check additional rules, which are recommended, but not required for the co
 
 ### Shell script files
 
-| tool              | links                                                                                                                                                       | disable                  | files       | autofix |
-|-------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------|-------------|---------|
-| bashate           | [github](https://github.com/openstack/bashate) <br> [opendev](https://opendev.org/openstack/bashate) <br>[docs](https://docs.openstack.org/bashate/latest/) | `VALIDATE_BASHATE`       | `*.sh` etc. | ❌       |
-| bats-core         | [github](https://github.com/bats-core/bats-core) <br> [docs](https://bats-core.readthedocs.io/en/stable)                                                    | `VALIDATE_BATS`          | `*.bats`    | ❌       |
-| shellcheck        | [github](https://github.com/koalaman/shellcheck) <br> [wiki](https://github.com/koalaman/shellcheck/wiki) <br> [try-online](https://www.shellcheck.net)     | `VALIDATE_SHELLCHECK`    | `*.sh` etc. | ❌       |
-| shellharden       | [github](https://github.com/anordal/shellharden)                                                                                                            | `VALIDATE_SHELLHARDEN`   | `*.sh` etc. | ✅       |
-| shfmt             | [github](https://github.com/mvdan/sh) <br> [go pkg](https://pkg.go.dev/mvdan.cc/sh/v3)                                                                      | `VALIDATE_SHFMT`         | `*.sh` etc. | ✅       |
-| hush              | [github](https://github.com/hush-shell/hush) <br> [docs](https://hush-shell.github.io)                                                                      | `VALIDATE_HUSH`          | `*.hush`    | ❌       |
-| Custom dry runner | -                                                                                                                                                           | `VALIDATE_SHELL_DRY_RUN` | `*.sh` etc. | ❌       |
+| tool              | links                                                                                                                                                      | disable                  | files       | autofix |
+|-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------|-------------|---------|
+| bashate           | [github](https://github.com/openstack/bashate) <br> [opendev](https://opendev.org/openstack/bashate) <br>[docs](https://docs.openstack.org/bashate/latest) | `VALIDATE_BASHATE`       | `*.sh` etc. | ❌       |
+| bats-core         | [github](https://github.com/bats-core/bats-core) <br> [docs](https://bats-core.readthedocs.io/en/stable)                                                   | `VALIDATE_BATS`          | `*.bats`    | ❌       |
+| shellcheck        | [github](https://github.com/koalaman/shellcheck) <br> [wiki](https://github.com/koalaman/shellcheck/wiki) <br> [try-online](https://www.shellcheck.net)    | `VALIDATE_SHELLCHECK`    | `*.sh` etc. | ❌       |
+| shellharden       | [github](https://github.com/anordal/shellharden)                                                                                                           | `VALIDATE_SHELLHARDEN`   | `*.sh` etc. | ✅       |
+| shfmt             | [github](https://github.com/mvdan/sh) <br> [go pkg](https://pkg.go.dev/mvdan.cc/sh/v3)                                                                     | `VALIDATE_SHFMT`         | `*.sh` etc. | ✅       |
+| hush              | [github](https://github.com/hush-shell/hush) <br> [docs](https://hush-shell.github.io)                                                                     | `VALIDATE_HUSH`          | `*.hush`    | ❌       |
+| Custom dry runner | -                                                                                                                                                          | `VALIDATE_SHELL_DRY_RUN` | `*.sh` etc. | ❌       |
 
 The following shells are checked in custom dry runner:
 
