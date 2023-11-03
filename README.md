@@ -316,10 +316,10 @@ These check additional rules, which are recommended, but not required for the co
 
 The following shells are checked in custom dry runner:
 
-| tool                                | links                                    |
-|-------------------------------------|------------------------------------------|
-| Linux port of OpenBSD's ksh (loksh) | [github](https://github.com/dimkr/loksh) |
-| Portable OpenBSD ksh (oksh)         | [github](https://github.com/ibara/oksh)  |
+| tool                                | links                                    | disable          | files        | autofix |
+|-------------------------------------|------------------------------------------|------------------|--------------|---------|
+| Linux port of OpenBSD's ksh (loksh) | [github](https://github.com/dimkr/loksh) | `VALIDATE_LOKSH` | `*.{sh,ksh}` | ❌       |
+| Portable OpenBSD ksh (oksh)         | [github](https://github.com/ibara/oksh)  | `VALIDATE_OKSH`  | `*.{sh,ksh}` | ❌       |
 
 ### Python
 
