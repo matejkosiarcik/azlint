@@ -213,38 +213,52 @@ then you need to specify environment variable named `FOO_BAR`
 
 ### All files
 
-| tool                                                                                 | disable                         | files | autofix |
-|--------------------------------------------------------------------------------------|---------------------------------|-------|---------|
-| [editorconfig-checker](https://github.com/editorconfig-checker/editorconfig-checker) | `VALIDATE_EDITORCONFIG_CHECKER` | `*`   | ❌       |
-| [eclint](https://github.com/jednano/eclint)                                          | `VALIDATE_ECLINT`               | `*`   | ❌       |
-| git check-ignore                                                                     | `VALIDATE_GITIGNORE`            | `*`   | ✅       |
-| [jscpd](https://github.com/kucherenko/jscpd)                                         | `VALIDATE_JSCPD`                | `*`   | ❌       |
+| tool                                                                                                                                       | disable                         | files | autofix |
+|--------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|-------|---------|
+| editorconfig-checker [github](https://github.com/editorconfig-checker/editorconfig-checker) [docs](https://editorconfig-checker.github.io) | `VALIDATE_EDITORCONFIG_CHECKER` | `*`   | ❌       |
+| eclint [github](https://github.com/jednano/eclint)                                                                                         | `VALIDATE_ECLINT`               | `*`   | ❌       |
+| git check-ignore \[custom\]                                                                                                                | `VALIDATE_GITIGNORE`            | `*`   | ✅       |
+| jscpd [github](https://github.com/kucherenko/jscpd)                                                                                        | `VALIDATE_JSCPD`                | `*`   | ❌       |
 
 ### General configs
 
-| tool                                                            | disable             | files                   | autofix |
-|-----------------------------------------------------------------|---------------------|-------------------------|---------|
-| [dotenv-linter](https://github.com/dotenv-linter/dotenv-linter) | `VALIDATE_DOTENV`   | `*.env`                 | ❌       |
-| [jsonlint](https://github.com/prantlf/jsonlint)                 | `VALIDATE_JSONLINT` | `*.json`                | ❌*      |
-| [prettier](https://github.com/prettier/prettier)                | `VALIDATE_PRETTIER` | `*.{json,yml,css,html}` | ✅       |
-| [stoml](https://github.com/freshautomations/stoml)              | `VALIDATE_STOML`    | `*.{cfg,ini,toml}`      | ❌       |
-| [tomljson](https://github.com/pelletier/go-toml)                | `VALIDATE_TOMLJSON` | `*.toml`                | ❌       |
-| [yamllint](https://github.com/adrienverge/yamllint)             | `VALIDATE_YAMLLINT` | `*.{yml,yaml}`          | ❌       |
+| tool                                                                                                           | disable             | files                   | autofix |
+|----------------------------------------------------------------------------------------------------------------|---------------------|-------------------------|---------|
+| dotenv-linter [github](https://github.com/dotenv-linter/dotenv-linter) [docs](https://dotenv-linter.github.io) | `VALIDATE_DOTENV`   | `*.env`                 | ❌       |
+| jsonlint [github](https://github.com/prantlf/jsonlint) [try-online](https://prantlf.github.io/jsonlint)        | `VALIDATE_JSONLINT` | `*.json`                | ❌*      |
+| prettier [github](https://github.com/prettier/prettier) [docs](https://prettier.io)                            | `VALIDATE_PRETTIER` | `*.{json,yml,css,html}` | ✅       |
+| stoml [github](https://github.com/freshautomations/stoml)                                                      | `VALIDATE_STOML`    | `*.{cfg,ini,toml}`      | ❌       |
+| tomljson (go-toml) [github](https://github.com/pelletier/go-toml)                                              | `VALIDATE_TOMLJSON` | `*.toml`                | ❌       |
+| yamllint [github](https://github.com/adrienverge/yamllint) [docs](https://yamllint.readthedocs.io/en/stable)   | `VALIDATE_YAMLLINT` | `*.{yml,yaml}`          | ❌       |
 
 _Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 
-### Package managers
+### Package manager files
 
-| tool                                                                             | disable                       | files               | autofix |
-|----------------------------------------------------------------------------------|-------------------------------|---------------------|---------|
-| [brew-bundle](https://github.com/Homebrew/homebrew-bundle)                       | `VALIDATE_BREW_BUNDLE`        | `Brewfile`          | ❌       |
-| [composer-normalize](https://github.com/ergebnis/composer-normalize)             | `VALIDATE_COMPOSER_NORMALIZE` | `composer.json`     | ✅       |
-| [composer-validate](https://getcomposer.org/doc/03-cli.md#validate)              | `VALIDATE_COMPOSER_VALIDATE`  | `composer.json`     | ❌       |
-| [composer-install](https://getcomposer.org)                                      | `VALIDATE_COMPOSER_INSTALL`   | `composer.json`     | ❌       |
-| [package-json-validator](https://github.com/gorillamania/package.json-validator) | `VALIDATE_PACKAGE_JSON`       | `package.json`      | ❌       |
-| [pip-install](https://pip.pypa.io/en/stable/cli/pip_install)                     | `VALIDATE_PIP_INSTALL`        | `requirements.txt`  | ❌       |
-| [npm-install](https://docs.npmjs.com/cli/v9/commands/npm-install)                | `VALIDATE_NPM_INSTALL`        | `package.json`      | ❌       |
-| [npm-ci](https://docs.npmjs.com/cli/v9/commands/npm-ci)                          | `VALIDATE_NPM_CI`             | `package-lock.json` | ❌       |
+#### Dry runners
+
+These tools are not real "linters".
+These tools are vanilla package managers, which we invoke with a `dry-run` flag to only _attempt_ to install dependencies without actually installing them.
+This verifies the given config files are actually working in that respective package manager.
+
+| tool                                                                                                                        | disable                     | files                                | autofix |
+|-----------------------------------------------------------------------------------------------------------------------------|-----------------------------|--------------------------------------|---------|
+| brew-bundle [github](https://github.com/Homebrew/homebrew-bundle) [manpage](https://docs.brew.sh/Manpage#bundle-subcommand) | `VALIDATE_BREW_BUNDLE`      | `Brewfile`                           | ❌       |
+| composer-install [docs](https://getcomposer.org)                                                                            | `VALIDATE_COMPOSER_INSTALL` | `composer.json`                      | ❌       |
+| pip-install [docs](https://pip.pypa.io/en/stable/cli/pip_install)                                                           | `VALIDATE_PIP_INSTALL`      | `requirements.txt`                   | ❌       |
+| npm-install [docs](https://docs.npmjs.com/cli/v9/commands/npm-install)                                                      | `VALIDATE_NPM_INSTALL`      | `package.json`                       | ❌       |
+| npm-ci [docs](https://docs.npmjs.com/cli/v9/commands/npm-ci)                                                                | `VALIDATE_NPM_CI`           | `package.json` & `package-lock.json` | ❌       |
+
+#### Validators
+
+Extra validators for package-manager files.
+These check additional rules, which are recommended, but not required for the config files to be valid.
+
+| tool                                                                                                                                                          | disable                       | files           | autofix |
+|---------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------|-----------------|---------|
+| composer-normalize [github](https://github.com/ergebnis/composer-normalize) [blogpost](https://localheinz.com/articles/2018/01/15/normalizing-composer.json/) | `VALIDATE_COMPOSER_NORMALIZE` | `composer.json` | ✅       |
+| composer-validate [docs](https://getcomposer.org/doc/03-cli.md#validate)                                                                                      | `VALIDATE_COMPOSER_VALIDATE`  | `composer.json` | ❌       |
+| package-json-validator [github](https://github.com/gorillamania/package.json-validator)                                                                       | `VALIDATE_PACKAGE_JSON`       | `package.json`  | ❌       |
 
 ### CI/CD services
 
@@ -255,22 +269,22 @@ _Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 | gitlab-ci-validate [github](https://github.com/pradel/gitlab-ci-validate)                                                   | `VALIDATE_GITLABCI_VALIDATE` | `.gitlab-ci.yml`       | ❌       |
 | Travis CI CLI lint [github](https://github.com/travis-ci/travis.rb#lint)                                                    | `VALIDATE_TRAVIS_LINT`       | `.travis.yml`          | ❌       |
 
-### Makefile
+### Makefiles
 
-| tool                                                    | disable              | files           | autofix |
-|---------------------------------------------------------|----------------------|-----------------|---------|
-| BSD Make [manpage](https://man.netbsd.org/make.1)       | `VALIDATE_BMAKE`     | `Makefile` etc. | ❌       |
-| checkmake [github](https://github.com/mrtazz/checkmake) | `VALIDATE_CHECKMAKE` | `Makefile` etc. | ❌       |
-| GNU Make [docs](https://www.gnu.org/software/make)      | `VALIDATE_GMAKE`     | `Makefile` etc. | ❌       |
+| tool                                                                                                   | disable              | files           | autofix |
+|--------------------------------------------------------------------------------------------------------|----------------------|-----------------|---------|
+| checkmake [github](https://github.com/mrtazz/checkmake)                                                | `VALIDATE_CHECKMAKE` | `Makefile` etc. | ❌       |
+| BSD Make [manpage](https://man.netbsd.org/make.1)                                                      | `VALIDATE_BMAKE`     | `Makefile` etc. | ❌       |
+| GNU Make [docs](https://www.gnu.org/software/make) [manpage](https://www.gnu.org/software/make/manual) | `VALIDATE_GMAKE`     | `Makefile` etc. | ❌       |
 
-### Dockerfile
+### Dockerfiles
 
 | tool                                                                                                            | disable                   | files             | autofix |
 |-----------------------------------------------------------------------------------------------------------------|---------------------------|-------------------|---------|
-| dockerfilelint [github](https://github.com/replicatedhq/dockerfilelint) [try online](https://www.fromlatest.io) | `VALIDATE_DOCKERFILELINT` | `Dockerfile` etc. | ❌       |
+| dockerfilelint [github](https://github.com/replicatedhq/dockerfilelint) [try-online](https://www.fromlatest.io) | `VALIDATE_DOCKERFILELINT` | `Dockerfile` etc. | ❌       |
 | hadolint [github](https://github.com/hadolint/hadolint)                                                         | `VALIDATE_HADOLINT`       | `Dockerfile` etc. | ❌       |
 
-### XML derivations
+### XML, HTML, SVG
 
 | tool                                                                                                                                                         | disable             | files          | autofix |
 |--------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|----------------|---------|
@@ -279,7 +293,7 @@ _Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 | SVGLint [github](https://github.com/birjolaxew/svglint)                                                                                                      | `VALIDATE_SVGLINT`  | `*.svg`        | ❌       |
 | xmllint [gitlab](https://gitlab.gnome.org/GNOME/libxml2) [docs](http://www.xmlsoft.org) [manpage](https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html) | `VALIDATE_XMLLINT`  | `*.xml`        | ✅       |
 
-### Documentation
+### Documentation (MarkDown, Plain Text)
 
 | tool                                                                       | disable                        | files        | autofix |
 |----------------------------------------------------------------------------|--------------------------------|--------------|---------|
