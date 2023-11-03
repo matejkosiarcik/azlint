@@ -316,10 +316,10 @@ These check additional rules, which are recommended, but not required for the co
 
 The following shells are checked in custom dry runner:
 
-| tool                                | links                                    | linter ID          | files        | `fmt` support |
-|-------------------------------------|------------------------------------------|--------------------|--------------|---------------|
-| Linux port of OpenBSD's ksh (loksh) | [github](https://github.com/dimkr/loksh) | `LOKSH` \| `loksh` | `*.{sh,ksh}` | ❌             |
-| Portable OpenBSD ksh (oksh)         | [github](https://github.com/ibara/oksh)  | `OKSH`  \| `oksh`  | `*.{sh,ksh}` | ❌             |
+| tool                                | links                                    | linter ID         | files        | `fmt` support |
+|-------------------------------------|------------------------------------------|-------------------|--------------|---------------|
+| Linux port of OpenBSD's ksh (loksh) | [github](https://github.com/dimkr/loksh) | `LOKSH` - `loksh` | `*.{sh,ksh}` | ❌             |
+| Portable OpenBSD ksh (oksh)         | [github](https://github.com/ibara/oksh)  | `OKSH` - `oksh`   | `*.{sh,ksh}` | ❌             |
 
 ### Python
 
