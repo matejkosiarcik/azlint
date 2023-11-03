@@ -248,44 +248,44 @@ _Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 
 ### CI/CD services
 
-| tool                                                               | disable                      | files                  | autofix |
-|--------------------------------------------------------------------|------------------------------|------------------------|---------|
-| CircleCI CLI lint [docs](https://circleci.com/docs/2.0/local-cli) [github](https://github.com/CircleCI-Public/circleci-cli)          | `VALIDATE_CIRCLECI_VALIDATE` | `.circleci/config.yml` | ❌       |
-| gitlab-ci-lint [github](https://github.com/BuBuaBu/gitlab-ci-lint)        | `VALIDATE_GITLABCI_LINT`     | `.gitlab-ci.yml`       | ❌       |
-| gitlab-ci-validate [github](https://github.com/pradel/gitlab-ci-validate) | `VALIDATE_GITLABCI_VALIDATE` | `.gitlab-ci.yml`       | ❌       |
-| Travis CI CLI lint [github](https://github.com/travis-ci/travis.rb#lint)         | `VALIDATE_TRAVIS_LINT`       | `.travis.yml`          | ❌       |
+| tool                                                                                                                        | disable                      | files                  | autofix |
+|-----------------------------------------------------------------------------------------------------------------------------|------------------------------|------------------------|---------|
+| CircleCI CLI lint [docs](https://circleci.com/docs/2.0/local-cli) [github](https://github.com/CircleCI-Public/circleci-cli) | `VALIDATE_CIRCLECI_VALIDATE` | `.circleci/config.yml` | ❌       |
+| gitlab-ci-lint [github](https://github.com/BuBuaBu/gitlab-ci-lint)                                                          | `VALIDATE_GITLABCI_LINT`     | `.gitlab-ci.yml`       | ❌       |
+| gitlab-ci-validate [github](https://github.com/pradel/gitlab-ci-validate)                                                   | `VALIDATE_GITLABCI_VALIDATE` | `.gitlab-ci.yml`       | ❌       |
+| Travis CI CLI lint [github](https://github.com/travis-ci/travis.rb#lint)                                                    | `VALIDATE_TRAVIS_LINT`       | `.travis.yml`          | ❌       |
 
 ### Makefile
 
-| tool                                             | disable              | files           | autofix |
-|--------------------------------------------------|----------------------|-----------------|---------|
-| BSD Make [manpage](https://man.netbsd.org/make.1)           | `VALIDATE_BMAKE`     | `Makefile` etc. | ❌       |
+| tool                                                    | disable              | files           | autofix |
+|---------------------------------------------------------|----------------------|-----------------|---------|
+| BSD Make [manpage](https://man.netbsd.org/make.1)       | `VALIDATE_BMAKE`     | `Makefile` etc. | ❌       |
 | checkmake [github](https://github.com/mrtazz/checkmake) | `VALIDATE_CHECKMAKE` | `Makefile` etc. | ❌       |
-| GNU Make [docs](https://www.gnu.org/software/make)       | `VALIDATE_GMAKE`     | `Makefile` etc. | ❌       |
+| GNU Make [docs](https://www.gnu.org/software/make)      | `VALIDATE_GMAKE`     | `Makefile` etc. | ❌       |
 
 ### Dockerfile
 
-| tool                                                             | disable                   | files             | autofix |
-|------------------------------------------------------------------|---------------------------|-------------------|---------|
+| tool                                                                                                            | disable                   | files             | autofix |
+|-----------------------------------------------------------------------------------------------------------------|---------------------------|-------------------|---------|
 | dockerfilelint [github](https://github.com/replicatedhq/dockerfilelint) [try online](https://www.fromlatest.io) | `VALIDATE_DOCKERFILELINT` | `Dockerfile` etc. | ❌       |
-| hadolint [github](https://github.com/hadolint/hadolint)                 | `VALIDATE_HADOLINT`       | `Dockerfile` etc. | ❌       |
+| hadolint [github](https://github.com/hadolint/hadolint)                                                         | `VALIDATE_HADOLINT`       | `Dockerfile` etc. | ❌       |
 
 ### XML derivations
 
-| tool                                             | disable             | files          | autofix |
-|--------------------------------------------------|---------------------|----------------|---------|
-| HTMLHint [github](https://github.com/HTMLHint/HTMLHint) | `VALIDATE_HTMLHINT` | `*.{html,htm}` | ❌       |
-| htmllint [github](https://github.com/htmllint/htmllint) | `VALIDATE_HTMLLINT` | `*.{html,htm}` | ❌       |
-| SVGLint [github](https://github.com/birjolaxew/svglint) | `VALIDATE_SVGLINT`  | `*.svg`        | ❌       |
-| xmllint [gitlab](https://gitlab.gnome.org/GNOME/libxml2) [docs](http://www.xmlsoft.org) [manpage](https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html)               | `VALIDATE_XMLLINT`  | `*.xml`        | ✅       |
+| tool                                                                                                                                                         | disable             | files          | autofix |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|----------------|---------|
+| HTMLHint [github](https://github.com/HTMLHint/HTMLHint)                                                                                                      | `VALIDATE_HTMLHINT` | `*.{html,htm}` | ❌       |
+| htmllint [github](https://github.com/htmllint/htmllint)                                                                                                      | `VALIDATE_HTMLLINT` | `*.{html,htm}` | ❌       |
+| SVGLint [github](https://github.com/birjolaxew/svglint)                                                                                                      | `VALIDATE_SVGLINT`  | `*.svg`        | ❌       |
+| xmllint [gitlab](https://gitlab.gnome.org/GNOME/libxml2) [docs](http://www.xmlsoft.org) [manpage](https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html) | `VALIDATE_XMLLINT`  | `*.xml`        | ✅       |
 
 ### Documentation
 
-| tool                                                                | disable                        | files        | autofix |
-|---------------------------------------------------------------------|--------------------------------|--------------|---------|
+| tool                                                                       | disable                        | files        | autofix |
+|----------------------------------------------------------------------------|--------------------------------|--------------|---------|
 | markdown-link-check [github](https://github.com/tcort/markdown-link-check) | `VALIDATE_MARKDOWN_LINK_CHECK` | `*.md`       | ❌       |
 | markdownlint [github](https://github.com/DavidAnson/markdownlint)          | `VALIDATE_MARKDOWNLINT`        | `*.md`       | ✅       |
-| markdownlint (mdl) [github](https://github.com/markdownlint/markdownlint)                 | `VALIDATE_MDL`                 | `*.md`       | ❌       |
+| markdownlint (mdl) [github](https://github.com/markdownlint/markdownlint)  | `VALIDATE_MDL`                 | `*.md`       | ❌       |
 | proselint [github](https://github.com/amperser/proselint)                  | `VALIDATE_PROSELINT`           | `*.{md,txt}` | ❌       |
 
 ### Shells
@@ -302,22 +302,22 @@ _Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 
 The following shells are checked in custom dry runner:
 
-| tool                                    |
-|-----------------------------------------|
+| tool                                                                         |
+|------------------------------------------------------------------------------|
 | Linux port of OpenBSD's ksh (loksh) [github](https://github.com/dimkr/loksh) |
-| Portable OpenBSD ksh (oksh) [github](https://github.com/ibara/oksh)   |
+| Portable OpenBSD ksh (oksh) [github](https://github.com/ibara/oksh)          |
 
 ### Python
 
-| tool                                                | disable                | files  | autofix |
-|-----------------------------------------------------|------------------------|--------|---------|
-| autopep8 [github](https://github.com/hhatto/autopep8) [pypi](https://pypi.org/project/autopep8)     | `VALIDATE_AUTOPEP8`    | `*.py` | ❌*      |
-| black [github](https://github.com/psf/black) [docs](https://black.readthedocs.io/en/stable) [pypi](https://pypi.org/project/black)              | `VALIDATE_BLACK`       | `*.py` | ✅       |
-| flake8 [github](https://github.com/PyCQA/flake8) [docs](https://flake8.pycqa.org/en/latest) [pypi](https://pypi.org/project/flake8)          | `VALIDATE_FLAKE8`      | `*.py` | ❌       |
-| isort [github](https://github.com/PyCQA/isort) [docs](https://pycqa.github.io/isort) [pypi](https://pypi.org/project/isort)            | `VALIDATE_ISORT`       | `*.py` | ✅       |
+| tool                                                                                                                                                    | disable                | files  | autofix |
+|---------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------|--------|---------|
+| autopep8 [github](https://github.com/hhatto/autopep8) [pypi](https://pypi.org/project/autopep8)                                                         | `VALIDATE_AUTOPEP8`    | `*.py` | ❌*      |
+| black [github](https://github.com/psf/black) [docs](https://black.readthedocs.io/en/stable) [pypi](https://pypi.org/project/black)                      | `VALIDATE_BLACK`       | `*.py` | ✅       |
+| flake8 [github](https://github.com/PyCQA/flake8) [docs](https://flake8.pycqa.org/en/latest) [pypi](https://pypi.org/project/flake8)                     | `VALIDATE_FLAKE8`      | `*.py` | ❌       |
+| isort [github](https://github.com/PyCQA/isort) [docs](https://pycqa.github.io/isort) [pypi](https://pypi.org/project/isort)                             | `VALIDATE_ISORT`       | `*.py` | ✅       |
 | pycodestyle [github](https://github.com/PyCQA/pycodestyle) [docs](https://pycodestyle.pycqa.org/en/latest) [pypi](https://pypi.org/project/pycodestyle) | `VALIDATE_PYCODESTYLE` | `*.py` | ❌       |
-| pylint [github](https://github.com/PyCQA/pylint) [docs](https://pylint.readthedocs.io/en/latest) [pypi](https://pypi.org/project/pylint)           | `VALIDATE_PYLINT`      | `*.py` | ❌       |
-| mypy [github](https://github.com/python/mypy) [docs](https://www.mypy-lang.org) [pypi](https://pypi.org/project/mypy)              | `VALIDATE_MYPY`        | `*.py` | ❌       |
+| pylint [github](https://github.com/PyCQA/pylint) [docs](https://pylint.readthedocs.io/en/latest) [pypi](https://pypi.org/project/pylint)                | `VALIDATE_PYLINT`      | `*.py` | ❌       |
+| mypy [github](https://github.com/python/mypy) [docs](https://www.mypy-lang.org) [pypi](https://pypi.org/project/mypy)                                   | `VALIDATE_MYPY`        | `*.py` | ❌       |
 
 _Autopep8*_ - Formatting conflicts with black, so it is turned off.
 
