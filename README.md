@@ -213,12 +213,12 @@ then you need to specify environment variable named `FOO_BAR`
 
 ### All files
 
-| tool | links |                                                                                                                                       | disable                         | files | autofix |
-|-----|---------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|-------|---------|
-| editorconfig-checker | [github](https://github.com/editorconfig-checker/editorconfig-checker) <br> [docs](https://editorconfig-checker.github.io) | `VALIDATE_EDITORCONFIG_CHECKER` | `*`   | ❌       |
-| eclint  | [github](https://github.com/jednano/eclint)                                                                                         | `VALIDATE_ECLINT`               | `*`   | ❌       |
-| git check-ignore \[custom\]  | -                                                                                                               | `VALIDATE_GITIGNORE`            | `*`   | ✅       |
-| jscpd | [github](https://github.com/kucherenko/jscpd)                                                                                        | `VALIDATE_JSCPD`                | `*`   | ❌       |
+| tool                        | links                                                                                                                      | disable                         | files | autofix |
+|-----------------------------|----------------------------------------------------------------------------------------------------------------------------|---------------------------------|-------|---------|
+| editorconfig-checker        | [github](https://github.com/editorconfig-checker/editorconfig-checker) <br> [docs](https://editorconfig-checker.github.io) | `VALIDATE_EDITORCONFIG_CHECKER` | `*`   | ❌       |
+| eclint                      | [github](https://github.com/jednano/eclint)                                                                                | `VALIDATE_ECLINT`               | `*`   | ❌       |
+| git check-ignore \[custom\] | -                                                                                                                          | `VALIDATE_GITIGNORE`            | `*`   | ✅       |
+| jscpd                       | [github](https://github.com/kucherenko/jscpd)                                                                              | `VALIDATE_JSCPD`                | `*`   | ❌       |
 
 ### General configs
 
