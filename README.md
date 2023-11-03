@@ -213,23 +213,23 @@ then you need to specify environment variable named `FOO_BAR`
 
 ### All files
 
-| tool                                                                                                                                       | disable                         | files | autofix |
-|--------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|-------|---------|
-| editorconfig-checker [github](https://github.com/editorconfig-checker/editorconfig-checker) [docs](https://editorconfig-checker.github.io) | `VALIDATE_EDITORCONFIG_CHECKER` | `*`   | ❌       |
-| eclint [github](https://github.com/jednano/eclint)                                                                                         | `VALIDATE_ECLINT`               | `*`   | ❌       |
-| git check-ignore \[custom\]                                                                                                                | `VALIDATE_GITIGNORE`            | `*`   | ✅       |
-| jscpd [github](https://github.com/kucherenko/jscpd)                                                                                        | `VALIDATE_JSCPD`                | `*`   | ❌       |
+| tool | links |                                                                                                                                       | disable                         | files | autofix |
+|-----|---------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|-------|---------|
+| editorconfig-checker | [github](https://github.com/editorconfig-checker/editorconfig-checker) [docs](https://editorconfig-checker.github.io) | `VALIDATE_EDITORCONFIG_CHECKER` | `*`   | ❌       |
+| eclint  | [github](https://github.com/jednano/eclint)                                                                                         | `VALIDATE_ECLINT`               | `*`   | ❌       |
+| git check-ignore \[custom\]  | -                                                                                                               | `VALIDATE_GITIGNORE`            | `*`   | ✅       |
+| jscpd | [github](https://github.com/kucherenko/jscpd)                                                                                        | `VALIDATE_JSCPD`                | `*`   | ❌       |
 
 ### General configs
 
-| tool                                                                                                           | disable             | files                   | autofix |
-|----------------------------------------------------------------------------------------------------------------|---------------------|-------------------------|---------|
-| dotenv-linter [github](https://github.com/dotenv-linter/dotenv-linter) [docs](https://dotenv-linter.github.io) | `VALIDATE_DOTENV`   | `*.env`                 | ❌       |
-| jsonlint [github](https://github.com/prantlf/jsonlint) [try-online](https://prantlf.github.io/jsonlint)        | `VALIDATE_JSONLINT` | `*.json`                | ❌*      |
-| prettier [github](https://github.com/prettier/prettier) [docs](https://prettier.io)                            | `VALIDATE_PRETTIER` | `*.{json,yml,css,html}` | ✅       |
-| stoml [github](https://github.com/freshautomations/stoml)                                                      | `VALIDATE_STOML`    | `*.{cfg,ini,toml}`      | ❌       |
-| tomljson (go-toml) [github](https://github.com/pelletier/go-toml)                                              | `VALIDATE_TOMLJSON` | `*.toml`                | ❌       |
-| yamllint [github](https://github.com/adrienverge/yamllint) [docs](https://yamllint.readthedocs.io/en/stable)   | `VALIDATE_YAMLLINT` | `*.{yml,yaml}`          | ❌       |
+| tool               | links                                                                                               | disable             | files                   | autofix |
+|--------------------|-----------------------------------------------------------------------------------------------------|---------------------|-------------------------|---------|
+| dotenv-linter      | [github](https://github.com/dotenv-linter/dotenv-linter) [docs](https://dotenv-linter.github.io)    | `VALIDATE_DOTENV`   | `*.env`                 | ❌       |
+| jsonlint           | [github](https://github.com/prantlf/jsonlint) [try-online](https://prantlf.github.io/jsonlint)      | `VALIDATE_JSONLINT` | `*.json`                | ❌*      |
+| prettier           | [github](https://github.com/prettier/prettier) [docs](https://prettier.io)                          | `VALIDATE_PRETTIER` | `*.{json,yml,css,html}` | ✅       |
+| stoml              | [github](https://github.com/freshautomations/stoml)                                                 | `VALIDATE_STOML`    | `*.{cfg,ini,toml}`      | ❌       |
+| tomljson (go-toml) | [github](https://github.com/pelletier/go-toml)                                                      | `VALIDATE_TOMLJSON` | `*.toml`                | ❌       |
+| yamllint           | [github](https://github.com/adrienverge/yamllint) [docs](https://yamllint.readthedocs.io/en/stable) | `VALIDATE_YAMLLINT` | `*.{yml,yaml}`          | ❌       |
 
 _Jsonlint*_ - Formatting conflicts with prettier, so it is turned off.
 
@@ -241,66 +241,66 @@ These tools are not real "linters".
 These tools are vanilla package managers, which we invoke with a `dry-run` flag to only _attempt_ to install dependencies without actually installing them.
 This verifies the given config files are actually working in that respective package manager.
 
-| tool                                                                                                                        | disable                     | files                                | autofix |
-|-----------------------------------------------------------------------------------------------------------------------------|-----------------------------|--------------------------------------|---------|
-| brew-bundle [github](https://github.com/Homebrew/homebrew-bundle) [manpage](https://docs.brew.sh/Manpage#bundle-subcommand) | `VALIDATE_BREW_BUNDLE`      | `Brewfile`                           | ❌       |
-| composer-install [docs](https://getcomposer.org)                                                                            | `VALIDATE_COMPOSER_INSTALL` | `composer.json`                      | ❌       |
-| pip-install [docs](https://pip.pypa.io/en/stable/cli/pip_install)                                                           | `VALIDATE_PIP_INSTALL`      | `requirements.txt`                   | ❌       |
-| npm-install [docs](https://docs.npmjs.com/cli/v9/commands/npm-install)                                                      | `VALIDATE_NPM_INSTALL`      | `package.json`                       | ❌       |
-| npm-ci [docs](https://docs.npmjs.com/cli/v9/commands/npm-ci)                                                                | `VALIDATE_NPM_CI`           | `package.json` & `package-lock.json` | ❌       |
+| tool             | links                                                                                                           | disable                     | files                                | autofix |
+|------------------|-----------------------------------------------------------------------------------------------------------------|-----------------------------|--------------------------------------|---------|
+| brew-bundle      | [github](https://github.com/Homebrew/homebrew-bundle) [manpage](https://docs.brew.sh/Manpage#bundle-subcommand) | `VALIDATE_BREW_BUNDLE`      | `Brewfile`                           | ❌       |
+| composer-install | [docs](https://getcomposer.org)                                                                                 | `VALIDATE_COMPOSER_INSTALL` | `composer.json`                      | ❌       |
+| pip-install      | [docs](https://pip.pypa.io/en/stable/cli/pip_install)                                                           | `VALIDATE_PIP_INSTALL`      | `requirements.txt`                   | ❌       |
+| npm-install      | [docs](https://docs.npmjs.com/cli/v9/commands/npm-install)                                                      | `VALIDATE_NPM_INSTALL`      | `package.json`                       | ❌       |
+| npm-ci           | [docs](https://docs.npmjs.com/cli/v9/commands/npm-ci)                                                           | `VALIDATE_NPM_CI`           | `package.json` & `package-lock.json` | ❌       |
 
 #### Validators
 
 Extra validators for package-manager files.
 These check additional rules, which are recommended, but not required for the config files to be valid.
 
-| tool                                                                                                                                                          | disable                       | files           | autofix |
-|---------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------|-----------------|---------|
-| composer-normalize [github](https://github.com/ergebnis/composer-normalize) [blogpost](https://localheinz.com/articles/2018/01/15/normalizing-composer.json/) | `VALIDATE_COMPOSER_NORMALIZE` | `composer.json` | ✅       |
-| composer-validate [docs](https://getcomposer.org/doc/03-cli.md#validate)                                                                                      | `VALIDATE_COMPOSER_VALIDATE`  | `composer.json` | ❌       |
-| package-json-validator [github](https://github.com/gorillamania/package.json-validator)                                                                       | `VALIDATE_PACKAGE_JSON`       | `package.json`  | ❌       |
+| tool                   | links                                                                                                                                      | disable                       | files           | autofix |
+|------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------|-----------------|---------|
+| composer-normalize     | [github](https://github.com/ergebnis/composer-normalize) [blogpost](https://localheinz.com/articles/2018/01/15/normalizing-composer.json/) | `VALIDATE_COMPOSER_NORMALIZE` | `composer.json` | ✅       |
+| composer-validate      | [docs](https://getcomposer.org/doc/03-cli.md#validate)                                                                                     | `VALIDATE_COMPOSER_VALIDATE`  | `composer.json` | ❌       |
+| package-json-validator | [github](https://github.com/gorillamania/package.json-validator)                                                                           | `VALIDATE_PACKAGE_JSON`       | `package.json`  | ❌       |
 
 ### CI/CD services
 
-| tool                                                                                                                        | disable                      | files                  | autofix |
-|-----------------------------------------------------------------------------------------------------------------------------|------------------------------|------------------------|---------|
-| CircleCI CLI lint [docs](https://circleci.com/docs/2.0/local-cli) [github](https://github.com/CircleCI-Public/circleci-cli) | `VALIDATE_CIRCLECI_VALIDATE` | `.circleci/config.yml` | ❌       |
-| gitlab-ci-lint [github](https://github.com/BuBuaBu/gitlab-ci-lint)                                                          | `VALIDATE_GITLABCI_LINT`     | `.gitlab-ci.yml`       | ❌       |
-| gitlab-ci-validate [github](https://github.com/pradel/gitlab-ci-validate)                                                   | `VALIDATE_GITLABCI_VALIDATE` | `.gitlab-ci.yml`       | ❌       |
-| Travis CI CLI lint [github](https://github.com/travis-ci/travis.rb#lint)                                                    | `VALIDATE_TRAVIS_LINT`       | `.travis.yml`          | ❌       |
+| tool               | links                                                                                                     | disable                      | files                  | autofix |
+|--------------------|-----------------------------------------------------------------------------------------------------------|------------------------------|------------------------|---------|
+| CircleCI CLI lint  | [docs](https://circleci.com/docs/2.0/local-cli) [github](https://github.com/CircleCI-Public/circleci-cli) | `VALIDATE_CIRCLECI_VALIDATE` | `.circleci/config.yml` | ❌       |
+| gitlab-ci-lint     | [github](https://github.com/BuBuaBu/gitlab-ci-lint)                                                       | `VALIDATE_GITLABCI_LINT`     | `.gitlab-ci.yml`       | ❌       |
+| gitlab-ci-validate | [github](https://github.com/pradel/gitlab-ci-validate)                                                    | `VALIDATE_GITLABCI_VALIDATE` | `.gitlab-ci.yml`       | ❌       |
+| Travis CI CLI lint | [github](https://github.com/travis-ci/travis.rb#lint)                                                     | `VALIDATE_TRAVIS_LINT`       | `.travis.yml`          | ❌       |
 
 ### Makefiles
 
-| tool                                                                                                   | disable              | files           | autofix |
-|--------------------------------------------------------------------------------------------------------|----------------------|-----------------|---------|
-| checkmake [github](https://github.com/mrtazz/checkmake)                                                | `VALIDATE_CHECKMAKE` | `Makefile` etc. | ❌       |
-| BSD Make [manpage](https://man.netbsd.org/make.1)                                                      | `VALIDATE_BMAKE`     | `Makefile` etc. | ❌       |
-| GNU Make [docs](https://www.gnu.org/software/make) [manpage](https://www.gnu.org/software/make/manual) | `VALIDATE_GMAKE`     | `Makefile` etc. | ❌       |
+| tool      | links                                                                                         | disable              | files           | autofix |
+|-----------|-----------------------------------------------------------------------------------------------|----------------------|-----------------|---------|
+| checkmake | [github](https://github.com/mrtazz/checkmake)                                                 | `VALIDATE_CHECKMAKE` | `Makefile` etc. | ❌       |
+| BSD Make  | [manpage](https://man.netbsd.org/make.1)                                                      | `VALIDATE_BMAKE`     | `Makefile` etc. | ❌       |
+| GNU Make  | [docs](https://www.gnu.org/software/make) [manpage](https://www.gnu.org/software/make/manual) | `VALIDATE_GMAKE`     | `Makefile` etc. | ❌       |
 
 ### Dockerfiles
 
-| tool                                                                                                            | disable                   | files             | autofix |
-|-----------------------------------------------------------------------------------------------------------------|---------------------------|-------------------|---------|
-| dockerfilelint [github](https://github.com/replicatedhq/dockerfilelint) [try-online](https://www.fromlatest.io) | `VALIDATE_DOCKERFILELINT` | `Dockerfile` etc. | ❌       |
-| hadolint [github](https://github.com/hadolint/hadolint)                                                         | `VALIDATE_HADOLINT`       | `Dockerfile` etc. | ❌       |
+| tool           | links                                                                                            | disable                   | files             | autofix |
+|----------------|--------------------------------------------------------------------------------------------------|---------------------------|-------------------|---------|
+| dockerfilelint | [github](https://github.com/replicatedhq/dockerfilelint) [try-online](https://www.fromlatest.io) | `VALIDATE_DOCKERFILELINT` | `Dockerfile` etc. | ❌       |
+| hadolint       | [github](https://github.com/hadolint/hadolint)                                                   | `VALIDATE_HADOLINT`       | `Dockerfile` etc. | ❌       |
 
 ### XML, HTML, SVG
 
-| tool                                                                                                                                                         | disable             | files          | autofix |
-|--------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|----------------|---------|
-| HTMLHint [github](https://github.com/HTMLHint/HTMLHint)                                                                                                      | `VALIDATE_HTMLHINT` | `*.{html,htm}` | ❌       |
-| htmllint [github](https://github.com/htmllint/htmllint)                                                                                                      | `VALIDATE_HTMLLINT` | `*.{html,htm}` | ❌       |
-| SVGLint [github](https://github.com/birjolaxew/svglint)                                                                                                      | `VALIDATE_SVGLINT`  | `*.svg`        | ❌       |
-| xmllint [gitlab](https://gitlab.gnome.org/GNOME/libxml2) [docs](http://www.xmlsoft.org) [manpage](https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html) | `VALIDATE_XMLLINT`  | `*.xml`        | ✅       |
+| tool     | links                                                                                                                                                | disable             | files          | autofix |
+|----------|------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|----------------|---------|
+| HTMLHint | [github](https://github.com/HTMLHint/HTMLHint)                                                                                                       | `VALIDATE_HTMLHINT` | `*.{html,htm}` | ❌       |
+| htmllint | [github](https://github.com/htmllint/htmllint)                                                                                                       | `VALIDATE_HTMLLINT` | `*.{html,htm}` | ❌       |
+| SVGLint  | [github](https://github.com/birjolaxew/svglint)                                                                                                      | `VALIDATE_SVGLINT`  | `*.svg`        | ❌       |
+| xmllint  | [gitlab](https://gitlab.gnome.org/GNOME/libxml2) [docs](http://www.xmlsoft.org) [manpage](https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html) | `VALIDATE_XMLLINT`  | `*.xml`        | ✅       |
 
 ### Documentation (MarkDown, Plain Text)
 
-| tool                                                                       | disable                        | files        | autofix |
-|----------------------------------------------------------------------------|--------------------------------|--------------|---------|
-| markdown-link-check [github](https://github.com/tcort/markdown-link-check) | `VALIDATE_MARKDOWN_LINK_CHECK` | `*.md`       | ❌       |
-| markdownlint [github](https://github.com/DavidAnson/markdownlint)          | `VALIDATE_MARKDOWNLINT`        | `*.md`       | ✅       |
-| markdownlint (mdl) [github](https://github.com/markdownlint/markdownlint)  | `VALIDATE_MDL`                 | `*.md`       | ❌       |
-| proselint [github](https://github.com/amperser/proselint)                  | `VALIDATE_PROSELINT`           | `*.{md,txt}` | ❌       |
+| tool                | links                                                  | disable                        | files        | autofix |
+|---------------------|--------------------------------------------------------|--------------------------------|--------------|---------|
+| markdown-link-check | [github](https://github.com/tcort/markdown-link-check) | `VALIDATE_MARKDOWN_LINK_CHECK` | `*.md`       | ❌       |
+| markdownlint        | [github](https://github.com/DavidAnson/markdownlint)   | `VALIDATE_MARKDOWNLINT`        | `*.md`       | ✅       |
+| markdownlint (mdl)  | [github](https://github.com/markdownlint/markdownlint) | `VALIDATE_MDL`                 | `*.md`       | ❌       |
+| proselint           | [github](https://github.com/amperser/proselint)        | `VALIDATE_PROSELINT`           | `*.{md,txt}` | ❌       |
 
 ### Shells
 
@@ -316,22 +316,22 @@ These check additional rules, which are recommended, but not required for the co
 
 The following shells are checked in custom dry runner:
 
-| tool                                                                         |
-|------------------------------------------------------------------------------|
-| Linux port of OpenBSD's ksh (loksh) [github](https://github.com/dimkr/loksh) |
-| Portable OpenBSD ksh (oksh) [github](https://github.com/ibara/oksh)          |
+| tool                                | links                                    |
+|-------------------------------------|------------------------------------------|
+| Linux port of OpenBSD's ksh (loksh) | [github](https://github.com/dimkr/loksh) |
+| Portable OpenBSD ksh (oksh)         | [github](https://github.com/ibara/oksh)  |
 
 ### Python
 
-| tool                                                                                                                                                    | disable                | files  | autofix |
-|---------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------|--------|---------|
-| autopep8 [github](https://github.com/hhatto/autopep8) [pypi](https://pypi.org/project/autopep8)                                                         | `VALIDATE_AUTOPEP8`    | `*.py` | ❌*      |
-| black [github](https://github.com/psf/black) [docs](https://black.readthedocs.io/en/stable) [pypi](https://pypi.org/project/black)                      | `VALIDATE_BLACK`       | `*.py` | ✅       |
-| flake8 [github](https://github.com/PyCQA/flake8) [docs](https://flake8.pycqa.org/en/latest) [pypi](https://pypi.org/project/flake8)                     | `VALIDATE_FLAKE8`      | `*.py` | ❌       |
-| isort [github](https://github.com/PyCQA/isort) [docs](https://pycqa.github.io/isort) [pypi](https://pypi.org/project/isort)                             | `VALIDATE_ISORT`       | `*.py` | ✅       |
-| pycodestyle [github](https://github.com/PyCQA/pycodestyle) [docs](https://pycodestyle.pycqa.org/en/latest) [pypi](https://pypi.org/project/pycodestyle) | `VALIDATE_PYCODESTYLE` | `*.py` | ❌       |
-| pylint [github](https://github.com/PyCQA/pylint) [docs](https://pylint.readthedocs.io/en/latest) [pypi](https://pypi.org/project/pylint)                | `VALIDATE_PYLINT`      | `*.py` | ❌       |
-| mypy [github](https://github.com/python/mypy) [docs](https://www.mypy-lang.org) [pypi](https://pypi.org/project/mypy)                                   | `VALIDATE_MYPY`        | `*.py` | ❌       |
+| tool        | links                                                                                                                                       | disable                | files  | autofix |
+|-------------|---------------------------------------------------------------------------------------------------------------------------------------------|------------------------|--------|---------|
+| autopep8    | [github](https://github.com/hhatto/autopep8) [pypi](https://pypi.org/project/autopep8)                                                      | `VALIDATE_AUTOPEP8`    | `*.py` | ❌*      |
+| black       | [github](https://github.com/psf/black) [docs](https://black.readthedocs.io/en/stable) [pypi](https://pypi.org/project/black)                | `VALIDATE_BLACK`       | `*.py` | ✅       |
+| flake8      | [github](https://github.com/PyCQA/flake8) [docs](https://flake8.pycqa.org/en/latest) [pypi](https://pypi.org/project/flake8)                | `VALIDATE_FLAKE8`      | `*.py` | ❌       |
+| isort       | [github](https://github.com/PyCQA/isort) [docs](https://pycqa.github.io/isort) [pypi](https://pypi.org/project/isort)                       | `VALIDATE_ISORT`       | `*.py` | ✅       |
+| pycodestyle | [github](https://github.com/PyCQA/pycodestyle) [docs](https://pycodestyle.pycqa.org/en/latest) [pypi](https://pypi.org/project/pycodestyle) | `VALIDATE_PYCODESTYLE` | `*.py` | ❌       |
+| pylint      | [github](https://github.com/PyCQA/pylint) [docs](https://pylint.readthedocs.io/en/latest) [pypi](https://pypi.org/project/pylint)           | `VALIDATE_PYLINT`      | `*.py` | ❌       |
+| mypy        | [github](https://github.com/python/mypy) [docs](https://www.mypy-lang.org) [pypi](https://pypi.org/project/mypy)                            | `VALIDATE_MYPY`        | `*.py` | ❌       |
 
 _Autopep8*_ - Formatting conflicts with black, so it is turned off.
 
