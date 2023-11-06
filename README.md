@@ -40,7 +40,7 @@ Project links:
   - [Makefiles](#makefiles)
   - [Dockerfiles](#dockerfiles)
   - [XML, HTML, SVG](#xml-html-svg)
-  - [Documentation (MarkDown, Plain Text)](#documentation-markdown-plain-text)
+  - [Documentation (Markdown, Plain Text)](#documentation-markdown-plain-text)
   - [Shell script files](#shell-script-files)
   - [Python](#python)
 - [Development](#development)
@@ -295,7 +295,7 @@ These check additional rules, which are recommended, but not required for the co
 | SVGLint  | [GitHub](https://github.com/birjolaxew/svglint)                                                                                                                | `VALIDATE_SVGLINT`  | `*.svg`        | ❌             |
 | xmllint  | [gitlab](https://gitlab.gnome.org/GNOME/libxml2) <br> [docs](http://www.xmlsoft.org) <br> [manpage](https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html) | `VALIDATE_XMLLINT`  | `*.xml`        | ✅             |
 
-### Documentation (MarkDown, Plain Text)
+### Documentation (Markdown, Plain Text)
 
 | tool                | links                                                  | disable                        | files        | `fmt` support |
 |---------------------|--------------------------------------------------------|--------------------------------|--------------|---------------|
