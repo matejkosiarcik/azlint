@@ -2,11 +2,11 @@ import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import process from 'process';
-import { delay, hashFile, isCwdGitRepo, resolvePromiseOrValue, wildcard2regex } from '../src/utils';
+import { delay, hashFile, isProjectGitRepo, resolvePromiseOrValue, wildcard2regex } from '../src/utils';
 import { expect } from 'chai';
 
 it('Project is git repo', async function () {
-    expect(await isCwdGitRepo(), 'Project should be a git repo').true;
+    expect(await isProjectGitRepo(), 'Project should be a git repo').true;
 });
 
 it('TEMPDIR is not git repo', async function () {
@@ -14,7 +14,7 @@ it('TEMPDIR is not git repo', async function () {
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'azlint-tests-'));
     process.chdir(tmpDir);
 
-    expect(await isCwdGitRepo(), 'TempDir should not be a git repo').false;
+    expect(await isProjectGitRepo(), 'TempDir should not be a git repo').false;
 
     process.chdir(currDir);
     await fs.rm(tmpDir, { force: true, recursive: true });
