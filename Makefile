@@ -95,27 +95,27 @@ bootstrap:
 			brew bundle --help --quiet >/dev/null; \
 	fi
 
-.PHONY: build
-build:
-	time docker build . --tag matejkosiarcik/azlint:dev
-
-.PHONY: multibuild
-multibuild:
-	time docker build . --tag matejkosiarcik/azlint:dev-amd64 --platform linux/amd64
-	time docker build . --tag matejkosiarcik/azlint:dev-arm64 --platform linux/arm64
-
-.PHONY: run
-run:
-	time docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project:ro" matejkosiarcik/azlint:dev lint
-
-.PHONY: multirun
-multirun:
-	time docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project:ro" --platform linux/amd64 matejkosiarcik/azlint:dev-amd64 lint
-	time docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project:ro" --platform linux/arm64 matejkosiarcik/azlint:dev-arm64 lint
-
 .PHONY: test
 test:
 	npm test
+
+.PHONY: docker-build
+docker-build:
+	time docker build . --tag matejkosiarcik/azlint:dev
+
+.PHONY: docker-multibuild
+docker-multibuild:
+	time docker build . --tag matejkosiarcik/azlint:dev-amd64 --platform linux/amd64
+	time docker build . --tag matejkosiarcik/azlint:dev-arm64 --platform linux/arm64
+
+.PHONY: docker-run
+docker-run:
+	time docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project:ro" matejkosiarcik/azlint:dev lint
+
+.PHONY: docker-multirun
+docker-multirun:
+	time docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project:ro" --platform linux/amd64 matejkosiarcik/azlint:dev-amd64 lint
+	time docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project:ro" --platform linux/arm64 matejkosiarcik/azlint:dev-arm64 lint
 
 .PHONY: clean
 clean:
