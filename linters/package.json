@@ -19,7 +19,7 @@
     "prettier": "^3.0.3",
     "secretlint": "^7.0.7",
     "sql-lint": "^1.0.0",
-    "svglint": "^2.4.0",
+    "svglint": "^2.6.0",
     "textlint": "^13.3.3",
     "textlint-rule-no-todo": "^2.0.1"
   }

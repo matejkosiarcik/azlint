@@ -5,8 +5,9 @@ import os from 'os';
 import { Options as ExecaOptions } from "@esm2cjs/execa";
 import pLimit, { LimitFunction } from "@esm2cjs/p-limit";
 import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from "./log";
-import { customExeca, hashFile, isCwdGitRepo, matchFiles, OneOrArray, resolveLintArgs, resolveLintOptions, resolveLintSuccessExitCode, resolvePromiseOrValue } from "./utils";
+import { customExeca, hashFile, isProjectGitRepo, matchFiles, OneOrArray, resolvePromiseOrValue } from "./utils";
 import { getConfigArgs } from './config-files';
+import { resolveLintArgs, resolveLintOptions, resolveLintSuccessExitCode } from './linter-utils';
 
 function shouldSkipLinter(envName: string, linterName: string): boolean {
     const envEnable = 'VALIDATE_' + envName;
@@ -264,7 +265,7 @@ export class Linters {
             envName: 'GIT_IGNORE',
             fileMatch: '*',
             shouldSkipAllFiles: async (toolName: string) => {
-                const isGit = await isCwdGitRepo();
+                const isGit = await isProjectGitRepo();
                 if (!isGit) {
                     logVerbose(`⏩ Skipping ${toolName}, not a git repository`);
                 }

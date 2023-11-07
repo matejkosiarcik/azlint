@@ -633,9 +633,17 @@ ENV HOMEBREW_NO_ANALYTICS=1 \
 RUN NONINTERACTIVE=1 chronic bash brew-installer/install.sh && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
     brew bundle --help --quiet >/dev/null && \
+    find /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby/ -maxdepth 1 -mindepth 1 | \
+        sed -E 's~^.*/~~' | \
+        grep -E '^[0-9]+\.[0-9]+\.[0-9]+(_[0-9]+)?$' \
+        >'/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version' && \
     ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
     rm -rf "/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby/$ruby_version_full" && \
     find /home/linuxbrew -type d -name .git -prune -exec rm -rf {} \;
+# TODO: Resolve this homebrew version mismatch
+# NOTE: Somehow HomeBrew is kinda broken currently
+# Because it supposedly has 3.1.4 version in /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version
+# But it has actually a 2.6.10_1 bundled ruby at /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/2.6.10_1
 
 # LinuxBrew - rbenv #
 FROM --platform=$BUILDPLATFORM gitman-base AS rbenv-gitman
