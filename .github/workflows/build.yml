@@ -5,6 +5,9 @@ permissions: read-all
 on:
   pull_request:
 
+env:
+  DOCKER_IMAGE: matejkosiarcik/azlint
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,9 +35,9 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           load: true
-          platforms: ${{ matrix.platform }}
+          platforms: "${{ matrix.platform }}"
           push: false
-          tags: matejkosiarcik/azlint:dev
+          tags: "${{ env.DOCKER_IMAGE }}:dev"
 
       - name: AZLint lint
         if: ${{ matrix.platform == 'linux/amd64' }}
