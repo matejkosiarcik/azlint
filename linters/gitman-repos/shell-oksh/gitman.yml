@@ -14,7 +14,7 @@ sources:
 sources_locked:
   - repo: https://github.com/ibara/oksh.git
     name: oksh
-    rev: f067067da3ddbb5f3a0e9d3f0bec5e3032b5ffa4
+    rev: 4253ca89387918e0945e980144cbb17a1f3f7d14
     type: git
     params:
     sparse_paths:
