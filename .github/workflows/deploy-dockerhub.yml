@@ -10,7 +10,7 @@ on:
       - "v*.*.*"
 
 env:
-  REGISTRY_IMAGE: matejkosiarcik/azlint
+  DOCKER_IMAGE: matejkosiarcik/azlint
 
 jobs:
   build-images:
@@ -52,7 +52,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,name-canonical=true,push=true
+          outputs: type=image,name=${{ env.DOCKER_IMAGE }},push-by-digest=true,name-canonical=true,push=true
 
       - name: Export digest
         run: |
@@ -68,8 +68,8 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  merge-images:
-    name: Merge multiplatform digests into tags
+  push-images:
+    name: Deploy docker images
     runs-on: ubuntu-latest
     needs:
       - build-images
@@ -87,7 +87,7 @@ jobs:
         uses: docker/metadata-action@v5.0.0
         id: meta
         with:
-          images: ${{ env.REGISTRY_IMAGE }}
+          images: ${{ env.DOCKER_IMAGE }}
           # NOTE: ":latest" tag is added automatically on "type=semver"
           tags: |
             type=edge,branch=main
@@ -104,7 +104,7 @@ jobs:
       - name: Debug digests
         working-directory: /tmp/digests
         run: |
-          printf 'Digests: %s\n' "$(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)"
+          printf 'Digests: %s\n' "$(printf '${{ env.DOCKER_IMAGE }}@sha256:%s ' *)"
 
       - name: Debug metadata
         run: |
@@ -120,14 +120,14 @@ jobs:
           # shellcheck disable=SC2046
           docker buildx imagetools create \
             $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
+            $(printf '${{ env.DOCKER_IMAGE }}@sha256:%s ' *)
 
       - name: Inspect image
         run: |
-          docker buildx imagetools inspect "${{ env.REGISTRY_IMAGE }}:${{ steps.meta.outputs.version }}"
+          docker buildx imagetools inspect "${{ env.DOCKER_IMAGE }}:${{ steps.meta.outputs.version }}"
 
   deploy-description:
-    name: Update description
+    name: Update dockerhub description
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     steps:
