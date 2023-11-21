@@ -107,11 +107,11 @@ docker-build:
 docker-multibuild:
 	printf 'Build linux/amd64:\n'
 	time docker build . --tag matejkosiarcik/azlint:dev-amd64 --platform linux/amd64
-	docker tag matejkosiarcik/azlint:dev-x64 matejkosiarcik/azlint:dev-amd64
+	docker tag matejkosiarcik/azlint:dev-amd64 matejkosiarcik/azlint:dev-x64
 
 	printf 'Build linux/arm64/v8:\n'
 	time docker build . --tag matejkosiarcik/azlint:dev-arm64-v8 --platform linux/arm64/v8
-	docker tag matejkosiarcik/azlint:dev-arm64 matejkosiarcik/azlint:dev-arm64-v8
+	docker tag matejkosiarcik/azlint:dev-arm64-v8 matejkosiarcik/azlint:dev-arm64
 
 .PHONY: docker-run
 docker-run:
