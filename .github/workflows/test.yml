@@ -19,7 +19,7 @@ jobs:
           git config --global user.name Nobody
 
       - name: Install project dependencies
-        run: npm ci
+        run: npm ci --unsafe-perm --no-progress --no-audit --quiet
 
       - name: Test
         run: npm test
