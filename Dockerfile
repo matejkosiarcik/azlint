@@ -756,13 +756,14 @@ RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azl
 FROM debian:12.2-slim AS pre-final
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
-        curl git libxml2-utils \
+        moreutils curl git libxml2-utils \
         bmake make \
         nodejs npm \
         php php-mbstring \
         python-is-python3 python3 python3-pip \
         bundler ruby \
-        ash bash dash ksh ksh93u+m mksh posh yash zsh >/dev/null && \
+        ash bash dash ksh ksh93u+m mksh posh yash zsh \
+        >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=brew-final /home/linuxbrew /home/linuxbrew
 COPY --from=brew-final /.rbenv/versions /.rbenv/versions
@@ -795,12 +796,11 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_ROOT_USER_ACTION=ignore
 COPY utils/sanity-check/system.sh ./sanity-check.sh
-RUN sh sanity-check.sh
+RUN chronic sh sanity-check.sh
 
 ### Final stage ###
 
 FROM debian:12.2-slim
-WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         curl git libxml2-utils \
@@ -809,7 +809,8 @@ RUN apt-get update -qq && \
         php php-mbstring \
         python-is-python3 python3 python3-pip \
         bundler ruby \
-        ash bash dash ksh ksh93u+m mksh posh yash zsh >/dev/null && \
+        ash bash dash ksh ksh93u+m mksh posh yash zsh \
+        >/dev/null && \
     rm -rf /var/lib/apt/lists/* /var/log/apt /var/log/dpkg* /var/cache/apt /usr/share/zsh/vendor-completions && \
     git config --system --add safe.directory '*' && \
     git config --global --add safe.directory '*' && \
@@ -820,7 +821,7 @@ RUN apt-get update -qq && \
 COPY --from=pre-final /usr/bin/azlint /usr/bin/fmt /usr/bin/lint /usr/bin/
 COPY --from=pre-final /home/linuxbrew /home/linuxbrew
 COPY --from=pre-final /.rbenv/versions /.rbenv/versions
-COPY --from=pre-final /app/ ./
+COPY --from=pre-final /app/ /app/
 ENV NODE_OPTIONS=--dns-result-order=ipv4first \
     PATH="$PATH:/app/bin:/home/linuxbrew/.linuxbrew/bin" \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
