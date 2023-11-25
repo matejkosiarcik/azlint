@@ -19,7 +19,7 @@
     "@types/chai": "^4.3.11",
     "@types/mocha": "^10.0.4",
     "@types/node": "^20.9.2",
-    "@types/yargs": "^17.0.31",
+    "@types/yargs": "^17.0.32",
     "chai": "^4.3.10",
     "mocha": "^10.2.0",
     "modclean": "^3.0.0-beta.1",
