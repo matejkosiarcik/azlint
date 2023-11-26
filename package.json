@@ -6,7 +6,8 @@
     "azlint:lint": "npm start -- lint",
     "azlint:fmt": "npm start -- fmt",
     "build": "tsc",
-    "test": "tsx --test tests/*.test.ts"
+    "test": "tsx --test tests/*.test.ts",
+    "test:only": "tsx --test --test-only tests/*.test.ts"
   },
   "dependencies": {
     "@esm2cjs/execa": "^6.1.1-cjs.1",
@@ -15,16 +16,14 @@
     "yargs": "^17.7.2"
   },
   "devDependencies": {
+    "@rollup/plugin-typescript": "^11.1.5",
     "@tsconfig/strictest": "^2.0.2",
-    "@types/chai": "^4.3.11",
-    "@types/mocha": "^10.0.6",
     "@types/node": "^20.10.0",
     "@types/yargs": "^17.0.32",
-    "chai": "^4.3.10",
-    "mocha": "^10.2.0",
     "modclean": "^3.0.0-beta.1",
     "node-prune": "^1.0.2",
-    "ts-node": "^10.9.1",
+    "rollup": "^4.6.0",
+    "terser": "^5.24.0",
     "tsx": "^4.5.0",
     "typescript": "^5.3.2",
     "yaml": "^2.3.4"

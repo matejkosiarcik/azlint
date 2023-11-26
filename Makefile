@@ -95,6 +95,10 @@ bootstrap:
 			brew bundle --help --quiet >/dev/null; \
 	fi
 
+.PHONY: build
+build:
+	npm run build
+
 .PHONY: test
 test:
 	npm test

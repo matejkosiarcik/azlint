@@ -111,6 +111,16 @@ jobs:
             bash linters/gitman-repos/brew-install/gitman/brew-installer/install.sh
             eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
       - run:
+          name: Build
+          command: |
+            export PATH="$PATH:$HOME/.cargo/bin"
+            make bootstrap
+      # - run:
+      #     name: Test
+      #     command: |
+      #       export PATH="$PATH:$HOME/.cargo/bin"
+      #       make test
+      - run:
           name: Sanity check
           command: |
             export \
