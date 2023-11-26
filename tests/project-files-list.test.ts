@@ -1,11 +1,11 @@
 import assert from 'node:assert';
-import fs from 'fs/promises';
-import os from 'os';
-import path from 'path';
-import process from 'process';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import process from 'node:process';
 import { test, describe } from 'node:test';
-import { listProjectFiles } from "../src/utils";
 import { execa as baseExeca } from '@esm2cjs/execa';
+import { listProjectFiles } from "../src/utils";
 
 async function touch(...files: string[]) {
     await Promise.all(files.map(async (file) => fs.appendFile(file, Buffer.from([]))));

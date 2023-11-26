@@ -1,11 +1,11 @@
-import fs from 'fs/promises';
-import fsSync from 'fs';
-import path from "path";
-import os from 'os';
-import { Options as ExecaOptions } from "@esm2cjs/execa";
-import pLimit, { LimitFunction } from "@esm2cjs/p-limit";
-import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from "./log";
-import { customExeca, hashFile, isProjectGitRepo, matchFiles, OneOrArray, resolvePromiseOrValue } from "./utils";
+import fs from 'node:fs/promises';
+import fsSync from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import { Options as ExecaOptions } from '@esm2cjs/execa';
+import pLimit, { LimitFunction } from '@esm2cjs/p-limit';
+import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from './log';
+import { customExeca, hashFile, isProjectGitRepo, matchFiles, OneOrArray, resolvePromiseOrValue } from './utils';
 import { getConfigArgs } from './config-files';
 import { resolveLintArgs, resolveLintOptions, resolveLintSuccessExitCode } from './linter-utils';
 

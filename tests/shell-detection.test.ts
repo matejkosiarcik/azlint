@@ -1,7 +1,7 @@
-import assert from 'assert';
-import fs from 'fs/promises';
-import os from 'os';
-import path from 'path';
+import assert from 'node:assert';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 import { test, describe } from 'node:test';
 import { detectShell } from '../src/utils';
 
