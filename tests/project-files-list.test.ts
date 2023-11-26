@@ -1,9 +1,9 @@
+import assert from 'node:assert';
 import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import process from 'process';
 import { test, describe } from 'node:test';
-import { expect } from 'chai';
 import { listProjectFiles } from "../src/utils";
 import { execa as baseExeca } from '@esm2cjs/execa';
 
@@ -35,12 +35,12 @@ describe('Find files in raw directory', function () {
 
     test('Find single file', async () => {
         await touch('foo.txt');
-        expect(await listProjectFiles(false)).deep.eq(['foo.txt']);
+        assert.deepStrictEqual(await listProjectFiles(false), ['foo.txt']);
     });
 
     test('Find multiple file with sorting', async () => {
         await touch('1.txt', '4.txt', '2.txt');
-        expect(await listProjectFiles(false)).deep.eq(['1.txt', '2.txt', '4.txt']);
+        assert.deepStrictEqual(await listProjectFiles(false), ['1.txt', '2.txt', '4.txt']);
     });
 });
 
@@ -61,37 +61,37 @@ describe('Find files in git repository', function () {
     });
 
     test('Empty repo', async () => {
-        expect(await listProjectFiles(false)).deep.eq([]);
+        assert.deepStrictEqual(await listProjectFiles(false), []);
     });
 
     test('Single dirty file', async () => {
         await touch('foo.txt');
-        expect(await listProjectFiles(false)).deep.eq(['foo.txt']);
+        assert.deepStrictEqual(await listProjectFiles(false), ['foo.txt']);
     });
 
     test('Two dirty files', async () => {
         await touch('foo', 'bar.txt');
-        expect(await listProjectFiles(false)).deep.eq(['bar.txt', 'foo']);
+        assert.deepStrictEqual(await listProjectFiles(false), ['bar.txt', 'foo']);
     });
 
     test('Single staged file', async () => {
         await touch('foo.txt');
         await execa('git', 'add', 'foo.txt');
-        expect(await listProjectFiles(false)).deep.eq(['foo.txt']);
+        assert.deepStrictEqual(await listProjectFiles(false), ['foo.txt']);
     });
 
     test('Single commited file', async () => {
         await touch('foo.txt');
         await execa('git', 'add', 'foo.txt');
         await execa('git', 'commit', '-m', 'message');
-        expect(await listProjectFiles(false)).deep.eq(['foo.txt']);
+        assert.deepStrictEqual(await listProjectFiles(false), ['foo.txt']);
     });
 
     test('Staged and deleted file', async () => {
         await touch('foo.txt');
         await execa('git', 'add', 'foo.txt');
         await fs.rm('foo.txt');
-        expect(await listProjectFiles(false)).deep.eq([]);
+        assert.deepStrictEqual(await listProjectFiles(false), []);
     });
 
     test('Commited and deleted file', async () => {
@@ -99,7 +99,7 @@ describe('Find files in git repository', function () {
         await execa('git', 'add', 'foo.txt');
         await execa('git', 'commit', '-m', 'message');
         await fs.rm('foo.txt');
-        expect(await listProjectFiles(false)).deep.eq([]);
+        assert.deepStrictEqual(await listProjectFiles(false), []);
     });
 
     test('Commited and deleted file', async () => {
@@ -107,7 +107,7 @@ describe('Find files in git repository', function () {
         await execa('git', 'add', 'foo.txt');
         await execa('git', 'commit', '-m', 'message');
         await fs.rm('foo.txt');
-        expect(await listProjectFiles(false)).deep.eq([]);
+        assert.deepStrictEqual(await listProjectFiles(false), []);
     });
 
     test('Complicated scenario 1', async () => {
@@ -115,7 +115,7 @@ describe('Find files in git repository', function () {
         await execa('git', 'add', '1.txt');
         await execa('git', 'commit', '-m', 'message');
         await execa('git', 'add', '2.txt');
-        expect(await listProjectFiles(false)).deep.eq(['1.txt', '2.txt', '3.txt']);
+        assert.deepStrictEqual(await listProjectFiles(false), ['1.txt', '2.txt', '3.txt']);
     });
 
     test('Complicated scenario 2', async () => {
@@ -126,7 +126,7 @@ describe('Find files in git repository', function () {
         await fs.rm('1.txt');
         await fs.rm('2.txt');
         await fs.rm('3.txt');
-        expect(await listProjectFiles(false)).deep.eq([]);
+        assert.deepStrictEqual(await listProjectFiles(false), []);
     });
 
     test('Only-changed', async () => {
@@ -137,7 +137,7 @@ describe('Find files in git repository', function () {
         await touch('2.txt');
         await execa('git', 'add', '2.txt');
         await execa('git', 'commit', '-m', 'message');
-        expect(await listProjectFiles(true)).deep.eq(['2.txt']);
+        assert.deepStrictEqual(await listProjectFiles(true), ['2.txt']);
     });
 
     // TODO: Add test for --only-changed with commits in a feature branch

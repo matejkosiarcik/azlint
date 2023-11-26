@@ -1,8 +1,8 @@
+import assert from 'assert';
 import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import { test, describe } from 'node:test';
-import { expect } from 'chai';
 import { detectShell } from '../src/utils';
 
 describe('Shell detection', function () {
@@ -21,7 +21,7 @@ describe('Shell detection', function () {
             const filePath = path.join(tmpDir, `file.${shell}`);
             await fs.writeFile(filePath, '', 'utf8');
             const output = await detectShell(filePath);
-            expect(output).eq(shell);
+            assert.strictEqual(output, shell);
         });
     }
 
@@ -29,28 +29,28 @@ describe('Shell detection', function () {
         const filePath = path.join(tmpDir, 'file.sh');
         await fs.writeFile(filePath, `#!/usr/bin/env zsh\nsomethingelse\n`, 'utf8');
         const output = await detectShell(filePath);
-        expect(output).eq('zsh');
+        assert.strictEqual(output, 'zsh');
     });
 
     test(`Shell detection with only shebang`, async function () {
         const filePath = path.join(tmpDir, 'file.sh');
         await fs.writeFile(filePath, `#!/usr/bin/env zsh`, 'utf8');
         const output = await detectShell(filePath);
-        expect(output).eq('zsh');
+        assert.strictEqual(output, 'zsh');
     });
 
     test(`Shell detection for "#!/bin/shell"`, async function () {
         const filePath = path.join(tmpDir, 'file.sh');
         await fs.writeFile(filePath, `#!/bin/yash`, 'utf8');
         const output = await detectShell(filePath);
-        expect(output).eq('yash');
+        assert.strictEqual(output, 'yash');
     });
 
     test(`Shell detection for "#!/usr/bin/env shell"`, async function () {
         const filePath = path.join(tmpDir, 'file.sh');
         await fs.writeFile(filePath, `#!/bin/yash`, 'utf8');
         const output = await detectShell(filePath);
-        expect(output).eq('yash');
+        assert.strictEqual(output, 'yash');
     });
 
     let testShells: { [key: string]: string[] } = {
@@ -67,7 +67,7 @@ describe('Shell detection', function () {
                 const filePath = path.join(tmpDir, `file.sh`);
                 await fs.writeFile(filePath, `#!/bin/${shebang}`, 'utf8');
                 const output = await detectShell(filePath);
-                expect(output).eq(shellTarget);
+                assert.strictEqual(output, shellTarget);
             });
         }
     }
