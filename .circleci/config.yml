@@ -81,11 +81,11 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install system APT dependencies
+          name: Install system dependencies
           command: |
-            apt-get update -qq
-            DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes \
-              apt-get install -qq --yes --no-install-recommends \
+            apt-get update # -qq
+            # DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes -qq
+              apt-get install --yes --no-install-recommends \
               ca-certificates curl git jq libxml2-utils pandoc parallel \
               build-essential meson \
               bmake make \
