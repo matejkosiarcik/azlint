@@ -71,7 +71,7 @@ jobs:
 
   native-build:
     docker:
-      - image: debian:unstable
+      - image: debian:testing
     environment:
       VALIDATE_HADOLINT: "false" # TODO: Enable hadolint validation
       HOMEBREW_NO_ANALYTICS: 1
@@ -81,11 +81,11 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install system APT dependencies
+          name: Install system dependencies
           command: |
             apt-get update -qq
             DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes \
-              apt-get install -qq --yes --no-install-recommends \
+              apt-get install --yes --no-install-recommends \
               ca-certificates curl git jq libxml2-utils pandoc parallel \
               build-essential meson \
               bmake make \
@@ -96,8 +96,7 @@ jobs:
               bundler ruby ruby-build ruby-dev \
               golang \
               ash bash dash ksh ksh93u+m mksh posh yash zsh \
-              shellcheck \
-              >/dev/null
+              shellcheck
             # Haskell packages skipped: cabal-install ghc
             git config --global user.email nobody@example.com
             git config --global user.name Nobody
