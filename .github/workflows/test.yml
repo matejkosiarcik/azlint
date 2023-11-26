@@ -18,18 +18,21 @@ jobs:
         with:
           node-version: latest
 
-      - name: Setup Python
-        uses: actions/setup-python@v4.7.1
-        with:
-          python-version: 3.x
+      # - name: Setup Python
+      #   uses: actions/setup-python@v4.7.1
+      #   with:
+      #     python-version: 3.x
 
       - name: Configure system
         run: |
           git config --global user.email nobody@example.com
           git config --global user.name Nobody
+        shell: bash
 
-      - name: Bootstrap
-        run: make bootstrap
+      - name: Install project dependencies
+        run: npm ci --unsafe-perm --no-progress --no-audit --quiet
+        # TODO: Add system dependencies and run full bootstrap
+        # run: make bootstrap
         shell: bash
 
       - name: Build
