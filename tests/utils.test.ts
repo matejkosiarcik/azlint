@@ -2,14 +2,15 @@ import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import process from 'process';
-import { delay, hashFile, isProjectGitRepo, resolvePromiseOrValue, wildcard2regex } from '../src/utils';
+import { test, describe } from 'node:test';
 import { expect } from 'chai';
+import { delay, hashFile, isProjectGitRepo, resolvePromiseOrValue, wildcard2regex } from '../src/utils';
 
-it('Project is git repo', async function () {
+test('Project is git repo', async function () {
     expect(await isProjectGitRepo(), 'Project should be a git repo').true;
 });
 
-it('TEMPDIR is not git repo', async function () {
+test('TEMPDIR is not git repo', async function () {
     const currDir = process.cwd();
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'azlint-tests-'));
     process.chdir(tmpDir);
@@ -20,7 +21,7 @@ it('TEMPDIR is not git repo', async function () {
     await fs.rm(tmpDir, { force: true, recursive: true });
 });
 
-it('Delay', async function () {
+test('Delay', async function () {
     const start = Date.now();
     await delay(10);
     const end = Date.now();
@@ -28,7 +29,7 @@ it('Delay', async function () {
     expect(difference, 'Delay should be delayed').gte(0.001).lte(0.1);
 });
 
-it('Resolve promises', async function () {
+test('Resolve promises', async function () {
     const values = [
         {
             input: 30,
@@ -58,7 +59,7 @@ it('Resolve promises', async function () {
     }
 });
 
-it('Hash file', async function () {
+test('Hash file', async function () {
     const currDir = process.cwd();
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'azlint-tests-'));
     process.chdir(tmpDir);
@@ -74,7 +75,7 @@ it('Hash file', async function () {
     await fs.rm(tmpDir, { force: true, recursive: true });
 });
 
-it('Wildcard to Regex conversion', async function () {
+test('Wildcard to Regex conversion', async function () {
     const simpleRegex = wildcard2regex('foo');
     expect(simpleRegex.test('foo')).true;
     expect(simpleRegex.test('bar')).false;
