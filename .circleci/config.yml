@@ -117,9 +117,7 @@ jobs:
             make bootstrap
       - run:
           name: Test
-          command: |
-            export PATH="$PATH:$HOME/.cargo/bin"
-            make test
+          command: make test
       - run:
           name: Sanity check
           command: |
