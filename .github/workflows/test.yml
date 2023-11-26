@@ -13,13 +13,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.1
 
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4.0.0
+        with:
+          node-version: latest
+
+      - name: Setup Python
+        uses: actions/setup-python@v4.7.1
+        with:
+          python-version: 3.x
+
       - name: Configure system
         run: |
           git config --global user.email nobody@example.com
           git config --global user.name Nobody
 
-      - name: Install project dependencies
-        run: npm ci --unsafe-perm --no-progress --no-audit --quiet
+      - name: Bootstrap
+        run: make bootstrap
+        shell: bash
+
+      - name: Build
+        run: make build
+        shell: bash
 
       - name: Test
-        run: npm test
+        run: make test
+        shell: bash
