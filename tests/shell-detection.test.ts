@@ -5,7 +5,7 @@ import { test, describe } from 'node:test';
 import { expect } from 'chai';
 import { detectShell } from '../src/utils';
 
-describe('Test', function () {
+describe('Shell detection', function () {
     let tmpDir: string;
 
     test.beforeEach(async function () {

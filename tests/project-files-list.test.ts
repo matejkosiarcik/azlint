@@ -44,7 +44,7 @@ describe('Find files in raw directory', function () {
     });
 });
 
-describe('Find files', function () {
+describe('Find files in git repository', function () {
     let tmpDir: string;
     let currDir: string;
 
