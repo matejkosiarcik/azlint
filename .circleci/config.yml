@@ -83,7 +83,9 @@ jobs:
       - run:
           name: Install system dependencies
           command: |
+            echo '@@ start @@'
             apt-get update # -qq
+            echo '@@ 1 @@'
             # DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes -qq
               apt-get install --yes --no-install-recommends \
               ca-certificates curl git jq libxml2-utils pandoc parallel \
@@ -98,9 +100,11 @@ jobs:
               ash bash dash ksh ksh93u+m mksh posh yash zsh \
               shellcheck \
               >/dev/null
+            echo '@@ 2 @@'
             # Haskell packages skipped: cabal-install ghc
             git config --global user.email nobody@example.com
             git config --global user.name Nobody
+            echo '@@ end @@'
       - run:
           name: Install project dependencies
           command: |
