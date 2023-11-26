@@ -1,15 +1,14 @@
-import fs from 'fs/promises';
-import os from 'os';
-import path from 'path';
-import process from 'process';
+import assert from 'node:assert';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import process from 'node:process';
 import { test, describe } from 'node:test';
-import { expect } from 'chai';
 import { delay, hashFile, isProjectGitRepo, resolvePromiseOrValue, wildcard2regex } from '../src/utils';
-import assert from 'assert';
 
 describe('Utils', () => {
     test('Project is git repo', async function () {
-        expect(await isProjectGitRepo(), 'Project should be a git repo').true;
+        assert.ok(await isProjectGitRepo(), 'Project should be a git repo');
     });
 
     test('TEMPDIR is not git repo', async function () {
@@ -17,7 +16,7 @@ describe('Utils', () => {
         const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'azlint-tests-'));
         process.chdir(tmpDir);
 
-        expect(await isProjectGitRepo(), 'TempDir should not be a git repo').false;
+        assert.strictEqual(await isProjectGitRepo(), false, 'TempDir should not be a git repo');
 
         process.chdir(currDir);
         await fs.rm(tmpDir, { force: true, recursive: true });
@@ -28,7 +27,7 @@ describe('Utils', () => {
         await delay(10);
         const end = Date.now();
         const difference = (end - start) / 1000;
-        expect(difference, 'Delay should be delayed').gte(0.001).lte(0.1);
+        assert.ok(difference >= 0.001 && difference <= 0.1, `Delay should be delayed around 10ms, got ${difference}`);
     });
 
     test('Resolve promises', async function () {
@@ -57,7 +56,6 @@ describe('Utils', () => {
         for (const value of values) {
             const expected = value.expected;
             const tested = await resolvePromiseOrValue(value.input);
-            // expect(tested).eq(expected);
             assert.strictEqual(tested, expected);
         }
     });
@@ -68,11 +66,11 @@ describe('Utils', () => {
         process.chdir(tmpDir);
 
         await fs.writeFile('file.txt', 'abc123', 'utf8');
-        expect(await hashFile('file.txt'), 'Hash should match - 1').eq('Y2fEjdGT1W6nsLqtJbGUVeUp9e4=');
-        expect(await hashFile('file.txt'), 'Hash should match - 2').eq('Y2fEjdGT1W6nsLqtJbGUVeUp9e4=');
+        assert.strictEqual(await hashFile('file.txt'), 'Y2fEjdGT1W6nsLqtJbGUVeUp9e4=', 'Hash should match - 1');
+        assert.strictEqual(await hashFile('file.txt'), 'Y2fEjdGT1W6nsLqtJbGUVeUp9e4=', 'Hash should match - 2');
 
         await fs.appendFile('file.txt', 'v2', 'utf8');
-        expect(await hashFile('file.txt'), 'Hash should match - 2').eq('WCEPr/lhPcJbiYs9aW2reUk+Uvc=');
+        assert.strictEqual(await hashFile('file.txt'), 'WCEPr/lhPcJbiYs9aW2reUk+Uvc=', 'Hash should match - 2');
 
         process.chdir(currDir);
         await fs.rm(tmpDir, { force: true, recursive: true });
@@ -80,39 +78,39 @@ describe('Utils', () => {
 
     test('Wildcard to Regex conversion', async function () {
         const simpleRegex = wildcard2regex('foo');
-        expect(simpleRegex.test('foo')).true;
-        expect(simpleRegex.test('bar')).false;
+        assert.ok(simpleRegex.test('foo'));
+        assert.ok(!simpleRegex.test('bar'));
 
         const fileRegex = wildcard2regex('abc.txt');
-        expect(fileRegex.test('abc.txt')).true;
-        expect(fileRegex.test('abc,txt')).false;
+        assert.ok(fileRegex.test('abc.txt'));
+        assert.ok(!fileRegex.test('abc,txt'));
 
         const questionRegex = wildcard2regex('ab?.txt');
-        expect(questionRegex.test('abc.txt')).true;
-        expect(questionRegex.test('abd.txt')).true;
-        expect(questionRegex.test('abcd.txt')).false;
+        assert.ok(questionRegex.test('abc.txt'));
+        assert.ok(questionRegex.test('abd.txt'));
+        assert.ok(!questionRegex.test('abcd.txt'));
 
         const starRegex = wildcard2regex('ab*.txt');
-        expect(starRegex.test('ab.txt')).true;
-        expect(starRegex.test('abc.txt')).true;
-        expect(starRegex.test('abcd.txt')).true;
+        assert.ok(starRegex.test('ab.txt'));
+        assert.ok(starRegex.test('abc.txt'));
+        assert.ok(starRegex.test('abcd.txt'));
 
         const pathRegex = wildcard2regex('ab/*.txt');
-        expect(pathRegex.test('ab/file.txt')).true;
-        expect(pathRegex.test('ab/dir/file.txt')).false;
-        expect(pathRegex.test('ab.txt')).false;
+        assert.ok(pathRegex.test('ab/file.txt'));
+        assert.ok(!pathRegex.test('ab/dir/file.txt'));
+        assert.ok(!pathRegex.test('ab.txt'));
 
         const recursiveGlobRegex = wildcard2regex('ab/**/*.txt');
-        expect(recursiveGlobRegex.test('ab/file.txt')).true;
-        expect(recursiveGlobRegex.test('ab/dir/file.txt')).true;
-        expect(recursiveGlobRegex.test('ab/dir/dir2/file.txt')).true;
-        expect(recursiveGlobRegex.test('ab.txt')).false;
+        assert.ok(recursiveGlobRegex.test('ab/file.txt'));
+        assert.ok(recursiveGlobRegex.test('ab/dir/file.txt'));
+        assert.ok(recursiveGlobRegex.test('ab/dir/dir2/file.txt'));
+        assert.ok(!recursiveGlobRegex.test('ab.txt'));
 
         const multichoiceRegex = wildcard2regex('ab.{txt,md}');
-        expect(multichoiceRegex.test('ab.txt')).true;
-        expect(multichoiceRegex.test('ab.md')).true;
-        expect(multichoiceRegex.test('ab.txtmd')).false;
-        expect(multichoiceRegex.test('ab.mdtxt')).false;
-        expect(multichoiceRegex.test('ab.jpg')).false;
+        assert.ok(multichoiceRegex.test('ab.txt'));
+        assert.ok(multichoiceRegex.test('ab.md'));
+        assert.ok(!multichoiceRegex.test('ab.txtmd'));
+        assert.ok(!multichoiceRegex.test('ab.mdtxt'));
+        assert.ok(!multichoiceRegex.test('ab.jpg'));
     });
 })

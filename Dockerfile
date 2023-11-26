@@ -15,13 +15,15 @@
 FROM --platform=$BUILDPLATFORM ubuntu:23.10 AS upx-base
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends parallel upx-ucl >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        parallel upx-ucl >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 
 FROM debian:12.2-slim AS bins-aggregator
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends file >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        file >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 
 # Executable optimizer #
@@ -38,7 +40,8 @@ COPY utils/check-executable.sh ./
 # Golang builder #
 FROM --platform=$BUILDPLATFORM golang:1.21.4-bookworm AS go-builder-base
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends moreutils >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        moreutils >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
@@ -46,7 +49,8 @@ WORKDIR /app
 FROM --platform=$BUILDPLATFORM debian:12.2-slim AS gitman-base
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends python3 python3-pip git >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        python3 python3-pip git >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY build-dependencies/gitman/requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
@@ -217,7 +221,8 @@ RUN sh apply-git-patches.sh git-patches gitman/checkmake
 
 FROM --platform=$BUILDPLATFORM go-builder-base AS go-checkmake-build
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends pandoc >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        pandoc >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=go-checkmake-gitman /app/gitman/checkmake /app/checkmake
 WORKDIR /app/checkmake
@@ -291,7 +296,8 @@ COPY --from=go-tomljson-final /app/bin/tomljson ./
 FROM --platform=$BUILDPLATFORM debian:12.2-slim AS rust-dependencies-versions
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends jq python3 python3-pip >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        jq python3 python3-pip >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY build-dependencies/yq/requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
@@ -305,15 +311,15 @@ RUN tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' Car
 FROM --platform=$BUILDPLATFORM rust:1.74.0-slim-bookworm AS rust-builder
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends file >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        file >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 ARG BUILDARCH BUILDOS TARGETARCH TARGETOS
 COPY utils/rust/get-target-arch.sh ./
 RUN if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         apt-get update -qq && \
         DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
-            "gcc-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" \
-            "libc6-dev-$TARGETARCH-cross" >/dev/null && \
+            "gcc-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" "libc6-dev-$TARGETARCH-cross" >/dev/null && \
         rm -rf /var/lib/apt/lists/* && \
     true; fi
 COPY utils/rust/get-target-tripple.sh ./
@@ -366,7 +372,8 @@ RUN --mount=type=cache,target=/root/.gitcache \
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
 FROM debian:12.2-slim AS circleci-base
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends ca-certificates curl >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        ca-certificates curl >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=circleci-gitman /app/gitman/circleci-cli /app/circleci-cli
 WORKDIR /app/circleci-cli
@@ -391,7 +398,8 @@ RUN --mount=type=cache,target=/root/.gitcache \
 
 FROM debian:12.2-slim AS shell-loksh-base
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends build-essential ca-certificates git meson >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        build-essential ca-certificates git meson >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=shell-loksh-gitman /app/gitman/loksh /app/loksh
 WORKDIR /app/loksh
@@ -424,7 +432,8 @@ RUN --mount=type=cache,target=/root/.gitcache \
 
 FROM debian:12.2-slim AS shell-oksh-base
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends build-essential >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        build-essential >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=shell-oksh-gitman /app/gitman/oksh /app/oksh
 WORKDIR /app/oksh
@@ -498,7 +507,8 @@ RUN sh /optimizations/optimize-nodejs.sh
 FROM debian:12.2-slim AS nodejs-final
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends nodejs npm >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        nodejs npm >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/nodejs.sh ./sanity-check.sh
 COPY --from=nodejs-optimize /app/node_modules ./node_modules
@@ -509,7 +519,8 @@ RUN sh sanity-check.sh
 FROM --platform=$BUILDPLATFORM debian:12.2-slim AS ruby-base
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends bundler ruby ruby-build ruby-dev >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        bundler ruby ruby-build ruby-dev >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/Gemfile linters/Gemfile.lock ./
 RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install --quiet
@@ -522,7 +533,8 @@ RUN sh /optimizations/optimize-bundle.sh
 FROM debian:12.2-slim AS ruby-final
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends bundler ruby ruby-build ruby-dev >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        bundler ruby ruby-build ruby-dev >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/ruby.sh ./sanity-check.sh
 COPY linters/Gemfile ./
@@ -537,7 +549,8 @@ RUN sh sanity-check.sh
 FROM debian:12.2-slim AS python-base
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends python3 python3-pip >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        python3 python3-pip >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/requirements.txt ./
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
@@ -554,7 +567,8 @@ RUN sh /optimizations/optimize-python.sh
 FROM debian:12.2-slim AS python-final
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends python-is-python3 python3 python3-pip >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        python-is-python3 python3 python3-pip >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/python.sh ./sanity-check.sh
 COPY --from=python-optimize /app/python ./python
@@ -577,7 +591,8 @@ COPY --from=composer-bin /usr/bin/composer ./bin/
 FROM debian:12.2-slim AS composer-vendor-base
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends ca-certificates composer php php-mbstring php-zip >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        ca-certificates composer php php-mbstring php-zip >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/composer.json linters/composer.lock ./
 RUN composer install --no-cache --quiet
@@ -590,7 +605,8 @@ RUN sh /optimizations/optimize-composer.sh
 FROM debian:12.2-slim AS composer-final
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends ca-certificates php >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        ca-certificates php >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/composer.sh ./sanity-check.sh
 COPY linters/composer.json ./linters/
@@ -613,11 +629,13 @@ RUN --mount=type=cache,target=/root/.gitcache \
 FROM --platform=$BUILDPLATFORM debian:12.2-slim AS brew-install
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends ca-certificates curl git moreutils procps ruby >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        ca-certificates curl git moreutils procps ruby >/dev/null && \
     if [ "$(uname -m)" != 'amd64' ]; then \
         dpkg --add-architecture amd64 && \
         apt-get update -qq && \
-        DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends libc6:amd64 >/dev/null && \
+        DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+            libc6:amd64 >/dev/null && \
     true; fi && \
     rm -rf /var/lib/apt/lists/* && \
     touch /.dockerenv
@@ -682,7 +700,8 @@ RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebre
 FROM debian:12.2-slim AS brew-optimize-trace
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends curl git inotify-tools psmisc >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        curl git inotify-tools psmisc >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/brew.sh ./sanity-check.sh
 COPY --from=brew-link-rbenv /home/linuxbrew /home/linuxbrew
@@ -709,7 +728,8 @@ RUN sh /optimizations/optimize-rbenv.sh && \
 FROM debian:12.2-slim AS brew-final
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends curl git >/dev/null && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        curl git >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/brew.sh ./sanity-check.sh
 COPY --from=brew-optimize /home/linuxbrew /home/linuxbrew

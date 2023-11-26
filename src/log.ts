@@ -1,4 +1,4 @@
-import { ExecaReturnValue } from "@esm2cjs/execa";
+import { ExecaReturnValue } from '@esm2cjs/execa';
 import { ColorOptions } from "./utils";
 
 export enum LogLevel {

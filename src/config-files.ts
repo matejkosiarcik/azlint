@@ -1,5 +1,5 @@
-import fsSync from 'fs';
-import path from 'path';
+import fsSync from 'node:fs';
+import path from 'node:path';
 import { listDirectory, matchFiles } from './utils';
 
 export const configFiles = {

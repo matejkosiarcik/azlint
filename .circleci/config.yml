@@ -85,7 +85,7 @@ jobs:
           command: |
             apt-get update -qq
             DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes \
-              apt-get install --yes --no-install-recommends \
+              apt-get install -q --yes --no-install-recommends \
               ca-certificates curl git jq libxml2-utils pandoc parallel \
               build-essential meson \
               bmake make \

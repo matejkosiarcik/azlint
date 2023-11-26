@@ -1,5 +1,5 @@
-import path from 'path';
-import { Options as ExecaOptions } from "@esm2cjs/execa";
+import path from 'node:path';
+import { Options as ExecaOptions } from '@esm2cjs/execa';
 import { resolvePromiseOrValue } from './utils';
 
 /**

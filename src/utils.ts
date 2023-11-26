@@ -1,8 +1,8 @@
-import path from 'path';
-import fs from 'fs/promises';
-import fsSync from 'fs';
+import path from 'node:path';
+import fs from 'node:fs/promises';
+import fsSync from 'node:fs';
 import crypto from 'crypto';
-import { execa, ExecaError, Options as ExecaOptions, ExecaReturnValue } from "@esm2cjs/execa";
+import { execa, ExecaError, Options as ExecaOptions, ExecaReturnValue } from '@esm2cjs/execa';
 import { logAlways, logVerbose } from './log';
 
 export type OneOrArray<T> = T | T[];
