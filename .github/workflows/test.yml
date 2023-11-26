@@ -26,13 +26,35 @@ jobs:
         with:
           python-version: 3.x
 
-      - uses: hecrj/setup-rust-action@v2.0.0
+      - name: Setup Rust
+        uses: hecrj/setup-rust-action@v2.0.0
         with:
           rust-version: stable
 
-      - uses: actions/setup-go@v4.1.0
+      - name: Setup Go
+        uses: actions/setup-go@v4.1.0
         with:
           go-version: stable
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1.161.0
+        with:
+          ruby-version: ruby # latest
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2.27.1
+        with:
+          php-version: latest
+          extensions: mbstring # TODO: consider removing if not necessary
+
+      - name: Setup Clang
+        uses: egor-tensin/setup-clang@v1.4
+        with:
+          version: latest
+          platform: x64
+
+      - name: Setup Ninja
+        uses: seanmiddleditch/gha-setup-ninja@4
 
       - name: Configure system
         run: |
