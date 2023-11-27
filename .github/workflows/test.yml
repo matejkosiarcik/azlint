@@ -42,7 +42,7 @@ jobs:
           ruby-version: ruby # latest
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2.27.1
+        uses: shivammathur/setup-php@2.27.1
         with:
           php-version: latest
           extensions: mbstring # TODO: consider removing if not necessary
@@ -54,7 +54,7 @@ jobs:
           platform: x64
 
       - name: Setup Ninja
-        uses: seanmiddleditch/gha-setup-ninja@4
+        uses: seanmiddleditch/gha-setup-ninja@v4
 
       - name: Configure system
         run: |
