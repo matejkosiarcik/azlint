@@ -16,6 +16,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.1
 
+      - name: Setup Chocolatey?
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: crazy-max/ghaction-chocolatey@v3.0.0
+        with:
+          args: -h
+
       - name: Setup GCC
         if: ${{ matrix.os == 'linux-latest' }}
         uses: egor-tensin/setup-gcc@v1.3
