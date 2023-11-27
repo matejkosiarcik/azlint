@@ -48,10 +48,16 @@ jobs:
           extensions: mbstring # TODO: consider removing if not necessary
 
       - name: Setup Clang
-        uses: egor-tensin/setup-clang@v1.4
+        uses: egor-tensin/setup-gcc@v1.3
         with:
           version: latest
           platform: x64
+
+      # - name: Setup Clang
+      #   uses: egor-tensin/setup-clang@v1.4
+      #   with:
+      #     version: latest
+      #     platform: x64
 
       - name: Setup Ninja
         uses: seanmiddleditch/gha-setup-ninja@v4
