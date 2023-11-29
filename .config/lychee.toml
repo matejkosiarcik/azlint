@@ -1,3 +1,4 @@
 exclude = [
   '^https://bevry\.me', # Frequent timeouts
+  '^shivammathur/setup-php@.+$' # Invalid email address
 ]
