@@ -12,7 +12,7 @@
 # NOTE: `upx-ucl` is no longer available in debian 12 bookworm
 # It is available in older versions, see https://packages.debian.org/bullseye/upx-ucl
 # However, there were upgrade problems for bookworm, see https://tracker.debian.org/pkg/upx-ucl
-FROM --platform=$BUILDPLATFORM ubuntu:23.10 AS upx-base
+FROM --platform=$BUILDPLATFORM ubuntu:24.04 AS upx-base
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
