@@ -23,9 +23,9 @@
     "modclean": "^3.0.0-beta.1",
     "node-prune": "^1.0.2",
     "rollup": "^4.6.1",
-    "terser": "^5.24.0",
+    "terser": "^5.25.0",
     "tsx": "^4.6.2",
-    "typescript": "^5.3.2",
+    "typescript": "^5.3.3",
     "yaml": "^2.3.4"
   }
 }
