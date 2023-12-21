@@ -20,7 +20,10 @@ bootstrap:
 		xargs -0 -P0 -n1 npm install --no-save --no-progress --no-audit --quiet --prefix
 
 	# Python dependencies
-	printf '%s\n%s\n' build-dependencies/gitman build-dependencies/yq | while read -r dir; do \
+	printf '%s\n%s\n' \
+		build-dependencies/gitman \
+		build-dependencies/yq \
+	| while read -r dir; do \
 		cd "$(PROJECT_DIR)/$$dir" && \
 		python3 -m venv venv && \
 		PATH="$$PWD/venv/bin:$$PATH" \
