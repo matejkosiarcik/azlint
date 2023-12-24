@@ -331,7 +331,15 @@ export class Linters {
             linterName: 'brew-bundle',
             envName: 'BREW_BUNDLE',
             fileMatch: ['Brewfile', '*.Brewfile', 'Brewfile.*'],
-            lintFile: { args: ['brew', 'bundle', 'list', '--file', '#file#', '--no-lock'] },
+            lintFile: {
+                args: ['brew', 'bundle', 'list', '--file', '#file#', '--no-lock'],
+                options: {
+                    env: {
+                        // TODO: Make ruby version dynamic
+                        PATH: `/.rbenv/versions/3.1.4/bin:${process.env['PATH']}`,
+                    },
+                },
+            },
         });
 
         // NPM install - lockfile

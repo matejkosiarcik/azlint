@@ -651,17 +651,7 @@ ENV HOMEBREW_NO_ANALYTICS=1 \
 RUN NONINTERACTIVE=1 chronic bash brew-installer/install.sh && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
     brew bundle --help --quiet >/dev/null && \
-    find /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby/ -maxdepth 1 -mindepth 1 | \
-        sed -E 's~^.*/~~' | \
-        grep -E '^[0-9]+\.[0-9]+\.[0-9]+(_[0-9]+)?$' \
-        >'/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version' && \
-    ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
-    rm -rf "/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby/$ruby_version_full" && \
     find /home/linuxbrew -type d -name .git -prune -exec rm -rf {} \;
-# TODO: Resolve this homebrew version mismatch
-# NOTE: Somehow HomeBrew is kinda broken currently
-# Because it supposedly has 3.1.4 version in /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version
-# But it has actually a 2.6.10_1 bundled ruby at /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/2.6.10_1
 
 # LinuxBrew - rbenv #
 FROM --platform=$BUILDPLATFORM gitman-base AS rbenv-gitman
@@ -691,10 +681,12 @@ FROM --platform=$BUILDPLATFORM debian:12.2-slim AS brew-link-rbenv
 WORKDIR /app
 COPY --from=brew-install /home/linuxbrew /home/linuxbrew
 COPY --from=brew-rbenv-install /.rbenv/versions /.rbenv/versions
-RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
-    ruby_version_short="$(sed -E 's~_.+$~~' </home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
-    ln -sf "/.rbenv/versions/$ruby_version_short" "/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby/$ruby_version_full" && \
-    find /.rbenv/versions -mindepth 1 -maxdepth 1 -type d -not -name "$ruby_version_short" -exec rm -rf {} \;
+# RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
+#     ruby_version_short="$(sed -E 's~_.+$~~' </home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
+#     ln -sf "/.rbenv/versions/$ruby_version_short" "/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/$ruby_version_full" && \
+#     ln -sf "/.rbenv/versions/$ruby_version_short/bundle" "/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/bundle" && \
+#     ln -sf "/.rbenv/versions/$ruby_version_short/gems" "/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/gems" && \
+#     find /.rbenv/versions -mindepth 1 -maxdepth 1 -type d -not -name "$ruby_version_short" -exec rm -rf {} \;
 
 # In this stage we collect trace information about which files from linuxbrew and rbenv's ruby are actually neeeded
 FROM debian:12.2-slim AS brew-optimize-trace
@@ -709,6 +701,8 @@ COPY --from=brew-link-rbenv /.rbenv/versions /.rbenv/versions
 ENV BINPREFIX=/home/linuxbrew/.linuxbrew/bin/ \
     HOMEBREW_NO_ANALYTICS=1 \
     HOMEBREW_NO_AUTO_UPDATE=1
+# TODO: Make ruby version dynamic
+ENV PATH="/.rbenv/versions/3.1.4/bin:$PATH"
 RUN touch /.dockerenv rbenv-list.txt brew-list.txt && \
     inotifywait --daemon --recursive --event access /.rbenv/versions --outfile rbenv-list.txt --format '%w%f' && \
     inotifywait --daemon --recursive --event access /home/linuxbrew --outfile brew-list.txt --format '%w%f' && \
@@ -737,6 +731,8 @@ COPY --from=brew-optimize /.rbenv/versions /.rbenv/versions
 ENV BINPREFIX=/home/linuxbrew/.linuxbrew/bin/ \
     HOMEBREW_NO_ANALYTICS=1 \
     HOMEBREW_NO_AUTO_UPDATE=1
+# TODO: Make ruby version dynamic
+ENV PATH="/.rbenv/versions/3.1.4/bin:$PATH"
 RUN touch /.dockerenv && \
     sh sanity-check.sh
 
