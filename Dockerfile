@@ -651,7 +651,6 @@ ENV HOMEBREW_NO_ANALYTICS=1 \
 RUN NONINTERACTIVE=1 chronic bash brew-installer/install.sh && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
     brew bundle --help --quiet >/dev/null && \
-    ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
     find /home/linuxbrew -type d -name .git -prune -exec rm -rf {} \;
 
 # LinuxBrew - rbenv #
