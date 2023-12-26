@@ -19,7 +19,7 @@ RUN apt-get update -qq && \
         parallel upx-ucl >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 
-FROM debian:12.2-slim AS bins-aggregator
+FROM debian:12.4-slim AS bins-aggregator
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -27,7 +27,7 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 
 # Executable optimizer #
-FROM --platform=$BUILDPLATFORM debian:12.2-slim AS executable-optimizer-base
+FROM --platform=$BUILDPLATFORM debian:12.4-slim AS executable-optimizer-base
 WORKDIR /app
 COPY utils/rust/get-target-arch.sh ./
 ARG TARGETARCH
@@ -46,7 +46,7 @@ RUN apt-get update -qq && \
 WORKDIR /app
 
 # Gitman #
-FROM --platform=$BUILDPLATFORM debian:12.2-slim AS gitman-base
+FROM --platform=$BUILDPLATFORM debian:12.4-slim AS gitman-base
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -59,7 +59,7 @@ ENV PATH="/app/python/bin:$PATH" \
     PYTHONPATH=/app/python
 
 # Dependency optimizer #
-FROM --platform=$BUILDPLATFORM debian:12.2-slim AS directory-optimizer-base
+FROM --platform=$BUILDPLATFORM debian:12.4-slim AS directory-optimizer-base
 WORKDIR /optimizations
 COPY utils/rust/get-target-arch.sh ./
 ARG TARGETARCH
@@ -293,7 +293,7 @@ COPY --from=go-stoml-final /app/bin/stoml ./
 COPY --from=go-tomljson-final /app/bin/tomljson ./
 
 # Rust #
-FROM --platform=$BUILDPLATFORM debian:12.2-slim AS rust-dependencies-versions
+FROM --platform=$BUILDPLATFORM debian:12.4-slim AS rust-dependencies-versions
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -370,7 +370,7 @@ RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
 
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
-FROM debian:12.2-slim AS circleci-base
+FROM debian:12.4-slim AS circleci-base
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         ca-certificates curl >/dev/null && \
@@ -396,7 +396,7 @@ COPY linters/gitman-repos/shell-loksh/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
 
-FROM debian:12.2-slim AS shell-loksh-base
+FROM debian:12.4-slim AS shell-loksh-base
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         build-essential ca-certificates git meson >/dev/null && \
@@ -430,7 +430,7 @@ COPY linters/gitman-repos/shell-oksh/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
 
-FROM debian:12.2-slim AS shell-oksh-base
+FROM debian:12.4-slim AS shell-oksh-base
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         build-essential >/dev/null && \
@@ -504,7 +504,7 @@ COPY utils/optimize/optimize-nodejs.sh /optimizations/
 COPY --from=nodejs-base /app/node_modules ./node_modules
 RUN sh /optimizations/optimize-nodejs.sh
 
-FROM debian:12.2-slim AS nodejs-final
+FROM debian:12.4-slim AS nodejs-final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -516,7 +516,7 @@ ENV BINPREFIX=/app/node_modules/.bin/
 RUN sh sanity-check.sh
 
 # Ruby/Gem #
-FROM --platform=$BUILDPLATFORM debian:12.2-slim AS ruby-base
+FROM --platform=$BUILDPLATFORM debian:12.4-slim AS ruby-base
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -530,7 +530,7 @@ COPY utils/optimize/optimize-bundle.sh /optimizations/
 COPY --from=ruby-base /app/bundle ./bundle
 RUN sh /optimizations/optimize-bundle.sh
 
-FROM debian:12.2-slim AS ruby-final
+FROM debian:12.4-slim AS ruby-final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -546,7 +546,7 @@ ENV BUNDLE_DISABLE_SHARED_GEMS=true \
 RUN sh sanity-check.sh
 
 # Python/Pip #
-FROM debian:12.2-slim AS python-base
+FROM debian:12.4-slim AS python-base
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -564,7 +564,7 @@ COPY utils/optimize/optimize-python.sh /optimizations/
 COPY --from=python-base /app/python ./python
 RUN sh /optimizations/optimize-python.sh
 
-FROM debian:12.2-slim AS python-final
+FROM debian:12.4-slim AS python-final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -582,13 +582,13 @@ RUN sh sanity-check.sh
 # Composer #
 FROM composer:2.6.5 AS composer-bin
 
-FROM --platform=$BUILDPLATFORM debian:12.2-slim AS composer-bin-optimize
+FROM --platform=$BUILDPLATFORM debian:12.4-slim AS composer-bin-optimize
 WORKDIR /app
 COPY --from=composer-bin /usr/bin/composer ./bin/
 # TODO: optimize `composer` script
 
 # PHP/Composer #
-FROM debian:12.2-slim AS composer-vendor-base
+FROM debian:12.4-slim AS composer-vendor-base
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -602,7 +602,7 @@ COPY utils/optimize/optimize-composer.sh /optimizations/
 COPY --from=composer-vendor-base /app/vendor ./vendor
 RUN sh /optimizations/optimize-composer.sh
 
-FROM debian:12.2-slim AS composer-final
+FROM debian:12.4-slim AS composer-final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -626,7 +626,7 @@ RUN --mount=type=cache,target=/root/.gitcache \
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it
 # We have to provide our custom `uname`, because HomeBrew prohibits installation on non-x64 Linux systems
-FROM --platform=$BUILDPLATFORM debian:12.2-slim AS brew-install
+FROM --platform=$BUILDPLATFORM debian:12.4-slim AS brew-install
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -661,7 +661,7 @@ RUN --mount=type=cache,target=/root/.gitcache \
 
 # We need to replace ruby bundled with HomeBrew, because it is only a x64 version
 # Instead we install the same ruby version via rbenv and replace it in HomeBrew
-FROM debian:12.2-slim AS brew-rbenv-install
+FROM debian:12.4-slim AS brew-rbenv-install
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -677,7 +677,7 @@ RUN --mount=type=cache,target=/.rbenv/cache \
     ruby_version_short="$(sed -E 's~_.*$~~' <portable-ruby-version)" && \
     chronic rbenv install "$ruby_version_short"
 
-FROM --platform=$BUILDPLATFORM debian:12.2-slim AS brew-link-rbenv
+FROM --platform=$BUILDPLATFORM debian:12.4-slim AS brew-link-rbenv
 WORKDIR /app
 COPY --from=brew-install /home/linuxbrew /home/linuxbrew
 COPY --from=brew-rbenv-install /.rbenv/versions /.rbenv/versions
@@ -689,7 +689,7 @@ COPY --from=brew-rbenv-install /.rbenv/versions /.rbenv/versions
 #     find /.rbenv/versions -mindepth 1 -maxdepth 1 -type d -not -name "$ruby_version_short" -exec rm -rf {} \;
 
 # In this stage we collect trace information about which files from linuxbrew and rbenv's ruby are actually neeeded
-FROM debian:12.2-slim AS brew-optimize-trace
+FROM debian:12.4-slim AS brew-optimize-trace
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -719,7 +719,7 @@ RUN sh /optimizations/optimize-rbenv.sh && \
     sh /optimizations/optimize-brew.sh
 
 # Aggregate everything brew here and do one more sanity-check
-FROM debian:12.2-slim AS brew-final
+FROM debian:12.4-slim AS brew-final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -755,13 +755,13 @@ COPY utils/optimize/optimize-nodejs.sh /optimizations/
 COPY --from=cli-base /app/node_modules ./node_modules
 RUN sh /optimizations/optimize-nodejs.sh
 
-FROM --platform=$BUILDPLATFORM debian:12.2-slim AS cli-final
+FROM --platform=$BUILDPLATFORM debian:12.4-slim AS cli-final
 WORKDIR /app
 COPY --from=cli-base /app/cli ./cli
 COPY --from=cli-optimize /app/node_modules ./node_modules
 
 # AZLint binaries #
-FROM --platform=$BUILDPLATFORM debian:12.2-slim AS azlint-bin
+FROM --platform=$BUILDPLATFORM debian:12.4-slim AS azlint-bin
 WORKDIR /app
 RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azlint && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >fmt && \
@@ -769,7 +769,7 @@ RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azl
     chmod a+x azlint fmt lint
 
 # Pre-Final #
-FROM debian:12.2-slim AS pre-final
+FROM debian:12.4-slim AS pre-final
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         moreutils curl git libxml2-utils \
@@ -816,7 +816,7 @@ RUN chronic sh sanity-check.sh
 
 ### Final stage ###
 
-FROM debian:12.2-slim
+FROM debian:12.4-slim
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         curl git libxml2-utils \
