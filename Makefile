@@ -109,13 +109,11 @@ docker-build:
 
 .PHONY: docker-multibuild
 docker-multibuild:
-	printf 'Build linux/amd64:\n'
-	time docker build . --tag matejkosiarcik/azlint:dev-amd64 --platform linux/amd64
-	docker tag matejkosiarcik/azlint:dev-amd64 matejkosiarcik/azlint:dev-x64
-
-	printf 'Build linux/arm64/v8:\n'
-	time docker build . --tag matejkosiarcik/azlint:dev-arm64-v8 --platform linux/arm64/v8
-	docker tag matejkosiarcik/azlint:dev-arm64-v8 matejkosiarcik/azlint:dev-arm64
+	printf '%s\n%s\n' amd64 arm64/v8 | \
+		while read -r arch; do \
+			printf 'Building for linux/%s:\n' "$$arch" && \
+			time docker build . --tag "matejkosiarcik/azlint:dev-$$(printf '%s' "$$arch" | tr '/' '-')" --platform "linux/$$arch" && \
+		true; done
 
 .PHONY: docker-run
 docker-run:
@@ -123,8 +121,11 @@ docker-run:
 
 .PHONY: docker-multirun
 docker-multirun:
-	time docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project:ro" --platform linux/amd64 matejkosiarcik/azlint:dev-amd64 lint
-	time docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project:ro" --platform linux/arm64 matejkosiarcik/azlint:dev-arm64 lint
+	printf '%s\n%s\n' amd64 arm64/v8 | \
+		while read -r arch; do \
+			printf 'Running on linux/%s:\n' "$$arch" && \
+			time docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project:ro" --platform "linux/$$arch" "matejkosiarcik/azlint:dev-$$(printf '%s' "$$arch" | tr '/' '-')" lint \
+		true; done
 
 .PHONY: clean
 clean:
