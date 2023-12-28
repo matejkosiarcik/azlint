@@ -308,7 +308,7 @@ COPY linters/Cargo.toml ./
 RUN tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' Cargo.toml >cargo-dependencies.txt
 
 # Rust #
-FROM --platform=$BUILDPLATFORM rust:1.74.0-slim-bookworm AS rust-builder
+FROM --platform=$BUILDPLATFORM rust:1.74.1-slim-bookworm AS rust-builder
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
