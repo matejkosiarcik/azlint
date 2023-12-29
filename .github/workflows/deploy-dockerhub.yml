@@ -59,7 +59,7 @@ jobs:
           DOCKER_PLATFORM: ${{ matrix.platform }}
         run: |
           escaped_docker_platform="$(printf '%s' "$DOCKER_PLATFORM" | tr '/' '-')"
-          printf 'DOCKER_PLATFORM="%s"\n' "$escaped_docker_platform" >> "$GITHUB_ENV"
+          printf 'DOCKER_PLATFORM=%s\n' "$escaped_docker_platform" >> "$GITHUB_ENV"
 
       - name: Export digest
         run: |
