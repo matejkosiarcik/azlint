@@ -14,11 +14,11 @@ env:
 
 jobs:
   build-images:
-    name: Build image - ${{ matrix.platform }}
+    name: Build ${{ matrix.platform }} docker image
     runs-on: ubuntu-latest
 
     strategy:
-      # fail-fast: false
+      fail-fast: true
       matrix:
         platform:
           - linux/amd64
@@ -54,6 +54,14 @@ jobs:
           cache-to: type=gha,mode=max
           outputs: type=image,name=${{ env.DOCKER_IMAGE }},push-by-digest=true,name-canonical=true,push=true
 
+      - name: Export platform
+        env:
+          DOCKER_PLATFORM: ${{ matrix.platform }}
+        run: |
+          escaped_docker_platform="$(printf '%s' "$DOCKER_PLATFORM" | tr '/' '-')"
+          printf 'DOCKER_PLATFORM="%s"\n' "$escaped_docker_platform" >> "$GITHUB_ENV"
+          grep 'DOCKER_PLATFORM' <"$GITHUB_ENV" # TODO: Remove this line
+
       - name: Export digest
         run: |
           mkdir -p /tmp/digests
@@ -68,8 +76,8 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  push-images:
-    name: Deploy docker images
+  deploy-images:
+    name: Merge and deploy docker images
     runs-on: ubuntu-latest
     needs:
       - build-images
