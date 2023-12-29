@@ -85,7 +85,7 @@ jobs:
         uses: actions/download-artifact@v4.1.0
         with:
           pattern: digest-*
-          path: /tmp/digest
+          path: /tmp/digests
           merge-multiple: true
 
       - name: Setup Docker Buildx
