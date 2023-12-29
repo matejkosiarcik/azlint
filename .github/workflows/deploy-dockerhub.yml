@@ -14,11 +14,11 @@ env:
 
 jobs:
   build-images:
-    name: Build image - ${{ matrix.platform }}
+    name: Build ${{ matrix.platform }} docker image
     runs-on: ubuntu-latest
 
     strategy:
-      # fail-fast: false
+      fail-fast: true
       matrix:
         platform:
           - linux/amd64
@@ -68,8 +68,8 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  push-images:
-    name: Deploy docker images
+  deploy-images:
+    name: Merge and deploy docker images
     runs-on: ubuntu-latest
     needs:
       - build-images
