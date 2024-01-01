@@ -38,7 +38,7 @@ RUN apt-get update -qq && \
 COPY utils/check-executable.sh ./
 
 # Golang builder #
-FROM --platform=$BUILDPLATFORM golang:1.21.4-bookworm AS go-builder-base
+FROM --platform=$BUILDPLATFORM golang:1.21.5-bookworm AS go-builder-base
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         moreutils >/dev/null && \
