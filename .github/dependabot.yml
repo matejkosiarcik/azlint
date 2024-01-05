@@ -65,6 +65,10 @@ updates:
     assignees:
       - matejkosiarcik
     open-pull-requests-limit: 1
+    groups:
+      npm[linters]:
+        patterns:
+          - "*"
   - package-ecosystem: composer
     directory: /linters
     versioning-strategy: increase
@@ -77,6 +81,10 @@ updates:
     assignees:
       - matejkosiarcik
     open-pull-requests-limit: 1
+    groups:
+      composer[linters]:
+        patterns:
+          - "*"
   - package-ecosystem: pip
     directory: /linters
     schedule:
@@ -88,6 +96,10 @@ updates:
     assignees:
       - matejkosiarcik
     open-pull-requests-limit: 1
+    groups:
+      pip[linters]:
+        patterns:
+          - "*"
   - package-ecosystem: bundler
     directory: /linters
     schedule:
@@ -99,6 +111,10 @@ updates:
     assignees:
       - matejkosiarcik
     open-pull-requests-limit: 1
+    groups:
+      bundler[linters]:
+        patterns:
+          - "*"
   - package-ecosystem: cargo
     directory: /linters
     schedule:
@@ -110,6 +126,10 @@ updates:
     assignees:
       - matejkosiarcik
     open-pull-requests-limit: 1
+    groups:
+      cargo[linters]:
+        patterns:
+          - "*"
 
   # Build dependencies
   - package-ecosystem: npm
@@ -124,6 +144,10 @@ updates:
     assignees:
       - matejkosiarcik
     open-pull-requests-limit: 1
+    groups:
+      npm[build1]:
+        patterns:
+          - "*"
   - package-ecosystem: pip
     directory: /build-dependencies/gitman
     schedule:
@@ -135,6 +159,10 @@ updates:
     assignees:
       - matejkosiarcik
     open-pull-requests-limit: 1
+    groups:
+      pip[build1]:
+        patterns:
+          - "*"
   - package-ecosystem: pip
     directory: /build-dependencies/yq
     schedule:
@@ -146,6 +174,10 @@ updates:
     assignees:
       - matejkosiarcik
     open-pull-requests-limit: 1
+    groups:
+      pip[build2]:
+        patterns:
+          - "*"
 
   # Docs
   - package-ecosystem: npm
@@ -160,6 +192,10 @@ updates:
     assignees:
       - matejkosiarcik
     open-pull-requests-limit: 1
+    groups:
+      npm[docs-demo]:
+        patterns:
+          - "*"
   - package-ecosystem: pip
     directory: /doc/record
     schedule:
@@ -171,3 +207,7 @@ updates:
     assignees:
       - matejkosiarcik
     open-pull-requests-limit: 1
+    groups:
+      pip[docs-demo]:
+        patterns:
+          - "*"
