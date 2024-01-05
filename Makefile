@@ -53,7 +53,8 @@ bootstrap:
 	# Create cache ahead of time, because it can fail when creating during runtime
 	mkdir -p "$$HOME/.cache/proselint"
 
-	gem install bundler --install-dir linters/ruby
+	gem install bundler
+	# --install-dir "$(PROJECT_DIR)linters/ruby"
 	PATH="$(PROJECT_DIR)/linters/ruby/bin:$$PATH" \
 	BUNDLE_DISABLE_SHARED_GEMS=true \
 	BUNDLE_PATH__SYSTEM=false \
