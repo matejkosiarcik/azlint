@@ -757,13 +757,13 @@ RUN sh /optimizations/optimize-nodejs.sh
 
 FROM --platform=$BUILDPLATFORM debian:12.4-slim AS cli-final
 WORKDIR /app
-COPY --from=cli-base /app/cli ./cli
+COPY --from=cli-base /app/cli-dist ./cli-dist
 COPY --from=cli-optimize /app/node_modules ./node_modules
 
 # AZLint binaries #
 FROM --platform=$BUILDPLATFORM debian:12.4-slim AS azlint-bin
 WORKDIR /app
-RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli/main.js $@' >azlint && \
+RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli-dist/main.js $@' >azlint && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >fmt && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint lint $@' >lint && \
     chmod a+x azlint fmt lint
@@ -786,8 +786,8 @@ COPY --from=brew-final /.rbenv/versions /.rbenv/versions
 COPY --from=azlint-bin /app/azlint /app/fmt /app/lint /usr/bin/
 WORKDIR /app
 COPY VERSION.txt ./
-WORKDIR /app/cli
-COPY --from=cli-final /app/cli ./
+WORKDIR /app/cli-dist
+COPY --from=cli-final /app/cli-dist ./
 COPY --from=cli-final /app/node_modules ./node_modules
 COPY src/shell-dry-run.sh src/shell-dry-run-utils.sh ./
 WORKDIR /app/linters

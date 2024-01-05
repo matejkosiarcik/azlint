@@ -17,7 +17,7 @@ Brewfile.lock.json
 node_modules/
 
 # build artifacts
-/cli/
+/cli-dist/
 
 # misc
 .env
