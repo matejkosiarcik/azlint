@@ -13,6 +13,10 @@ updates:
     assignees:
       - matejkosiarcik
     open-pull-requests-limit: 1
+    groups:
+      docker:
+        patterns:
+          - "*"
 
   # Main CLI
   - package-ecosystem: npm
@@ -26,6 +30,10 @@ updates:
     assignees:
       - matejkosiarcik
     open-pull-requests-limit: 1
+    groups:
+      npm[cli]:
+        patterns:
+          - "*"
 
   # CI
   - package-ecosystem: github-actions
@@ -39,6 +47,10 @@ updates:
     assignees:
       - matejkosiarcik
     open-pull-requests-limit: 1
+    groups:
+      github-actions:
+        patterns:
+          - "*"
 
   # Linters
   - package-ecosystem: npm
