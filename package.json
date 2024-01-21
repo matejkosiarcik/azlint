@@ -12,7 +12,7 @@
   "dependencies": {
     "@esm2cjs/execa": "^6.1.1-cjs.1",
     "@esm2cjs/p-limit": "^4.0.0",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.3.2",
     "yargs": "^17.7.2"
   },
   "devDependencies": {
@@ -22,7 +22,7 @@
     "@types/yargs": "^17.0.32",
     "modclean": "^3.0.0-beta.1",
     "node-prune": "^1.0.2",
-    "rollup": "^4.9.5",
+    "rollup": "^4.9.6",
     "terser": "^5.27.0",
     "tsx": "^4.7.0",
     "typescript": "^5.3.3",
