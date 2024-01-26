@@ -37,7 +37,7 @@ jobs:
           go-version: stable
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@v1.169.0
+        uses: ruby/setup-ruby@v1.170.0
         with:
           ruby-version: ruby # latest
 
