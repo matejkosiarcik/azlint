@@ -68,7 +68,7 @@ jobs:
           touch "/tmp/digests/${digest#sha256:}"
 
       - name: Upload digest
-        uses: actions/upload-artifact@v4.3.0
+        uses: actions/upload-artifact@v4.3.1
         with:
           name: digest-${{ env.DOCKER_PLATFORM }}
           path: /tmp/digests/*
@@ -82,7 +82,7 @@ jobs:
       - build-images
     steps:
       - name: Download digests
-        uses: actions/download-artifact@v4.1.1
+        uses: actions/download-artifact@v4.1.2
         with:
           pattern: digest-*
           path: /tmp/digests
@@ -92,7 +92,7 @@ jobs:
         uses: docker/setup-buildx-action@v3.0.0
 
       - name: Docker metadata
-        uses: docker/metadata-action@v5.5.0
+        uses: docker/metadata-action@v5.5.1
         id: meta
         with:
           images: ${{ env.DOCKER_IMAGE }}
