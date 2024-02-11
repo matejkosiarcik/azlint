@@ -12,19 +12,19 @@
   "dependencies": {
     "@esm2cjs/execa": "^6.1.1-cjs.1",
     "@esm2cjs/p-limit": "^4.0.0",
-    "dotenv": "^16.4.1",
+    "dotenv": "^16.4.2",
     "yargs": "^17.7.2"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^11.1.6",
-    "@tsconfig/strictest": "^2.0.2",
-    "@types/node": "^20.11.16",
+    "@tsconfig/strictest": "^2.0.3",
+    "@types/node": "^20.11.17",
     "@types/yargs": "^17.0.32",
     "modclean": "^3.0.0-beta.1",
     "node-prune": "^1.0.2",
-    "rollup": "^4.9.6",
+    "rollup": "^4.10.0",
     "terser": "^5.27.0",
-    "tsx": "^4.7.0",
+    "tsx": "^4.7.1",
     "typescript": "^5.3.3",
     "yaml": "^2.3.4"
   }

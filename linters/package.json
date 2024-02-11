@@ -20,7 +20,7 @@
     "secretlint": "^8.1.1",
     "sql-lint": "^1.0.0",
     "svglint": "^2.6.0",
-    "textlint": "^14.0.1",
+    "textlint": "^14.0.2",
     "textlint-rule-no-todo": "^2.0.1"
   }
 }

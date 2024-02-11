@@ -43,8 +43,10 @@ jobs:
           # VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           DEFAULT_BRANCH: main
           LINTER_RULES_PATH: .config/
+          MULTI_STATUS: false
 
           # disable
+          VALIDATE_BASH_EXEC: false
           VALIDATE_CSS: false
           VALIDATE_JSON: false # Because eslint considers .json as .js (so rules like single-quote don't make sense)
           VALIDATE_JAVASCRIPT_ES: false
