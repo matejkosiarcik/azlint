@@ -12,7 +12,7 @@
   "dependencies": {
     "@esm2cjs/execa": "^6.1.1-cjs.1",
     "@esm2cjs/p-limit": "^4.0.0",
-    "dotenv": "^16.4.4",
+    "dotenv": "^16.4.5",
     "yargs": "^17.7.2"
   },
   "devDependencies": {
