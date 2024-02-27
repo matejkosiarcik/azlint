@@ -1,6 +1,6 @@
 {
   "private": true,
   "dependencies": {
-    "yaml": "^2.3.4"
+    "yaml": "^2.4.0"
   }
 }
