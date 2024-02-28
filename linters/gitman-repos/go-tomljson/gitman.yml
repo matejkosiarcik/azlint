@@ -14,7 +14,7 @@ sources:
 sources_locked:
   - repo: https://github.com/pelletier/go-toml.git
     name: go-toml
-    rev: 2e087bdf5f676bd8c3cf0ea9ed3e8bf1fdc6a72c
+    rev: 2b69615b5d5552a1b59c1685cad0e0e662c741f4
     type: git
     params:
     sparse_paths:
