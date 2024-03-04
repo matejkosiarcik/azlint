@@ -42,7 +42,7 @@ jobs:
           ruby-version: ruby # latest
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@2.29.0
+        uses: shivammathur/setup-php@2.30.0
         with:
           php-version: latest
           extensions: mbstring # TODO: consider removing if not necessary
