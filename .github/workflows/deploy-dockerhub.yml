@@ -47,7 +47,7 @@ jobs:
 
       - name: Build and Publish
         id: build
-        uses: docker/build-push-action@v5.1.0
+        uses: docker/build-push-action@v5.2.0
         with:
           platforms: ${{ matrix.platform }}
           cache-from: type=gha
