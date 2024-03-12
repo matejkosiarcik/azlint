@@ -27,7 +27,7 @@ jobs:
           python-version: 3.x
 
       - name: Setup Rust
-        uses: hecrj/setup-rust-action@v2.0.0
+        uses: hecrj/setup-rust-action@v2.0.1
         with:
           rust-version: stable
 
