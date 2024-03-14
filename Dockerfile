@@ -458,7 +458,7 @@ RUN sh sanity-check.sh && \
     rm -f sanity-check.sh
 
 # ShellCheck #
-FROM koalaman/shellcheck:v0.9.0 AS shellcheck-base
+FROM koalaman/shellcheck:v0.10.0 AS shellcheck-base
 
 FROM --platform=$BUILDPLATFORM upx-base AS shellcheck-upx
 COPY --from=shellcheck-base /bin/shellcheck ./
@@ -493,7 +493,7 @@ COPY --from=hadolint-final /app/bin/hadolint ./
 COPY --from=shellcheck-final /app/bin/shellcheck ./
 
 # NodeJS/NPM #
-FROM --platform=$BUILDPLATFORM node:21.6.2-slim AS nodejs-base
+FROM --platform=$BUILDPLATFORM node:21.7.1-slim AS nodejs-base
 WORKDIR /app
 COPY linters/package.json linters/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet && \
@@ -580,7 +580,7 @@ ENV BINPREFIX=/app/python/bin/ \
 RUN sh sanity-check.sh
 
 # Composer #
-FROM composer:2.7.1 AS composer-bin
+FROM composer:2.7.2 AS composer-bin
 
 FROM --platform=$BUILDPLATFORM debian:12.5-slim AS composer-bin-optimize
 WORKDIR /app
@@ -739,7 +739,7 @@ RUN touch /.dockerenv && \
 ### Helpers ###
 
 # Main CLI #
-FROM --platform=$BUILDPLATFORM node:21.6.2-slim AS cli-base
+FROM --platform=$BUILDPLATFORM node:21.7.1-slim AS cli-base
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet && \
