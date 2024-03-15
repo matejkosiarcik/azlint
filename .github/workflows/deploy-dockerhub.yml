@@ -26,28 +26,28 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.1.2
 
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v3.0.0
 
       - name: Setup Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v3.1.0
+        uses: docker/setup-buildx-action@v3.2.0
 
       - name: Debug logs
         run: |
           printf "Available platforms:\n%s\n" "${{ steps.buildx.outputs.platforms }}"
 
       - name: Login to DockerHub
-        uses: docker/login-action@v3.0.0
+        uses: docker/login-action@v3.1.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and Publish
         id: build
-        uses: docker/build-push-action@v5.2.0
+        uses: docker/build-push-action@v5.3.0
         with:
           platforms: ${{ matrix.platform }}
           cache-from: type=gha
@@ -89,7 +89,7 @@ jobs:
           merge-multiple: true
 
       - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3.1.0
+        uses: docker/setup-buildx-action@v3.2.0
 
       - name: Docker metadata
         uses: docker/metadata-action@v5.5.1
@@ -104,7 +104,7 @@ jobs:
             type=semver,pattern={{major}}
 
       - name: Login to DockerHub
-        uses: docker/login-action@v3.0.0
+        uses: docker/login-action@v3.1.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -140,7 +140,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.1.2
 
       - name: Update DockerHub description
         uses: peter-evans/dockerhub-description@v4.0.0
