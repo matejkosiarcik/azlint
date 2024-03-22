@@ -139,6 +139,7 @@ clean:
 	find linters/gitman-repos -name gitman -type d -prune -exec rm -rf {} \;
 	rm -rf "$(PROJECT_DIR)/build-dependencies/python-gitman/venv" \
 		"$(PROJECT_DIR)/build-dependencies/yq/venv" \
+		"$(PROJECT_DIR)/cli-dist" \
 		"$(PROJECT_DIR)/docs/demo/gitman" \
 		"$(PROJECT_DIR)/linters/bin" \
 		"$(PROJECT_DIR)/linters/bundle" \
