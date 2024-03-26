@@ -711,9 +711,9 @@ dependencies = [
 
 [[package]]
 name = "shellharden"
-version = "4.3.0"
+version = "4.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1218a08095b138c0db1104794e03fed0e31aa6f9281c3b6fb3911d555e108a6"
+checksum = "53ecb604d876456ff05cb58bc0e60925b2f851b9ae807011459568d380cc8271"
 
 [[package]]
 name = "smallvec"
