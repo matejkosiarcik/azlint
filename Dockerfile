@@ -38,7 +38,7 @@ RUN apt-get update -qq && \
 COPY utils/check-executable.sh ./
 
 # Golang builder #
-FROM --platform=$BUILDPLATFORM golang:1.22.1-bookworm AS go-builder-base
+FROM --platform=$BUILDPLATFORM golang:1.22.2-bookworm AS go-builder-base
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         moreutils >/dev/null && \
@@ -493,7 +493,7 @@ COPY --from=hadolint-final /app/bin/hadolint ./
 COPY --from=shellcheck-final /app/bin/shellcheck ./
 
 # NodeJS/NPM #
-FROM --platform=$BUILDPLATFORM node:21.7.1-slim AS nodejs-base
+FROM --platform=$BUILDPLATFORM node:21.7.2-slim AS nodejs-base
 WORKDIR /app
 COPY linters/package.json linters/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet && \
@@ -739,7 +739,7 @@ RUN touch /.dockerenv && \
 ### Helpers ###
 
 # Main CLI #
-FROM --platform=$BUILDPLATFORM node:21.7.1-slim AS cli-base
+FROM --platform=$BUILDPLATFORM node:21.7.2-slim AS cli-base
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet && \
