@@ -14,7 +14,7 @@ jobs:
     name: Build and Test (${{ matrix.os }})
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v4.1.5
 
       - name: Setup NodeJS
         uses: actions/setup-node@v4.0.2
@@ -32,17 +32,17 @@ jobs:
           rust-version: stable
 
       - name: Setup Go
-        uses: actions/setup-go@v5.0.0
+        uses: actions/setup-go@v5.0.1
         with:
           go-version: stable
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@v1.173.0
+        uses: ruby/setup-ruby@v1.176.0
         with:
           ruby-version: ruby # latest
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@2.30.2
+        uses: shivammathur/setup-php@2.30.4
         with:
           php-version: latest
           extensions: mbstring # TODO: consider removing if not necessary
