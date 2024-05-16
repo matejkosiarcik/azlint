@@ -75,8 +75,10 @@ GEM
     pusher-client (0.6.2)
       json
       websocket (~> 1.0)
-    rexml (3.2.6)
+    rexml (3.2.8)
+      strscan (>= 3.0.9)
     ruby2_keywords (0.0.5)
+    strscan (3.1.0)
     thread_safe (0.3.6)
     tomlrb (2.0.3)
     travis (1.11.1)
