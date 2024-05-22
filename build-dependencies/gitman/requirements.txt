@@ -1,1 +1,1 @@
-gitman==3.4
+gitman==3.5.2
