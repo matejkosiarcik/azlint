@@ -38,7 +38,7 @@ RUN apt-get update -qq && \
 COPY utils/check-executable.sh ./
 
 # Golang builder #
-FROM --platform=$BUILDPLATFORM golang:1.22.1-bookworm AS go-builder-base
+FROM --platform=$BUILDPLATFORM golang:1.22.4-bookworm AS go-builder-base
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         moreutils >/dev/null && \
@@ -308,7 +308,7 @@ COPY linters/Cargo.toml ./
 RUN tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' Cargo.toml >cargo-dependencies.txt
 
 # Rust #
-FROM --platform=$BUILDPLATFORM rust:1.77.0-slim-bookworm AS rust-builder
+FROM --platform=$BUILDPLATFORM rust:1.78.0-slim-bookworm AS rust-builder
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -493,7 +493,7 @@ COPY --from=hadolint-final /app/bin/hadolint ./
 COPY --from=shellcheck-final /app/bin/shellcheck ./
 
 # NodeJS/NPM #
-FROM --platform=$BUILDPLATFORM node:21.7.1-slim AS nodejs-base
+FROM --platform=$BUILDPLATFORM node:22.3.0-slim AS nodejs-base
 WORKDIR /app
 COPY linters/package.json linters/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet && \
@@ -580,7 +580,7 @@ ENV BINPREFIX=/app/python/bin/ \
 RUN sh sanity-check.sh
 
 # Composer #
-FROM composer:2.7.2 AS composer-bin
+FROM composer:2.7.7 AS composer-bin
 
 FROM --platform=$BUILDPLATFORM debian:12.5-slim AS composer-bin-optimize
 WORKDIR /app
@@ -739,7 +739,7 @@ RUN touch /.dockerenv && \
 ### Helpers ###
 
 # Main CLI #
-FROM --platform=$BUILDPLATFORM node:21.7.1-slim AS cli-base
+FROM --platform=$BUILDPLATFORM node:22.3.0-slim AS cli-base
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet && \
