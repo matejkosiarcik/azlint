@@ -106,22 +106,25 @@ jobs:
           name: Install Rust
           command: |
             curl -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y
+            . "$HOME/.cargo/env"
             rustup toolchain install stable
             rustup default stable
-      - run:
-          name: Install project dependencies
-          command: |
-            export PATH="$PATH:$HOME/.cargo/bin"
-            make bootstrap
       - run:
           name: Install HomeBrew
           command: |
             bash linters/gitman-repos/brew-install/gitman/brew-installer/install.sh
             eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
       - run:
+          name: Install project dependencies
+          command: |
+            . "$HOME/.cargo/env"
+            export PATH="$PATH:$HOME/.cargo/bin"
+            make bootstrap
+      - run:
           name: Build
           command: |
-            export PATH="$PATH:$HOME/.cargo/bin"
+            . "$HOME/.cargo/env"
+            # export PATH="$PATH:$HOME/.cargo/bin"
             make bootstrap
       # - run:
       #     name: Test
