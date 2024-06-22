@@ -105,9 +105,9 @@ jobs:
       - run:
           name: Install Rust
           command: |
-            curl -sSf https://sh.rustup.rs | sh
-            rustup toolchain install stable
-            rustup default stable
+            curl -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y
+            # rustup toolchain install stable
+            # rustup default stable
       - run:
           name: Install project dependencies
           command: |
