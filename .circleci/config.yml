@@ -81,7 +81,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install system dependencies
+          name: Install APT dependencies
           command: |
             apt-get update -qq
             DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes \
@@ -89,7 +89,6 @@ jobs:
               ca-certificates curl git jq libxml2-utils pandoc parallel \
               build-essential meson \
               bmake make \
-              rust-all \
               nodejs npm \
               composer php php-cli php-common php-mbstring php-zip \
               python3 python3-pip python3-venv \
@@ -98,8 +97,15 @@ jobs:
               ash bash dash ksh ksh93u+m mksh posh yash zsh \
               shellcheck
             # Haskell packages skipped: cabal-install ghc
+      - run:
+          name: Global gitconfig
+          command: |
             git config --global user.email nobody@example.com
             git config --global user.name Nobody
+      - run:
+          name: Install Rust
+          command: |
+            curl -sSf https://sh.rustup.rs | sh
       - run:
           name: Install project dependencies
           command: |
