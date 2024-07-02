@@ -110,6 +110,29 @@ jobs:
             rustup toolchain install stable
             rustup default stable
       - run:
+          name: Log compiler versions
+          command: |
+            printf 'GCC:\n%s\n\n' "$(gcc --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'G++:\n%s\n\n' "$(g++ --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Make:\n%s\n\n' "$(make --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Meson:\n%s\n\n' "$(meson --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Ninja:\n%s\n\n' "$(ninja --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Go:\n%s\n\n' "$(go version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Rust:\n%s\n\n' "$(rustc --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Cargo:\n%s\n\n' "$(cargo --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Python:\n%s\n\n' "$(python --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Python3:\n%s\n\n' "$(python3 --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Pip3:\n%s\n\n' "$(pip3 --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'NodeJS:\n%s\n\n' "$(node --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'NPM:\n%s\n\n' "$(npm --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Ruby:\n%s\n\n' "$(ruby --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Bundler:\n%s\n\n' "$(bundler --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'PHP:\n%s\n\n' "$(php --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Git:\n%s\n\n' "$(git --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'xmllint:\n%s\n\n' "$(xmllint --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Pandoc:\n%s\n\n' "$(pandoc --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Shellcheck:\n%s\n\n' "$(shellcheck --version 2>&1 | sed -E 's~^~  ~')"
+      - run:
           name: Install project dependencies
           command: |
             . "$HOME/.cargo/env"
