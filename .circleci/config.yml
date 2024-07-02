@@ -94,7 +94,7 @@ jobs:
               python3 python3-pip python3-venv \
               bundler ruby ruby-build ruby-dev \
               golang \
-              ash bash dash ksh ksh93u+m mksh posh yash zsh \
+              bash dash ksh ksh93u+m mksh posh yash zsh \
               shellcheck
             # Haskell packages skipped: cabal-install ghc
       - run:
