@@ -19,6 +19,7 @@ Project links:
 <details>
 <summary>Table of contents</summary>
 
+<!-- markdown-link-check-disable -->
 <!-- toc -->
 
 - [About](#about)
@@ -50,6 +51,7 @@ Project links:
 - [Alternatives](#alternatives)
 
 <!-- tocstop -->
+<!-- markdown-link-check-enable -->
 
 </details>
 
