@@ -787,7 +787,7 @@ RUN apt-get update -qq && \
         php php-mbstring \
         python-is-python3 python3 python3-pip \
         bundler ruby \
-        ash bash dash ksh ksh93u+m mksh posh yash zsh \
+        bash dash ksh ksh93u+m mksh posh yash zsh \
         >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=brew-final /home/linuxbrew /home/linuxbrew
@@ -834,7 +834,7 @@ RUN apt-get update -qq && \
         php php-mbstring \
         python-is-python3 python3 python3-pip \
         bundler ruby \
-        ash bash dash ksh ksh93u+m mksh posh yash zsh \
+        bash dash ksh ksh93u+m mksh posh yash zsh \
         >/dev/null && \
     rm -rf /var/lib/apt/lists/* /var/log/apt /var/log/dpkg* /var/cache/apt /usr/share/zsh/vendor-completions && \
     git config --system --add safe.directory '*' && \
