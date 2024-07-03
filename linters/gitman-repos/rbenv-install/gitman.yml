@@ -14,7 +14,7 @@ sources:
 sources_locked:
   - repo: https://github.com/rbenv/rbenv-installer.git
     name: rbenv-installer
-    rev: 33926644327c067be973c8e1c6c4f5c2178d4ead
+    rev: 826acc505a29535a5492f4673839c0cebd99b69f
     type: git
     params:
     sparse_paths:

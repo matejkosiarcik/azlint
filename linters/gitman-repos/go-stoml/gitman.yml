@@ -14,7 +14,7 @@ sources:
 sources_locked:
   - repo: https://github.com/freshautomations/stoml.git
     name: stoml
-    rev: 4b2cd09b5795a54fddc215f0d24e24071894b3cf
+    rev: d6c66e6ac43005bb28c1d155716ccdde3244b4f4
     type: git
     params:
     sparse_paths:

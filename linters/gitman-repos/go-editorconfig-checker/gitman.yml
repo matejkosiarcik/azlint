@@ -14,7 +14,7 @@ sources:
 sources_locked:
   - repo: https://github.com/editorconfig-checker/editorconfig-checker.git
     name: editorconfig-checker
-    rev: 302f1abb717331c1c70460bc524a55143fecd084
+    rev: 1a279b21ba8c0214189269997747023c1f250aa4
     type: git
     params:
     sparse_paths:
