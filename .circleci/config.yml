@@ -60,7 +60,7 @@ workflows:
 jobs:
   test:
     docker:
-      - image: node:21.5.0
+      - image: node:22.3.0
     steps:
       - checkout
       - run: |
@@ -81,7 +81,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install system dependencies
+          name: Install APT dependencies
           command: |
             apt-get update -qq
             DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes \
@@ -89,20 +89,53 @@ jobs:
               ca-certificates curl git jq libxml2-utils pandoc parallel \
               build-essential meson \
               bmake make \
-              rust-all \
               nodejs npm \
               composer php php-cli php-common php-mbstring php-zip \
               python3 python3-pip python3-venv \
               bundler ruby ruby-build ruby-dev \
               golang \
-              ash bash dash ksh ksh93u+m mksh posh yash zsh \
+              bash dash ksh ksh93u+m mksh posh yash zsh \
               shellcheck
             # Haskell packages skipped: cabal-install ghc
+      - run:
+          name: Global gitconfig
+          command: |
             git config --global user.email nobody@example.com
             git config --global user.name Nobody
       - run:
+          name: Install Rust
+          command: |
+            curl -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y
+            . "$HOME/.cargo/env"
+            rustup toolchain install stable
+            rustup default stable
+      - run:
+          name: Log compiler versions
+          command: |
+            printf 'GCC:\n%s\n\n' "$(gcc --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'G++:\n%s\n\n' "$(g++ --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Make:\n%s\n\n' "$(make --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Meson:\n%s\n\n' "$(meson --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Ninja:\n%s\n\n' "$(ninja --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Go:\n%s\n\n' "$(go version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Rust:\n%s\n\n' "$(rustc --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Cargo:\n%s\n\n' "$(cargo --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Python:\n%s\n\n' "$(python --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Python3:\n%s\n\n' "$(python3 --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Pip3:\n%s\n\n' "$(pip3 --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'NodeJS:\n%s\n\n' "$(node --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'NPM:\n%s\n\n' "$(npm --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Ruby:\n%s\n\n' "$(ruby --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Bundler:\n%s\n\n' "$(bundler --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'PHP:\n%s\n\n' "$(php --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Git:\n%s\n\n' "$(git --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'xmllint:\n%s\n\n' "$(xmllint --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Pandoc:\n%s\n\n' "$(pandoc --version 2>&1 | sed -E 's~^~  ~')"
+            printf 'Shellcheck:\n%s\n\n' "$(shellcheck --version 2>&1 | sed -E 's~^~  ~')"
+      - run:
           name: Install project dependencies
           command: |
+            . "$HOME/.cargo/env"
             export PATH="$PATH:$HOME/.cargo/bin"
             make bootstrap
       - run:
@@ -113,7 +146,8 @@ jobs:
       - run:
           name: Build
           command: |
-            export PATH="$PATH:$HOME/.cargo/bin"
+            . "$HOME/.cargo/env"
+            # export PATH="$PATH:$HOME/.cargo/bin"
             make bootstrap
       # - run:
       #     name: Test
@@ -139,7 +173,7 @@ jobs:
 
   docker-build:
     docker:
-      - image: docker:24.0.7
+      - image: docker:26.1.4
     steps:
       - checkout
       - setup_remote_docker:

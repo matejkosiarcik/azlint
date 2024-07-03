@@ -493,7 +493,7 @@ COPY --from=hadolint-final /app/bin/hadolint ./
 COPY --from=shellcheck-final /app/bin/shellcheck ./
 
 # NodeJS/NPM #
-FROM --platform=$BUILDPLATFORM node:21.7.1-slim AS nodejs-base
+FROM --platform=$BUILDPLATFORM node:22.3.0-slim AS nodejs-base
 WORKDIR /app
 COPY linters/package.json linters/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet && \
@@ -562,7 +562,8 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 FROM --platform=$BUILDPLATFORM directory-optimizer-base AS python-optimize
 COPY utils/optimize/optimize-python.sh /optimizations/
 COPY --from=python-base /app/python ./python
-RUN sh /optimizations/optimize-python.sh
+# TODO: Reenable
+# RUN sh /optimizations/optimize-python.sh
 
 FROM debian:12.5-slim AS python-final
 WORKDIR /app
@@ -650,8 +651,10 @@ ENV HOMEBREW_NO_ANALYTICS=1 \
     HOMEBREW_NO_AUTO_UPDATE=1
 RUN NONINTERACTIVE=1 chronic bash brew-installer/install.sh && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
-    brew bundle --help --quiet >/dev/null && \
-    find /home/linuxbrew -type d -name .git -prune -exec rm -rf {} \;
+    chronic brew update --quiet && \
+    chronic brew bundle --help --quiet
+    # TODO: Reenable?
+    # find /home/linuxbrew -type d -name .git -prune -exec rm -rf {} \;
 
 # LinuxBrew - rbenv #
 FROM --platform=$BUILDPLATFORM gitman-base AS rbenv-gitman
@@ -703,20 +706,26 @@ ENV BINPREFIX=/home/linuxbrew/.linuxbrew/bin/ \
     HOMEBREW_NO_AUTO_UPDATE=1
 # TODO: Make ruby version dynamic
 ENV PATH="/.rbenv/versions/3.1.4/bin:$PATH"
-RUN touch /.dockerenv rbenv-list.txt brew-list.txt && \
-    inotifywait --daemon --recursive --event access /.rbenv/versions --outfile rbenv-list.txt --format '%w%f' && \
-    inotifywait --daemon --recursive --event access /home/linuxbrew --outfile brew-list.txt --format '%w%f' && \
-    sh sanity-check.sh && \
-    killall inotifywait
+# TODO: Reenable on all architectures
+# RUN touch /.dockerenv rbenv-list.txt brew-list.txt && \
+#     if [ "$(uname -m)" = x86_64  ]; then \
+#         inotifywait --daemon --recursive --event access /.rbenv/versions --outfile rbenv-list.txt --format '%w%f' && \
+#         inotifywait --daemon --recursive --event access /home/linuxbrew --outfile brew-list.txt --format '%w%f' && \
+#         sh sanity-check.sh && \
+#         killall inotifywait && \
+#     true; fi
 
 # Use trace information to optimize rbenv and brew directories
 FROM --platform=$BUILDPLATFORM directory-optimizer-base AS brew-optimize
 COPY utils/optimize/optimize-rbenv.sh utils/optimize/optimize-brew.sh /optimizations/
 COPY --from=brew-optimize-trace /home/linuxbrew /home/linuxbrew
 COPY --from=brew-optimize-trace /.rbenv/versions /.rbenv/versions
-COPY --from=brew-optimize-trace /app/rbenv-list.txt /app/brew-list.txt ./
-RUN sh /optimizations/optimize-rbenv.sh && \
-    sh /optimizations/optimize-brew.sh
+# COPY --from=brew-optimize-trace /app/rbenv-list.txt /app/brew-list.txt ./
+# TODO: Reenable on all architectures
+# RUN if [ "$(uname -m)" = x86_64  ]; then \
+#         sh /optimizations/optimize-rbenv.sh && \
+#         sh /optimizations/optimize-brew.sh && \
+#     true; fi
 
 # Aggregate everything brew here and do one more sanity-check
 FROM debian:12.5-slim AS brew-final
@@ -734,12 +743,14 @@ ENV BINPREFIX=/home/linuxbrew/.linuxbrew/bin/ \
 # TODO: Make ruby version dynamic
 ENV PATH="/.rbenv/versions/3.1.4/bin:$PATH"
 RUN touch /.dockerenv && \
-    sh sanity-check.sh
+    if [ "$(uname -m)" = x86_64  ]; then \
+        sh sanity-check.sh && \
+    true; fi
 
 ### Helpers ###
 
 # Main CLI #
-FROM --platform=$BUILDPLATFORM node:21.7.1-slim AS cli-base
+FROM --platform=$BUILDPLATFORM node:22.3.0-slim AS cli-base
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet && \
@@ -778,7 +789,7 @@ RUN apt-get update -qq && \
         php php-mbstring \
         python-is-python3 python3 python3-pip \
         bundler ruby \
-        ash bash dash ksh ksh93u+m mksh posh yash zsh \
+        bash dash ksh ksh93u+m mksh posh yash zsh \
         >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=brew-final /home/linuxbrew /home/linuxbrew
@@ -825,7 +836,7 @@ RUN apt-get update -qq && \
         php php-mbstring \
         python-is-python3 python3 python3-pip \
         bundler ruby \
-        ash bash dash ksh ksh93u+m mksh posh yash zsh \
+        bash dash ksh ksh93u+m mksh posh yash zsh \
         >/dev/null && \
     rm -rf /var/lib/apt/lists/* /var/log/apt /var/log/dpkg* /var/cache/apt /usr/share/zsh/vendor-completions && \
     git config --system --add safe.directory '*' && \

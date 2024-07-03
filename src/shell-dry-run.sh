@@ -41,9 +41,9 @@ check_yash() {
 }
 
 check_dash() {
-    if [ "$(uname -s)" != 'Darwin' ]; then
-        ash -n "$file"
-    fi
+    # if [ "$(uname -s)" != 'Darwin' ]; then
+    #     ash -n "$file"
+    # fi
     dash -n "$file"
 }
 
