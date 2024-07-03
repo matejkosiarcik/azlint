@@ -651,6 +651,7 @@ ENV HOMEBREW_NO_ANALYTICS=1 \
     HOMEBREW_NO_AUTO_UPDATE=1
 RUN NONINTERACTIVE=1 chronic bash brew-installer/install.sh && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
+    brew update --quiet && \
     brew bundle --help --quiet >/dev/null && \
     find /home/linuxbrew -type d -name .git -prune -exec rm -rf {} \;
 
