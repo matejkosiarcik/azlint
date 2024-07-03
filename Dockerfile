@@ -828,7 +828,8 @@ RUN chronic sh sanity-check.sh
 ### Final stage ###
 
 FROM debian:12.6-slim
-RUN apt-get update -qq && \
+RUN find / -type f -not -path '/proc/*' -not -path '/sys/*' >/filelist.txt 2>/dev/null && \
+    apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         curl git libxml2-utils \
         bmake make \
@@ -839,6 +840,12 @@ RUN apt-get update -qq && \
         bash dash ksh ksh93u+m mksh posh yash zsh \
         >/dev/null && \
     rm -rf /var/lib/apt/lists/* /var/log/apt /var/log/dpkg* /var/cache/apt /usr/share/zsh/vendor-completions && \
+    find /usr/share/bug /usr/share/doc /var/cache /var/lib/apt /var/log -type f | while read -r file; do \
+        if ! grep -- "$file" </filelist.txt >/dev/null; then \
+            rm -f "$file" && \
+        true; fi && \
+    true; done && \
+    rm -f /filelist.txt && \
     git config --system --add safe.directory '*' && \
     git config --global --add safe.directory '*' && \
     mkdir -p /root/.cache/proselint && \
