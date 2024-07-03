@@ -11,7 +11,7 @@
     "gitlab-ci-validate": "^0.5.0",
     "htmlhint": "^1.1.4",
     "htmllint-cli": "^0.0.7",
-    "jscpd": "^3.5.10",
+    "jscpd": "^4.0.5",
     "markdown-link-check": "~3.12.2",
     "markdown-table-formatter": "^1.6.1",
     "markdownlint-cli": "^0.41.0",
@@ -19,7 +19,7 @@
     "prettier": "^3.3.2",
     "secretlint": "^8.2.4",
     "sql-lint": "^1.0.0",
-    "svglint": "^2.7.1",
+    "svglint": "^3.0.0",
     "textlint": "^14.0.4",
     "textlint-rule-no-todo": "^2.0.1"
   }
