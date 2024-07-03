@@ -652,8 +652,9 @@ ENV HOMEBREW_NO_ANALYTICS=1 \
 RUN NONINTERACTIVE=1 chronic bash brew-installer/install.sh && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
     chronic brew update --quiet && \
-    chronic brew bundle --help --quiet && \
-    find /home/linuxbrew -type d -name .git -prune -exec rm -rf {} \;
+    chronic brew bundle --help --quiet
+    # TODO: Reenable?
+    # find /home/linuxbrew -type d -name .git -prune -exec rm -rf {} \;
 
 # LinuxBrew - rbenv #
 FROM --platform=$BUILDPLATFORM gitman-base AS rbenv-gitman
