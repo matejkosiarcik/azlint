@@ -14,7 +14,7 @@ sources:
 sources_locked:
   - repo: https://github.com/paxtonhare/demo-magic
     name: demo-magic
-    rev: a938137035b73105d09347a91f9fd5e9722b617a
+    rev: 8f338e9771502f71a77d6c779aed2dae614fdb0d
     type: git
     params:
     sparse_paths:
