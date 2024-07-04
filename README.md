@@ -215,6 +215,9 @@ then you need to specify environment variable named `FOO_BAR`
 
 ## Included linters
 
+<!-- TODO: Remove this override -->
+<!-- markdown-link-check-disable -->
+
 ### All files
 
 | tool                        | links                                                                                                                      | disable                         | files | `fmt` support |
@@ -338,6 +341,9 @@ The following shells are checked in custom dry runner:
 | mypy        | [GitHub](https://github.com/python/mypy) <br> [docs](https://www.mypy-lang.org) <br> [pypi](https://pypi.org/project/mypy)                            | `VALIDATE_MYPY`        | `*.py` | ❌             |
 
 _Autopep8*_ - Formatting conflicts with black, so it is turned off.
+
+<!-- TODO: Remove this override -->
+<!-- markdown-link-check-enable -->
 
 ## Development
 
