@@ -5,7 +5,7 @@ composer.phar
 gitman/
 go/
 node_modules/
-python/
+python-packages/
 ruby/
 target/
 vendor/

@@ -4,20 +4,20 @@ set -euf
 # shellcheck source=utils/optimize/.common.sh
 . "$(dirname "$0")/.common.sh"
 
-cleanDependencies python
+cleanDependencies python-packages
 
 # Python cache
-find python -type d \( \
+find python-packages -type d \( \
     -iname 'googletest' -or \
     -iname 'gtest' -or \
     -iname '__pycache__' \
     \) -prune -exec rm -rf {} \;
 
 # Compiled python files
-find python -type f -iname '*.py[co]' -delete
+find python-packages -type f -iname '*.py[co]' -delete
 
 # Misc
-find python -type f \( \
+find python-packages -type f \( \
     -iname '*.cfg' -or \
     -iname '*.impl' -or \
     -iname '*.in' -or \
@@ -29,20 +29,20 @@ find python -type f \( \
     \) -delete
 
 # Test files
-find python -type f \( \
+find python-packages -type f \( \
     -iname '*.test' -and \
     -not -iname 'py.test' \
     \) -delete
 
 # Potentially hazardous group
-rm -rf python/cloudsplaining/output
-find python -type f -iname '*.json.gz' -delete
+rm -rf python-packages/cloudsplaining/output
+find python-packages -type f -iname '*.json.gz' -delete
 
 ### Rest ###
 
-removeEmptyDirectories python
+removeEmptyDirectories python-packages
 
 ### Minify files ###
 
-minifyJsonFiles python
-minifyYamlFiles python
+minifyJsonFiles python-packages
+minifyYamlFiles python-packages
