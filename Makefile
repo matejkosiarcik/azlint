@@ -46,9 +46,9 @@ bootstrap:
 		cp install/usr/local/bin/oksh "$(PROJECT_DIR)/linters/bin/"
 
 	PATH="$(PROJECT_DIR)/venv/bin:$$PATH" \
-	PYTHONPATH="$(PROJECT_DIR)/linters/python" \
+	PYTHONPATH="$(PROJECT_DIR)/linters/python-packages" \
 	PIP_DISABLE_PIP_VERSION_CHECK=1 \
-		python3 -m pip install --requirement linters/requirements.txt --target linters/python --quiet --upgrade
+		python3 -m pip install --requirement linters/requirements.txt --target linters/python-packages --quiet --upgrade
 
 	# Create cache ahead of time, because it can fail when creating during runtime
 	mkdir -p "$$HOME/.cache/proselint"
@@ -146,7 +146,7 @@ clean:
 		"$(PROJECT_DIR)/linters/cargo" \
 		"$(PROJECT_DIR)/linters/go" \
 		"$(PROJECT_DIR)/linters/node_modules" \
-		"$(PROJECT_DIR)/linters/python" \
+		"$(PROJECT_DIR)/linters/python-packages" \
 		"$(PROJECT_DIR)/linters/ruby" \
 		"$(PROJECT_DIR)/linters/target" \
 		"$(PROJECT_DIR)/linters/vendor" \

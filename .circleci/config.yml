@@ -162,8 +162,8 @@ jobs:
               BUNDLE_GEMFILE="$PWD/linters/Gemfile" \
               BUNDLE_PATH__SYSTEM=false \
               BUNDLE_PATH="$PWD/linters/bundle" \
-              PATH="$PATH:$PWD/linters/bin:$PWD/linters/python/bin:$PWD/linters/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin" \
-              PYTHONPATH="$PWD/linters/python"
+              PATH="$PATH:$PWD/linters/bin:$PWD/linters/python-packages/bin:$PWD/linters/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin" \
+              PYTHONPATH="$PWD/linters/python-packages"
             # TODO: Run sanity check
             # sh utils/sanity-check/.main.sh
       - azlint-lint:
