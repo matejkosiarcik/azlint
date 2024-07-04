@@ -10,4 +10,5 @@ TYPE_SPEED=7
 export TYPE_SPEED
 
 clear
+# shellcheck disable=SC2016
 pei 'docker run -itv "$PWD:/project:ro" matejkosiarcik/azlint:dev'
