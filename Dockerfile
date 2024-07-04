@@ -12,14 +12,14 @@
 # NOTE: `upx-ucl` is no longer available in debian 12 bookworm
 # It is available in older versions, see https://packages.debian.org/bullseye/upx-ucl
 # However, there were upgrade problems for bookworm, see https://tracker.debian.org/pkg/upx-ucl
-FROM --platform=$BUILDPLATFORM ubuntu:24.04 AS upx-base
+FROM --platform=$BUILDPLATFORM ubuntu:24.04 AS upx--base
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         parallel upx-ucl >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 
-FROM debian:12.6-slim AS bins-aggregator
+FROM debian:12.6-slim AS bins-aggregator--base
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -27,7 +27,7 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 
 # Executable optimizer #
-FROM --platform=$BUILDPLATFORM debian:12.6-slim AS executable-optimizer-base
+FROM --platform=$BUILDPLATFORM debian:12.6-slim AS executable-optimizer--base
 WORKDIR /app
 COPY utils/rust/get-target-arch.sh ./
 ARG TARGETARCH
@@ -38,7 +38,7 @@ RUN apt-get update -qq && \
 COPY utils/check-executable.sh ./
 
 # Golang builder #
-FROM --platform=$BUILDPLATFORM golang:1.23rc1-bookworm AS go-builder-base
+FROM --platform=$BUILDPLATFORM golang:1.23rc1-bookworm AS go-builder--base
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         moreutils >/dev/null && \
@@ -46,7 +46,7 @@ RUN apt-get update -qq && \
 WORKDIR /app
 
 # Gitman #
-FROM --platform=$BUILDPLATFORM debian:12.6-slim AS gitman-base
+FROM --platform=$BUILDPLATFORM debian:12.6-slim AS gitman--base
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -59,7 +59,7 @@ ENV PATH="/app/python-packages/bin:$PATH" \
     PYTHONPATH=/app/python-packages
 
 # Dependency optimizer #
-FROM --platform=$BUILDPLATFORM debian:12.6-slim AS directory-optimizer-base
+FROM --platform=$BUILDPLATFORM debian:12.6-slim AS directory-optimizer--base
 WORKDIR /optimizations
 COPY utils/rust/get-target-arch.sh ./
 ARG TARGETARCH
@@ -81,7 +81,7 @@ WORKDIR /app
 ### Components/Linters ###
 
 # GoLang #
-FROM --platform=$BUILDPLATFORM go-builder-base AS go-actionlint-build
+FROM --platform=$BUILDPLATFORM go-builder--base AS go-actionlint--build
 ARG BUILDARCH TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
@@ -92,31 +92,31 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         mv "./go/bin/linux_$TARGETARCH/actionlint" './go/bin/actionlint' && \
     true; fi
 
-FROM --platform=$BUILDPLATFORM executable-optimizer-base AS go-actionlint-optimize
-COPY --from=go-actionlint-build /app/go/bin/actionlint ./bin/
+FROM --platform=$BUILDPLATFORM executable-optimizer--base AS go-actionlint--optimize
+COPY --from=go-actionlint--build /app/go/bin/actionlint ./bin/
 ARG TARGETARCH
 RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/actionlint && \
     sh check-executable.sh bin/actionlint
 
-FROM --platform=$BUILDPLATFORM upx-base AS go-actionlint-upx
-COPY --from=go-actionlint-optimize /app/bin/actionlint ./
+FROM --platform=$BUILDPLATFORM upx--base AS go-actionlint--upx
+COPY --from=go-actionlint--optimize /app/bin/actionlint ./
 # RUN upx --best /app/actionlint
 
-FROM bins-aggregator AS go-actionlint-final
+FROM bins-aggregator--base AS go-actionlint--final
 WORKDIR /app/bin
 ENV BINPREFIX=/app/bin/
-COPY --from=go-actionlint-upx /app/actionlint ./
+COPY --from=go-actionlint--upx /app/actionlint ./
 WORKDIR /app
 COPY utils/sanity-check/go-actionlint.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
-FROM --platform=$BUILDPLATFORM gitman-base AS go-shfmt-gitman
+FROM --platform=$BUILDPLATFORM gitman--base AS go-shfmt--gitman
 COPY linters/gitman-repos/go-shfmt/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
 
-FROM --platform=$BUILDPLATFORM go-builder-base AS go-shfmt-build
-COPY --from=go-shfmt-gitman /app/gitman/shfmt ./shfmt
+FROM --platform=$BUILDPLATFORM go-builder--base AS go-shfmt--build
+COPY --from=go-shfmt--gitman /app/gitman/shfmt ./shfmt
 COPY utils/git-latest-version.sh ./
 ARG BUILDARCH TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
@@ -128,31 +128,31 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         mv "./go/bin/linux_$TARGETARCH/shfmt" './go/bin/shfmt' && \
     true; fi
 
-FROM --platform=$BUILDPLATFORM executable-optimizer-base AS go-shfmt-optimize
-COPY --from=go-shfmt-build /app/go/bin/shfmt ./bin/
+FROM --platform=$BUILDPLATFORM executable-optimizer--base AS go-shfmt--optimize
+COPY --from=go-shfmt--build /app/go/bin/shfmt ./bin/
 ARG TARGETARCH
 RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/shfmt && \
     sh check-executable.sh bin/shfmt
 
-FROM --platform=$BUILDPLATFORM upx-base AS go-shfmt-upx
-COPY --from=go-shfmt-optimize /app/bin/shfmt ./
+FROM --platform=$BUILDPLATFORM upx--base AS go-shfmt--upx
+COPY --from=go-shfmt--optimize /app/bin/shfmt ./
 # RUN upx --best /app/shfmt
 
-FROM bins-aggregator AS go-shfmt-final
+FROM bins-aggregator--base AS go-shfmt--final
 WORKDIR /app/bin
 ENV BINPREFIX=/app/bin/
-COPY --from=go-shfmt-upx /app/shfmt ./
+COPY --from=go-shfmt--upx /app/shfmt ./
 WORKDIR /app
 COPY utils/sanity-check/go-shfmt.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
-FROM --platform=$BUILDPLATFORM gitman-base AS go-stoml-gitman
+FROM --platform=$BUILDPLATFORM gitman--base AS go-stoml--gitman
 COPY linters/gitman-repos/go-stoml/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
 
-FROM --platform=$BUILDPLATFORM go-builder-base AS go-stoml-build
-COPY --from=go-stoml-gitman /app/gitman/stoml ./stoml
+FROM --platform=$BUILDPLATFORM go-builder--base AS go-stoml--build
+COPY --from=go-stoml--gitman /app/gitman/stoml ./stoml
 COPY utils/git-latest-version.sh ./
 ARG BUILDARCH TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
@@ -164,25 +164,25 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         mv "./go/bin/linux_$TARGETARCH/stoml" './go/bin/stoml' && \
     true; fi
 
-FROM --platform=$BUILDPLATFORM executable-optimizer-base AS go-stoml-optimize
-COPY --from=go-stoml-build /app/go/bin/stoml ./bin/
+FROM --platform=$BUILDPLATFORM executable-optimizer--base AS go-stoml--optimize
+COPY --from=go-stoml--build /app/go/bin/stoml ./bin/
 ARG TARGETARCH
 RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/stoml && \
     sh check-executable.sh bin/stoml
 
-FROM --platform=$BUILDPLATFORM upx-base AS go-stoml-upx
-COPY --from=go-stoml-optimize /app/bin/stoml ./
+FROM --platform=$BUILDPLATFORM upx--base AS go-stoml--upx
+COPY --from=go-stoml--optimize /app/bin/stoml ./
 # RUN upx --best /app/stoml
 
-FROM bins-aggregator AS go-stoml-final
+FROM bins-aggregator--base AS go-stoml--final
 WORKDIR /app/bin
 ENV BINPREFIX=/app/bin/
-COPY --from=go-stoml-upx /app/stoml ./
+COPY --from=go-stoml--upx /app/stoml ./
 WORKDIR /app
 COPY utils/sanity-check/go-stoml.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
-FROM --platform=$BUILDPLATFORM go-builder-base AS go-tomljson-build
+FROM --platform=$BUILDPLATFORM go-builder--base AS go-tomljson--build
 ARG BUILDARCH TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
@@ -193,25 +193,25 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         mv "./go/bin/linux_$TARGETARCH/tomljson" './go/bin/tomljson' && \
     true; fi
 
-FROM --platform=$BUILDPLATFORM executable-optimizer-base AS go-tomljson-optimize
-COPY --from=go-tomljson-build /app/go/bin/tomljson ./bin/
+FROM --platform=$BUILDPLATFORM executable-optimizer--base AS go-tomljson--optimize
+COPY --from=go-tomljson--build /app/go/bin/tomljson ./bin/
 ARG TARGETARCH
 RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/tomljson && \
     sh check-executable.sh bin/tomljson
 
-FROM --platform=$BUILDPLATFORM upx-base AS go-tomljson-upx
-COPY --from=go-tomljson-optimize /app/bin/tomljson ./
+FROM --platform=$BUILDPLATFORM upx--base AS go-tomljson--upx
+COPY --from=go-tomljson--optimize /app/bin/tomljson ./
 # RUN upx --best /app/tomljson
 
-FROM bins-aggregator AS go-tomljson-final
+FROM bins-aggregator--base AS go-tomljson--final
 WORKDIR /app/bin
 ENV BINPREFIX=/app/bin/
-COPY --from=go-tomljson-upx /app/tomljson ./
+COPY --from=go-tomljson--upx /app/tomljson ./
 WORKDIR /app
 COPY utils/sanity-check/go-tomljson.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
-FROM --platform=$BUILDPLATFORM gitman-base AS go-checkmake-gitman
+FROM --platform=$BUILDPLATFORM gitman--base AS go-checkmake--gitman
 COPY linters/gitman-repos/go-checkmake/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
@@ -219,37 +219,37 @@ COPY utils/apply-git-patches.sh ./
 COPY linters/git-patches/checkmake ./git-patches
 RUN sh apply-git-patches.sh git-patches gitman/checkmake
 
-FROM --platform=$BUILDPLATFORM go-builder-base AS go-checkmake-build
+FROM --platform=$BUILDPLATFORM go-builder--base AS go-checkmake--build
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         pandoc >/dev/null && \
     rm -rf /var/lib/apt/lists/*
-COPY --from=go-checkmake-gitman /app/gitman/checkmake /app/checkmake
+COPY --from=go-checkmake--gitman /app/gitman/checkmake /app/checkmake
 WORKDIR /app/checkmake
 ARG TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     GOOS="$TARGETOS" GOARCH="$TARGETARCH" BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make --silent
 
-FROM --platform=$BUILDPLATFORM executable-optimizer-base AS go-checkmake-optimize
-COPY --from=go-checkmake-build /app/checkmake/checkmake ./bin/
+FROM --platform=$BUILDPLATFORM executable-optimizer--base AS go-checkmake--optimize
+COPY --from=go-checkmake--build /app/checkmake/checkmake ./bin/
 ARG TARGETARCH
 RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/checkmake && \
     sh check-executable.sh bin/checkmake
 
-FROM --platform=$BUILDPLATFORM upx-base AS go-checkmake-upx
-COPY --from=go-checkmake-optimize /app/bin/checkmake ./
+FROM --platform=$BUILDPLATFORM upx--base AS go-checkmake--upx
+COPY --from=go-checkmake--optimize /app/bin/checkmake ./
 # RUN upx --best /app/checkmake
 
-FROM bins-aggregator AS go-checkmake-final
+FROM bins-aggregator--base AS go-checkmake--final
 WORKDIR /app/bin
 ENV BINPREFIX=/app/bin/
-COPY --from=go-checkmake-upx /app/checkmake ./
+COPY --from=go-checkmake--upx /app/checkmake ./
 WORKDIR /app
 COPY utils/sanity-check/go-checkmake.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
-FROM --platform=$BUILDPLATFORM gitman-base AS go-editorconfig-checker-gitman
+FROM --platform=$BUILDPLATFORM gitman--base AS go-editorconfig-checker--gitman
 COPY linters/gitman-repos/go-editorconfig-checker/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
@@ -257,43 +257,43 @@ COPY utils/apply-git-patches.sh ./
 COPY linters/git-patches/editorconfig-checker ./git-patches
 RUN sh apply-git-patches.sh git-patches gitman/editorconfig-checker
 
-FROM --platform=$BUILDPLATFORM go-builder-base AS go-editorconfig-checker-build
-COPY --from=go-editorconfig-checker-gitman /app/gitman/editorconfig-checker /app/editorconfig-checker
+FROM --platform=$BUILDPLATFORM go-builder--base AS go-editorconfig-checker--build
+COPY --from=go-editorconfig-checker--gitman /app/gitman/editorconfig-checker /app/editorconfig-checker
 WORKDIR /app/editorconfig-checker
 ARG TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     GOOS="$TARGETOS" GOARCH="$TARGETARCH" make build --silent
 
-FROM --platform=$BUILDPLATFORM executable-optimizer-base AS go-editorconfig-checker-optimize
-COPY --from=go-editorconfig-checker-build /app/editorconfig-checker/bin/ec ./bin/
+FROM --platform=$BUILDPLATFORM executable-optimizer--base AS go-editorconfig-checker--optimize
+COPY --from=go-editorconfig-checker--build /app/editorconfig-checker/bin/ec ./bin/
 ARG TARGETARCH
 RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/ec && \
     sh check-executable.sh bin/ec
 
-FROM --platform=$BUILDPLATFORM upx-base AS go-editorconfig-checker-upx
-COPY --from=go-editorconfig-checker-optimize /app/bin/ec ./
+FROM --platform=$BUILDPLATFORM upx--base AS go-editorconfig-checker--upx
+COPY --from=go-editorconfig-checker--optimize /app/bin/ec ./
 # RUN upx --best /app/ec
 
-FROM bins-aggregator AS go-editorconfig-checker-final
+FROM bins-aggregator--base AS go-editorconfig-checker--final
 WORKDIR /app/bin
 ENV BINPREFIX=/app/bin/
-COPY --from=go-editorconfig-checker-upx /app/ec ./
+COPY --from=go-editorconfig-checker--upx /app/ec ./
 WORKDIR /app
 COPY utils/sanity-check/go-editorconfig-checker.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
-FROM bins-aggregator AS go-final
+FROM bins-aggregator--base AS go--final
 WORKDIR /app/bin
-COPY --from=go-actionlint-final /app/bin/actionlint ./
-COPY --from=go-checkmake-final /app/bin/checkmake ./
-COPY --from=go-editorconfig-checker-final /app/bin/ec ./
-COPY --from=go-shfmt-final /app/bin/shfmt ./
-COPY --from=go-stoml-final /app/bin/stoml ./
-COPY --from=go-tomljson-final /app/bin/tomljson ./
+COPY --from=go-actionlint--final /app/bin/actionlint ./
+COPY --from=go-checkmake--final /app/bin/checkmake ./
+COPY --from=go-editorconfig-checker--final /app/bin/ec ./
+COPY --from=go-shfmt--final /app/bin/shfmt ./
+COPY --from=go-stoml--final /app/bin/stoml ./
+COPY --from=go-tomljson--final /app/bin/tomljson ./
 
 # Rust #
-FROM --platform=$BUILDPLATFORM debian:12.6-slim AS rust-dependencies-versions
+FROM --platform=$BUILDPLATFORM debian:12.6-slim AS rust--dependencies
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -308,7 +308,7 @@ COPY linters/Cargo.toml ./
 RUN tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' Cargo.toml >cargo-dependencies.txt
 
 # Rust #
-FROM --platform=$BUILDPLATFORM rust:1.79.0-slim-bookworm AS rust-builder
+FROM --platform=$BUILDPLATFORM rust:1.79.0-slim-bookworm AS rust--build
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -331,7 +331,7 @@ ENV CARGO_PROFILE_RELEASE_LTO=true \
     CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
     CARGO_PROFILE_RELEASE_OPT_LEVEL=s \
     RUSTFLAGS='-Cstrip=symbols -Clink-args=-Wl,--build-id=none'
-COPY --from=rust-dependencies-versions /app/cargo-dependencies.txt ./
+COPY --from=rust--dependencies /app/cargo-dependencies.txt ./
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     if [ "$BUILDARCH" != "$TARGETARCH" ]; then \
         export \
@@ -346,177 +346,177 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
         cargo install "$package" --quiet --force --version "$version" --root "$PWD/cargo" --target "$(sh get-target-tripple.sh)" && \
     true; done <cargo-dependencies.txt
 
-FROM --platform=$BUILDPLATFORM executable-optimizer-base AS rust-optimize
-COPY --from=rust-builder /app/cargo/bin ./bin/
+FROM --platform=$BUILDPLATFORM executable-optimizer--base AS rust--optimize
+COPY --from=rust--build /app/cargo/bin ./bin/
 # NOTE: `strip` is skipped, because it has no effect here
 RUN find bin -type f -exec sh check-executable.sh {} \;
 
-FROM --platform=$BUILDPLATFORM upx-base AS rust-upx
-COPY --from=rust-optimize /app/bin ./
+FROM --platform=$BUILDPLATFORM upx--base AS rust--upx
+COPY --from=rust--optimize /app/bin ./
 # RUN parallel upx --best ::: /app/*
 
-FROM bins-aggregator AS rust-final
+FROM bins-aggregator--base AS rust--final
 WORKDIR /app/bin
 ENV BINPREFIX=/app/bin/
-COPY --from=rust-upx /app ./
+COPY --from=rust--upx /app ./
 WORKDIR /app
 COPY utils/sanity-check/rust.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
 # CircleCI CLI #
-FROM --platform=$BUILDPLATFORM gitman-base AS circleci-gitman
+FROM --platform=$BUILDPLATFORM gitman--base AS circleci--gitman
 COPY linters/gitman-repos/circleci-cli/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
 
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
-FROM debian:12.6-slim AS circleci-base
+FROM debian:12.6-slim AS circleci--base
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         ca-certificates curl >/dev/null && \
     rm -rf /var/lib/apt/lists/*
-COPY --from=circleci-gitman /app/gitman/circleci-cli /app/circleci-cli
+COPY --from=circleci--gitman /app/gitman/circleci-cli /app/circleci-cli
 WORKDIR /app/circleci-cli
 RUN bash install.sh
 
-FROM --platform=$BUILDPLATFORM upx-base AS circleci-upx
-COPY --from=circleci-base /usr/local/bin/circleci ./
+FROM --platform=$BUILDPLATFORM upx--base AS circleci--upx
+COPY --from=circleci--base /usr/local/bin/circleci ./
 # RUN upx --best /app/circleci
 
-FROM bins-aggregator AS circleci-final
+FROM bins-aggregator--base AS circleci--final
 COPY utils/sanity-check/circleci.sh ./sanity-check.sh
-COPY --from=circleci-upx /app/circleci ./bin/
+COPY --from=circleci--upx /app/circleci ./bin/
 ENV BINPREFIX=/app/bin/
 RUN sh sanity-check.sh && \
     rm -f sanity-check.sh
 
 # Shell - loksh #
-FROM --platform=$BUILDPLATFORM gitman-base AS shell-loksh-gitman
+FROM --platform=$BUILDPLATFORM gitman--base AS shell-loksh--gitman
 COPY linters/gitman-repos/shell-loksh/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
 
-FROM debian:12.6-slim AS shell-loksh-base
+FROM debian:12.6-slim AS shell-loksh--base
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         build-essential ca-certificates git meson >/dev/null && \
     rm -rf /var/lib/apt/lists/*
-COPY --from=shell-loksh-gitman /app/gitman/loksh /app/loksh
+COPY --from=shell-loksh--gitman /app/gitman/loksh /app/loksh
 WORKDIR /app/loksh
 RUN CC="gcc -flto -fuse-linker-plugin -Wl,--build-id=none" \
     meson setup --fatal-meson-warnings --buildtype release --optimization s --strip --prefix="$PWD/install" build && \
     ninja --quiet -C build install && \
     mv /app/loksh/install/bin/ksh /app/loksh/install/bin/loksh
 
-FROM --platform=$BUILDPLATFORM executable-optimizer-base AS shell-loksh-optimize
-COPY --from=shell-loksh-base /app/loksh/install/bin/loksh ./bin/
+FROM --platform=$BUILDPLATFORM executable-optimizer--base AS shell-loksh--optimize
+COPY --from=shell-loksh--base /app/loksh/install/bin/loksh ./bin/
 # NOTE: `strip` is skipped, because it has no effect here
 RUN sh check-executable.sh bin/loksh
 
-FROM --platform=$BUILDPLATFORM upx-base AS shell-loksh-upx
-COPY --from=shell-loksh-optimize /app/bin/loksh ./
+FROM --platform=$BUILDPLATFORM upx--base AS shell-loksh--upx
+COPY --from=shell-loksh--optimize /app/bin/loksh ./
 # RUN upx --best /app/loksh
 
-FROM bins-aggregator AS shell-loksh-final
-COPY --from=shell-loksh-upx /app/loksh ./bin/
+FROM bins-aggregator--base AS shell-loksh--final
+COPY --from=shell-loksh--upx /app/loksh ./bin/
 COPY utils/sanity-check/shell-loksh.sh ./sanity-check.sh
 ENV BINPREFIX=/app/bin/
 RUN sh sanity-check.sh && \
     rm -f sanity-check.sh
 
 # Shell - oksh #
-FROM --platform=$BUILDPLATFORM gitman-base AS shell-oksh-gitman
+FROM --platform=$BUILDPLATFORM gitman--base AS shell-oksh--gitman
 COPY linters/gitman-repos/shell-oksh/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
 
-FROM debian:12.6-slim AS shell-oksh-base
+FROM debian:12.6-slim AS shell-oksh--base
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         build-essential >/dev/null && \
     rm -rf /var/lib/apt/lists/*
-COPY --from=shell-oksh-gitman /app/gitman/oksh /app/oksh
+COPY --from=shell-oksh--gitman /app/gitman/oksh /app/oksh
 WORKDIR /app/oksh
 RUN ./configure --enable-small --enable-lto --cc='gcc -Os -Wl,--build-id=none' && \
     make --silent && \
     DESTDIR="$PWD/install" make install --silent
 
-FROM --platform=$BUILDPLATFORM executable-optimizer-base AS shell-oksh-optimize
-COPY --from=shell-oksh-base /app/oksh/install/usr/local/bin/oksh ./bin/
+FROM --platform=$BUILDPLATFORM executable-optimizer--base AS shell-oksh--optimize
+COPY --from=shell-oksh--base /app/oksh/install/usr/local/bin/oksh ./bin/
 # NOTE: `strip` is skipped, because it has no effect here
 RUN sh check-executable.sh bin/oksh
 
-FROM --platform=$BUILDPLATFORM upx-base AS shell-oksh-upx
-COPY --from=shell-oksh-optimize /app/bin/oksh ./
+FROM --platform=$BUILDPLATFORM upx--base AS shell-oksh--upx
+COPY --from=shell-oksh--optimize /app/bin/oksh ./
 # RUN upx --best /app/oksh
 
-FROM bins-aggregator AS shell-oksh-final
-COPY --from=shell-oksh-upx /app/oksh ./bin/
+FROM bins-aggregator--base AS shell-oksh--final
+COPY --from=shell-oksh--upx /app/oksh ./bin/
 COPY utils/sanity-check/shell-oksh.sh ./sanity-check.sh
 ENV BINPREFIX=/app/bin/
 RUN sh sanity-check.sh && \
     rm -f sanity-check.sh
 
 # ShellCheck #
-FROM koalaman/shellcheck:v0.10.0 AS shellcheck-base
+FROM koalaman/shellcheck:v0.10.0 AS shellcheck--base
 
-FROM --platform=$BUILDPLATFORM upx-base AS shellcheck-upx
-COPY --from=shellcheck-base /bin/shellcheck ./
+FROM --platform=$BUILDPLATFORM upx--base AS shellcheck--upx
+COPY --from=shellcheck--base /bin/shellcheck ./
 # RUN upx --best /app/shellcheck
 
-FROM bins-aggregator AS shellcheck-final
+FROM bins-aggregator--base AS shellcheck--final
 WORKDIR /app/bin
 ENV BINPREFIX=/app/bin/
-COPY --from=shellcheck-upx /app/shellcheck ./
+COPY --from=shellcheck--upx /app/shellcheck ./
 WORKDIR /app
 COPY utils/sanity-check/haskell-shellcheck.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
 # Hadolint #
-FROM hadolint/hadolint:v2.12.0 AS hadolint-base
+FROM hadolint/hadolint:v2.12.0 AS hadolint--base
 
-FROM --platform=$BUILDPLATFORM upx-base AS hadolint-upx
-COPY --from=hadolint-base /bin/hadolint ./
+FROM --platform=$BUILDPLATFORM upx--base AS hadolint--upx
+COPY --from=hadolint--base /bin/hadolint ./
 # RUN upx --best /app/hadolint
 
-FROM bins-aggregator AS hadolint-final
+FROM bins-aggregator--base AS hadolint--final
 WORKDIR /app/bin
 ENV BINPREFIX=/app/bin/
-COPY --from=hadolint-upx /app/hadolint ./
+COPY --from=hadolint--upx /app/hadolint ./
 WORKDIR /app
 COPY utils/sanity-check/haskell-hadolint.sh ./sanity-check.sh
 RUN sh sanity-check.sh
 
-FROM bins-aggregator AS haskell-final
+FROM bins-aggregator--base AS haskell--final
 WORKDIR /app/bin
-COPY --from=hadolint-final /app/bin/hadolint ./
-COPY --from=shellcheck-final /app/bin/shellcheck ./
+COPY --from=hadolint--final /app/bin/hadolint ./
+COPY --from=shellcheck--final /app/bin/shellcheck ./
 
 # NodeJS/NPM #
-FROM --platform=$BUILDPLATFORM node:22.4.0-slim AS nodejs-base
+FROM --platform=$BUILDPLATFORM node:22.4.0-slim AS nodejs--base
 WORKDIR /app
 COPY linters/package.json linters/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet && \
     npm prune --production
 
-FROM --platform=$BUILDPLATFORM directory-optimizer-base AS nodejs-optimize
+FROM --platform=$BUILDPLATFORM directory-optimizer--base AS nodejs--optimize
 COPY utils/optimize/optimize-nodejs.sh /optimizations/
-COPY --from=nodejs-base /app/node_modules ./node_modules
+COPY --from=nodejs--base /app/node_modules ./node_modules
 RUN sh /optimizations/optimize-nodejs.sh
 
-FROM debian:12.6-slim AS nodejs-final
+FROM debian:12.6-slim AS nodejs--final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         nodejs npm >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/nodejs.sh ./sanity-check.sh
-COPY --from=nodejs-optimize /app/node_modules ./node_modules
+COPY --from=nodejs--optimize /app/node_modules ./node_modules
 ENV BINPREFIX=/app/node_modules/.bin/
 RUN sh sanity-check.sh
 
 # Ruby/Gem #
-FROM --platform=$BUILDPLATFORM debian:12.6-slim AS ruby-base
+FROM --platform=$BUILDPLATFORM debian:12.6-slim AS ruby--base
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -525,12 +525,12 @@ RUN apt-get update -qq && \
 COPY linters/Gemfile linters/Gemfile.lock ./
 RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install --quiet
 
-FROM --platform=$BUILDPLATFORM directory-optimizer-base AS ruby-optimize
+FROM --platform=$BUILDPLATFORM directory-optimizer--base AS ruby--optimize
 COPY utils/optimize/optimize-bundle.sh /optimizations/
-COPY --from=ruby-base /app/bundle ./bundle
+COPY --from=ruby--base /app/bundle ./bundle
 RUN sh /optimizations/optimize-bundle.sh
 
-FROM debian:12.6-slim AS ruby-final
+FROM debian:12.6-slim AS ruby--final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -538,7 +538,7 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/ruby.sh ./sanity-check.sh
 COPY linters/Gemfile ./
-COPY --from=ruby-optimize /app/bundle ./bundle
+COPY --from=ruby--optimize /app/bundle ./bundle
 ENV BUNDLE_DISABLE_SHARED_GEMS=true \
     BUNDLE_GEMFILE="/app/Gemfile" \
     BUNDLE_PATH__SYSTEM=false \
@@ -546,7 +546,7 @@ ENV BUNDLE_DISABLE_SHARED_GEMS=true \
 RUN sh sanity-check.sh
 
 # Python/Pip #
-FROM debian:12.6-slim AS python-base
+FROM debian:12.6-slim AS python--base
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -559,20 +559,20 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --requirement requirements.txt --target python-packages --quiet
 
-FROM --platform=$BUILDPLATFORM directory-optimizer-base AS python-optimize
+FROM --platform=$BUILDPLATFORM directory-optimizer--base AS python--optimize
 COPY utils/optimize/optimize-python.sh /optimizations/
-COPY --from=python-base /app/python-packages ./python-packages
+COPY --from=python--base /app/python-packages ./python-packages
 # TODO: Reenable
 # RUN sh /optimizations/optimize-python.sh
 
-FROM debian:12.6-slim AS python-final
+FROM debian:12.6-slim AS python--final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         python-is-python3 python3 python3-pip >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/python.sh ./sanity-check.sh
-COPY --from=python-optimize /app/python-packages ./python-packages
+COPY --from=python--optimize /app/python-packages ./python-packages
 ENV BINPREFIX=/app/python-packages/bin/ \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_ROOT_USER_ACTION=ignore \
@@ -581,15 +581,15 @@ ENV BINPREFIX=/app/python-packages/bin/ \
 RUN sh sanity-check.sh
 
 # Composer #
-FROM composer:2.7.7 AS composer-bin
+FROM composer:2.7.7 AS composer-bin--base
 
-FROM --platform=$BUILDPLATFORM debian:12.6-slim AS composer-bin-optimize
+FROM --platform=$BUILDPLATFORM debian:12.6-slim AS composer-bin--optimize
 WORKDIR /app
-COPY --from=composer-bin /usr/bin/composer ./bin/
+COPY --from=composer-bin--base /usr/bin/composer ./bin/
 # TODO: optimize `composer` script
 
 # PHP/Composer #
-FROM debian:12.6-slim AS composer-vendor-base
+FROM debian:12.6-slim AS composer-vendor--base
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -598,12 +598,12 @@ RUN apt-get update -qq && \
 COPY linters/composer.json linters/composer.lock ./
 RUN composer install --no-cache --quiet
 
-FROM --platform=$BUILDPLATFORM directory-optimizer-base AS composer-vendor-optimize
+FROM --platform=$BUILDPLATFORM directory-optimizer--base AS composer-vendor--optimize
 COPY utils/optimize/optimize-composer.sh /optimizations/
-COPY --from=composer-vendor-base /app/vendor ./vendor
+COPY --from=composer-vendor--base /app/vendor ./vendor
 RUN sh /optimizations/optimize-composer.sh
 
-FROM debian:12.6-slim AS composer-final
+FROM debian:12.6-slim AS composer--final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -611,15 +611,15 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/composer.sh ./sanity-check.sh
 COPY linters/composer.json ./linters/
-COPY --from=composer-vendor-optimize /app/vendor ./linters/vendor
-COPY --from=composer-bin-optimize /app/bin/composer ./bin/
+COPY --from=composer-vendor--optimize /app/vendor ./linters/vendor
+COPY --from=composer-bin--optimize /app/bin/composer ./bin/
 ENV BINPREFIX=/app/bin/ \
     VENDORPREFIX=/app/linters/ \
     COMPOSER_ALLOW_SUPERUSER=1
 RUN sh sanity-check.sh
 
 # LinuxBrew - gitman #
-FROM --platform=$BUILDPLATFORM gitman-base AS brew-gitman
+FROM --platform=$BUILDPLATFORM gitman--base AS brew--gitman
 COPY linters/gitman-repos/brew-install/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
@@ -627,7 +627,7 @@ RUN --mount=type=cache,target=/root/.gitcache \
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it
 # We have to provide our custom `uname`, because HomeBrew prohibits installation on non-x64 Linux systems
-FROM --platform=$BUILDPLATFORM debian:12.6-slim AS brew-install
+FROM --platform=$BUILDPLATFORM debian:12.6-slim AS brew--install
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -646,10 +646,10 @@ RUN if [ "$(uname -m)" != 'amd64' ]; then \
         mv /usr/bin/uname /usr/bin/uname-bak && \
         mv /usr/bin/uname-x64 /usr/bin/uname && \
     true; fi
-COPY --from=brew-gitman /app/gitman/brew-installer ./brew-installer
+COPY --from=brew--gitman /app/gitman/brew-installer ./brew--installer
 ENV HOMEBREW_NO_ANALYTICS=1 \
     HOMEBREW_NO_AUTO_UPDATE=1
-RUN NONINTERACTIVE=1 chronic bash brew-installer/install.sh && \
+RUN NONINTERACTIVE=1 chronic bash brew--installer/install.sh && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
     chronic brew update --quiet && \
     chronic brew bundle --help --quiet
@@ -657,33 +657,33 @@ RUN NONINTERACTIVE=1 chronic bash brew-installer/install.sh && \
     # find /home/linuxbrew -type d -name .git -prune -exec rm -rf {} \;
 
 # LinuxBrew - rbenv #
-FROM --platform=$BUILDPLATFORM gitman-base AS rbenv-gitman
+FROM --platform=$BUILDPLATFORM gitman--base AS rbenv--gitman
 COPY linters/gitman-repos/rbenv-install/gitman.yml ./
 RUN --mount=type=cache,target=/root/.gitcache \
     gitman install --quiet
 
 # We need to replace ruby bundled with HomeBrew, because it is only a x64 version
 # Instead we install the same ruby version via rbenv and replace it in HomeBrew
-FROM debian:12.6-slim AS brew-rbenv-install
+FROM debian:12.6-slim AS brew-rbenv--install
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         autoconf bison build-essential ca-certificates curl git moreutils \
         libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev >/dev/null && \
     rm -rf /var/lib/apt/lists/*
-COPY --from=rbenv-gitman /app/gitman/rbenv-installer ./rbenv-installer
+COPY --from=rbenv--gitman /app/gitman/rbenv-installer ./rbenv-installer
 ENV PATH="$PATH:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims" \
     RBENV_ROOT=/.rbenv
 RUN bash rbenv-installer/bin/rbenv-installer
-COPY --from=brew-install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
+COPY --from=brew--install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
 RUN --mount=type=cache,target=/.rbenv/cache \
     ruby_version_short="$(sed -E 's~_.*$~~' <portable-ruby-version)" && \
     chronic rbenv install "$ruby_version_short"
 
-FROM --platform=$BUILDPLATFORM debian:12.6-slim AS brew-link-rbenv
+FROM --platform=$BUILDPLATFORM debian:12.6-slim AS brew-link--rbenv
 WORKDIR /app
-COPY --from=brew-install /home/linuxbrew /home/linuxbrew
-COPY --from=brew-rbenv-install /.rbenv/versions /.rbenv/versions
+COPY --from=brew--install /home/linuxbrew /home/linuxbrew
+COPY --from=brew-rbenv--install /.rbenv/versions /.rbenv/versions
 # RUN ruby_version_full="$(cat /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
 #     ruby_version_short="$(sed -E 's~_.+$~~' </home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version)" && \
 #     ln -sf "/.rbenv/versions/$ruby_version_short" "/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/$ruby_version_full" && \
@@ -692,15 +692,15 @@ COPY --from=brew-rbenv-install /.rbenv/versions /.rbenv/versions
 #     find /.rbenv/versions -mindepth 1 -maxdepth 1 -type d -not -name "$ruby_version_short" -exec rm -rf {} \;
 
 # In this stage we collect trace information about which files from linuxbrew and rbenv's ruby are actually neeeded
-FROM debian:12.6-slim AS brew-optimize-trace
+FROM debian:12.6-slim AS brew--trace
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         curl git inotify-tools psmisc >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/brew.sh ./sanity-check.sh
-COPY --from=brew-link-rbenv /home/linuxbrew /home/linuxbrew
-COPY --from=brew-link-rbenv /.rbenv/versions /.rbenv/versions
+COPY --from=brew-link--rbenv /home/linuxbrew /home/linuxbrew
+COPY --from=brew-link--rbenv /.rbenv/versions /.rbenv/versions
 ENV BINPREFIX=/home/linuxbrew/.linuxbrew/bin/ \
     HOMEBREW_NO_ANALYTICS=1 \
     HOMEBREW_NO_AUTO_UPDATE=1
@@ -716,11 +716,11 @@ ENV PATH="/.rbenv/versions/3.1.4/bin:$PATH"
 #     true; fi
 
 # Use trace information to optimize rbenv and brew directories
-FROM --platform=$BUILDPLATFORM directory-optimizer-base AS brew-optimize
+FROM --platform=$BUILDPLATFORM directory-optimizer--base AS brew--optimize
 COPY utils/optimize/optimize-rbenv.sh utils/optimize/optimize-brew.sh /optimizations/
-COPY --from=brew-optimize-trace /home/linuxbrew /home/linuxbrew
-COPY --from=brew-optimize-trace /.rbenv/versions /.rbenv/versions
-# COPY --from=brew-optimize-trace /app/rbenv-list.txt /app/brew-list.txt ./
+COPY --from=brew--trace /home/linuxbrew /home/linuxbrew
+COPY --from=brew--trace /.rbenv/versions /.rbenv/versions
+# COPY --from=brew--trace /app/rbenv-list.txt /app/brew-list.txt ./
 # TODO: Reenable on all architectures
 # RUN if [ "$(uname -m)" = x86_64  ]; then \
 #         sh /optimizations/optimize-rbenv.sh && \
@@ -728,15 +728,15 @@ COPY --from=brew-optimize-trace /.rbenv/versions /.rbenv/versions
 #     true; fi
 
 # Aggregate everything brew here and do one more sanity-check
-FROM debian:12.6-slim AS brew-final
+FROM debian:12.6-slim AS brew--final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         curl git >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/brew.sh ./sanity-check.sh
-COPY --from=brew-optimize /home/linuxbrew /home/linuxbrew
-COPY --from=brew-optimize /.rbenv/versions /.rbenv/versions
+COPY --from=brew--optimize /home/linuxbrew /home/linuxbrew
+COPY --from=brew--optimize /.rbenv/versions /.rbenv/versions
 ENV BINPREFIX=/home/linuxbrew/.linuxbrew/bin/ \
     HOMEBREW_NO_ANALYTICS=1 \
     HOMEBREW_NO_AUTO_UPDATE=1
@@ -750,7 +750,7 @@ RUN touch /.dockerenv && \
 ### Helpers ###
 
 # Main CLI #
-FROM --platform=$BUILDPLATFORM node:22.4.0-slim AS cli-base
+FROM --platform=$BUILDPLATFORM node:22.4.0-slim AS cli--base
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet && \
@@ -761,26 +761,26 @@ COPY src/ ./src/
 RUN npm run build && \
     npm prune --production
 
-FROM --platform=$BUILDPLATFORM directory-optimizer-base AS cli-optimize
+FROM --platform=$BUILDPLATFORM directory-optimizer--base AS cli--optimize
 COPY utils/optimize/optimize-nodejs.sh /optimizations/
-COPY --from=cli-base /app/node_modules ./node_modules
+COPY --from=cli--base /app/node_modules ./node_modules
 RUN sh /optimizations/optimize-nodejs.sh
 
-FROM --platform=$BUILDPLATFORM debian:12.6-slim AS cli-final
+FROM --platform=$BUILDPLATFORM debian:12.6-slim AS cli--final
 WORKDIR /app
-COPY --from=cli-base /app/cli-dist ./cli-dist
-COPY --from=cli-optimize /app/node_modules ./node_modules
+COPY --from=cli--base /app/cli-dist ./cli-dist
+COPY --from=cli--optimize /app/node_modules ./node_modules
 
 # AZLint binaries #
-FROM --platform=$BUILDPLATFORM debian:12.6-slim AS azlint-bin
+FROM --platform=$BUILDPLATFORM debian:12.6-slim AS azlint--bin
 WORKDIR /app
 RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli-dist/main.js $@' >azlint && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >fmt && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint lint $@' >lint && \
     chmod a+x azlint fmt lint
 
-# Pre-Final #
-FROM debian:12.6-slim AS pre-final
+# prefinal #
+FROM debian:12.6-slim AS prefinal
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         moreutils curl git libxml2-utils \
@@ -792,29 +792,29 @@ RUN apt-get update -qq && \
         bash dash ksh ksh93u+m mksh posh yash zsh \
         >/dev/null && \
     rm -rf /var/lib/apt/lists/*
-COPY --from=brew-final /home/linuxbrew /home/linuxbrew
-COPY --from=brew-final /.rbenv/versions /.rbenv/versions
-COPY --from=azlint-bin /app/azlint /app/fmt /app/lint /usr/bin/
+COPY --from=brew--final /home/linuxbrew /home/linuxbrew
+COPY --from=brew--final /.rbenv/versions /.rbenv/versions
+COPY --from=azlint--bin /app/azlint /app/fmt /app/lint /usr/bin/
 WORKDIR /app
 COPY VERSION.txt ./
 WORKDIR /app/cli-dist
-COPY --from=cli-final /app/cli-dist ./
-COPY --from=cli-final /app/node_modules ./node_modules
+COPY --from=cli--final /app/cli-dist ./
+COPY --from=cli--final /app/node_modules ./node_modules
 COPY src/shell-dry-run.sh src/shell-dry-run-utils.sh ./
 WORKDIR /app/linters
 COPY linters/Gemfile linters/Gemfile.lock linters/composer.json ./
-COPY --from=composer-final /app/linters/vendor ./vendor
-COPY --from=nodejs-final /app/node_modules ./node_modules
-COPY --from=python-final /app/python-packages ./python-packages
-COPY --from=ruby-final /app/bundle ./bundle
+COPY --from=composer--final /app/linters/vendor ./vendor
+COPY --from=nodejs--final /app/node_modules ./node_modules
+COPY --from=python--final /app/python-packages ./python-packages
+COPY --from=ruby--final /app/bundle ./bundle
 WORKDIR /app/linters/bin
-COPY --from=composer-final /app/bin ./
-COPY --from=haskell-final /app/bin ./
-COPY --from=go-final /app/bin ./
-COPY --from=rust-final /app/bin ./
-COPY --from=circleci-final /app/bin ./
-COPY --from=shell-loksh-final /app/bin ./
-COPY --from=shell-oksh-final /app/bin ./
+COPY --from=composer--final /app/bin ./
+COPY --from=haskell--final /app/bin ./
+COPY --from=go--final /app/bin ./
+COPY --from=rust--final /app/bin ./
+COPY --from=circleci--final /app/bin ./
+COPY --from=shell-loksh--final /app/bin ./
+COPY --from=shell-oksh--final /app/bin ./
 WORKDIR /app-tmp
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     HOMEBREW_NO_ANALYTICS=1 \
@@ -852,10 +852,10 @@ RUN find / -type f -not -path '/proc/*' -not -path '/sys/*' >/filelist.txt 2>/de
     useradd --create-home --no-log-init --shell /bin/sh --user-group --system azlint && \
     su - azlint -c "git config --global --add safe.directory '*'" && \
     su - azlint -c 'mkdir -p /home/azlint/.cache/proselint'
-COPY --from=pre-final /usr/bin/azlint /usr/bin/fmt /usr/bin/lint /usr/bin/
-COPY --from=pre-final /home/linuxbrew /home/linuxbrew
-COPY --from=pre-final /.rbenv/versions /.rbenv/versions
-COPY --from=pre-final /app/ /app/
+COPY --from=prefinal /usr/bin/azlint /usr/bin/fmt /usr/bin/lint /usr/bin/
+COPY --from=prefinal /home/linuxbrew /home/linuxbrew
+COPY --from=prefinal /.rbenv/versions /.rbenv/versions
+COPY --from=prefinal /app/ /app/
 ENV NODE_OPTIONS=--dns-result-order=ipv4first \
     PATH="$PATH:/app/bin:/home/linuxbrew/.linuxbrew/bin" \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
