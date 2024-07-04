@@ -2,7 +2,7 @@
 set -euf
 
 if [ "$#" -lt 2 ]; then
-    printf 'Not enough arguments\nExpected `script <patches-directory> <repository-directory>`\n' >&2
+    printf 'Not enough arguments\nExpected "script <patches-directory> <repository-directory>"\n' >&2
     exit 1
 fi
 
