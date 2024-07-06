@@ -35,7 +35,7 @@ RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         "binutils-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" file moreutils >/dev/null && \
     rm -rf /var/lib/apt/lists/*
-COPY utils/check-executable.sh ./
+COPY utils/validate-executable.sh ./
 
 # Golang builder #
 FROM --platform=$BUILDPLATFORM golang:1.23rc1-bookworm AS go-builder--base
@@ -96,7 +96,7 @@ FROM --platform=$BUILDPLATFORM executable-optimizer--base AS go-actionlint--opti
 COPY --from=go-actionlint--build /app/go/bin/actionlint ./bin/
 ARG TARGETARCH
 RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/actionlint && \
-    sh check-executable.sh bin/actionlint
+    sh validate-executable.sh bin/actionlint
 
 FROM --platform=$BUILDPLATFORM upx--base AS go-actionlint--upx
 COPY --from=go-actionlint--optimize /app/bin/actionlint ./
@@ -132,7 +132,7 @@ FROM --platform=$BUILDPLATFORM executable-optimizer--base AS go-shfmt--optimize
 COPY --from=go-shfmt--build /app/go/bin/shfmt ./bin/
 ARG TARGETARCH
 RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/shfmt && \
-    sh check-executable.sh bin/shfmt
+    sh validate-executable.sh bin/shfmt
 
 FROM --platform=$BUILDPLATFORM upx--base AS go-shfmt--upx
 COPY --from=go-shfmt--optimize /app/bin/shfmt ./
@@ -168,7 +168,7 @@ FROM --platform=$BUILDPLATFORM executable-optimizer--base AS go-stoml--optimize
 COPY --from=go-stoml--build /app/go/bin/stoml ./bin/
 ARG TARGETARCH
 RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/stoml && \
-    sh check-executable.sh bin/stoml
+    sh validate-executable.sh bin/stoml
 
 FROM --platform=$BUILDPLATFORM upx--base AS go-stoml--upx
 COPY --from=go-stoml--optimize /app/bin/stoml ./
@@ -197,7 +197,7 @@ FROM --platform=$BUILDPLATFORM executable-optimizer--base AS go-tomljson--optimi
 COPY --from=go-tomljson--build /app/go/bin/tomljson ./bin/
 ARG TARGETARCH
 RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/tomljson && \
-    sh check-executable.sh bin/tomljson
+    sh validate-executable.sh bin/tomljson
 
 FROM --platform=$BUILDPLATFORM upx--base AS go-tomljson--upx
 COPY --from=go-tomljson--optimize /app/bin/tomljson ./
@@ -235,7 +235,7 @@ FROM --platform=$BUILDPLATFORM executable-optimizer--base AS go-checkmake--optim
 COPY --from=go-checkmake--build /app/checkmake/checkmake ./bin/
 ARG TARGETARCH
 RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/checkmake && \
-    sh check-executable.sh bin/checkmake
+    sh validate-executable.sh bin/checkmake
 
 FROM --platform=$BUILDPLATFORM upx--base AS go-checkmake--upx
 COPY --from=go-checkmake--optimize /app/bin/checkmake ./
@@ -269,7 +269,7 @@ FROM --platform=$BUILDPLATFORM executable-optimizer--base AS go-editorconfig-che
 COPY --from=go-editorconfig-checker--build /app/editorconfig-checker/bin/ec ./bin/
 ARG TARGETARCH
 RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/ec && \
-    sh check-executable.sh bin/ec
+    sh validate-executable.sh bin/ec
 
 FROM --platform=$BUILDPLATFORM upx--base AS go-editorconfig-checker--upx
 COPY --from=go-editorconfig-checker--optimize /app/bin/ec ./
@@ -349,7 +349,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
 FROM --platform=$BUILDPLATFORM executable-optimizer--base AS rust--optimize
 COPY --from=rust--build /app/cargo/bin ./bin/
 # NOTE: `strip` is skipped, because it has no effect here
-RUN find bin -type f -exec sh check-executable.sh {} \;
+RUN find bin -type f -exec sh validate-executable.sh {} \;
 
 FROM --platform=$BUILDPLATFORM upx--base AS rust--upx
 COPY --from=rust--optimize /app/bin ./
@@ -411,7 +411,7 @@ RUN CC="gcc -flto -fuse-linker-plugin -Wl,--build-id=none" \
 FROM --platform=$BUILDPLATFORM executable-optimizer--base AS shell-loksh--optimize
 COPY --from=shell-loksh--base /app/loksh/install/bin/loksh ./bin/
 # NOTE: `strip` is skipped, because it has no effect here
-RUN sh check-executable.sh bin/loksh
+RUN sh validate-executable.sh bin/loksh
 
 FROM --platform=$BUILDPLATFORM upx--base AS shell-loksh--upx
 COPY --from=shell-loksh--optimize /app/bin/loksh ./
@@ -444,7 +444,7 @@ RUN ./configure --enable-small --enable-lto --cc='gcc -Os -Wl,--build-id=none' &
 FROM --platform=$BUILDPLATFORM executable-optimizer--base AS shell-oksh--optimize
 COPY --from=shell-oksh--base /app/oksh/install/usr/local/bin/oksh ./bin/
 # NOTE: `strip` is skipped, because it has no effect here
-RUN sh check-executable.sh bin/oksh
+RUN sh validate-executable.sh bin/oksh
 
 FROM --platform=$BUILDPLATFORM upx--base AS shell-oksh--upx
 COPY --from=shell-oksh--optimize /app/bin/oksh ./
