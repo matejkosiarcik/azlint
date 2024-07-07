@@ -16,7 +16,7 @@
     "markdown-link-check": "~3.12.2",
     "markdown-table-formatter": "^1.6.1",
     "markdownlint-cli": "^0.41.0",
-    "package-json-validator": "^0.6.4",
+    "package-json-validator": "^0.6.5",
     "prettier": "^3.3.2",
     "secretlint": "^8.2.4",
     "sql-lint": "^1.0.0",
