@@ -68,7 +68,7 @@ jobs:
           touch "/tmp/digests/${digest#sha256:}"
 
       - name: Upload digest
-        uses: actions/upload-artifact@v4.3.3
+        uses: actions/upload-artifact@v4.3.4
         with:
           name: digest-${{ env.DOCKER_PLATFORM }}
           path: /tmp/digests/*
@@ -82,7 +82,7 @@ jobs:
       - build-images
     steps:
       - name: Download digests
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v4.1.8
         with:
           pattern: digest-*
           path: /tmp/digests
