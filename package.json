@@ -22,7 +22,7 @@
     "@types/yargs": "^17.0.32",
     "modclean": "^3.0.0-beta.1",
     "node-prune": "^1.0.2",
-    "rollup": "^4.18.1",
+    "rollup": "^4.19.0",
     "terser": "^5.31.3",
     "tsx": "^4.16.2",
     "typescript": "^5.5.3",
