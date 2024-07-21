@@ -224,7 +224,7 @@ then you need to specify environment variable named `FOO_BAR`
 |-----------------------------|----------------------------------------------------------------------------------------------------------------------------|---------------------------------|-------|---------------|
 | editorconfig-checker        | [GitHub](https://github.com/editorconfig-checker/editorconfig-checker) <br> [docs](https://editorconfig-checker.github.io) | `VALIDATE_EDITORCONFIG_CHECKER` | `*`   | ❌             |
 | eclint                      | [GitHub](https://github.com/jednano/eclint)                                                                                | `VALIDATE_ECLINT`               | `*`   | ❌             |
-| git check-ignore \[custom\] | -                                                                                                                          | `VALIDATE_GITIGNORE`            | `*`   | ✅             |
+| Git check-ignore \[custom\] | -                                                                                                                          | `VALIDATE_GITIGNORE`            | `*`   | ✅             |
 | jscpd                       | [GitHub](https://github.com/kucherenko/jscpd)                                                                              | `VALIDATE_JSCPD`                | `*`   | ❌             |
 
 ### General configs
@@ -351,9 +351,9 @@ _Autopep8*_ - Formatting conflicts with black, so it is turned off.
 
 In order to develop on this project, first install required system packages.
 
-- If you are on macOS and have [HomeBrew](https://brew.sh) available,
+- If you are on macOS and have [Homebrew](https://brew.sh) available,
   just run `brew bundle install` in project's root directory.
-  This will install all packages from `Brewfile` (learn more about [HomeBrew Bundle](https://github.com/Homebrew/homebrew-bundle)).
+  This will install all packages from `Brewfile` (learn more about [Homebrew Bundle](https://github.com/Homebrew/homebrew-bundle)).
 - If you are on Debian/Ubuntu Linux, check out `.circleci/config.yml` -> job _native-build_ for `apt-get` instructions.
 - If you are on Windows, you need to find and install packages yourself - check out [Chocolatey](https://chocolatey.org).
 
