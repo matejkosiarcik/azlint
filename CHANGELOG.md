@@ -174,7 +174,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Colored file output
   - New components:
     - mypy
-    - git check-ignore
+    - Git check-ignore
 - Changed
   - new python wrapper
   - Optimize reading list of files
@@ -312,7 +312,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - strip executables from debug symbols
     - pack executables with upx
     - prune non-production npm dependencies
-    - speed up git operations
+    - speed up Git operations
 
 ## \[0.1.1\] - 2020-06-04
 
