@@ -301,10 +301,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added
   - Add new components
-    - bash
-    - hadolint
-    - swift
-    - zsh
+    - Bash
+    - Hadolint
+    - Swift
+    - Zsh
 - Changed
   - Optimize existing components
     - multi stage docker builds (resulting image should be smaller)
