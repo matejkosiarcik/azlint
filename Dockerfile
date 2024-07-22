@@ -493,7 +493,7 @@ COPY --from=hadolint--final /app/bin/hadolint ./
 COPY --from=shellcheck--final /app/bin/shellcheck ./
 
 # NodeJS/NPM #
-FROM --platform=$BUILDPLATFORM node:22.5.0-slim AS nodejs--base
+FROM --platform=$BUILDPLATFORM node:22.5.1-slim AS nodejs--base
 WORKDIR /app
 COPY linters/package.json linters/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet && \
@@ -750,7 +750,7 @@ RUN touch /.dockerenv && \
 ### Helpers ###
 
 # Main CLI #
-FROM --platform=$BUILDPLATFORM node:22.5.0-slim AS cli--base
+FROM --platform=$BUILDPLATFORM node:22.5.1-slim AS cli--base
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet && \
