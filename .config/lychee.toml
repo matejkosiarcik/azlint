@@ -3,7 +3,7 @@ exclude = [
   '^https://(?:www.)?patreon\.com/feross', # 403s
   '^https://(?:www.)?shellcheck\.net', # HTTPS errors
   '^https://gitlab\.gnome\.org/GNOME/libxml2', # 503
-  '^http://www\.xmlsoft\.org', # Timeout
+  '^http://www\.xmlsoft\.org', # Timeout + 504
   '^shivammathur/setup-php@.+$', # Invalid email address
   '^https?://localhost',
   '^https?://.*\.lan',
