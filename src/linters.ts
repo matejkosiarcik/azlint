@@ -58,12 +58,12 @@ export class Linters {
             lintFile: {
                 args: string[] | ((file: string) => (string[] | Promise<string[]>)),
                 options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
-                successExitCode?: number | number[] | ((status: number) => boolean) |  undefined,
+                successExitCode?: number | number[] | ((status: number) => boolean) | undefined,
             } | ((file: string, toolName: string) => Promise<void>),
             fmtFile?: {
                 args: string[] | ((file: string) => (string[] | Promise<string[]>)),
                 options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
-                successExitCode?: number | number[] | ((status: number) => boolean) |  undefined,
+                successExitCode?: number | number[] | ((status: number) => boolean) | undefined,
             } | ((file: string, toolName: string) => Promise<void>),
             jobs?: number | undefined,
         }
@@ -108,12 +108,12 @@ export class Linters {
             lintFile: {
                 args: string[] | ((file: string) => (string[] | Promise<string[]>)),
                 options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
-                successExitCode?: number | number[] | ((status: number) => boolean) |  undefined,
+                successExitCode?: number | number[] | ((status: number) => boolean) | undefined,
             } | ((file: string, toolName: string) => Promise<void>),
             fmtFile?: {
                 args: string[] | ((file: string) => (string[] | Promise<string[]>)),
                 options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
-                successExitCode?: number | number[] | ((status: number) => boolean) |  undefined,
+                successExitCode?: number | number[] | ((status: number) => boolean) | undefined,
             } | ((file: string, toolName: string) => Promise<void>),
         }
     ): Promise<void> {
@@ -130,7 +130,7 @@ export class Linters {
         }
 
         if (this.mode === 'lint') {
-            let lintCallback: (file: string, toolName: string) => Promise<void> = async () => {};
+            let lintCallback: (file: string, toolName: string) => Promise<void> = async () => { };
 
             if (typeof options.lintFile === 'object') {
                 const execaConfig = options.lintFile;

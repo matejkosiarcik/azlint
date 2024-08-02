@@ -231,8 +231,8 @@ async function findConfigFile(options: {
                         return configContent.split('\n').some((line) => line.includes(configEntry.content))
                     }).at(0);
                 })))
-                .filter((file) => file)
-                .at(0);
+                    .filter((file) => file)
+                    .at(0);
             })))
             .filter((file) => file)
             .at(0);

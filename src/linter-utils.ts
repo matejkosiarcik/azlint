@@ -36,7 +36,7 @@ export async function resolveLintOptions(options: ExecaOptions | ((file: string)
 /**
  * Turn arguments into a predicate
  */
-export function resolveLintSuccessExitCode(successStatus: number | number[] | ((exitCode: number) => boolean) |  undefined): ((exitCode: number) => boolean) {
+export function resolveLintSuccessExitCode(successStatus: number | number[] | ((exitCode: number) => boolean) | undefined): ((exitCode: number) => boolean) {
     if (successStatus === undefined) {
         successStatus = 0;
     }

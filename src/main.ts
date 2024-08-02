@@ -76,9 +76,9 @@ import { Linters } from './linters';
     // Extract arguments
     const logLevel = args.quiet ? LogLevel.QUIET :
         args.verbose >= 3 ? LogLevel.EXTRA_EXTRA_VERBOSE :
-        args.verbose >= 2 ? LogLevel.EXTRA_VERBOSE :
-        args.verbose >= 1 ? LogLevel.VERBOSE :
-        LogLevel.NORMAL;
+            args.verbose >= 2 ? LogLevel.EXTRA_VERBOSE :
+                args.verbose >= 1 ? LogLevel.VERBOSE :
+                    LogLevel.NORMAL;
     const directory = (() => {
         if (args._.length > 1) {
             return args._[1].toString();
