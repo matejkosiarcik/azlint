@@ -48,15 +48,17 @@ jobs:
           # disable
           VALIDATE_BASH_EXEC: false
           VALIDATE_CSS: false
-          VALIDATE_JSON: false # Because eslint considers .json as .js (so rules like single-quote don't make sense)
+          VALIDATE_DOCKERFILE_HADOLINT: false # Incorrectly tries to lint .dockerfilelintrc
           VALIDATE_JAVASCRIPT_ES: false
+          VALIDATE_JAVASCRIPT_PRETIER: false
           VALIDATE_JAVASCRIPT_STANDARD: false
           VALIDATE_JSCPD: false
-          VALIDATE_TYPESCRIPT_ES: false
-          VALIDATE_TYPESCRIPT_STANDARD: false
+          VALIDATE_JSON: false # Because eslint considers .json as .js (so rules like single-quote don't make sense)
           VALIDATE_RUST_2015: false
           VALIDATE_RUST_CLIPPY: false # Somehow fails the compilation
-          VALIDATE_DOCKERFILE_HADOLINT: false # Incorrectly tries to lint .dockerfilelintrc
+          VALIDATE_TYPESCRIPT_ES: false
+          VALIDATE_TYPESCRIPT_PRETTIER: false
+          VALIDATE_TYPESCRIPT_STANDARD: false
 
           # config files
           DOCKERFILE_HADOLINT_FILE_NAME: .hadolint.yaml
