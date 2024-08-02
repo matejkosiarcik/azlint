@@ -3,6 +3,14 @@
   "overrides": [
     {
       "files": [
+        "*.{js,ts}"
+      ],
+      "options": {
+        "printWidth": 180
+      }
+    },
+    {
+      "files": [
         "*.{yml,yaml}"
       ],
       "options": {
