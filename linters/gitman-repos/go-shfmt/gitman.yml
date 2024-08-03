@@ -14,7 +14,7 @@ sources:
 sources_locked:
   - repo: https://github.com/mvdan/sh.git
     name: shfmt
-    rev: 3697a783e31de826dad42c40b0b1914852eaf8d5
+    rev: e81efe570ffb03dbe59ade0b39de30019a0e8930
     type: git
     params:
     sparse_paths:
