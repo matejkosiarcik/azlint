@@ -4,9 +4,6 @@
 # checkov:skip=CKV_DOCKER_7:Disable FROM :latest
 # ^^^ false positive for `--platform=$BUILDPLATFORM`
 
-# hadolint global ignore=DL3042
-# ^^^ Allow pip's cache, because we use it for cache mount
-
 # Upx #
 # TODO: Change upx target from ubuntu to debian when possible
 # NOTE: `upx-ucl` is no longer available in debian 12 bookworm
