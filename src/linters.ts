@@ -245,7 +245,7 @@ export class Linters {
             envName: 'NPM_INSTALL',
             fileMatch: ['package.json'],
             lintFile: {
-                args: ['npm', 'install', '--dry-run', '--no-package-lock', '--prefix', '#directory#'],
+                args: ['npm', 'install', '--ignore-scripts', '--dry-run', '--no-package-lock', '--prefix', '#directory#'],
                 options: async (file) => {
                     const workdir = await this.randomDir();
                     await fs.mkdir(path.join(workdir, path.dirname(file)), { recursive: true });
@@ -357,7 +357,7 @@ export class Linters {
                 return skip;
             },
             lintFile: {
-                args: ['npm', 'ci', '--dry-run', '--prefix', '#directory#'],
+                args: ['npm', 'ci', '--ignore-scripts', '--dry-run', '--prefix', '#directory#'],
                 options: async (file) => {
                     const workdir = await this.randomDir();
                     await fs.mkdir(path.join(workdir, path.dirname(file)), { recursive: true });
