@@ -4,9 +4,6 @@
 # checkov:skip=CKV_DOCKER_7:Disable FROM :latest
 # ^^^ false positive for `--platform=$BUILDPLATFORM`
 
-# hadolint global ignore=DL3042
-# ^^^ Allow pip's cache, because we use it for cache mount
-
 # Upx #
 # TODO: Change upx target from ubuntu to debian when possible
 # NOTE: `upx-ucl` is no longer available in debian 12 bookworm
@@ -71,7 +68,7 @@ COPY build-dependencies/yq/requirements.txt ./yq/
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --requirement yq/requirements.txt --target yq/python-packages --quiet
 COPY build-dependencies/yaml-minifier/package.json build-dependencies/yaml-minifier/package-lock.json ./yaml-minifier/
-RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet --prefix yaml-minifier
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --no-fund --loglevel=error --prefix yaml-minifier
 ENV PATH="/optimizations/yq/python-packages/bin:$PATH" \
     PYTHONPATH=/optimizations/yq/python-packages
 COPY build-dependencies/yaml-minifier/minify-yaml.js ./yaml-minifier/
@@ -496,7 +493,8 @@ COPY --from=shellcheck--final /app/bin/shellcheck ./
 FROM --platform=$BUILDPLATFORM node:22.6.0-slim AS nodejs--base
 WORKDIR /app
 COPY linters/package.json linters/package-lock.json ./
-RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet && \
+COPY linters/npm-patches/ ./npm-patches/
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --no-fund --loglevel=error && \
     npm prune --production
 
 FROM --platform=$BUILDPLATFORM directory-optimizer--base AS nodejs--optimize
@@ -753,7 +751,7 @@ RUN touch /.dockerenv && \
 FROM --platform=$BUILDPLATFORM node:22.6.0-slim AS cli--base
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --quiet && \
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --no-fund --loglevel=error && \
     npx modclean --patterns default:safe --run --error-halt && \
     npx node-prune
 COPY tsconfig.json ./

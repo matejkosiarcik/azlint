@@ -10,14 +10,14 @@ PROJECT_DIR := $(abspath $(dir $(MAKEFILE_LIST)))
 
 .DEFAULT: all
 .PHONY: all
-all: clean bootstrap test docker-build docker-run docker-multibuild
+all: clean bootstrap test docker-build docker-run docker-build-multiarch
 
 .PHONY: bootstrap
 bootstrap:
 	mkdir -p linters/bin
 
 	printf '%s\0%s\0' . linters | \
-		xargs -0 -P0 -n1 npm install --no-save --no-progress --no-audit --quiet --prefix
+		xargs -0 -P0 -n1 npm ci --no-save --no-progress --no-audit --no-fund --loglevel=error --prefix
 
 	# Python dependencies
 	printf '%s\n%s\n' build-dependencies/gitman build-dependencies/yq | while read -r dir; do \
@@ -108,8 +108,8 @@ test:
 docker-build:
 	time docker build . --tag matejkosiarcik/azlint:dev
 
-.PHONY: docker-multibuild
-docker-multibuild:
+.PHONY: docker-build-multiarch
+docker-build-multiarch:
 	printf '%s\n%s\n' amd64 arm64/v8 | \
 		while read -r arch; do \
 			printf 'Building for linux/%s:\n' "$$arch" && \
