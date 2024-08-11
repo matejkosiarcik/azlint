@@ -78,7 +78,7 @@ jobs:
         shell: bash
 
       - name: Install project dependencies
-        run: npm ci --unsafe-perm --no-progress --no-audit --quiet
+        run: npm ci --unsafe-perm --no-progress --no-audit --no-fund --quiet
         # TODO: Add system dependencies and run full bootstrap
         # run: make bootstrap
         shell: bash

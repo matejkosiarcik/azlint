@@ -14,7 +14,7 @@ all: bootstrap record
 
 .PHONY: bootstrap
 bootstrap:
-	npm ci
+	npm ci --no-save --no-progress --no-audit --no-fund --quiet
 
 	# check if virtual environment exists or create it
 	[ -n "$${VIRTUAL_ENV+x}" ] || [ -d venv ] \
