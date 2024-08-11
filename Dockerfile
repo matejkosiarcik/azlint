@@ -493,6 +493,7 @@ COPY --from=shellcheck--final /app/bin/shellcheck ./
 FROM --platform=$BUILDPLATFORM node:22.6.0-slim AS nodejs--base
 WORKDIR /app
 COPY linters/package.json linters/package-lock.json ./
+COPY linters/npm-patches/ ./npm-patches/
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --no-fund --loglevel=error && \
     npm prune --production
 
