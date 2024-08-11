@@ -10,7 +10,7 @@ PROJECT_DIR := $(abspath $(dir $(MAKEFILE_LIST)))
 
 .DEFAULT: all
 .PHONY: all
-all: clean bootstrap test docker-build docker-run docker-multibuild
+all: clean bootstrap test docker-build docker-run docker-build-multiarch
 
 .PHONY: bootstrap
 bootstrap:
@@ -108,8 +108,8 @@ test:
 docker-build:
 	time docker build . --tag matejkosiarcik/azlint:dev
 
-.PHONY: docker-multibuild
-docker-multibuild:
+.PHONY: docker-build-multiarch
+docker-build-multiarch:
 	printf '%s\n%s\n' amd64 arm64/v8 | \
 		while read -r arch; do \
 			printf 'Building for linux/%s:\n' "$$arch" && \
