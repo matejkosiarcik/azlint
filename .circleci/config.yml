@@ -66,7 +66,7 @@ jobs:
       - run: |
           git config --global user.email nobody@example.com
           git config --global user.name Nobody
-      - run: npm ci --unsafe-perm --no-progress --no-audit --no-fund --quiet
+      - run: npm ci --unsafe-perm --no-progress --no-audit --no-fund --loglevel=error
       - run: npm test
 
   native-build:

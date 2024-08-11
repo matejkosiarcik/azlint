@@ -17,7 +17,7 @@ bootstrap:
 	mkdir -p linters/bin
 
 	printf '%s\0%s\0' . linters | \
-		xargs -0 -P0 -n1 npm ci --no-save --no-progress --no-audit --no-fund --quiet --prefix
+		xargs -0 -P0 -n1 npm ci --no-save --no-progress --no-audit --no-fund --loglevel=error --prefix
 
 	# Python dependencies
 	printf '%s\n%s\n' build-dependencies/gitman build-dependencies/yq | while read -r dir; do \
