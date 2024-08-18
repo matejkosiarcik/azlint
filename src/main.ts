@@ -148,6 +148,9 @@ import { Linters } from './linters';
     const projectFiles = await listProjectFiles(onlyChanged);
     logExtraExtraVerbose(`Found ${projectFiles.length} project files:\n${projectFiles.map((el) => `- ${el}`).join('\n')}`);
 
+    // To fix race-condition bugs for proselint
+    fs.mkdirSync(path.join(os.homedir(), '.cache', 'proselint'), { recursive: true });
+
     const linters = new Linters({
         mode: command,
         files: projectFiles,
