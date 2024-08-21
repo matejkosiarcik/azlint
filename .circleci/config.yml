@@ -173,7 +173,7 @@ jobs:
 
   docker-build:
     docker:
-      - image: docker:26.1.4
+      - image: docker:27.1.1
     steps:
       - checkout
       - setup_remote_docker:
