@@ -64,6 +64,7 @@ jobs:
           VALIDATE_HTML_PRETTIER: false
           VALIDATE_JSON_PRETTIER: false
           VALIDATE_MARKDOWN_PRETTIER: false
+          VALIDATE_PYTHON_PYINK: false
           VALIDATE_VUE_PRETTIER: false
 
           # config files
