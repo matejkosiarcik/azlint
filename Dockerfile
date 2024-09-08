@@ -305,7 +305,7 @@ COPY linters/Cargo.toml ./
 RUN tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' Cargo.toml >cargo-dependencies.txt
 
 # Rust #
-FROM --platform=$BUILDPLATFORM rust:1.80.1-slim-bookworm AS rust--build
+FROM --platform=$BUILDPLATFORM rust:1.81.0-slim-bookworm AS rust--build
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -579,7 +579,7 @@ ENV BINPREFIX=/app/python-packages/bin/ \
 RUN sh sanity-check.sh
 
 # Composer #
-FROM composer:2.7.8 AS composer-bin--base
+FROM composer:2.7.9 AS composer-bin--base
 
 FROM --platform=$BUILDPLATFORM debian:12.7-slim AS composer-bin--optimize
 WORKDIR /app
