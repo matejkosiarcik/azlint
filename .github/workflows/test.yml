@@ -14,7 +14,7 @@ jobs:
     name: Build and Test (${{ matrix.os }})
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.0
 
       - name: Setup NodeJS
         uses: actions/setup-node@v4.0.4
@@ -37,7 +37,7 @@ jobs:
           go-version: stable
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@v1.193.0
+        uses: ruby/setup-ruby@v1.194.0
         with:
           ruby-version: ruby # latest
 
