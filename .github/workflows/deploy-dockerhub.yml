@@ -33,7 +33,7 @@ jobs:
 
       - name: Setup Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v3.7.0
+        uses: docker/setup-buildx-action@v3.7.1
 
       - name: Debug logs
         run: |
@@ -89,7 +89,7 @@ jobs:
           merge-multiple: true
 
       - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3.7.0
+        uses: docker/setup-buildx-action@v3.7.1
 
       - name: Docker metadata
         uses: docker/metadata-action@v5.5.1
