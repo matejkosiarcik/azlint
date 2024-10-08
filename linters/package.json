@@ -2,7 +2,7 @@
   "private": true,
   "dependencies": {
     "@prantlf/jsonlint": "^16.0.0",
-    "@secretlint/secretlint-rule-preset-recommend": "^8.2.4",
+    "@secretlint/secretlint-rule-preset-recommend": "^8.4.0",
     "bats": "^1.11.0",
     "dockerfilelint": "^1.8.0",
     "eclint": "^2.8.1",
@@ -18,10 +18,10 @@
     "markdownlint-cli": "^0.42.0",
     "package-json-validator": "^0.6.5",
     "prettier": "^3.3.3",
-    "secretlint": "^8.2.4",
+    "secretlint": "^8.4.0",
     "sql-lint": "^1.0.0",
     "svglint": "^3.0.0",
-    "textlint": "^14.2.0",
+    "textlint": "^14.2.1",
     "textlint-rule-no-todo": "^2.0.1"
   },
   "scripts": {
