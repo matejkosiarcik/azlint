@@ -4,13 +4,13 @@ bandit==1.7.10
 black==24.10.0
 flake8==7.1.1
 isort==5.13.2
-mypy==1.11.2
+mypy==1.12.0
 pycodestyle==2.12.1
 pylint==3.3.1
 
 # other
 bashate==2.1.1
-checkov==3.2.258
+checkov==3.2.262
 proselint==0.14.0
-sqlfluff==3.2.3
+sqlfluff==3.2.4
 yamllint==1.35.1
