@@ -16,14 +16,14 @@
     "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "^12.1.0",
+    "@rollup/plugin-typescript": "^12.1.1",
     "@tsconfig/strictest": "^2.0.5",
     "@types/node": "^22.7.5",
     "@types/yargs": "^17.0.33",
     "modclean": "^3.0.0-beta.1",
     "node-prune": "^1.0.2",
     "rollup": "^4.24.0",
-    "terser": "^5.34.1",
+    "terser": "^5.36.0",
     "tsx": "^4.19.1",
     "typescript": "^5.6.3",
     "yaml": "^2.6.0"
