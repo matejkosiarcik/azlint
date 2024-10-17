@@ -305,7 +305,7 @@ COPY linters/Cargo.toml ./
 RUN tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' Cargo.toml >cargo-dependencies.txt
 
 # Rust #
-FROM --platform=$BUILDPLATFORM rust:1.81.0-slim-bookworm AS rust--build
+FROM --platform=$BUILDPLATFORM rust:1.82.0-slim-bookworm AS rust--build
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -490,7 +490,7 @@ COPY --from=hadolint--final /app/bin/hadolint ./
 COPY --from=shellcheck--final /app/bin/shellcheck ./
 
 # NodeJS/NPM #
-FROM --platform=$BUILDPLATFORM node:22.9.0-slim AS nodejs--base
+FROM --platform=$BUILDPLATFORM node:23.0.0-slim AS nodejs--base
 WORKDIR /app
 COPY linters/package.json linters/package-lock.json ./
 COPY linters/npm-patches/ ./npm-patches/
@@ -748,7 +748,7 @@ RUN touch /.dockerenv && \
 ### Helpers ###
 
 # Main CLI #
-FROM --platform=$BUILDPLATFORM node:22.9.0-slim AS cli--base
+FROM --platform=$BUILDPLATFORM node:23.0.0-slim AS cli--base
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --no-fund --loglevel=error && \
