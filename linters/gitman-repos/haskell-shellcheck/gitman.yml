@@ -14,7 +14,7 @@ sources:
 sources_locked:
   - repo: https://github.com/koalaman/shellcheck.git
     name: shellcheck
-    rev: 79e43c4550aaf50ebcced1c2b2852f1bd2533f6c
+    rev: 47bff1d5fdc478a3bfb32ffb532d33bab0e64b2c
     type: git
     params:
     sparse_paths:
