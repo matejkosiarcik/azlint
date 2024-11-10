@@ -14,7 +14,7 @@ sources:
 sources_locked:
   - repo: https://github.com/dimkr/loksh.git
     name: loksh
-    rev: 5fbfba82da7d0479b40d35dc0257aba0c07f8d8a
+    rev: d13d583b19866d750ea4150a89e0faabc775cef7
     type: git
     params:
     sparse_paths:
