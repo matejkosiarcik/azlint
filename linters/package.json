@@ -13,15 +13,15 @@
     "htmllint-cli": "^0.0.7",
     "jscpd": "^4.0.5",
     "json5": "^2.2.3",
-    "markdown-link-check": "~3.12.2",
+    "markdown-link-check": "~3.13.6",
     "markdown-table-formatter": "^1.6.1",
     "markdownlint-cli": "^0.42.0",
-    "package-json-validator": "^0.6.5",
+    "package-json-validator": "^0.7.0",
     "prettier": "^3.3.3",
     "secretlint": "^9.0.0",
     "sql-lint": "^1.0.0",
     "svglint": "^3.0.0",
-    "textlint": "^14.2.1",
+    "textlint": "^14.3.0",
     "textlint-rule-no-todo": "^2.0.1"
   },
   "scripts": {
