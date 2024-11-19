@@ -490,7 +490,7 @@ COPY --from=hadolint--final /app/bin/hadolint ./
 COPY --from=shellcheck--final /app/bin/shellcheck ./
 
 # NodeJS/NPM #
-FROM --platform=$BUILDPLATFORM node:23.1.0-slim AS nodejs--base
+FROM --platform=$BUILDPLATFORM node:23.2.0-slim AS nodejs--base
 WORKDIR /app
 COPY linters/package.json linters/package-lock.json ./
 COPY linters/npm-patches/ ./npm-patches/
@@ -579,7 +579,7 @@ ENV BINPREFIX=/app/python-packages/bin/ \
 RUN sh sanity-check.sh
 
 # Composer #
-FROM composer:2.8.2 AS composer-bin--base
+FROM composer:2.8.3 AS composer-bin--base
 
 FROM --platform=$BUILDPLATFORM debian:12.8-slim AS composer-bin--optimize
 WORKDIR /app
@@ -748,7 +748,7 @@ RUN touch /.dockerenv && \
 ### Helpers ###
 
 # Main CLI #
-FROM --platform=$BUILDPLATFORM node:23.1.0-slim AS cli--base
+FROM --platform=$BUILDPLATFORM node:23.2.0-slim AS cli--base
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --no-fund --loglevel=error && \
