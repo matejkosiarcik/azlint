@@ -37,12 +37,12 @@ jobs:
           go-version: stable
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@v1.206.0
+        uses: ruby/setup-ruby@v1.207.0
         with:
           ruby-version: ruby # latest
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@2.31.1
+        uses: shivammathur/setup-php@2.32.0
         with:
           php-version: latest
           extensions: mbstring # TODO: consider removing if not necessary
