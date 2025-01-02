@@ -93,7 +93,6 @@ jobs:
               composer php php-cli php-common php-mbstring php-zip \
               python3 python3-pip python3-venv \
               bundler ruby ruby-build ruby-dev \
-              golang \
               bash dash ksh ksh93u+m mksh posh yash zsh \
               shellcheck
             # Haskell packages skipped: cabal-install ghc
@@ -102,6 +101,11 @@ jobs:
           command: |
             git config --global user.email nobody@example.com
             git config --global user.name Nobody
+      - run:
+          name: Install Go
+          command: |
+            curl -sSf https://go.dev/dl/go1.23.4.linux-amd64.tar.gz -o go.tar.gz
+            tar -C /usr/local -xzf go.tar.gz
       - run:
           name: Install Rust
           command: |
@@ -136,7 +140,7 @@ jobs:
           name: Install project dependencies
           command: |
             . "$HOME/.cargo/env"
-            export PATH="$PATH:$HOME/.cargo/bin"
+            export PATH="$PATH:$HOME/.cargo/bin:/usr/local/go/bin"
             make bootstrap
       - run:
           name: Install HomeBrew
@@ -162,7 +166,7 @@ jobs:
               BUNDLE_GEMFILE="$PWD/linters/Gemfile" \
               BUNDLE_PATH__SYSTEM=false \
               BUNDLE_PATH="$PWD/linters/bundle" \
-              PATH="$PATH:$PWD/linters/bin:$PWD/linters/python-packages/bin:$PWD/linters/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin" \
+              PATH="$PATH:$PWD/linters/bin:$PWD/linters/python-packages/bin:$PWD/linters/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/go/bin" \
               PYTHONPATH="$PWD/linters/python-packages"
             # TODO: Run sanity check
             # sh utils/sanity-check/.main.sh

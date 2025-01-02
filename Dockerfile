@@ -855,7 +855,7 @@ COPY --from=prefinal /home/linuxbrew /home/linuxbrew
 COPY --from=prefinal /.rbenv/versions /.rbenv/versions
 COPY --from=prefinal /app/ /app/
 ENV NODE_OPTIONS=--dns-result-order=ipv4first \
-    PATH="$PATH:/app/bin:/home/linuxbrew/.linuxbrew/bin" \
+    PATH="$PATH:/app/bin:/usr/local/go/bin:/home/linuxbrew/.linuxbrew/bin" \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_ROOT_USER_ACTION=ignore \
     PYTHONDONTWRITEBYTECODE=1
