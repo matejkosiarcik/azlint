@@ -116,6 +116,7 @@ jobs:
       - run:
           name: Log compiler versions
           command: |
+            export PATH="$PATH:$HOME/.cargo/bin:/usr/local/go/bin"
             printf 'GCC:\n%s\n\n' "$(gcc --version 2>&1 | sed -E 's~^~  ~')"
             printf 'G++:\n%s\n\n' "$(g++ --version 2>&1 | sed -E 's~^~  ~')"
             printf 'Make:\n%s\n\n' "$(make --version 2>&1 | sed -E 's~^~  ~')"
