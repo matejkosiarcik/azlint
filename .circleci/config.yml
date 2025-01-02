@@ -104,7 +104,7 @@ jobs:
       - run:
           name: Install Go
           command: |
-            curl -sSf https://go.dev/dl/go1.23.4.linux-amd64.tar.gz -o go.tar.gz
+            curl -sSfL https://go.dev/dl/go1.23.4.linux-amd64.tar.gz >go.tar.gz
             tar -C /usr/local -xzf go.tar.gz
       - run:
           name: Install Rust
