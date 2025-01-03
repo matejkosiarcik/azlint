@@ -858,7 +858,7 @@ FROM debian:12.8-slim
 RUN find / -type f -not -path '/proc/*' -not -path '/sys/*' >/filelist.txt 2>/dev/null && \
     apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
-        curl git libxml2-utils \
+        curl git libxml2-utils libyaml-0-2 \
         bmake make \
         nodejs npm \
         php php-mbstring \
