@@ -55,6 +55,12 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 ENV PATH="/app/python-packages/bin:$PATH" \
     PYTHONPATH=/app/python-packages
 
+# LinuxBrew - rbenv #
+FROM --platform=$BUILDPLATFORM gitman--base AS rbenv--gitman
+COPY linters/gitman-repos/rbenv-install/gitman.yml ./
+RUN --mount=type=cache,target=/root/.gitcache \
+    gitman install --quiet
+
 # Dependency optimizer #
 FROM --platform=$BUILDPLATFORM debian:12.8-slim AS directory-optimizer--base
 WORKDIR /optimizations
@@ -514,17 +520,43 @@ ENV BINPREFIX=/app/node_modules/.bin/
 RUN sh sanity-check.sh
 
 # Ruby/Gem #
-FROM --platform=$BUILDPLATFORM debian:12.8-slim AS ruby--base
+
+# Install ruby with rbenv
+FROM debian:12.8-slim AS rbenv--install
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
-        bundler ruby ruby-build ruby-dev >/dev/null && \
+        autoconf bison build-essential ca-certificates curl git moreutils \
+        libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev >/dev/null && \
+    rm -rf /var/lib/apt/lists/*
+COPY --from=rbenv--gitman /app/gitman/rbenv-installer ./rbenv-installer
+ENV PATH="$PATH:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims" \
+    RBENV_ROOT=/.rbenv
+RUN bash rbenv-installer/bin/rbenv-installer
+COPY ./.ruby-version ./
+RUN --mount=type=cache,target=/.rbenv/cache \
+    ruby_version="$(cat .ruby-version)" && \
+    chronic rbenv install "$ruby_version" && \
+    ln -s "/.rbenv/versions/$ruby_version" /.rbenv/versions/current
+
+FROM debian:12.8-slim AS ruby--base
+WORKDIR /app
+RUN apt-get update -qq && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        openssl libyaml-0-2 libyaml-dev build-essential >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/Gemfile linters/Gemfile.lock ./
-RUN BUNDLE_DISABLE_SHARED_GEMS=true BUNDLE_PATH__SYSTEM=false BUNDLE_PATH="$PWD/bundle" BUNDLE_GEMFILE="$PWD/Gemfile" bundle install --quiet
+COPY --from=rbenv--install /.rbenv/versions /.rbenv/versions
+ENV BUNDLE_DISABLE_SHARED_GEMS=true \
+    BUNDLE_PATH__SYSTEM=false \
+    BUNDLE_PATH=/app/bundle \
+    BUNDLE_GEMFILE=/app/Gemfile \
+    PATH="$PATH:/.rbenv/versions/current/bin"
+RUN bundle install --quiet
 
 FROM --platform=$BUILDPLATFORM directory-optimizer--base AS ruby--optimize
 COPY utils/optimize/optimize-bundle.sh /optimizations/
+COPY --from=rbenv--install /.rbenv/versions /.rbenv/versions
 COPY --from=ruby--base /app/bundle ./bundle
 RUN sh /optimizations/optimize-bundle.sh
 
@@ -532,15 +564,17 @@ FROM debian:12.8-slim AS ruby--final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
-        bundler ruby ruby-build ruby-dev >/dev/null && \
+        openssl libyaml-0-2 libyaml-dev build-essential >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/ruby.sh ./sanity-check.sh
 COPY linters/Gemfile ./
+COPY --from=rbenv--install /.rbenv/versions /.rbenv/versions
 COPY --from=ruby--optimize /app/bundle ./bundle
 ENV BUNDLE_DISABLE_SHARED_GEMS=true \
-    BUNDLE_GEMFILE="/app/Gemfile" \
+    BUNDLE_GEMFILE=/app/Gemfile \
     BUNDLE_PATH__SYSTEM=false \
-    BUNDLE_PATH="/app/bundle"
+    BUNDLE_PATH=/app/bundle \
+    PATH="$PATH:/.rbenv/versions/current/bin"
 RUN sh sanity-check.sh
 
 # Python/Pip #
@@ -654,12 +688,6 @@ RUN NONINTERACTIVE=1 chronic bash brew--installer/install.sh && \
     # TODO: Reenable?
     # find /home/linuxbrew -type d -name .git -prune -exec rm -rf {} \;
 
-# LinuxBrew - rbenv #
-FROM --platform=$BUILDPLATFORM gitman--base AS rbenv--gitman
-COPY linters/gitman-repos/rbenv-install/gitman.yml ./
-RUN --mount=type=cache,target=/root/.gitcache \
-    gitman install --quiet
-
 # We need to replace ruby bundled with HomeBrew, because it is only a x64 version
 # Instead we install the same ruby version via rbenv and replace it in HomeBrew
 FROM debian:12.8-slim AS brew-rbenv--install
@@ -676,7 +704,8 @@ RUN bash rbenv-installer/bin/rbenv-installer
 COPY --from=brew--install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
 RUN --mount=type=cache,target=/.rbenv/cache \
     ruby_version_short="$(sed -E 's~_.*$~~' <portable-ruby-version)" && \
-    chronic rbenv install "$ruby_version_short"
+    chronic rbenv install "$ruby_version_short" && \
+    ln -s "/.rbenv/versions/$ruby_version_short" /.rbenv/versions/brew
 
 FROM --platform=$BUILDPLATFORM debian:12.8-slim AS brew-link--rbenv
 WORKDIR /app
@@ -702,8 +731,7 @@ COPY --from=brew-link--rbenv /.rbenv/versions /.rbenv/versions
 ENV BINPREFIX=/home/linuxbrew/.linuxbrew/bin/ \
     HOMEBREW_NO_ANALYTICS=1 \
     HOMEBREW_NO_AUTO_UPDATE=1
-# TODO: Make ruby version dynamic
-ENV PATH="/.rbenv/versions/3.1.4/bin:$PATH"
+ENV PATH="/.rbenv/versions/brew/bin:$PATH"
 # TODO: Reenable on all architectures
 # RUN touch /.dockerenv rbenv-list.txt brew-list.txt && \
 #     if [ "$(uname -m)" = x86_64  ]; then \
@@ -739,7 +767,7 @@ ENV BINPREFIX=/home/linuxbrew/.linuxbrew/bin/ \
     HOMEBREW_NO_ANALYTICS=1 \
     HOMEBREW_NO_AUTO_UPDATE=1
 # TODO: Make ruby version dynamic
-ENV PATH="/.rbenv/versions/3.1.4/bin:$PATH"
+ENV PATH="/.rbenv/versions/brew/bin:$PATH"
 RUN touch /.dockerenv && \
     if [ "$(uname -m)" = x86_64  ]; then \
         sh sanity-check.sh && \
@@ -786,12 +814,12 @@ RUN apt-get update -qq && \
         nodejs npm \
         php php-mbstring \
         python-is-python3 python3 python3-pip \
-        bundler ruby \
         bash dash ksh ksh93u+m mksh posh yash zsh \
         >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=brew--final /home/linuxbrew /home/linuxbrew
 COPY --from=brew--final /.rbenv/versions /.rbenv/versions
+COPY --from=ruby--final /.rbenv/versions /.rbenv/versions
 COPY --from=azlint--bin /app/azlint /app/fmt /app/lint /usr/bin/
 WORKDIR /app
 COPY VERSION.txt ./
@@ -805,6 +833,7 @@ COPY --from=composer--final /app/linters/vendor ./vendor
 COPY --from=nodejs--final /app/node_modules ./node_modules
 COPY --from=python--final /app/python-packages ./python-packages
 COPY --from=ruby--final /app/bundle ./bundle
+COPY --from=ruby--final /.rbenv /.rbenv
 WORKDIR /app/linters/bin
 COPY --from=composer--final /app/bin ./
 COPY --from=haskell--final /app/bin ./
@@ -834,7 +863,6 @@ RUN find / -type f -not -path '/proc/*' -not -path '/sys/*' >/filelist.txt 2>/de
         nodejs npm \
         php php-mbstring \
         python-is-python3 python3 python3-pip \
-        bundler ruby \
         bash dash ksh ksh93u+m mksh posh yash zsh \
         >/dev/null && \
     rm -rf /var/lib/apt/lists/* /var/log/apt /var/log/dpkg* /var/cache/apt /usr/share/zsh/vendor-completions && \
