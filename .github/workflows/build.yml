@@ -70,5 +70,6 @@ jobs:
           if [ "$(git status --short | wc -l)" -ne 0 ]; then
             printf 'Found following changes after formatting:\n'
             git status
+            git diff linters/Gemfile.lock
             exit 1
           fi
