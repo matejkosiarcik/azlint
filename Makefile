@@ -64,7 +64,7 @@ bootstrap:
 	BUNDLE_PATH__SYSTEM=false \
 	BUNDLE_PATH="$(PROJECT_DIR)/linters/bundle" \
 	BUNDLE_GEMFILE="$(PROJECT_DIR)/linters/Gemfile" \
-		bundle install --quiet
+		bundle install --quiet --frozen
 
 	PATH="$(PROJECT_DIR)/build-dependencies/yq/venv/bin:$$PATH" \
 		tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' linters/Cargo.toml | \
