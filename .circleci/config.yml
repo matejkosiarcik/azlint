@@ -152,8 +152,8 @@ jobs:
           name: Build
           command: |
             . "$HOME/.cargo/env"
-            # export PATH="$PATH:$HOME/.cargo/bin"
-            make bootstrap
+            export PATH="$HOME/.cargo/bin:/usr/local/go/bin:$PATH"
+            make build
       # - run:
       #     name: Test
       #     command: |
