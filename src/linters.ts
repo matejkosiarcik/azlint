@@ -771,19 +771,6 @@ export class Linters {
             lintFile: { args: ['gitlab-ci-validate', 'validate', '#file#'] },
         });
 
-        // TravisLint
-        await this.runLinter({
-            linterName: 'travis-lint',
-            envName: 'TRAVIS_LINT',
-            fileMatch: '.travis.yml',
-            lintFile: {
-                args: ['travis', 'lint', '--no-interactive', '--skip-version-check', '--skip-completion-check', '--exit-code', '--quiet'],
-                options: (file: string) => {
-                    return { cwd: path.dirname(file) };
-                },
-            },
-        });
-
         // jscpd
         // const jscpdConfigArgs = getConfigArgs('JSCPD', '--config',
         //     ['jscpd.json', '.jscpd.json']);

@@ -274,7 +274,6 @@ These check additional rules, which are recommended, but not required for the co
 | CircleCI CLI lint  | [docs](https://circleci.com/docs/2.0/local-cli) <br> [GitHub](https://github.com/CircleCI-Public/circleci-cli) | `VALIDATE_CIRCLECI_VALIDATE` | `.circleci/config.yml` | ❌             |
 | gitlab-ci-lint     | [GitHub](https://github.com/BuBuaBu/gitlab-ci-lint)                                                            | `VALIDATE_GITLABCI_LINT`     | `.gitlab-ci.yml`       | ❌             |
 | gitlab-ci-validate | [GitHub](https://github.com/pradel/gitlab-ci-validate)                                                         | `VALIDATE_GITLABCI_VALIDATE` | `.gitlab-ci.yml`       | ❌             |
-| Travis CI CLI lint | [GitHub](https://github.com/travis-ci/travis.rb#lint)                                                          | `VALIDATE_TRAVIS_LINT`       | `.travis.yml`          | ❌             |
 
 ### Makefiles
 
