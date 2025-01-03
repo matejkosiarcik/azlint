@@ -15,6 +15,7 @@ all: clean bootstrap test docker-build docker-run docker-build-multiarch
 .PHONY: bootstrap
 bootstrap:
 	echo "PATH: $$PATH"
+	which go
 	mkdir -p linters/bin
 
 	printf '%s\0%s\0' . linters | \
