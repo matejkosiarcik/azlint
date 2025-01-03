@@ -1,5 +1,6 @@
 bin/
 bundle/
+.bundle/
 cargo/
 composer.phar
 gitman/
