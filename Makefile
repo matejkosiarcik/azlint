@@ -22,10 +22,14 @@ bootstrap:
 	# Python dependencies
 	printf '%s\n%s\n' build-dependencies/gitman build-dependencies/yq | while read -r dir; do \
 		cd "$(PROJECT_DIR)/$$dir" && \
+		(deactivate >/dev/null 2>&1 || true) && \
+		rm -rf venv && \
 		python3 -m venv venv && \
+		. ./venv/bin/activate && \
 		PATH="$$PWD/venv/bin:$$PATH" \
 		PIP_DISABLE_PIP_VERSION_CHECK=1 \
 			python3 -m pip install --requirement requirements.txt --quiet --upgrade && \
+		deactivate && \
 	true; done
 
 	find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d -print0 | \
@@ -60,7 +64,7 @@ bootstrap:
 	BUNDLE_PATH__SYSTEM=false \
 	BUNDLE_PATH="$(PROJECT_DIR)/linters/bundle" \
 	BUNDLE_GEMFILE="$(PROJECT_DIR)/linters/Gemfile" \
-		bundle install --quiet
+		bundle install --quiet --frozen
 
 	PATH="$(PROJECT_DIR)/build-dependencies/yq/venv/bin:$$PATH" \
 		tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' linters/Cargo.toml | \

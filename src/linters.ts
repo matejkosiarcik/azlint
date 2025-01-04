@@ -9,6 +9,9 @@ import { customExeca, hashFile, isProjectGitRepo, matchFiles, OneOrArray, resolv
 import { getConfigArgs } from './config-files';
 import { resolveLintArgs, resolveLintOptions, resolveLintSuccessExitCode } from './linter-utils';
 
+// Setup paths for dependencies
+const lintersDir = path.resolve(path.join(__dirname, '..', 'linters'));
+
 function shouldSkipLinter(envName: string, linterName: string): boolean {
     const envEnable = 'VALIDATE_' + envName;
     if (process.env[envEnable] === 'false') {
@@ -335,8 +338,7 @@ export class Linters {
                 args: ['brew', 'bundle', 'list', '--file', '#file#', '--no-lock'],
                 options: {
                     env: {
-                        // TODO: Make ruby version dynamic
-                        PATH: `/.rbenv/versions/3.1.4/bin:${process.env['PATH']}`,
+                        PATH: fsSync.existsSync('/.dockerenv') ? `/.rbenv/versions/brew/bin:${process.env['PATH']}` : process.env['PATH'],
                     },
                 },
             },
@@ -497,7 +499,18 @@ export class Linters {
             linterName: 'mdl',
             envName: 'MDL',
             fileMatch: matchers.markdown,
-            lintFile: { args: ['bundle', 'exec', 'mdl', ...mdlConfigArgs, '#file#'] },
+            lintFile: {
+                args: ['bundle', 'exec', 'mdl', ...mdlConfigArgs, '#file#'],
+                options: {
+                    env: {
+                        BUNDLE_DISABLE_SHARED_GEMS: 'true',
+                        BUNDLE_PATH__SYSTEM: 'false',
+                        BUNDLE_PATH: path.join(lintersDir, 'bundle'),
+                        BUNDLE_GEMFILE: path.join(lintersDir, 'Gemfile'),
+                        PATH: fsSync.existsSync('/.dockerenv') ? `/.rbenv/versions/current/bin:${process.env['PATH']}` : process.env['PATH'],
+                    },
+                },
+            },
         });
 
         // Proselint
@@ -769,19 +782,6 @@ export class Linters {
             envName: 'GITLABCI_VALIDATE',
             fileMatch: '.gitlab-ci.yml',
             lintFile: { args: ['gitlab-ci-validate', 'validate', '#file#'] },
-        });
-
-        // TravisLint
-        await this.runLinter({
-            linterName: 'travis-lint',
-            envName: 'TRAVIS_LINT',
-            fileMatch: '.travis.yml',
-            lintFile: {
-                args: ['travis', 'lint', '--no-interactive', '--skip-version-check', '--skip-completion-check', '--exit-code', '--quiet'],
-                options: (file: string) => {
-                    return { cwd: path.dirname(file) };
-                },
-            },
         });
 
         // jscpd
