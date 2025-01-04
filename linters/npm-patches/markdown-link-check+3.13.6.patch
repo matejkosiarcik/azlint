@@ -1,0 +1,13 @@
+diff --git a/node_modules/markdown-link-check/markdown-link-check b/node_modules/markdown-link-check/markdown-link-check
+index 36d5518..3849a01 100755
+--- a/node_modules/markdown-link-check/markdown-link-check
++++ b/node_modules/markdown-link-check/markdown-link-check
+@@ -288,7 +288,7 @@ async function processInput(filenameForOutput, stream, opts) {
+         opts.retryCount = config.retryCount;
+         opts.fallbackRetryDelay = config.fallbackRetryDelay;
+         opts.aliveStatusCodes = config.aliveStatusCodes;
+-        opts.reporters = config.reporters;
++        opts.reporters = config.reporters ?? opts.reporters;
+     }
+ 
+     await runMarkdownLinkCheck(filenameForOutput, markdown, opts);
