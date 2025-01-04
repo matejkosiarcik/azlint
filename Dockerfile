@@ -543,7 +543,7 @@ FROM debian:12.8-slim AS ruby--base
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
-        openssl libyaml-0-2 libyaml-dev build-essential >/dev/null && \
+        libyaml-0-2 libyaml-dev build-essential >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/Gemfile linters/Gemfile.lock ./
 COPY --from=rbenv--install /.rbenv/versions /.rbenv/versions
@@ -564,7 +564,7 @@ FROM debian:12.8-slim AS ruby--final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
-        openssl libyaml-0-2 libyaml-dev build-essential >/dev/null && \
+        libyaml-0-2 libyaml-dev build-essential >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/ruby.sh ./sanity-check.sh
 COPY linters/Gemfile ./
