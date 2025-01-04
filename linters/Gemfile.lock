@@ -28,24 +28,15 @@ GEM
     tomlrb (2.0.3)
 
 PLATFORMS
-  aarch64-linux-gnu
-  aarch64-linux-musl
-  arm-linux-gnu
-  arm-linux-musl
   arm64-darwin
   ruby
-  x86-linux-gnu
-  x86-linux-musl
-  x86_64-darwin
-  x86_64-linux-gnu
-  x86_64-linux-musl
 
 DEPENDENCIES
-  mdl (= 0.13.0)
-  psych (= 5.2.2)
+  mdl (~> 0.13)
+  psych (~> 5.2)
 
 RUBY VERSION
-   ruby 2.7.1p83
+   ruby 3.4.1p0
 
 BUNDLED WITH
    2.6.2

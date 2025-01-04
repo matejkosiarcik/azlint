@@ -58,13 +58,14 @@ bootstrap:
 	mkdir -p "$$HOME/.cache/proselint"
 
 	gem install bundler
-	# --install-dir "$(PROJECT_DIR)linters/ruby"
+	# --install-dir "$(PROJECT_DIR)/linters/ruby"
+	bundle config set frozen true
 	PATH="$(PROJECT_DIR)/linters/ruby/bin:$$PATH" \
 	BUNDLE_DISABLE_SHARED_GEMS=true \
 	BUNDLE_PATH__SYSTEM=false \
 	BUNDLE_PATH="$(PROJECT_DIR)/linters/bundle" \
 	BUNDLE_GEMFILE="$(PROJECT_DIR)/linters/Gemfile" \
-		bundle install --quiet --frozen
+		bundle install --quiet
 
 	PATH="$(PROJECT_DIR)/build-dependencies/yq/venv/bin:$$PATH" \
 		tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' linters/Cargo.toml | \
