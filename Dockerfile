@@ -535,6 +535,7 @@ ENV PATH="$PATH:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims" \
 RUN bash rbenv-installer/bin/rbenv-installer
 COPY ./utils/rbenv-install-logging.sh /utils/
 COPY ./.ruby-version ./
+# hadolint ignore=DL3001
 RUN --mount=type=cache,target=/.rbenv/cache \
     ruby_version="$(cat .ruby-version)" && \
     sh '/utils/rbenv-install-logging.sh' && \
@@ -706,6 +707,7 @@ ENV PATH="$PATH:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims" \
 RUN bash rbenv-installer/bin/rbenv-installer
 COPY ./utils/rbenv-install-logging.sh /utils/
 COPY --from=brew--install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
+# hadolint ignore=DL3001
 RUN --mount=type=cache,target=/.rbenv/cache \
     ruby_version_short="$(sed -E 's~_.*$~~' <portable-ruby-version)" && \
     sh '/utils/rbenv-install-logging.sh' && \
