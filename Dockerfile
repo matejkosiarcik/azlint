@@ -572,7 +572,7 @@ RUN apt-get update -qq && \
         libyaml-0-2 libyaml-dev build-essential >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/ruby.sh ./sanity-check.sh
-COPY linters/Gemfile ./
+COPY linters/Gemfile linters/Gemfile.lock ./
 COPY --from=rbenv--install /.rbenv/versions /.rbenv/versions
 COPY --from=ruby--optimize /app/bundle ./bundle
 ENV BUNDLE_DISABLE_SHARED_GEMS=true \
