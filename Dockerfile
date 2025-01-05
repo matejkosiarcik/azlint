@@ -552,9 +552,10 @@ RUN apt-get update -qq && \
 COPY linters/Gemfile linters/Gemfile.lock ./
 COPY --from=rbenv--install /.rbenv/versions /.rbenv/versions
 ENV BUNDLE_DISABLE_SHARED_GEMS=true \
-    BUNDLE_PATH__SYSTEM=false \
-    BUNDLE_PATH=/app/bundle \
+    BUNDLE_FROZEN=true \
     BUNDLE_GEMFILE=/app/Gemfile \
+    BUNDLE_PATH=/app/bundle \
+    BUNDLE_PATH__SYSTEM=false \
     PATH="$PATH:/.rbenv/versions/current/bin"
 RUN bundle install --quiet
 
@@ -575,6 +576,7 @@ COPY linters/Gemfile ./
 COPY --from=rbenv--install /.rbenv/versions /.rbenv/versions
 COPY --from=ruby--optimize /app/bundle ./bundle
 ENV BUNDLE_DISABLE_SHARED_GEMS=true \
+    BUNDLE_FROZEN=true \
     BUNDLE_GEMFILE=/app/Gemfile \
     BUNDLE_PATH__SYSTEM=false \
     BUNDLE_PATH=/app/bundle \

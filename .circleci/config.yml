@@ -165,9 +165,10 @@ jobs:
           command: |
             export \
               BUNDLE_DISABLE_SHARED_GEMS=true \
+              BUNDLE_FROZEN=true \
               BUNDLE_GEMFILE="$PWD/linters/Gemfile" \
-              BUNDLE_PATH__SYSTEM=false \
               BUNDLE_PATH="$PWD/linters/bundle" \
+              BUNDLE_PATH__SYSTEM=false \
               PATH="$PATH:$PWD/linters/bin:$PWD/linters/python-packages/bin:$PWD/linters/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/go/bin" \
               PYTHONPATH="$PWD/linters/python-packages"
             # TODO: Run sanity check

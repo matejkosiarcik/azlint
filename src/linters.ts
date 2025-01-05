@@ -504,9 +504,10 @@ export class Linters {
                 options: {
                     env: {
                         BUNDLE_DISABLE_SHARED_GEMS: 'true',
-                        BUNDLE_PATH__SYSTEM: 'false',
-                        BUNDLE_PATH: path.join(lintersDir, 'bundle'),
+                        BUNDLE_FROZEN: 'true',
                         BUNDLE_GEMFILE: path.join(lintersDir, 'Gemfile'),
+                        BUNDLE_PATH: path.join(lintersDir, 'bundle'),
+                        BUNDLE_PATH__SYSTEM: 'false',
                         PATH: fsSync.existsSync('/.dockerenv') ? `/.rbenv/versions/current/bin:${process.env['PATH']}` : process.env['PATH'],
                     },
                 },
