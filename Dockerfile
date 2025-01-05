@@ -533,12 +533,13 @@ COPY --from=rbenv--gitman /app/gitman/rbenv-installer ./rbenv-installer
 ENV PATH="$PATH:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims" \
     RBENV_ROOT=/.rbenv
 RUN bash rbenv-installer/bin/rbenv-installer
+COPY ./utils/rbenv-install-logging.sh /utils/
 COPY ./.ruby-version ./
 RUN --mount=type=cache,target=/.rbenv/cache \
     ruby_version="$(cat .ruby-version)" && \
-    (while true; do sleep 60; printf 'Installing rbenv...\n'; done) & logging_process_id="$$" && \
+    sh '/utils/rbenv-install-logging.sh' && \
     chronic rbenv install "$ruby_version" && \
-    kill "$logging_process_id" && \
+    kill "$(cat '/utils/logging-pid.txt')" && \
     ln -s "/.rbenv/versions/$ruby_version" /.rbenv/versions/current
 
 FROM debian:12.8-slim AS ruby--base
@@ -703,12 +704,13 @@ COPY --from=rbenv--gitman /app/gitman/rbenv-installer ./rbenv-installer
 ENV PATH="$PATH:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims" \
     RBENV_ROOT=/.rbenv
 RUN bash rbenv-installer/bin/rbenv-installer
+COPY ./utils/rbenv-install-logging.sh /utils/
 COPY --from=brew--install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
 RUN --mount=type=cache,target=/.rbenv/cache \
     ruby_version_short="$(sed -E 's~_.*$~~' <portable-ruby-version)" && \
-    (while true; do sleep 60; printf 'Installing rbenv...\n'; done) & logging_process_id="$$" && \
+    sh '/utils/rbenv-install-logging.sh' && \
     chronic rbenv install "$ruby_version_short" && \
-    kill "$logging_process_id" && \
+    kill "$(cat '/utils/logging-pid.txt')" && \
     ln -s "/.rbenv/versions/$ruby_version_short" /.rbenv/versions/brew
 
 FROM --platform=$BUILDPLATFORM debian:12.8-slim AS brew-link--rbenv
