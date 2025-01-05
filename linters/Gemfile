@@ -2,5 +2,4 @@ source "https://rubygems.org"
 ruby ">= 2.7"
 
 gem "mdl", "~> 0.13"
-gem "minifyrb", "~> 0.1"
 gem "psych", "~> 5.2"
