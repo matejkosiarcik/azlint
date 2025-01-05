@@ -538,7 +538,7 @@ COPY ./.ruby-version ./
 # hadolint ignore=DL3001
 RUN --mount=type=cache,target=/.rbenv/cache \
     ruby_version="$(cat .ruby-version)" && \
-    sh '/utils/rbenv-install-logging.sh' && \
+    (sh '/utils/rbenv-install-logging.sh' &) && \
     chronic rbenv install "$ruby_version" && \
     kill "$(cat '/utils/logging-pid.txt')" && \
     ln -s "/.rbenv/versions/$ruby_version" /.rbenv/versions/current
@@ -712,7 +712,7 @@ COPY --from=brew--install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/v
 # hadolint ignore=DL3001
 RUN --mount=type=cache,target=/.rbenv/cache \
     ruby_version_short="$(sed -E 's~_.*$~~' <portable-ruby-version)" && \
-    sh '/utils/rbenv-install-logging.sh' && \
+    (sh '/utils/rbenv-install-logging.sh' &) && \
     chronic rbenv install "$ruby_version_short" && \
     kill "$(cat '/utils/logging-pid.txt')" && \
     ln -s "/.rbenv/versions/$ruby_version_short" /.rbenv/versions/brew
