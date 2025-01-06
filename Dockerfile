@@ -533,10 +533,14 @@ COPY --from=rbenv--gitman /app/gitman/rbenv-installer ./rbenv-installer
 ENV PATH="$PATH:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims" \
     RBENV_ROOT=/.rbenv
 RUN bash rbenv-installer/bin/rbenv-installer
+COPY ./utils/rbenv-install-logging.sh /utils/
 COPY ./.ruby-version ./
+# hadolint ignore=DL3001
 RUN --mount=type=cache,target=/.rbenv/cache \
     ruby_version="$(cat .ruby-version)" && \
+    (sh '/utils/rbenv-install-logging.sh' &) && \
     chronic rbenv install "$ruby_version" && \
+    kill "$(cat '/utils/logging-pid.txt')" && \
     ln -s "/.rbenv/versions/$ruby_version" /.rbenv/versions/current
 
 FROM debian:12.8-slim AS ruby--base
@@ -548,9 +552,10 @@ RUN apt-get update -qq && \
 COPY linters/Gemfile linters/Gemfile.lock ./
 COPY --from=rbenv--install /.rbenv/versions /.rbenv/versions
 ENV BUNDLE_DISABLE_SHARED_GEMS=true \
-    BUNDLE_PATH__SYSTEM=false \
-    BUNDLE_PATH=/app/bundle \
+    BUNDLE_FROZEN=true \
     BUNDLE_GEMFILE=/app/Gemfile \
+    BUNDLE_PATH=/app/bundle \
+    BUNDLE_PATH__SYSTEM=false \
     PATH="$PATH:/.rbenv/versions/current/bin"
 RUN bundle install --quiet
 
@@ -567,10 +572,11 @@ RUN apt-get update -qq && \
         libyaml-0-2 libyaml-dev build-essential >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/ruby.sh ./sanity-check.sh
-COPY linters/Gemfile ./
+COPY linters/Gemfile linters/Gemfile.lock ./
 COPY --from=rbenv--install /.rbenv/versions /.rbenv/versions
 COPY --from=ruby--optimize /app/bundle ./bundle
 ENV BUNDLE_DISABLE_SHARED_GEMS=true \
+    BUNDLE_FROZEN=true \
     BUNDLE_GEMFILE=/app/Gemfile \
     BUNDLE_PATH__SYSTEM=false \
     BUNDLE_PATH=/app/bundle \
@@ -701,10 +707,14 @@ COPY --from=rbenv--gitman /app/gitman/rbenv-installer ./rbenv-installer
 ENV PATH="$PATH:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims" \
     RBENV_ROOT=/.rbenv
 RUN bash rbenv-installer/bin/rbenv-installer
+COPY ./utils/rbenv-install-logging.sh /utils/
 COPY --from=brew--install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
+# hadolint ignore=DL3001
 RUN --mount=type=cache,target=/.rbenv/cache \
     ruby_version_short="$(sed -E 's~_.*$~~' <portable-ruby-version)" && \
+    (sh '/utils/rbenv-install-logging.sh' &) && \
     chronic rbenv install "$ruby_version_short" && \
+    kill "$(cat '/utils/logging-pid.txt')" && \
     ln -s "/.rbenv/versions/$ruby_version_short" /.rbenv/versions/brew
 
 FROM --platform=$BUILDPLATFORM debian:12.8-slim AS brew-link--rbenv
