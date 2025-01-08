@@ -148,11 +148,11 @@ clean:
 		"$(PROJECT_DIR)/docs/demo/gitman" \
 		"$(PROJECT_DIR)/linters/bin" \
 		"$(PROJECT_DIR)/linters/bundle" \
+		"$(PROJECT_DIR)/linters/.bundle" \
 		"$(PROJECT_DIR)/linters/cargo" \
 		"$(PROJECT_DIR)/linters/go" \
 		"$(PROJECT_DIR)/linters/node_modules" \
 		"$(PROJECT_DIR)/linters/python-packages" \
-		"$(PROJECT_DIR)/linters/ruby" \
 		"$(PROJECT_DIR)/linters/target" \
 		"$(PROJECT_DIR)/linters/vendor" \
 		"$(PROJECT_DIR)/node_modules" \

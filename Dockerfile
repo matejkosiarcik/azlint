@@ -58,8 +58,7 @@ ENV PATH="/app/python-packages/bin:$PATH" \
 # LinuxBrew - rbenv #
 FROM --platform=$BUILDPLATFORM gitman--base AS rbenv--gitman
 COPY linters/gitman-repos/rbenv-install/gitman.yml ./
-RUN --mount=type=cache,target=/root/.gitcache \
-    gitman install --quiet
+RUN gitman install --quiet
 
 # Dependency optimizer #
 FROM --platform=$BUILDPLATFORM debian:12.8-slim AS directory-optimizer--base
@@ -115,8 +114,7 @@ RUN sh sanity-check.sh
 
 FROM --platform=$BUILDPLATFORM gitman--base AS go-shfmt--gitman
 COPY linters/gitman-repos/go-shfmt/gitman.yml ./
-RUN --mount=type=cache,target=/root/.gitcache \
-    gitman install --quiet
+RUN gitman install --quiet
 
 FROM --platform=$BUILDPLATFORM go-builder--base AS go-shfmt--build
 COPY --from=go-shfmt--gitman /app/gitman/shfmt ./shfmt
@@ -151,8 +149,7 @@ RUN sh sanity-check.sh
 
 FROM --platform=$BUILDPLATFORM gitman--base AS go-stoml--gitman
 COPY linters/gitman-repos/go-stoml/gitman.yml ./
-RUN --mount=type=cache,target=/root/.gitcache \
-    gitman install --quiet
+RUN gitman install --quiet
 
 FROM --platform=$BUILDPLATFORM go-builder--base AS go-stoml--build
 COPY --from=go-stoml--gitman /app/gitman/stoml ./stoml
@@ -216,8 +213,7 @@ RUN sh sanity-check.sh
 
 FROM --platform=$BUILDPLATFORM gitman--base AS go-checkmake--gitman
 COPY linters/gitman-repos/go-checkmake/gitman.yml ./
-RUN --mount=type=cache,target=/root/.gitcache \
-    gitman install --quiet
+RUN gitman install --quiet
 COPY utils/apply-git-patches.sh ./
 COPY linters/git-patches/checkmake ./git-patches
 RUN sh apply-git-patches.sh git-patches gitman/checkmake
@@ -254,8 +250,7 @@ RUN sh sanity-check.sh
 
 FROM --platform=$BUILDPLATFORM gitman--base AS go-editorconfig-checker--gitman
 COPY linters/gitman-repos/go-editorconfig-checker/gitman.yml ./
-RUN --mount=type=cache,target=/root/.gitcache \
-    gitman install --quiet
+RUN gitman install --quiet
 COPY utils/apply-git-patches.sh ./
 COPY linters/git-patches/editorconfig-checker ./git-patches
 RUN sh apply-git-patches.sh git-patches gitman/editorconfig-checker
@@ -369,8 +364,7 @@ RUN sh sanity-check.sh
 # CircleCI CLI #
 FROM --platform=$BUILDPLATFORM gitman--base AS circleci--gitman
 COPY linters/gitman-repos/circleci-cli/gitman.yml ./
-RUN --mount=type=cache,target=/root/.gitcache \
-    gitman install --quiet
+RUN gitman install --quiet
 
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
 FROM debian:12.8-slim AS circleci--base
@@ -396,8 +390,7 @@ RUN sh sanity-check.sh && \
 # Shell - loksh #
 FROM --platform=$BUILDPLATFORM gitman--base AS shell-loksh--gitman
 COPY linters/gitman-repos/shell-loksh/gitman.yml ./
-RUN --mount=type=cache,target=/root/.gitcache \
-    gitman install --quiet
+RUN gitman install --quiet
 
 FROM debian:12.8-slim AS shell-loksh--base
 RUN apt-get update -qq && \
@@ -430,8 +423,7 @@ RUN sh sanity-check.sh && \
 # Shell - oksh #
 FROM --platform=$BUILDPLATFORM gitman--base AS shell-oksh--gitman
 COPY linters/gitman-repos/shell-oksh/gitman.yml ./
-RUN --mount=type=cache,target=/root/.gitcache \
-    gitman install --quiet
+RUN gitman install --quiet
 
 FROM debian:12.8-slim AS shell-oksh--base
 RUN apt-get update -qq && \
@@ -659,8 +651,7 @@ RUN sh sanity-check.sh
 # LinuxBrew - gitman #
 FROM --platform=$BUILDPLATFORM gitman--base AS brew--gitman
 COPY linters/gitman-repos/brew-install/gitman.yml ./
-RUN --mount=type=cache,target=/root/.gitcache \
-    gitman install --quiet
+RUN gitman install --quiet
 
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it
