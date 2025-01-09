@@ -115,8 +115,7 @@ RUN sh sanity-check.sh
 
 FROM --platform=$BUILDPLATFORM gitman--base AS linters--go--shfmt--gitman
 COPY linters/gitman-repos/go-shfmt/gitman.yml ./
-RUN gitman install --quiet && \
-    find . -type d -name .git -prune -exec rm -rf {} \;
+RUN gitman install --quiet
 
 FROM --platform=$BUILDPLATFORM go-builder--base AS linters--go--shfmt--build
 COPY --from=linters--go--shfmt--gitman /app/gitman/shfmt ./shfmt
@@ -395,8 +394,7 @@ RUN sh sanity-check.sh && \
 # Shell - loksh #
 FROM --platform=$BUILDPLATFORM gitman--base AS linters--shell--loksh--gitman
 COPY linters/gitman-repos/shell-loksh/gitman.yml ./
-RUN gitman install --quiet && \
-    find . -type d -name .git -prune -exec rm -rf {} \;
+RUN gitman install --quiet
 
 FROM debian:12.8-slim AS linters--shell--loksh--base
 RUN apt-get update -qq && \
@@ -686,7 +684,7 @@ RUN if [ "$(uname -m)" != 'amd64' ]; then \
 COPY --from=linters--brew--gitman /app/gitman/brew-installer ./brew--installer
 ENV HOMEBREW_NO_ANALYTICS=1 \
     HOMEBREW_NO_AUTO_UPDATE=1
-RUN NONINTERACTIVE=1 chronic bash linters--brew--installer/install.sh && \
+RUN NONINTERACTIVE=1 chronic bash brew--installer/install.sh && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
     chronic brew update --quiet && \
     chronic brew bundle --help --quiet
