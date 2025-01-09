@@ -9,7 +9,7 @@
 # NOTE: `upx-ucl` is no longer available in debian 12 bookworm
 # It is available in older versions, see https://packages.debian.org/bullseye/upx-ucl
 # However, there were upgrade problems for bookworm, see https://tracker.debian.org/pkg/upx-ucl
-FROM --platform=$BUILDPLATFORM ubuntu:24.04 AS upx--base
+FROM --platform=$BUILDPLATFORM ubuntu:24.04 AS helper--upx--final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -101,7 +101,7 @@ ARG TARGETARCH
 RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/actionlint && \
     sh validate-executable.sh bin/actionlint
 
-FROM --platform=$BUILDPLATFORM upx--base AS go-actionlint--upx
+FROM --platform=$BUILDPLATFORM helper--upx--final AS go-actionlint--upx
 COPY --from=go-actionlint--optimize /app/bin/actionlint ./
 # RUN upx --best /app/actionlint
 
@@ -137,7 +137,7 @@ ARG TARGETARCH
 RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/shfmt && \
     sh validate-executable.sh bin/shfmt
 
-FROM --platform=$BUILDPLATFORM upx--base AS go-shfmt--upx
+FROM --platform=$BUILDPLATFORM helper--upx--final AS go-shfmt--upx
 COPY --from=go-shfmt--optimize /app/bin/shfmt ./
 # RUN upx --best /app/shfmt
 
@@ -173,7 +173,7 @@ ARG TARGETARCH
 RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/stoml && \
     sh validate-executable.sh bin/stoml
 
-FROM --platform=$BUILDPLATFORM upx--base AS go-stoml--upx
+FROM --platform=$BUILDPLATFORM helper--upx--final AS go-stoml--upx
 COPY --from=go-stoml--optimize /app/bin/stoml ./
 # RUN upx --best /app/stoml
 
@@ -202,7 +202,7 @@ ARG TARGETARCH
 RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/tomljson && \
     sh validate-executable.sh bin/tomljson
 
-FROM --platform=$BUILDPLATFORM upx--base AS go-tomljson--upx
+FROM --platform=$BUILDPLATFORM helper--upx--final AS go-tomljson--upx
 COPY --from=go-tomljson--optimize /app/bin/tomljson ./
 # RUN upx --best /app/tomljson
 
@@ -240,7 +240,7 @@ ARG TARGETARCH
 RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/checkmake && \
     sh validate-executable.sh bin/checkmake
 
-FROM --platform=$BUILDPLATFORM upx--base AS go-checkmake--upx
+FROM --platform=$BUILDPLATFORM helper--upx--final AS go-checkmake--upx
 COPY --from=go-checkmake--optimize /app/bin/checkmake ./
 # RUN upx --best /app/checkmake
 
@@ -274,7 +274,7 @@ ARG TARGETARCH
 RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/ec && \
     sh validate-executable.sh bin/ec
 
-FROM --platform=$BUILDPLATFORM upx--base AS go-editorconfig-checker--upx
+FROM --platform=$BUILDPLATFORM helper--upx--final AS go-editorconfig-checker--upx
 COPY --from=go-editorconfig-checker--optimize /app/bin/ec ./
 # RUN upx --best /app/ec
 
@@ -354,7 +354,7 @@ COPY --from=rust--build /app/cargo/bin ./bin/
 # NOTE: `strip` is skipped, because it has no effect here
 RUN find bin -type f -exec sh validate-executable.sh {} \;
 
-FROM --platform=$BUILDPLATFORM upx--base AS rust--upx
+FROM --platform=$BUILDPLATFORM helper--upx--final AS rust--upx
 COPY --from=rust--optimize /app/bin ./
 # RUN parallel upx --best ::: /app/*
 
@@ -382,7 +382,7 @@ COPY --from=circleci--gitman /app/gitman/circleci-cli /app/circleci-cli
 WORKDIR /app/circleci-cli
 RUN bash install.sh
 
-FROM --platform=$BUILDPLATFORM upx--base AS circleci--upx
+FROM --platform=$BUILDPLATFORM helper--upx--final AS circleci--upx
 COPY --from=circleci--base /usr/local/bin/circleci ./
 # RUN upx --best /app/circleci
 
@@ -416,7 +416,7 @@ COPY --from=shell-loksh--base /app/loksh/install/bin/loksh ./bin/
 # NOTE: `strip` is skipped, because it has no effect here
 RUN sh validate-executable.sh bin/loksh
 
-FROM --platform=$BUILDPLATFORM upx--base AS shell-loksh--upx
+FROM --platform=$BUILDPLATFORM helper--upx--final AS shell-loksh--upx
 COPY --from=shell-loksh--optimize /app/bin/loksh ./
 # RUN upx --best /app/loksh
 
@@ -449,7 +449,7 @@ COPY --from=shell-oksh--base /app/oksh/install/usr/local/bin/oksh ./bin/
 # NOTE: `strip` is skipped, because it has no effect here
 RUN sh validate-executable.sh bin/oksh
 
-FROM --platform=$BUILDPLATFORM upx--base AS shell-oksh--upx
+FROM --platform=$BUILDPLATFORM helper--upx--final AS shell-oksh--upx
 COPY --from=shell-oksh--optimize /app/bin/oksh ./
 # RUN upx --best /app/oksh
 
@@ -463,7 +463,7 @@ RUN sh sanity-check.sh && \
 # ShellCheck #
 FROM koalaman/shellcheck:v0.10.0 AS shellcheck--base
 
-FROM --platform=$BUILDPLATFORM upx--base AS shellcheck--upx
+FROM --platform=$BUILDPLATFORM helper--upx--final AS shellcheck--upx
 COPY --from=shellcheck--base /bin/shellcheck ./
 # RUN upx --best /app/shellcheck
 
@@ -478,7 +478,7 @@ RUN sh sanity-check.sh
 # Hadolint #
 FROM hadolint/hadolint:v2.12.0 AS hadolint--base
 
-FROM --platform=$BUILDPLATFORM upx--base AS hadolint--upx
+FROM --platform=$BUILDPLATFORM helper--upx--final AS hadolint--upx
 COPY --from=hadolint--base /bin/hadolint ./
 # RUN upx --best /app/hadolint
 
