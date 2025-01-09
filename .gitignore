@@ -15,7 +15,7 @@ Package Control.*
 # dependencies
 Brewfile.lock.json
 node_modules/
-python-packages/
+python-vendor/
 
 # build artifacts
 /cli-dist/

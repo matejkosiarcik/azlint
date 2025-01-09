@@ -120,14 +120,14 @@ import { Linters } from './linters';
         node: path.join(lintersDir, 'node_modules', '.bin'),
         cargo: path.join(lintersDir, 'cargo', 'bin'),
         venv: path.join(lintersDir, '..', 'venv', 'bin'),
-        python: path.join(lintersDir, 'python-packages', 'bin'),
+        python: path.join(lintersDir, 'python-vendor', 'bin'),
         composer: path.join(lintersDir, 'vendor', 'bin'),
         go: path.join(lintersDir, 'go', 'bin'),
         bin: path.join(lintersDir, 'bin'),
     };
     process.env['PATH'] = `${Object.values(binPaths).join(':')}:${process.env['PATH']}`;
 
-    process.env['PYTHONPATH'] = `${path.join(lintersDir, 'python-packages')}`;
+    process.env['PYTHONPATH'] = `${path.join(lintersDir, 'python-vendor')}`;
     process.env['PIP_DISABLE_PIP_VERSION_CHECK'] = '1';
     process.env['PYTHONDONTWRITEBYTECODE'] = '1';
 

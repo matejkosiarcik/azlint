@@ -51,9 +51,9 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY build-dependencies/gitman/requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install --requirement requirements.txt --target python-packages --quiet
-ENV PATH="/app/python-packages/bin:$PATH" \
-    PYTHONPATH=/app/python-packages
+    python3 -m pip install --requirement requirements.txt --target python-vendor --quiet
+ENV PATH="/app/python-vendor/bin:$PATH" \
+    PYTHONPATH=/app/python-vendor
 
 # LinuxBrew - rbenv #
 FROM --platform=$BUILDPLATFORM gitman--base AS rbenv--gitman
@@ -72,11 +72,11 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY build-dependencies/yq/requirements.txt ./yq/
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install --requirement yq/requirements.txt --target yq/python-packages --quiet
+    python3 -m pip install --requirement yq/requirements.txt --target yq/python-vendor --quiet
 COPY build-dependencies/yaml-minifier/package.json build-dependencies/yaml-minifier/package-lock.json ./yaml-minifier/
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --no-fund --loglevel=error --prefix yaml-minifier
-ENV PATH="/optimizations/yq/python-packages/bin:$PATH" \
-    PYTHONPATH=/optimizations/yq/python-packages
+ENV PATH="/optimizations/yq/python-vendor/bin:$PATH" \
+    PYTHONPATH=/optimizations/yq/python-vendor
 COPY build-dependencies/yaml-minifier/minify-yaml.js ./yaml-minifier/
 COPY utils/optimize/.common.sh ./
 WORKDIR /app
@@ -304,9 +304,9 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY build-dependencies/yq/requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install --requirement requirements.txt --target python-packages --quiet
-ENV PATH="/app/python-packages/bin:$PATH" \
-    PYTHONPATH=/app/python-packages
+    python3 -m pip install --requirement requirements.txt --target python-vendor --quiet
+ENV PATH="/app/python-vendor/bin:$PATH" \
+    PYTHONPATH=/app/python-vendor
 COPY linters/Cargo.toml ./
 RUN tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' Cargo.toml >cargo-dependencies.txt
 
@@ -595,11 +595,11 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_ROOT_USER_ACTION=ignore \
     PYTHONDONTWRITEBYTECODE=1
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install --requirement requirements.txt --target python-packages --quiet
+    python3 -m pip install --requirement requirements.txt --target python-vendor --quiet
 
 FROM --platform=$BUILDPLATFORM directory-optimizer--base AS python--optimize
 COPY utils/optimize/optimize-python.sh /optimizations/
-COPY --from=python--base /app/python-packages ./python-packages
+COPY --from=python--base /app/python-vendor ./python-vendor
 # TODO: Reenable
 # RUN sh /optimizations/optimize-python.sh
 
@@ -610,12 +610,12 @@ RUN apt-get update -qq && \
         python-is-python3 python3 python3-pip >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/python.sh ./sanity-check.sh
-COPY --from=python--optimize /app/python-packages ./python-packages
-ENV BINPREFIX=/app/python-packages/bin/ \
+COPY --from=python--optimize /app/python-vendor ./python-vendor
+ENV BINPREFIX=/app/python-vendor/bin/ \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_ROOT_USER_ACTION=ignore \
     PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONPATH=/app/python-packages
+    PYTHONPATH=/app/python-vendor
 RUN sh sanity-check.sh
 
 # Composer #
@@ -841,7 +841,7 @@ WORKDIR /app/linters
 COPY linters/Gemfile linters/Gemfile.lock linters/composer.json ./
 COPY --from=composer--final /app/linters/vendor ./vendor
 COPY --from=nodejs--final /app/node_modules ./node_modules
-COPY --from=python--final /app/python-packages ./python-packages
+COPY --from=python--final /app/python-vendor ./python-vendor
 COPY --from=ruby--final /app/bundle ./bundle
 COPY --from=ruby--final /.rbenv /.rbenv
 WORKDIR /app/linters/bin
