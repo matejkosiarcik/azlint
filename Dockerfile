@@ -151,8 +151,7 @@ RUN sh sanity-check.sh
 
 FROM --platform=$BUILDPLATFORM gitman--base AS linters--go--stoml--gitman
 COPY linters/gitman-repos/go-stoml/gitman.yml ./
-RUN gitman install --quiet && \
-    find . -type d -name .git -prune -exec rm -rf {} \;
+RUN gitman install --quiet
 
 FROM --platform=$BUILDPLATFORM go-builder--base AS linters--go--stoml--build
 COPY --from=linters--go--stoml--gitman /app/gitman/stoml ./stoml
