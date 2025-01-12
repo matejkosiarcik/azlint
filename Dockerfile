@@ -581,7 +581,7 @@ ENV BUNDLE_DISABLE_SHARED_GEMS=true \
 RUN sh sanity-check.sh
 
 # Python/Pip #
-FROM debian:12.8-slim AS python--base
+FROM debian:12.8-slim AS linters--python--base
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -594,20 +594,20 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --requirement requirements.txt --target python-vendor --quiet
 
-FROM --platform=$BUILDPLATFORM directory-optimizer--base AS python--optimize
+FROM --platform=$BUILDPLATFORM directory-optimizer--base AS linters--python--optimize
 COPY utils/optimize/optimize-python.sh /optimizations/
-COPY --from=python--base /app/python-vendor ./python-vendor
+COPY --from=linters--python--base /app/python-vendor ./python-vendor
 # TODO: Reenable
 # RUN sh /optimizations/optimize-python.sh
 
-FROM debian:12.8-slim AS python--final
+FROM debian:12.8-slim AS linters--python--final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         python-is-python3 python3 python3-pip >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/python.sh ./sanity-check.sh
-COPY --from=python--optimize /app/python-vendor ./python-vendor
+COPY --from=linters--python--optimize /app/python-vendor ./python-vendor
 ENV BINPREFIX=/app/python-vendor/bin/ \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_ROOT_USER_ACTION=ignore \
@@ -616,11 +616,11 @@ ENV BINPREFIX=/app/python-vendor/bin/ \
 RUN sh sanity-check.sh
 
 # Composer #
-FROM composer:2.8.4 AS composer-bin--base
+FROM composer:2.8.4 AS linters--composer-bin--base
 
-FROM --platform=$BUILDPLATFORM debian:12.8-slim AS composer-bin--optimize
+FROM --platform=$BUILDPLATFORM debian:12.8-slim AS linters--composer-bin--optimize
 WORKDIR /app
-COPY --from=composer-bin--base /usr/bin/composer ./bin/
+COPY --from=linters--composer-bin--base /usr/bin/composer ./bin/
 # TODO: optimize `composer` script
 
 # PHP/Composer #
@@ -647,7 +647,7 @@ RUN apt-get update -qq && \
 COPY utils/sanity-check/composer.sh ./sanity-check.sh
 COPY linters/composer.json ./linters/
 COPY --from=composer-vendor--optimize /app/vendor ./linters/vendor
-COPY --from=composer-bin--optimize /app/bin/composer ./bin/
+COPY --from=linters--composer-bin--optimize /app/bin/composer ./bin/
 ENV BINPREFIX=/app/bin/ \
     VENDORPREFIX=/app/linters/ \
     COMPOSER_ALLOW_SUPERUSER=1
@@ -838,7 +838,7 @@ WORKDIR /app/linters
 COPY linters/Gemfile linters/Gemfile.lock linters/composer.json ./
 COPY --from=linters--composer--final /app/linters/vendor ./vendor
 COPY --from=linters--nodejs--final /app/node_modules ./node_modules
-COPY --from=python--final /app/python-vendor ./python-vendor
+COPY --from=linters--python--final /app/python-vendor ./python-vendor
 COPY --from=linters--ruby--final /app/bundle ./bundle
 COPY --from=linters--ruby--final /.rbenv /.rbenv
 WORKDIR /app/linters/bin
