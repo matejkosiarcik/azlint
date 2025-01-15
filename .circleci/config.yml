@@ -71,7 +71,7 @@ jobs:
 
   native-build:
     docker:
-      - image: debian:12.8
+      - image: debian:12.9
     environment:
       VALIDATE_HADOLINT: "false" # TODO: Enable hadolint validation
       HOMEBREW_NO_ANALYTICS: 1
