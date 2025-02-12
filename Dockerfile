@@ -493,7 +493,7 @@ COPY --from=linters--hadolint--final /app/bin/hadolint ./
 COPY --from=linters--shellcheck--final /app/bin/shellcheck ./
 
 # NodeJS/NPM #
-FROM --platform=$BUILDPLATFORM node:23.6.1-slim AS linters--nodejs--base
+FROM --platform=$BUILDPLATFORM node:23.7.0-slim AS linters--nodejs--base
 WORKDIR /app
 COPY linters/package.json linters/package-lock.json ./
 COPY linters/npm-patches/ ./npm-patches/
@@ -783,7 +783,7 @@ RUN touch /.dockerenv && \
 ### Helpers ###
 
 # Main CLI #
-FROM --platform=$BUILDPLATFORM node:23.6.1-slim AS cli--base
+FROM --platform=$BUILDPLATFORM node:23.7.0-slim AS cli--base
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --no-fund --loglevel=error && \
