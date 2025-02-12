@@ -4,7 +4,7 @@ bandit==1.8.2
 black==24.10.0
 flake8==7.1.1
 isort==5.13.2
-mypy==1.14.1
+mypy==1.15.0
 pycodestyle==2.12.1
 pylint==3.3.3
 
