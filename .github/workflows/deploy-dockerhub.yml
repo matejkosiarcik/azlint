@@ -82,7 +82,7 @@ jobs:
       - build-images
     steps:
       - name: Download digests
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v4.1.9
         with:
           pattern: digest-*
           path: /tmp/digests
