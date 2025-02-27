@@ -29,11 +29,11 @@ jobs:
         uses: actions/checkout@v4.2.2
 
       - name: Setup QEMU
-        uses: docker/setup-qemu-action@v3.4.0
+        uses: docker/setup-qemu-action@v3.5.0
 
       - name: Setup Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v3.9.0
+        uses: docker/setup-buildx-action@v3.10.0
 
       - name: Debug logs
         run: |
@@ -47,7 +47,7 @@ jobs:
 
       - name: Build and Publish
         id: build
-        uses: docker/build-push-action@v6.14.0
+        uses: docker/build-push-action@v6.15.0
         with:
           platforms: ${{ matrix.platform }}
           cache-from: type=gha
@@ -89,10 +89,10 @@ jobs:
           merge-multiple: true
 
       - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3.9.0
+        uses: docker/setup-buildx-action@v3.10.0
 
       - name: Docker metadata
-        uses: docker/metadata-action@v5.6.1
+        uses: docker/metadata-action@v5.7.0
         id: meta
         with:
           images: ${{ env.DOCKER_IMAGE }}
