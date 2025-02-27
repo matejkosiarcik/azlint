@@ -180,7 +180,7 @@ jobs:
 
   docker-build:
     docker:
-      - image: docker:27.5.1
+      - image: docker:28.0.1
     steps:
       - checkout
       - setup_remote_docker:
