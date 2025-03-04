@@ -616,7 +616,7 @@ ENV BINPREFIX=/app/python-vendor/bin/ \
 RUN sh sanity-check.sh
 
 # Composer #
-FROM composer:2.8.5 AS linters--composer-bin--base
+FROM composer:2.8.6 AS linters--composer-bin--base
 
 FROM --platform=$BUILDPLATFORM debian:12.9-slim AS linters--composer-bin--optimize
 WORKDIR /app
