@@ -13,7 +13,7 @@
     "htmllint-cli": "^0.0.7",
     "jscpd": "^4.0.5",
     "json5": "^2.2.3",
-    "markdown-link-check": "~3.13.6",
+    "markdown-link-check": "~3.13.7",
     "markdown-table-formatter": "^1.6.1",
     "markdownlint-cli": "^0.44.0",
     "package-json-validator": "^0.10.0",
@@ -21,7 +21,7 @@
     "secretlint": "^9.2.0",
     "sql-lint": "^1.0.0",
     "svglint": "^3.1.0",
-    "textlint": "^14.4.2",
+    "textlint": "^14.5.0",
     "textlint-rule-no-todo": "^2.0.1"
   },
   "scripts": {
