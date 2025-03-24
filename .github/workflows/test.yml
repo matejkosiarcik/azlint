@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4.2.2
 
       - name: Setup NodeJS
-        uses: actions/setup-node@v4.2.0
+        uses: actions/setup-node@v4.3.0
         with:
           node-version: latest
 
@@ -32,12 +32,12 @@ jobs:
           rust-version: stable
 
       - name: Setup Go
-        uses: actions/setup-go@v5.3.0
+        uses: actions/setup-go@v5.4.0
         with:
           go-version: stable
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@v1.221.0
+        uses: ruby/setup-ruby@v1.227.0
         with:
           ruby-version: ruby # latest
 
