@@ -20,11 +20,11 @@ GEM
       tomlrb
     mixlib-shellout (3.3.6)
       chef-utils
-    psych (5.2.3)
+    psych (5.2.4)
       date
       stringio
     rexml (3.4.0)
-    stringio (3.1.2)
+    stringio (3.1.7)
     tomlrb (2.0.3)
 
 PLATFORMS
@@ -33,7 +33,7 @@ PLATFORMS
 
 DEPENDENCIES
   mdl (~> 0.13)
-  psych (~> 5.2, >= 5.2.3)
+  psych (~> 5.2)
 
 RUBY VERSION
    ruby 3.4.1p0
