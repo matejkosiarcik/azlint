@@ -92,7 +92,6 @@ jobs:
               nodejs npm \
               composer php php-cli php-common php-mbstring php-zip \
               python-is-python3 python3 python3-pip python3-venv \
-              bundler ruby ruby-build ruby-dev \
               bash dash ksh ksh93u+m mksh posh yash zsh \
               shellcheck
             # Haskell packages skipped: cabal-install ghc
@@ -115,9 +114,31 @@ jobs:
             rustup toolchain install stable
             rustup default stable
       - run:
+          name: Install gitman
+          command: |
+            python3 -m pip install --requirement ./build-dependencies/gitman/requirements.txt --target python-vendor --quiet
+      - run:
+          name: Install rbenv
+          command: |
+            export PATH="$PWD/python-vendor/bin:$PATH"
+            export PYTHONPATH="$PWD/python-vendor"
+            cd ./linters/gitman-repos/rbenv-install
+            gitman install --quiet
+            cd -
+            export RBENV_ROOT="$PWD/.rbenv"
+            bash ./linters/gitman-repos/rbenv-install/gitman/rbenv-installer/bin/rbenv-installer
+      - run:
+          name: Install ruby
+          command: |
+            export RBENV_ROOT="$PWD/.rbenv"
+            export PATH="/root/.rbenv/bin:$PWD/.rbenv/bin:$PWD/.rbenv/shims:$PATH"
+            ruby_version="$(cat .ruby-version)"
+            chronic rbenv install "$ruby_version"
+            ln -s "$PWD/.rbenv/versions/$ruby_version" "$PWD/.rbenv/versions/current"
+      - run:
           name: Log compiler versions
           command: |
-            export PATH="$HOME/.cargo/bin:/usr/local/go/bin:$PATH"
+            export PATH="$PWD/.rbenv/versions/current/bin:$HOME/.cargo/bin:/usr/local/go/bin:$PATH"
             printf 'GCC:\n%s\n\n' "$(gcc --version 2>&1 | sed -E 's~^~  ~')"
             printf 'G++:\n%s\n\n' "$(g++ --version 2>&1 | sed -E 's~^~  ~')"
             printf 'Make:\n%s\n\n' "$(make --version 2>&1 | sed -E 's~^~  ~')"
@@ -142,18 +163,18 @@ jobs:
           name: Install project dependencies
           command: |
             . "$HOME/.cargo/env"
-            export PATH="$HOME/.cargo/bin:/usr/local/go/bin:$PATH"
+            export PATH="$PWD/.rbenv/versions/current/bin:$HOME/.cargo/bin:/usr/local/go/bin:$PATH"
             make bootstrap
       - run:
           name: Install HomeBrew
           command: |
-            bash linters/gitman-repos/brew-install/gitman/brew-installer/install.sh
+            bash ./linters/gitman-repos/brew-install/gitman/brew-installer/install.sh
             eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
       - run:
           name: Build
           command: |
             . "$HOME/.cargo/env"
-            export PATH="$HOME/.cargo/bin:/usr/local/go/bin:$PATH"
+            export PATH="$PWD/.rbenv/versions/current/bin:$HOME/.cargo/bin:/usr/local/go/bin:$PATH"
             make build
       # - run:
       #     name: Test
