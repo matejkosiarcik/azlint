@@ -5,11 +5,7 @@
 # ^^^ false positive for `--platform=$BUILDPLATFORM`
 
 # Upx #
-# TODO: Change upx target from ubuntu to debian when possible
-# NOTE: `upx-ucl` is no longer available in debian 12 bookworm
-# It is available in older versions, see https://packages.debian.org/bullseye/upx-ucl
-# However, there were upgrade problems for bookworm, see https://tracker.debian.org/pkg/upx-ucl
-FROM --platform=$BUILDPLATFORM ubuntu:24.04 AS helper--upx--final
+FROM --platform=$BUILDPLATFORM debian:13.06 AS helper--upx--final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
