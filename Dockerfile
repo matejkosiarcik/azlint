@@ -263,19 +263,19 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     GOOS="$TARGETOS" GOARCH="$TARGETARCH" make build --silent
 
 FROM --platform=$BUILDPLATFORM executable_optimizer__base AS linters__go__editorconfig_checker__optimize
-COPY --from=linters__go__editorconfig_checker__build /app/editorconfig-checker/bin/ec ./bin/
+COPY --from=linters__go__editorconfig_checker__build /app/editorconfig-checker/bin/editorconfig-checker ./bin/
 ARG TARGETARCH
-RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/ec && \
-    sh validate-executable.sh bin/ec
+RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/editorconfig-checker && \
+    sh validate-executable.sh bin/editorconfig-checker
 
 FROM --platform=$BUILDPLATFORM helper__upx__final AS linters__go__editorconfig_checker__upx
-COPY --from=linters__go__editorconfig_checker__optimize /app/bin/ec ./
-# RUN upx --best /app/ec
+COPY --from=linters__go__editorconfig_checker__optimize /app/bin/editorconfig-checker ./
+# RUN upx --best /app/editorconfig-checker
 
 FROM bins_aggregator__base AS linters__go__editorconfig_checker__final
 WORKDIR /app/bin
 ENV BINPREFIX=/app/bin/
-COPY --from=linters__go__editorconfig_checker__upx /app/ec ./
+COPY --from=linters__go__editorconfig_checker__upx /app/editorconfig-checker ./
 WORKDIR /app
 COPY utils/sanity-check/go-editorconfig-checker.sh ./sanity-check.sh
 RUN sh sanity-check.sh
@@ -284,7 +284,7 @@ FROM bins_aggregator__base AS linters__go__final
 WORKDIR /app/bin
 COPY --from=linters__go__actionlint__final /app/bin/actionlint ./
 COPY --from=linters__go__checkmake__final /app/bin/checkmake ./
-COPY --from=linters__go__editorconfig_checker__final /app/bin/ec ./
+COPY --from=linters__go__editorconfig_checker__final /app/bin/editorconfig-checker ./
 COPY --from=linters__go__shfmt__final /app/bin/shfmt ./
 COPY --from=linters__go__stoml__final /app/bin/stoml ./
 COPY --from=linters__go__tomljson__final /app/bin/tomljson ./

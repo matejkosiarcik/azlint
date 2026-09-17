@@ -300,7 +300,7 @@ export class Linters {
             linterName: 'editorconfig-checker',
             envName: 'EDITORCONFIG_CHECKER',
             fileMatch: '*',
-            lintFile: { args: ['ec', '#file#'] },
+            lintFile: { args: ['editorconfig-checker', '#file#'] },
         });
 
         // ECLint
