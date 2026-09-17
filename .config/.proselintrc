@@ -2,6 +2,6 @@
   "checks": {
     "annotations.misc": false,
     "spelling.misc": false,
-    "typography.symbols.curly_quotes": false
+    "typography.symbols": false
   }
 }
