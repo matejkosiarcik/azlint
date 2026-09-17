@@ -8,7 +8,7 @@ import { execa as baseExeca } from '@esm2cjs/execa';
 import { listProjectFiles } from "../src/utils";
 
 async function touch(...files: string[]) {
-    await Promise.all(files.map(async (file) => fsx.mkdir(path.dirname(files[0]), { recursive: true })));
+    await Promise.all(files.map(async (file) => fsx.mkdir(path.dirname(file), { recursive: true })));
     await Promise.all(files.map(async (file) => fsx.appendFile(file, Buffer.from([]))));
 }
 
