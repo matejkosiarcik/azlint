@@ -1,11 +1,19 @@
 exclude = [
-  '^https://bevry\.me', # Frequent timeouts
-  '^https://(?:www\.)?patreon\.com/feross', # 403s
-  '^https://(?:www\.)?shellcheck\.net', # HTTPS errors
-  '^https://gitlab\.gnome\.org/GNOME/libxml2', # 503
   '^http://www\.xmlsoft\.org', # Timeouts + 504
   '^https://(?:www\.)?gnu\.org', # Timeouts
-  '^shivammathur/setup-php@.+$', # Invalid email address
-  '^https?://localhost',
+  '^https://(?:www\.)?npmjs\.com/support',
+  '^https://(?:www\.)?shellcheck\.net', # HTTPS errors
+  '^https://bevry\.me', # Frequent timeouts
+  '^https://gitlab\.gnome\.org/GNOME/libxml2', # 503
+  '^https://www.patreon.com/feross', # 403s
   '^https?://.*\.lan',
+  '^https?://.*\.matejhome\.com', # Private domain
+  '^https?://[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+', # IPs
+  '^https?://localhost', # Localhost
+  '^shivammathur/setup-php@.+$', # Invalid email address
+  '^shivammathur/setup-php@.+$', # Invalid email address
 ]
+exclude_path = [
+  ".+\\.enc\\.+", # Skip encrypted files
+]
+root_dir = "/"
