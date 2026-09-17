@@ -10,6 +10,7 @@ exclude = [
   '^https?://.*\.matejhome\.com', # Private domain
   '^https?://[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+', # IPs
   '^https?://localhost', # Localhost
+  '^https?://.*', # Everything else
   '^shivammathur/setup-php@.+$', # Invalid email address
   '^shivammathur/setup-php@.+$', # Invalid email address
 ]
