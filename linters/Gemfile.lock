@@ -3,10 +3,10 @@ GEM
   specs:
     chef-utils (18.6.2)
       concurrent-ruby
-    concurrent-ruby (1.3.5)
+    concurrent-ruby (1.3.8)
     date (3.4.1)
-    kramdown (2.5.1)
-      rexml (>= 3.3.9)
+    kramdown (2.5.2)
+      rexml (>= 3.4.4)
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
     mdl (0.13.0)
@@ -18,14 +18,14 @@ GEM
     mixlib-cli (2.1.8)
     mixlib-config (3.0.27)
       tomlrb
-    mixlib-shellout (3.3.6)
+    mixlib-shellout (3.3.9)
       chef-utils
-    psych (5.2.3)
+    psych (5.2.6)
       date
       stringio
-    rexml (3.4.0)
-    stringio (3.1.2)
-    tomlrb (2.0.3)
+    rexml (3.4.4)
+    stringio (3.1.9)
+    tomlrb (2.0.4)
 
 PLATFORMS
   arm64-darwin
