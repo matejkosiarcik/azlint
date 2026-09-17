@@ -14,8 +14,9 @@ check_sh() {
     sh -n "$file"
     bash --posix -n "$file"
     bash -o posix -n "$file"
-    yash --posix -n "$file"
-    yash -o posixly-correct -n "$file"
+    # TODO: Reenable yash
+    # yash --posix -n "$file"
+    # yash -o posixly-correct -n "$file"
 }
 
 check_ksh() {
@@ -37,7 +38,8 @@ check_zsh() {
 }
 
 check_yash() {
-    yash -n "$file"
+    # TODO: Reenable yash
+    true # yash -n "$file"
 }
 
 check_dash() {

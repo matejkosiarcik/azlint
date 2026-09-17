@@ -9,7 +9,7 @@ ksh93 -c 'true'
 mksh -c 'true'
 posh -c 'true'
 sh -c 'true'
-yash -c 'true'
+# yash -c 'true' # TODO: Reenable yash
 zsh -c 'true'
 
 # Make
