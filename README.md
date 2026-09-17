@@ -109,8 +109,8 @@ $ docker run matejkosiarcik/azlint:latest --help
 Usage: azlint <command> [options…] [dir]
 
 Commands:
-  azlint lint  Lint project (default)
-  azlint fmt   Format project (autofix)
+  azlint lint  - Lint project (default)
+  azlint fmt   - Format project (autofix)
 
 Positionals:
   dir  Path to project directory  [string] [default: "."]
