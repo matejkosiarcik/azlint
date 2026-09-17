@@ -11,6 +11,8 @@ sources:
       -
     scripts:
       -
+    patches:
+      -
 sources_locked:
   - repo: https://github.com/koalaman/shellcheck.git
     name: shellcheck
@@ -22,6 +24,8 @@ sources_locked:
     links:
       -
     scripts:
+      -
+    patches:
       -
 default_group: ""
 groups:
