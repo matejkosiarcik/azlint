@@ -335,7 +335,7 @@ export class Linters {
             envName: 'BREW_BUNDLE',
             fileMatch: ['Brewfile', '*.Brewfile', 'Brewfile.*'],
             lintFile: {
-                args: ['brew', 'bundle', 'list', '--file', '#file#', '--no-lock'],
+                args: ['brew', 'bundle', 'list', '--all', '--file', '#file#'],
                 options: {
                     env: {
                         PATH: fsSync.existsSync('/.dockerenv') ? `/.rbenv/versions/brew/bin:${process.env['PATH']}` : process.env['PATH'],
@@ -520,7 +520,7 @@ export class Linters {
             linterName: 'proselint',
             envName: 'PROSELINT',
             fileMatch: matchers.docs,
-            lintFile: { args: ['proselint', ...proselintConfigArgs, "#file#"] },
+            lintFile: { args: ['proselint', 'check', ...proselintConfigArgs, "#file#"] },
         });
 
         /* Shell */
