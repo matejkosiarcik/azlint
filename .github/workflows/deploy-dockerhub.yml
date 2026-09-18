@@ -33,15 +33,23 @@ jobs:
         uses: actions/checkout@v4.2.2
 
       - name: Setup QEMU
-        uses: docker/setup-qemu-action@v3.6.0
+        uses: Wandalen/wretry.action@v3.8.0
+        with:
+          action: docker/setup-qemu-action@v3.6.0
+          attempt_limit: 3
+          attempt_delay: 2500
 
       - name: Setup Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v3.10.0
+        uses: Wandalen/wretry.action@v3.8.0
+        with:
+          action: docker/setup-buildx-action@v3.10.0
+          attempt_limit: 3
+          attempt_delay: 2500
 
       - name: Debug logs
         run: |
-          printf "Available platforms:\n%s\n" "${{ steps.buildx.outputs.platforms }}"
+          printf "Available platforms:\n%s\n" "${{ fromJSON(steps.buildx.outputs.outputs).platforms }}"
 
       - name: Login to DockerHub
         uses: docker/login-action@v3.3.0
@@ -93,7 +101,11 @@ jobs:
           merge-multiple: true
 
       - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3.10.0
+        uses: Wandalen/wretry.action@v3.8.0
+        with:
+          action: docker/setup-buildx-action@v3.10.0
+          attempt_limit: 3
+          attempt_delay: 2500
 
       - name: Docker metadata
         uses: docker/metadata-action@v5.7.0
