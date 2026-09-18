@@ -9,7 +9,7 @@ set -euf
 tmpdir="$(mktemp -d)"
 dryRun() {
     printf '%s\n' "$1" >"$tmpdir/Brewfile"
-    (cd "$tmpdir" && "${BINPREFIX:-}brew" bundle list --no-lock)
+    (cd "$tmpdir" && "${BINPREFIX:-}brew" bundle list)
     find "$tmpdir" -mindepth 1 -maxdepth 1 -exec rm -rf {} \;
 }
 

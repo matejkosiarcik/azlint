@@ -658,7 +658,8 @@ RUN gitman install --quiet && \
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it
 # We have to provide our custom `uname`, because HomeBrew prohibits installation on non-x64 Linux systems
-FROM --platform=$BUILDPLATFORM debian:13.6-slim AS linters__brew__install
+# TODO: Reenable --platform=$BUILDPLATFORM
+FROM debian:13.6-slim AS linters__brew__install
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -710,7 +711,8 @@ RUN --mount=type=cache,target=/.rbenv/cache \
     kill "$(cat '/utils/logging-pid.txt')" && \
     ln -s "/.rbenv/versions/$ruby_version_short" /.rbenv/versions/brew
 
-FROM --platform=$BUILDPLATFORM debian:13.6-slim AS linters__brew__rbenv__link
+# TODO: Reenable --platform=$BUILDPLATFORM
+FROM debian:13.6-slim AS linters__brew__rbenv__link
 WORKDIR /app
 COPY --from=linters__brew__install /home/linuxbrew /home/linuxbrew
 COPY --from=linters__brew__rbenv__install /.rbenv/versions /.rbenv/versions
@@ -745,7 +747,8 @@ ENV PATH="/.rbenv/versions/brew/bin:$PATH"
 #     true; fi
 
 # Use trace information to optimize rbenv and brew directories
-FROM --platform=$BUILDPLATFORM directory_optimizer__base AS linters__brew__optimize
+# TODO: Reenable --platform=$BUILDPLATFORM
+FROM directory_optimizer__base AS linters__brew__optimize
 COPY utils/optimize/optimize-rbenv.sh utils/optimize/optimize-brew.sh /optimizations/
 COPY --from=brew__trace /home/linuxbrew /home/linuxbrew
 COPY --from=brew__trace /.rbenv/versions /.rbenv/versions
