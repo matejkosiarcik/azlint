@@ -365,7 +365,7 @@ Now run `make bootstrap` to install local project dependencies.
 To run project locally:
 
 ```sh
-npm run azlint:fmt && npm run azlint:lint
+npm --prefix cli run azlint:fmt && npm --prefix cli run azlint:lint
 ```
 
 To build and run project in docker:

@@ -781,12 +781,12 @@ RUN touch /.dockerenv && \
 # Main CLI #
 FROM --platform=$BUILDPLATFORM node:26.8.2-slim AS cli__base
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY cli/package.json cli/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --no-fund --loglevel=error && \
     npx modclean --patterns default:safe --run --error-halt && \
     npx node-prune
-COPY tsconfig.json ./
-COPY src/ ./src/
+COPY cli/tsconfig.json ./
+COPY cli/src/ ./src/
 RUN npm run build && \
     npm prune --production
 
@@ -797,13 +797,13 @@ RUN sh /optimizations/optimize-nodejs.sh
 
 FROM --platform=$BUILDPLATFORM debian:13.6-slim AS cli__final
 WORKDIR /app
-COPY --from=cli__base /app/cli-dist ./cli-dist
+COPY --from=cli__base /app/dist ./dist
 COPY --from=cli__optimize /app/node_modules ./node_modules
 
 # AZLint binaries #
 FROM --platform=$BUILDPLATFORM debian:13.6-slim AS azlint__bin
 WORKDIR /app
-RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/cli-dist/main.js $@' >azlint && \
+RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/dist/main.js $@' >azlint && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >fmt && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint lint $@' >lint && \
     chmod a+x azlint fmt lint
@@ -826,10 +826,10 @@ COPY --from=linters__ruby__final /.rbenv/versions /.rbenv/versions
 COPY --from=azlint__bin /app/azlint /app/fmt /app/lint /usr/bin/
 WORKDIR /app
 COPY VERSION.txt ./
-WORKDIR /app/cli-dist
-COPY --from=cli__final /app/cli-dist ./
+WORKDIR /app/dist
+COPY --from=cli__final /app/dist ./
 COPY --from=cli__final /app/node_modules ./node_modules
-COPY src/shell-dry-run.sh src/shell-dry-run-utils.sh ./
+COPY cli/src/shell-dry-run.sh cli/src/shell-dry-run-utils.sh ./
 WORKDIR /app/linters
 COPY linters/Gemfile linters/Gemfile.lock linters/composer.json ./
 COPY --from=linters__composer__final /app/linters/vendor ./vendor

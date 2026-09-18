@@ -16,7 +16,7 @@ all: clean bootstrap test docker-build docker-run docker-build-multiarch
 bootstrap:
 	mkdir -p linters/bin
 
-	printf '%s\0%s\0' . linters | \
+	printf '%s\0%s\0' cli linters | \
 		xargs -0 -P0 -n1 npm ci --no-save --no-progress --no-audit --no-fund --loglevel=error --prefix
 
 	# Python dependencies
@@ -99,11 +99,11 @@ bootstrap:
 
 .PHONY: build
 build:
-	npm run build
+	npm --prefix cli run build
 
 .PHONY: test
 test:
-	npm test
+	npm --prefix cli test
 
 .PHONY: docker-build
 docker-build:
@@ -140,7 +140,7 @@ clean:
 	find linters/gitman-repos -name gitman -type d -prune -exec rm -rf {} \;
 	rm -rf "$(PROJECT_DIR)/build-dependencies/python-gitman/venv" \
 		"$(PROJECT_DIR)/build-dependencies/yq/venv" \
-		"$(PROJECT_DIR)/cli-dist" \
+		"$(PROJECT_DIR)/cli/dist" \
 		"$(PROJECT_DIR)/docs/demo/gitman" \
 		"$(PROJECT_DIR)/linters/bin" \
 		"$(PROJECT_DIR)/linters/bundle" \
@@ -151,7 +151,7 @@ clean:
 		"$(PROJECT_DIR)/linters/python-vendor" \
 		"$(PROJECT_DIR)/linters/target" \
 		"$(PROJECT_DIR)/linters/vendor" \
-		"$(PROJECT_DIR)/node_modules" \
+		"$(PROJECT_DIR)/cli/node_modules" \
 		"$(PROJECT_DIR)/venv"
 
 .PHONY: demo

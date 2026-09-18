@@ -66,8 +66,8 @@ jobs:
       - run: |
           git config --global user.email nobody@example.com
           git config --global user.name Nobody
-      - run: npm ci --unsafe-perm --no-progress --no-audit --no-fund --loglevel=error
-      - run: npm test
+      - run: npm ci --prefix cli --unsafe-perm --no-progress --no-audit --no-fund --loglevel=error
+      - run: npm --prefix cli test
 
   native-build:
     docker:
@@ -196,9 +196,9 @@ jobs:
             # TODO: Run sanity check
             # sh utils/sanity-check/.main.sh
       - azlint-lint:
-          command-base: PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" npm run azlint --
+          command-base: PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" npm --prefix cli run azlint --
       - azlint-fmt:
-          command-base: PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" npm run azlint --
+          command-base: PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" npm --prefix cli run azlint --
 
   docker-build:
     docker:
