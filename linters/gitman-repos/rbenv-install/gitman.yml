@@ -11,10 +11,12 @@ sources:
       -
     scripts:
       -
+    patches:
+      -
 sources_locked:
   - repo: https://github.com/rbenv/rbenv-installer.git
     name: rbenv-installer
-    rev: 826acc505a29535a5492f4673839c0cebd99b69f
+    rev: a5350919f70fd398f327b2efcd072500ab7f29ce
     type: git
     params:
     sparse_paths:
@@ -22,6 +24,8 @@ sources_locked:
     links:
       -
     scripts:
+      -
+    patches:
       -
 default_group: ""
 groups:

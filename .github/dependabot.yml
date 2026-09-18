@@ -20,7 +20,7 @@ updates:
 
   # Main CLI
   - package-ecosystem: npm
-    directory: /
+    directory: /cli
     schedule:
       interval: daily
       time: "01:00"

@@ -35,7 +35,7 @@ pip install --help
 # TODO: "${BINPREFIX:-}gitman" --help
 # TODO: "${BINPREFIX:-}gitman" --version
 "${BINPREFIX:-}proselint" --help
-"${BINPREFIX:-}proselint" --version
+"${BINPREFIX:-}proselint" version
 "${BINPREFIX:-}sqlfluff" --help
 "${BINPREFIX:-}sqlfluff" --version
 "${BINPREFIX:-}yamllint" --help

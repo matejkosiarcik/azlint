@@ -5,6 +5,10 @@ permissions: read-all
 on:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   DOCKER_IMAGE: matejkosiarcik/azlint
 
@@ -12,7 +16,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
-      # fail-fast: false
+      fail-fast: true
       matrix:
         platform:
           - linux/amd64
@@ -23,11 +27,19 @@ jobs:
         uses: actions/checkout@v4.2.2
 
       - name: Setup QEMU
-        uses: docker/setup-qemu-action@v3.6.0
+        uses: Wandalen/wretry.action@v3.8.0
+        with:
+          action: docker/setup-qemu-action@v3.6.0
+          attempt_limit: 3
+          attempt_delay: 2500
 
       - name: Setup Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v3.10.0
+        uses: Wandalen/wretry.action@v3.8.0
+        with:
+          action: docker/setup-buildx-action@v3.10.0
+          attempt_limit: 3
+          attempt_delay: 2500
 
       - name: Build
         uses: docker/build-push-action@v6.15.0

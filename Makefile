@@ -16,7 +16,7 @@ all: clean bootstrap test docker-build docker-run docker-build-multiarch
 bootstrap:
 	mkdir -p linters/bin
 
-	printf '%s\0%s\0' . linters | \
+	printf '%s\0%s\0' cli linters | \
 		xargs -0 -P0 -n1 npm ci --no-save --no-progress --no-audit --no-fund --loglevel=error --prefix
 
 	# Python dependencies
@@ -81,18 +81,14 @@ bootstrap:
 
 	cd linters/gitman-repos/go-editorconfig-checker/gitman/editorconfig-checker && \
 		make build && \
-		cp bin/ec "$(PROJECT_DIR)/linters/bin/"
+		cp bin/editorconfig-checker "$(PROJECT_DIR)/linters/bin/"
 
 	printf '%s\n%s\n%s\n%s\n' mvdan.cc/sh/v3/cmd/shfmt@latest github.com/freshautomations/stoml@latest github.com/pelletier/go-toml/cmd/tomljson@latest github.com/rhysd/actionlint/cmd/actionlint@latest | \
 		GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on xargs -P0 -n1 go install -modcacherw
 
 	cd linters/gitman-repos/circleci-cli/gitman/circleci-cli && \
 		mkdir -p install && \
-		if [ "$(shell uname)" = Darwin ] && [ "$(shell uname -m)" = arm64 ]; then \
-			DESTDIR="$$PWD/install/" arch -x86_64 /bin/bash install.sh; \
-		else \
-			DESTDIR="$$PWD/install/" bash install.sh; \
-		fi && \
+		DESTDIR="$$PWD/install/" bash install.sh; \
 		cp install/circleci "$(PROJECT_DIR)/linters/bin/"
 
 	if command -v brew >/dev/null 2>&1; then \
@@ -103,11 +99,11 @@ bootstrap:
 
 .PHONY: build
 build:
-	npm run build
+	npm --prefix cli run build
 
 .PHONY: test
 test:
-	npm test
+	npm --prefix cli test
 
 .PHONY: docker-build
 docker-build:
@@ -144,7 +140,7 @@ clean:
 	find linters/gitman-repos -name gitman -type d -prune -exec rm -rf {} \;
 	rm -rf "$(PROJECT_DIR)/build-dependencies/python-gitman/venv" \
 		"$(PROJECT_DIR)/build-dependencies/yq/venv" \
-		"$(PROJECT_DIR)/cli-dist" \
+		"$(PROJECT_DIR)/cli/dist" \
 		"$(PROJECT_DIR)/docs/demo/gitman" \
 		"$(PROJECT_DIR)/linters/bin" \
 		"$(PROJECT_DIR)/linters/bundle" \
@@ -155,7 +151,7 @@ clean:
 		"$(PROJECT_DIR)/linters/python-vendor" \
 		"$(PROJECT_DIR)/linters/target" \
 		"$(PROJECT_DIR)/linters/vendor" \
-		"$(PROJECT_DIR)/node_modules" \
+		"$(PROJECT_DIR)/cli/node_modules" \
 		"$(PROJECT_DIR)/venv"
 
 .PHONY: demo

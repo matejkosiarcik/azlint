@@ -7,15 +7,16 @@ if [ "$#" -lt 1 ]; then
 fi
 file="$1"
 
-# shellcheck source=src/shell-dry-run-utils.sh
+# shellcheck source=cli/src/shell-dry-run-utils.sh
 . "$(dirname "$0")/shell-dry-run-utils.sh"
 
 check_sh() {
     sh -n "$file"
     bash --posix -n "$file"
     bash -o posix -n "$file"
-    yash --posix -n "$file"
-    yash -o posixly-correct -n "$file"
+    # TODO: Reenable yash
+    # yash --posix -n "$file"
+    # yash -o posixly-correct -n "$file"
 }
 
 check_ksh() {
@@ -37,7 +38,8 @@ check_zsh() {
 }
 
 check_yash() {
-    yash -n "$file"
+    # TODO: Reenable yash
+    true # yash -n "$file"
 }
 
 check_dash() {

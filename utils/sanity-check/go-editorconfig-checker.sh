@@ -1,5 +1,5 @@
 #!/bin/sh
 set -euf
 
-"${BINPREFIX:-}ec" --help
-"${BINPREFIX:-}ec" --version
+"${BINPREFIX:-}editorconfig-checker" --help
+"${BINPREFIX:-}editorconfig-checker" --version

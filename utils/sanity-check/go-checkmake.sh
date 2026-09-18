@@ -3,4 +3,4 @@ set -euf
 
 "${BINPREFIX:-}checkmake" --help
 "${BINPREFIX:-}checkmake" --version
-"${BINPREFIX:-}checkmake" --list-rules
+"${BINPREFIX:-}checkmake" list-rules

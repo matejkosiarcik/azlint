@@ -89,14 +89,8 @@ indent_size = 2
 ### Ruby ecosystem ###
 
 # Indent Gemfile using 2 spaces
-[{Rakefile,Gemfile}]
+[{Rakefile,Gemfile}{,.lock}]
 indent_size = 2
-
-# There is a bug that erronously outputs 3 spaces per indent for last few lines of Gemfile.lock
-# Until it is fixed (and fixed versions available everywhere) ignoring this issue seems to be the only way
-# relevant: https://github.com/rubygems/rubygems/issues/3326
-[Gemfile.lock]
-indent_size = unset
 
 ### .NET/Windows ecosystem ###
 

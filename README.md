@@ -109,8 +109,8 @@ $ docker run matejkosiarcik/azlint:latest --help
 Usage: azlint <command> [options…] [dir]
 
 Commands:
-  azlint lint  Lint project (default)
-  azlint fmt   Format project (autofix)
+  azlint lint  - Lint project (default)
+  azlint fmt   - Format project (autofix)
 
 Positionals:
   dir  Path to project directory  [string] [default: "."]
@@ -269,11 +269,11 @@ These check additional rules, which are recommended, but not required for the co
 
 ### CI/CD services
 
-| tool               | links                                                                                                          | disable                      | files                  | `fmt` support |
-|--------------------|----------------------------------------------------------------------------------------------------------------|------------------------------|------------------------|---------------|
-| CircleCI CLI lint  | [docs](https://circleci.com/docs/2.0/local-cli) <br> [GitHub](https://github.com/CircleCI-Public/circleci-cli) | `VALIDATE_CIRCLECI_VALIDATE` | `.circleci/config.yml` | ❌             |
-| gitlab-ci-lint     | [GitHub](https://github.com/BuBuaBu/gitlab-ci-lint)                                                            | `VALIDATE_GITLABCI_LINT`     | `.gitlab-ci.yml`       | ❌             |
-| gitlab-ci-validate | [GitHub](https://github.com/pradel/gitlab-ci-validate)                                                         | `VALIDATE_GITLABCI_VALIDATE` | `.gitlab-ci.yml`       | ❌             |
+| tool               | links                                                                                           | disable                      | files                  | `fmt` support |
+|--------------------|-------------------------------------------------------------------------------------------------|------------------------------|------------------------|---------------|
+| CircleCI CLI lint  | [docs](https://cli.circleci.com) <br> [GitHub](https://github.com/CircleCI-Public/circleci-cli) | `VALIDATE_CIRCLECI_VALIDATE` | `.circleci/config.yml` | ❌             |
+| gitlab-ci-lint     | [GitHub](https://github.com/BuBuaBu/gitlab-ci-lint)                                             | `VALIDATE_GITLABCI_LINT`     | `.gitlab-ci.yml`       | ❌             |
+| gitlab-ci-validate | [GitHub](https://github.com/pradel/gitlab-ci-validate)                                          | `VALIDATE_GITLABCI_VALIDATE` | `.gitlab-ci.yml`       | ❌             |
 
 ### Makefiles
 
@@ -365,7 +365,7 @@ Now run `make bootstrap` to install local project dependencies.
 To run project locally:
 
 ```sh
-npm run azlint:fmt && npm run azlint:lint
+npm --prefix cli run azlint:fmt && npm --prefix cli run azlint:lint
 ```
 
 To build and run project in docker:

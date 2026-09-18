@@ -47,7 +47,7 @@ export async function listDirectory(directory: string, options?: { recursive?: b
     const recursive = options?.recursive ?? true;
     return (await fs.readdir(directory, { withFileTypes: true, recursive: recursive }))
         .filter((el) => el.isFile())
-        .map((file) => path.join(directory, file.name))
+        .map((file) => path.join(file.parentPath, file.name).replaceAll('\\', '/'))
         .sort();
 }
 
@@ -74,33 +74,33 @@ export async function listProjectFiles(onlyChanged: boolean): Promise<string[]> 
     // `git ls-files package.json */package.json` -> this will find it anywhere, which we want
 
     // Files tracked by git (default)
-    const trackedFiles = (await customExeca(["git", "ls-files", "-z"])).stdout.split('\0').filter((el) => !!el);
+    const trackedFiles = (await customExeca(["git", "ls-files", "-z"])).stdout.split('\0').filter((file) => !!file);
 
     // Files tracked by git, which are deleted in working tree
-    const deletedFiles = (await customExeca(["git", "ls-files", "-z", "--deleted"])).stdout.split('\0').filter((el) => !!el);
+    const deletedFiles = (await customExeca(["git", "ls-files", "-z", "--deleted"])).stdout.split('\0').filter((file) => !!file);
 
     // Files which are not yet tracked/staged in git
     // These should be in both full output and only-changed output
-    const untrackedFiles = (await customExeca(["git", "ls-files", "-z", "--others", "--exclude-standard"])).stdout.split("\0").filter((el) => !!el);
+    const untrackedFiles = (await customExeca(["git", "ls-files", "-z", "--others", "--exclude-standard"])).stdout.split("\0").filter((file) => !!file);
 
     // Staged files
-    const stagedFiles = (await customExeca(["git", "diff", "--name-only", "--cached", "-z"])).stdout.split('\0').filter((el) => !!el);
+    const stagedFiles = (await customExeca(["git", "diff", "--name-only", "--cached", "-z"])).stdout.split('\0').filter((file) => !!file);
 
     // Files modified in working tree
-    const dirtyFiles = (await customExeca(["git", "diff", "--name-only", "HEAD", "-z"])).stdout.split('\0').filter((el) => !!el);
+    const dirtyFiles = (await customExeca(["git", "diff", "--name-only", "HEAD", "-z"])).stdout.split('\0').filter((file) => !!file);
 
     let outputFiles = [...trackedFiles, ...untrackedFiles, ...stagedFiles, ...dirtyFiles];
 
     if (onlyChanged) {
         // Get all branches which are associated with current HEAD
-        const allCurrentBranches = (await customExeca(["git", "branch", "--contains", 'HEAD', "--format=%(refname:short)"])).stdout.split("\n").filter((el) => !!el);
+        const allCurrentBranches = (await customExeca(["git", "branch", "--contains", 'HEAD', "--format=%(refname:short)"])).stdout.split("\n").filter((file) => !!file);
 
         // Get commit which is the point of divergence from parent branch
         let divergentCommit = '';
         for (let i = 1; true; i += 1) {
             divergentCommit = `HEAD~${i}`;
             try {
-                const commitBranches = (await customExeca(["git", "branch", "--contains", divergentCommit, "--format=%(refname:short)"])).stdout.split("\n").filter((el) => !!el).filter((el) => allCurrentBranches.includes(el));
+                const commitBranches = (await customExeca(["git", "branch", "--contains", divergentCommit, "--format=%(refname:short)"])).stdout.split("\n").filter((branch) => !!branch).filter((branch) => allCurrentBranches.includes(branch));
                 if (commitBranches.length > 0) {
                     break;
                 }
@@ -114,13 +114,13 @@ export async function listProjectFiles(onlyChanged: boolean): Promise<string[]> 
         let divergentFiles: string[] = [];
         if (divergentCommit !== '') {
             // Modified files between divergent-commit and HEAD
-            divergentFiles = (await customExeca(["git", "whatchanged", "--name-only", "--pretty=", `${divergentCommit}..HEAD`, "-z"])).stdout.split('\0').filter((el) => !!el);
+            divergentFiles = (await customExeca(["git", "whatchanged", "--name-only", "--pretty=", `${divergentCommit}..HEAD`, "-z"])).stdout.split('\0').filter((file) => !!file);
         }
 
         outputFiles = [...untrackedFiles, ...stagedFiles, ...dirtyFiles, ...divergentFiles];
     }
 
-    return Array.from(new Set(outputFiles)).sort().filter((el) => !deletedFiles.includes(el)).filter((el) => fsSync.existsSync(el));
+    return Array.from(new Set(outputFiles)).map((file) => file.replaceAll('\\', '/')).sort().filter((file) => !deletedFiles.includes(file)).filter((file) => fsSync.existsSync(file));
 }
 
 /**
