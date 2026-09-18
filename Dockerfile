@@ -226,7 +226,7 @@ WORKDIR /app/checkmake
 ARG TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
-    GOOS="$TARGETOS" GOARCH="$TARGETARCH" BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make --silent
+    GOOS="$TARGETOS" GOARCH="$TARGETARCH" BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make --silent binaries
 
 FROM --platform=$BUILDPLATFORM executable_optimizer__base AS go_checkmake__optimize
 COPY --from=linters__go__checkmake__build /app/checkmake/checkmake ./bin/
