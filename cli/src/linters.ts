@@ -10,7 +10,7 @@ import { getConfigArgs } from './config-files';
 import { resolveLintArgs, resolveLintOptions, resolveLintSuccessExitCode } from './linter-utils';
 
 // Setup paths for dependencies
-const lintersDir = path.resolve(path.join(__dirname, '..', 'linters'));
+const lintersDir = path.resolve(path.join(__dirname, '..', '..', 'linters'));
 
 function shouldSkipLinter(envName: string, linterName: string): boolean {
     const envEnable = 'VALIDATE_' + envName;
@@ -682,7 +682,7 @@ export class Linters {
             lintFile: {
                 args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '--dry-run', '--diff', '#file[abs]#'],
                 options: {
-                    cwd: path.resolve(path.join(__dirname, '..', 'linters')),
+                    cwd: path.resolve(path.join(__dirname, '..', '..', 'linters')),
                 },
             },
             fmtFile: {

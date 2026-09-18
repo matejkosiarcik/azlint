@@ -780,7 +780,7 @@ RUN touch /.dockerenv && \
 
 # Main CLI #
 FROM --platform=$BUILDPLATFORM node:26.8.2-slim AS cli__base
-WORKDIR /app
+WORKDIR /app/cli
 COPY cli/package.json cli/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --no-fund --loglevel=error && \
     npx modclean --patterns default:safe --run --error-halt && \
@@ -791,21 +791,22 @@ RUN npm run build && \
     npm prune --production
 
 FROM --platform=$BUILDPLATFORM directory_optimizer__base AS cli__optimize
+WORKDIR /app/cli
 COPY utils/optimize/optimize-nodejs.sh /optimizations/
-COPY --from=cli__base /app/node_modules ./node_modules
+COPY --from=cli__base /app/cli/node_modules ./node_modules
 RUN sh /optimizations/optimize-nodejs.sh
 
 FROM --platform=$BUILDPLATFORM debian:13.6-slim AS cli__final
-WORKDIR /app
-COPY --from=cli__base /app/dist ./dist
-COPY --from=cli__optimize /app/node_modules ./node_modules
+WORKDIR /app/cli
+COPY --from=cli__base /app/cli/dist ./dist
+COPY --from=cli__optimize /app/cli/node_modules ./node_modules
 
 # AZLint binaries #
 FROM --platform=$BUILDPLATFORM debian:13.6-slim AS azlint__bin
 WORKDIR /app
-RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'node /app/dist/main.js $@' >azlint && \
-    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint fmt $@' >fmt && \
-    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'azlint lint $@' >lint && \
+RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'exec node /app/cli/dist/main.js $@' >azlint && \
+    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'exec azlint fmt $@' >fmt && \
+    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'exec azlint lint $@' >lint && \
     chmod a+x azlint fmt lint
 
 # prefinal #
@@ -823,13 +824,13 @@ RUN apt-get update -qq && \
 COPY --from=linters__brew__final /home/linuxbrew /home/linuxbrew
 COPY --from=linters__brew__final /.rbenv/versions /.rbenv/versions
 COPY --from=linters__ruby__final /.rbenv/versions /.rbenv/versions
-COPY --from=azlint__bin /app/azlint /app/fmt /app/lint /usr/bin/
+COPY --from=azlint__bin /app/azlint /app/fmt /app/lint /app/bin/
 WORKDIR /app
 COPY VERSION.txt ./
-WORKDIR /app/dist
-COPY --from=cli__final /app/dist ./
-COPY --from=cli__final /app/node_modules ./node_modules
-COPY cli/src/shell-dry-run.sh cli/src/shell-dry-run-utils.sh ./
+WORKDIR /app/cli
+COPY --from=cli__final /app/cli/dist ./dist
+COPY --from=cli__final /app/cli/node_modules ./node_modules
+COPY cli/src/shell-dry-run.sh cli/src/shell-dry-run-utils.sh ./dist/
 WORKDIR /app/linters
 COPY linters/Gemfile linters/Gemfile.lock linters/composer.json ./
 COPY --from=linters__composer__final /app/linters/vendor ./vendor
@@ -881,15 +882,14 @@ RUN find / -type f -not -path '/proc/*' -not -path '/sys/*' >/filelist.txt 2>/de
     useradd --create-home --no-log-init --shell /bin/sh --user-group --system azlint && \
     su - azlint -c "git config --global --add safe.directory '*'" && \
     su - azlint -c 'mkdir -p /home/azlint/.cache/proselint'
-COPY --from=prefinal /usr/bin/azlint /usr/bin/fmt /usr/bin/lint /usr/bin/
 COPY --from=prefinal /home/linuxbrew /home/linuxbrew
 COPY --from=prefinal /.rbenv/versions /.rbenv/versions
 COPY --from=prefinal /app/ /app/
-ENV NODE_OPTIONS=--dns-result-order=ipv4first \
+ENV NODE_OPTIONS="--dns-result-order=ipv4first" \
     PATH="$PATH:/app/bin:/usr/local/go/bin:/home/linuxbrew/.linuxbrew/bin" \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PIP_ROOT_USER_ACTION=ignore \
-    PYTHONDONTWRITEBYTECODE=1
+    PIP_DISABLE_PIP_VERSION_CHECK="1" \
+    PIP_ROOT_USER_ACTION="ignore" \
+    PYTHONDONTWRITEBYTECODE="1"
 USER azlint
 WORKDIR /project
 ENTRYPOINT ["azlint"]

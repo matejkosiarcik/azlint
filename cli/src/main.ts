@@ -115,7 +115,7 @@ import { Linters } from './linters';
     process.chdir(directory);
 
     // Setup paths for dependencies
-    const lintersDir = path.resolve(path.join(__dirname, '..', 'linters'));
+    const lintersDir = path.resolve(path.join(__dirname, '..', '..', 'linters'));
     const binPaths = {
         node: path.join(lintersDir, 'node_modules', '.bin'),
         cargo: path.join(lintersDir, 'cargo', 'bin'),
