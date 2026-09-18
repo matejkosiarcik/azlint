@@ -47,7 +47,7 @@ export async function listDirectory(directory: string, options?: { recursive?: b
     const recursive = options?.recursive ?? true;
     return (await fs.readdir(directory, { withFileTypes: true, recursive: recursive }))
         .filter((el) => el.isFile())
-        .map((file) => path.posix.join(file.parentPath, file.name))
+        .map((file) => path.join(file.parentPath, file.name).replaceAll('\\', '/'))
         .sort();
 }
 
