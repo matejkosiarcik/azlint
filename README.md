@@ -57,7 +57,7 @@ Project links:
 
 ## About
 
-The main purpose of _AZLint_ is to bundle as many linters as possible into a single docker image
+The main purpose of _AZLint_ is to bundle as many linters as possible into a single Docker image
 and provide convenient CLI interface for calling them in bulk.
 
 I see it as a complement to
@@ -72,7 +72,7 @@ However feel free to use it and report any found issues 😉.
 
 - 📦 Includes 48 linters
 - 🛠️ Supports **autofix** mode (only for 9 linters though)
-- 🐳 Distributed as a docker image (both `x64`/`arm64` available)
+- 🐳 Distributed as a Docker image (both `x64`/`arm64` available)
 - 💯 Reports all found problems
 - 🏎️ Runs linters in parallel
 - 🌈 Clear, colored output
@@ -368,7 +368,7 @@ To run project locally:
 npm --prefix cli run azlint:fmt && npm --prefix cli run azlint:lint
 ```
 
-To build and run project in docker:
+To build and run project in Docker:
 
 ```sh
 make build run
