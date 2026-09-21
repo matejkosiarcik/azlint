@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "start": "tsx src/main.ts",
+    "start": "cd .. && tsx cli/src/main.ts",
     "azlint": "npm start",
     "azlint:lint": "npm start -- lint",
     "azlint:fmt": "npm start -- fmt",
