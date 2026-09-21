@@ -121,8 +121,8 @@ docker-build-multiarch:
 docker-run:
 	time docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project:ro" matejkosiarcik/azlint:dev lint
 
-.PHONY: docker-multirun
-docker-multirun:
+.PHONY: docker-run-multiarch
+docker-run-multiarch:
 	printf '%s\n%s\n' amd64 arm64/v8 | \
 		while read -r arch; do \
 			printf 'Running on linux/%s:\n' "$${arch}" && \
