@@ -50,8 +50,10 @@ jobs:
           attempt_delay: 2500
 
       - name: Debug logs
+        env:
+          BUILDX_PLATFORMS: ${{ fromJSON(steps.buildx.outputs.outputs).platforms }}
         run: |
-          printf "Available platforms:\n%s\n" "${{ fromJSON(steps.buildx.outputs.outputs).platforms }}"
+          printf 'Available platforms:\n%s\n' "${BUILDX_PLATFORMS}"
 
       - name: Login to DockerHub
         uses: docker/login-action@v4.6.0
@@ -76,10 +78,11 @@ jobs:
           printf 'DOCKER_PLATFORM=%s\n' "${escaped_docker_platform}" >> "${GITHUB_ENV}"
 
       - name: Export digest
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
         run: |
           mkdir -p /tmp/digests
-          digest="${{ steps.build.outputs.digest }}"
-          touch "/tmp/digests/${digest#sha256:}"
+          touch "/tmp/digests/${DIGEST#sha256:}"
 
       - name: Upload digest
         uses: actions/upload-artifact@v7.0.1
@@ -133,11 +136,14 @@ jobs:
           printf 'Digests: %s\n' "$(printf '${{ env.DOCKER_IMAGE }}@sha256:%s ' *)"
 
       - name: Debug metadata
+        env:
+          TAGS: ${{ steps.meta.outputs.tags }}
+          VERSION: ${{ steps.meta.outputs.version }}
         run: |
-          printf 'Version: %s\n' "${{ steps.meta.outputs.version }}"
-          printf 'Tags raw: %s\n' "${{ steps.meta.outputs.tags }}"
+          printf 'Version: %s\n' "${VERSION}"
+          printf 'Tags raw: %s\n' "${TAGS}"
           printf 'Tags json: %s\n' "${DOCKER_METADATA_OUTPUT_JSON}"
-          printf 'Tags parsed raw: %s\n' "$(printf '%s' ${{ steps.meta.outputs.tags }} | sed -E 's~^[ \n]+~~;s~[ \n]+$~~;s~[\n ]~ -t ~g;s~^~-t ~')"
+          printf 'Tags parsed raw: %s\n' "$(printf '%s' "${TAGS}" | sed -E 's~^[ \n]+~~;s~[ \n]+$~~;s~[\n ]~ -t ~g;s~^~-t ~')"
           printf 'Tags parsed json: %s\n' "$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "${DOCKER_METADATA_OUTPUT_JSON}")"
 
       - name: Create manifest list and push
@@ -149,8 +155,10 @@ jobs:
             $(printf '${{ env.DOCKER_IMAGE }}@sha256:%s ' *)
 
       - name: Inspect image
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
         run: |
-          docker buildx imagetools inspect "${{ env.DOCKER_IMAGE }}:${{ steps.meta.outputs.version }}"
+          docker buildx imagetools inspect "${DOCKER_IMAGE}:${VERSION}"
 
   deploy-description:
     name: Update dockerhub description
