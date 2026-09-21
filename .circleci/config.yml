@@ -104,7 +104,7 @@ jobs:
       - run:
           name: Install Go
           command: |
-            curl --silent --show-error --fail --location --retry 3 --retry-connrefused --retry-max-time 60 https://go.dev/dl/go1.23.4.linux-amd64.tar.gz >go.tar.gz
+            curl --silent --show-error --fail --location --retry 3 --retry-connrefused --retry-max-time 60 https://go.dev/dl/go1.27.1.linux-amd64.tar.gz >go.tar.gz
             tar -C /usr/local -xzf go.tar.gz
             rm -f go.tar.gz
       - run:
