@@ -764,7 +764,7 @@ FROM debian:13.6-slim AS linters__brew__final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
-        curl git >/dev/null && \
+        ca-certificates curl git >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/brew.sh ./sanity-check.sh
 COPY --from=linters__brew__optimize /home/linuxbrew /home/linuxbrew

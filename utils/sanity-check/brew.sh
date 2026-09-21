@@ -19,5 +19,5 @@ dryRun "$(printf 'tap "homebrew/cask"\ncask "example"')"
 dryRun 'brew "example" if OS.mac?'
 dryRun 'brew "example" if OS.linux?'
 dryRun 'mas "example", id: 1'
-dryRun 'whalebrew "example"'
+# dryRun 'whalebrew "example"'
 dryRun 'vscode "example"'
