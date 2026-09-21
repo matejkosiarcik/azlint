@@ -862,6 +862,8 @@ RUN chronic sh sanity-check.sh
 ### Final stage ###
 
 FROM debian:13.6-slim
+ARG UID="1000"
+ARG GID="1000"
 RUN find / -type f -not -path '/proc/*' -not -path '/sys/*' >/filelist.txt 2>/dev/null && \
     apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
@@ -882,7 +884,8 @@ RUN find / -type f -not -path '/proc/*' -not -path '/sys/*' >/filelist.txt 2>/de
     git config --system --add safe.directory '*' && \
     git config --global --add safe.directory '*' && \
     mkdir -p '/root/.cache/Homebrew' '/root/.cache/proselint' '/root/.npm' && \
-    useradd --create-home --no-log-init --shell /bin/sh --user-group --system azlint && \
+    groupadd --gid "${GID}" azlint && \
+    useradd --no-log-init --create-home --home '/home/azlint' --uid "${UID}" --gid "${GID}" --shell '/bin/sh' azlint && \
     su - azlint -c "git config --global --add safe.directory '*'" && \
     su - azlint -c "mkdir -p '/home/azlint/.cache/Homebrew' '/home/azlint/.cache/proselint' '/home/azlint/.npm'"
 COPY --from=prefinal /home/linuxbrew /home/linuxbrew
