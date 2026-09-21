@@ -881,10 +881,10 @@ RUN find / -type f -not -path '/proc/*' -not -path '/sys/*' >/filelist.txt 2>/de
     rm -f /filelist.txt && \
     git config --system --add safe.directory '*' && \
     git config --global --add safe.directory '*' && \
-    mkdir -p /root/.cache/proselint && \
+    mkdir -p '/root/.cache/Homebrew' '/root/.cache/proselint' '/root/.npm' && \
     useradd --create-home --no-log-init --shell /bin/sh --user-group --system azlint && \
     su - azlint -c "git config --global --add safe.directory '*'" && \
-    su - azlint -c 'mkdir -p /home/azlint/.cache/proselint'
+    su - azlint -c "mkdir -p '/home/azlint/.cache/Homebrew' '/home/azlint/.cache/proselint' '/home/azlint/.npm'"
 COPY --from=prefinal /home/linuxbrew /home/linuxbrew
 COPY --from=prefinal /.rbenv/versions /.rbenv/versions
 COPY --from=prefinal /app/ /app/
