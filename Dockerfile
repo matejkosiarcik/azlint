@@ -533,7 +533,7 @@ RUN --mount=type=cache,target=/.rbenv/cache \
     ruby_version="$(cat .ruby-version)" && \
     (sh '/utils/rbenv-install-logging.sh' &) && \
     chronic rbenv install "$ruby_version" && \
-    kill "$(cat '/utils/logging-pid.txt')" && \
+    kill "$(cat './logging-pid.txt')" && \
     ln -s "/.rbenv/versions/$ruby_version" /.rbenv/versions/current
 
 FROM debian:13.6-slim AS linters__ruby__base
