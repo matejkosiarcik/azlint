@@ -1,6 +1,6 @@
 name: Lint
 
-permissions: read-all
+permissions: {}
 
 on:
   push:
@@ -21,6 +21,7 @@ jobs:
         uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0 # Full git history is needed to get a proper list of changed files
+          persist-credentials: false
 
       - name: Run MegaLinter
         uses: oxsecurity/megalinter@v10.1.0
@@ -38,42 +39,51 @@ jobs:
         uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0 # Full git history is needed to get a proper list of changed files
+          persist-credentials: false
 
       - name: Run SuperLinter
         uses: super-linter/super-linter@v8.7.0
         env:
           # global settings
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           DEFAULT_BRANCH: main
+          ENABLE_GITHUB_ACTIONS_GROUP_TITLE: false
+          ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: false
+          ENABLE_GITHUB_PULL_REQUEST_SUMMARY_COMMENT: false
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LINTER_RULES_PATH: .config/
           MULTI_STATUS: false
+          VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
 
           # Disabled linters below
+          VALIDATE_ANSIBLE: false # TODO: Re-enable
           VALIDATE_BASH_EXEC: false
+          VALIDATE_BIOME_FORMAT: false
+          VALIDATE_BIOME_LINT: false
           VALIDATE_CSS: false
+          VALIDATE_DOCKERFILE_HADOLINT: false
+          VALIDATE_GO: false # False positives with multiple directories
           VALIDATE_JAVASCRIPT_ES: false
           VALIDATE_JAVASCRIPT_PRETTIER: false
-          VALIDATE_JAVASCRIPT_STANDARD: false
           VALIDATE_JSCPD: false
           VALIDATE_JSON: false # Because eslint considers .json as .js (so rules like single-quote don't make sense)
           VALIDATE_RUST_2015: false
           VALIDATE_RUST_CLIPPY: false # Somehow fails the compilation
+          VALIDATE_TRIVY: false
           VALIDATE_TYPESCRIPT_ES: false
           VALIDATE_TYPESCRIPT_PRETTIER: false
-          VALIDATE_TYPESCRIPT_STANDARD: false
 
-          # TODO: Try to reenable these below
+          # TODO: Try to re-enable these below
           VALIDATE_CSS_PRETTIER: false
           VALIDATE_HTML_PRETTIER: false
           VALIDATE_JSON_PRETTIER: false
           VALIDATE_MARKDOWN_PRETTIER: false
-          VALIDATE_PYTHON_PYINK: false
+          VALIDATE_PYTHON_MYPY: false
           VALIDATE_VUE_PRETTIER: false
 
           # config files
           CHECKOV_FILE_NAME: .checkov.yml
           DOCKERFILE_HADOLINT_FILE_NAME: .hadolint.yaml
+          GITHUB_ACTIONS_ZIZMOR_CONFIG_FILE: zizmor.yml
           MARKDOWN_CONFIG_FILE: .markdownlint.json
           PYTHON_BLACK_CONFIG_FILE: pyproject.toml
           PYTHON_FLAKE8_CONFIG_FILE: setup.cfg
