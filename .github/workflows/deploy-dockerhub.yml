@@ -63,13 +63,22 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Set build cache key
+        id: build-cache-key
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          set -euf
+          key="$(printf 'azlint-%s-%s' "$GITHUB_WORKFLOW" "$PLATFORM" | tr '[:upper:] ' '[:lower:]-' | sed -E 's~[-]+~-~g')"
+          printf 'key=%s\n' "$key" >>"$GITHUB_OUTPUT"
+
       - name: Build and Publish
         id: build
         uses: docker/build-push-action@v7.4.0
         with:
           platforms: ${{ matrix.platform }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ steps.build-cache-key.outputs.key }}
+          cache-to: ${{ github.ref == 'refs/heads/main' && format('type=gha,scope={0},mode=max', steps.build-cache-key.outputs.key) || '' }}
           outputs: type=image,name=${{ env.DOCKER_IMAGE }},push-by-digest=true,name-canonical=true,push=true
 
       - name: Export platform

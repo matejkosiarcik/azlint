@@ -4,6 +4,9 @@ permissions: {}
 
 on:
   pull_request:
+  push:
+    branches:
+      - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -46,11 +49,20 @@ jobs:
           attempt_limit: 3
           attempt_delay: 2500
 
+      - name: Set build cache key
+        id: build-cache-key
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          set -euf
+          key="$(printf 'azlint-%s-%s' "$GITHUB_WORKFLOW" "$PLATFORM" | tr '[:upper:] ' '[:lower:]-' | sed -E 's~[-]+~-~g')"
+          printf 'key=%s\n' "$key" >>"$GITHUB_OUTPUT"
+
       - name: Build
         uses: docker/build-push-action@v7.4.0
         with:
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ steps.build-cache-key.outputs.key }}
+          cache-to: ${{ github.ref == 'refs/heads/main' && format('type=gha,scope={0},mode=max', steps.build-cache-key.outputs.key) || '' }}
           load: true
           platforms: "${{ matrix.platform }}"
           push: false
