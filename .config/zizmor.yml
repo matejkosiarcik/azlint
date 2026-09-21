@@ -1,0 +1,11 @@
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        "*": ref-pin
+  template-injection:
+    ignore:
+      - docker-build.yml
+  dependabot-cooldown:
+    ignore:
+      - dependabot.yml
