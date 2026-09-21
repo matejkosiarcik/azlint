@@ -1,6 +1,6 @@
 #!/bin/sh
 
-printf '%s\n' "$$" >/utils/logging-pid.txt
+printf '%s\n' "$$" >'./logging-pid.txt'
 
 while true; do
     sleep 60

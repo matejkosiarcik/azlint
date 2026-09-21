@@ -134,7 +134,10 @@ jobs:
             export RBENV_ROOT="$PWD/.rbenv"
             export PATH="/root/.rbenv/bin:$PWD/.rbenv/bin:$PWD/.rbenv/shims:$PATH"
             ruby_version="$(cat .ruby-version)"
+            (sh './utils/rbenv-install-logging.sh' &)
             chronic rbenv install "$ruby_version"
+            kill "$(cat './logging-pid.txt')"
+            rm -f './logging-pid.txt'
             ln -s "$PWD/.rbenv/versions/$ruby_version" "$PWD/.rbenv/versions/current"
       - run:
           name: Log compiler versions
