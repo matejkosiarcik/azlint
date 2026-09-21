@@ -4,5 +4,5 @@ printf '%s\n' "$$" >'./logging-pid.txt'
 
 while true; do
     sleep 60
-    printf 'Installing rbenv...\n'
+    printf '%s - Installing rbenv...\n' "$(date +'%Y-%m-%d_%H-%M-%S')"
 done
