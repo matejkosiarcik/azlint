@@ -119,14 +119,14 @@ docker-build-multiarch:
 
 .PHONY: docker-run
 docker-run:
-	time docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project:ro" matejkosiarcik/azlint:dev lint
+	time docker run --interactive --tty --rm --tmpfs '/tmp:rw,exec,nodev,noatime,nodiratime,uid=1000,gid=1000' --volume "$(PROJECT_DIR):/project:ro" matejkosiarcik/azlint:dev lint
 
 .PHONY: docker-run-multiarch
 docker-run-multiarch:
 	printf '%s\n%s\n' amd64 arm64/v8 | \
 		while read -r arch; do \
 			printf 'Running on linux/%s:\n' "$${arch}" && \
-			time docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project:ro" --platform "linux/$${arch}" "matejkosiarcik/azlint:dev-$$(printf '%s' "$${arch}" | tr '/' '-')" lint \
+			time docker run --interactive --tty --rm --tmpfs '/tmp:rw,exec,nodev,noatime,nodiratime,uid=1000,gid=1000' --volume "$(PROJECT_DIR):/project:ro" --platform "linux/$${arch}" "matejkosiarcik/azlint:dev-$$(printf '%s' "$${arch}" | tr '/' '-')" lint \
 		true; done
 
 .PHONY: clean
