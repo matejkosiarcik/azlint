@@ -125,24 +125,25 @@ jobs:
           command: |
             export PATH="${PWD}/python-vendor/bin:${PATH}"
             export PYTHONPATH="${PWD}/python-vendor"
-            cd ./linters/gitman-repos/rbenv-install
+            cd './linters/gitman-repos/rbenv-install'
             gitman install --quiet
             cd -
-            export RBENV_ROOT="${PWD}/.rbenv"
-            bash ./linters/gitman-repos/rbenv-install/gitman/rbenv-installer/bin/rbenv-installer
+            export RBENV_ROOT='/.rbenv'
+            mkdir -p "${RBENV_ROOT}"
+            bash './linters/gitman-repos/rbenv-install/gitman/rbenv-installer/bin/rbenv-installer'
       # - run:
       #     name: Install ruby
       #     no_output_timeout: 30m
       #     command: |
-      #       export RBENV_ROOT="${PWD}/.rbenv"
-      #       export PATH="/root/.rbenv/bin:${PWD}/.rbenv/bin:${PWD}/.rbenv/shims:${PATH}"
+      #       export RBENV_ROOT='/.rbenv'
+      #       export PATH="/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims:${PATH}"
       #       ruby_version="$(cat .ruby-version)"
       #       (sh './utils/rbenv-install-logging.sh' &)
       #       rbenv install "${ruby_version}"
       #       printf 'Ruby %s installed\n' "${ruby_version}"
       #       kill "$(cat './logging-pid.txt')"
       #       rm -f './logging-pid.txt'
-      #       ln -s "${PWD}/.rbenv/versions/${ruby_version}" "${PWD}/.rbenv/versions/current"
+      #       ln -s "/.rbenv/versions/${ruby_version}" '/.rbenv/versions/current'
       - run:
           name: Log compiler versions
           command: |
