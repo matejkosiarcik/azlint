@@ -106,6 +106,10 @@ build:
 test:
 	npm --prefix cli test
 
+.PHONY: run
+run:
+	npm --prefix cli run azlint:lint
+
 .PHONY: docker-build
 docker-build:
 	time docker build . --tag matejkosiarcik/azlint:dev
