@@ -52,7 +52,7 @@ bootstrap:
 	PATH="$(PROJECT_DIR)/venv/bin:$${PATH}" \
 	PYTHONPATH="$(PROJECT_DIR)/linters/python-vendor" \
 	PIP_DISABLE_PIP_VERSION_CHECK=1 \
-		python3 -m pip install --requirement linters/requirements.txt --target linters/python-vendor --quiet --upgrade
+		python3 -m pip install --requirement linters/requirements.txt --target './linters/python-vendor' --quiet --upgrade
 
 	# Create cache ahead of time, because it can fail when creating during runtime
 	mkdir -p "$${HOME}/.cache/proselint"

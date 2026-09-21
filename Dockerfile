@@ -47,7 +47,7 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY build-dependencies/gitman/requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install --requirement requirements.txt --target python-vendor --quiet
+    python3 -m pip install --requirement requirements.txt --target './python-vendor' --quiet
 ENV PATH="/app/python-vendor/bin:${PATH}" \
     PYTHONPATH=/app/python-vendor
 
@@ -68,7 +68,7 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY build-dependencies/yq/requirements.txt ./yq/
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install --requirement yq/requirements.txt --target yq/python-vendor --quiet
+    python3 -m pip install --requirement yq/requirements.txt --target './yq/python-vendor' --quiet
 COPY build-dependencies/yaml-minifier/package.json build-dependencies/yaml-minifier/package-lock.json ./yaml-minifier/
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --no-fund --loglevel=error --prefix yaml-minifier
 ENV PATH="/optimizations/yq/python-vendor/bin:${PATH}" \
@@ -298,7 +298,7 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY build-dependencies/yq/requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install --requirement requirements.txt --target python-vendor --quiet
+    python3 -m pip install --requirement requirements.txt --target './python-vendor' --quiet
 ENV PATH="/app/python-vendor/bin:${PATH}" \
     PYTHONPATH=/app/python-vendor
 COPY linters/Cargo.toml ./
@@ -588,7 +588,7 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_ROOT_USER_ACTION=ignore \
     PYTHONDONTWRITEBYTECODE=1
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install --requirement requirements.txt --target python-vendor --quiet
+    python3 -m pip install --requirement requirements.txt --target './python-vendor' --quiet
 
 FROM --platform=${BUILDPLATFORM} directory_optimizer__base AS linters__python__optimize
 COPY utils/optimize/optimize-python.sh /optimizations/

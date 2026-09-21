@@ -110,14 +110,14 @@ jobs:
       - run:
           name: Install Rust
           command: |
-            curl --silent --show-error --fail --location --retry 3 --retry-connrefused --retry-max-time 60 https://sh.rustup.rs | sh -s -- --default-toolchain none -y
+            curl --silent --show-error --fail --location --retry 3 --retry-connrefused --retry-max-time 60 'https://sh.rustup.rs' | sh -s -- --default-toolchain none -y
             . "${HOME}/.cargo/env"
             rustup toolchain install stable
             rustup default stable
       - run:
           name: Install gitman
           command: |
-            python3 -m pip install --requirement ./build-dependencies/gitman/requirements.txt --target python-vendor --quiet
+            python3 -m pip install --requirement './build-dependencies/gitman/requirements.txt' --target './python-vendor' --quiet
       - run:
           name: Install rbenv
           command: |
