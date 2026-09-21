@@ -10,6 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: "true"
   DOCKER_IMAGE: matejkosiarcik/azlint
 
 jobs:
