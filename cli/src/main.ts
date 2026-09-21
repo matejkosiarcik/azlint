@@ -137,6 +137,8 @@ import { Linters } from './linters';
 
     process.env['COMPOSER_ALLOW_SUPERUSER'] = '1';
 
+    process.env['MAKEFLAGS'] = '';
+
     logVerbose(`Performing: ${command}`);
     logVerbose(`Project path: ${path.resolve(process.cwd())}`);
 
