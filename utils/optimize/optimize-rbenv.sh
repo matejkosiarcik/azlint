@@ -4,7 +4,7 @@ set -euf
 # shellcheck source=utils/optimize/.common.sh
 . "$(dirname "$0")/.common.sh"
 
-# These files are accessed, but unecessary anyway
+# These files are accessed, but unnecessary anyway
 find /.rbenv/versions -type f -name '*.gemspec' -delete
 
 # Remove all files not found in access log

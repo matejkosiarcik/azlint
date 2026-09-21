@@ -1,6 +1,6 @@
 #!/bin/sh
 # shellcheck disable=SC2251
-# Inspect executables for unecessary baggage
+# Inspect executables for unnecessary baggage
 set -euf
 
 if [ "$#" -lt 1 ]; then

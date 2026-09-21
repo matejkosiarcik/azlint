@@ -723,7 +723,7 @@ COPY --from=linters__brew__rbenv__install /.rbenv/versions /.rbenv/versions
 #     ln -sf "/.rbenv/versions/${ruby_version_short}/gems" "/home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/gems" && \
 #     find /.rbenv/versions -mindepth 1 -maxdepth 1 -type d -not -name "${ruby_version_short}" -exec rm -rf {} \;
 
-# In this stage we collect trace information about which files from linuxbrew and rbenv's ruby are actually neeeded
+# In this stage we collect trace information about which files from linuxbrew and rbenv's ruby are actually needed
 FROM debian:13.6-slim AS brew__trace
 WORKDIR /app
 RUN apt-get update -qq && \

@@ -50,8 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Miscellaneous
   - Optimize dependencies in published docker image (-> reduces total image size by ~90MB)
     - Remove unused files from linuxbrew and associated rbenv's ruby
-    - Remove unecessary files from directories (`bundle`, `node_modules`, `python` and `vendor`)
-    - Remove unecessary properties from `package.json`s
+    - Remove unnecessary files from directories (`bundle`, `node_modules`, `python` and `vendor`)
+    - Remove unnecessary properties from `package.json`s
 
 ## \[0.6.7\] - 2023-07-23
 
@@ -123,7 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Re-enable linters `jsonlint` and `markdownlint`
 - Miscellaneous
   - Update dependencies
-  - Add scripts for bootstraping dependencies natively/locally, outside of docker
+  - Add scripts for bootstrapping dependencies natively/locally, outside of docker
   - Temporary disable `autopep8`
 
 ## \[0.5.5\] - 2023-06-21
