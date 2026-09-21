@@ -123,7 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Re-enable linters `jsonlint` and `markdownlint`
 - Miscellaneous
     - Update dependencies
-    - Add scripts for bootstrapping dependencies natively/locally, outside of docker
+    - Add scripts for bootstrapping dependencies natively/locally, outside of Docker
     - Temporary disable `autopep8`
 
 ## \[0.5.5\] - 2023-06-21
