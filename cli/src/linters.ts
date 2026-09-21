@@ -540,7 +540,7 @@ export class Linters {
             envName: 'SHELLHARDEN',
             fileMatch: matchers.shell,
             lintFile: { args: ['shellharden', '--check', '--suggest', '--', '#file#'] },
-            fmtFile: { args: ['shellharden', '--replace', '--', '#file#'] }
+            // fmtFile: { args: ['shellharden', '--replace', '--', '#file#'] } // TODO: Re-enable
         });
 
         // Bashate
