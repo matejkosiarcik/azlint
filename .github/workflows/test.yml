@@ -65,15 +65,12 @@ jobs:
           with: |
             ruby-version: ruby # latest
 
+        # NOTE: Setup-PHP action depends on the runner-provided action environment on macOS which conflicts with wretry action
       - name: Setup PHP
-        uses: Wandalen/wretry.action@v3.8.0
+        uses: shivammathur/setup-php@2.32.0
         with:
-          action: shivammathur/setup-php@2.32.0
-          attempt_limit: 3
-          attempt_delay: 2500
-          with: |
-            php-version: latest
-            extensions: mbstring # TODO: consider removing if not necessary
+          php-version: latest
+          extensions: mbstring # TODO: consider removing if not necessary
 
       # NOTE: wretry wrapper not possible because of https://github.com/Wandalen/wretry.action/issues/186
       - name: Setup GCC
