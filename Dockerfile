@@ -593,7 +593,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 FROM --platform=$BUILDPLATFORM directory_optimizer__base AS linters__python__optimize
 COPY utils/optimize/optimize-python.sh /optimizations/
 COPY --from=linters__python__base /app/python-vendor ./python-vendor
-# TODO: Reenable
+# TODO: Re-enable
 # RUN sh /optimizations/optimize-python.sh
 
 FROM debian:13.6-slim AS linters__python__final
@@ -658,7 +658,7 @@ RUN gitman install --quiet && \
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it
 # We have to provide our custom `uname`, because HomeBrew prohibits installation on non-x64 Linux systems
-# TODO: Reenable --platform=$BUILDPLATFORM
+# TODO: Re-enable --platform=${BUILDPLATFORM}
 FROM debian:13.6-slim AS linters__brew__install
 WORKDIR /app
 RUN apt-get update -qq && \
@@ -685,7 +685,7 @@ RUN NONINTERACTIVE=1 chronic bash brew--installer/install.sh && \
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
     chronic brew update --quiet && \
     chronic brew bundle --help --quiet
-    # TODO: Reenable?
+    # TODO: Re-enable?
     # find /home/linuxbrew -type d -name .git -prune -exec rm -rf {} \;
 
 # We need to replace ruby bundled with HomeBrew, because it is only a x64 version
@@ -737,7 +737,7 @@ ENV BINPREFIX=/home/linuxbrew/.linuxbrew/bin/ \
     HOMEBREW_NO_ANALYTICS=1 \
     HOMEBREW_NO_AUTO_UPDATE=1
 ENV PATH="/.rbenv/versions/brew/bin:$PATH"
-# TODO: Reenable on all architectures
+# TODO: Re-enable on all architectures
 # RUN touch /.dockerenv rbenv-list.txt brew-list.txt && \
 #     if [ "$(uname -m)" = x86_64  ]; then \
 #         inotifywait --daemon --recursive --event access /.rbenv/versions --outfile rbenv-list.txt --format '%w%f' && \
@@ -747,13 +747,13 @@ ENV PATH="/.rbenv/versions/brew/bin:$PATH"
 #     true; fi
 
 # Use trace information to optimize rbenv and brew directories
-# TODO: Reenable --platform=$BUILDPLATFORM
+# TODO: Re-enable --platform=${BUILDPLATFORM}
 FROM directory_optimizer__base AS linters__brew__optimize
 COPY utils/optimize/optimize-rbenv.sh utils/optimize/optimize-brew.sh /optimizations/
 COPY --from=brew__trace /home/linuxbrew /home/linuxbrew
 COPY --from=brew__trace /.rbenv/versions /.rbenv/versions
 # COPY --from=brew__trace /app/rbenv-list.txt /app/brew-list.txt ./
-# TODO: Reenable on all architectures
+# TODO: Re-enable on all architectures
 # RUN if [ "$(uname -m)" = x86_64  ]; then \
 #         sh /optimizations/optimize-rbenv.sh && \
 #         sh /optimizations/optimize-brew.sh && \

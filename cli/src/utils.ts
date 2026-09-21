@@ -171,7 +171,7 @@ export async function customExeca(command: string[], options?: ExecaOptions<stri
 }
 
 /**
- * Match list of files agains a given wildcards or predicates
+ * Match list of files given wildcards or predicates
  */
 export function matchFiles(allFiles: string[], fileMatch: OneOrArray<string | RegExp | ((file: string) => boolean)>): string[] {
     fileMatch = Array.isArray(fileMatch) ? fileMatch : [fileMatch];

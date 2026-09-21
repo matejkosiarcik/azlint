@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## \[0.6.13\] - 2024-08-24
 
 - Fixed
-  - Fixed _proselint_ issue with `@memoize` directory `$HOME/.cache/proselint` if running under non-default user
+  - Fixed _proselint_ issue with `@memoize` directory `${HOME}/.cache/proselint` if running under non-default user
 - Maintenance
   - Update dependencies - minor updates
 
@@ -120,7 +120,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Disable linters:
     - `markdown-link-checker` (network problems)
 - Fixed
-  - Reenable linters `jsonlint` and `markdownlint`
+  - Re-enable linters `jsonlint` and `markdownlint`
 - Miscellaneous
   - Update dependencies
   - Add scripts for bootstraping dependencies natively/locally, outside of docker

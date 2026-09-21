@@ -14,7 +14,7 @@ zsh -c 'true'
 
 # Make
 bmake -n -f /dev/null /dev/null
-# TODO: Reenable: bsdmake -n -f /dev/null /dev/null
+# TODO: Re-enable: bsdmake -n -f /dev/null /dev/null
 make --help
 make --version
 make -n -f /dev/null /dev/null

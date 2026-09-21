@@ -86,7 +86,7 @@ describe('Find files in git repository', function () {
         assert.deepStrictEqual(await listProjectFiles(false), ['foo.txt']);
     });
 
-    test('Single commited file', async () => {
+    test('Single committed file', async () => {
         await touch('foo.txt');
         await execa('git', 'add', 'foo.txt');
         await execa('git', 'commit', '-m', 'message');
