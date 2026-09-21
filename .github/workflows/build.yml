@@ -56,7 +56,7 @@ jobs:
         if: ${{ matrix.platform == 'linux/amd64' }}
         run: |
           docker run --interactive --rm \
-            --volume "$PWD:/project:ro" \
+            --volume "${PWD}:/project:ro" \
             --platform ${{ matrix.platform }} \
             matejkosiarcik/azlint:dev lint
 
@@ -73,7 +73,7 @@ jobs:
         if: ${{ matrix.platform == 'linux/amd64' }}
         run: |
           docker run --interactive --rm \
-            --volume "$PWD:/project" \
+            --volume "${PWD}:/project" \
             --platform ${{ matrix.platform }} \
             matejkosiarcik/azlint:dev fmt
 

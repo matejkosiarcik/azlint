@@ -1,7 +1,7 @@
 #!/bin/sh
 set -euf
 
-case "$TARGETARCH" in
+case "${TARGETARCH}" in
 arm64)
     printf 'aarch64\n'
     ;;
@@ -11,7 +11,7 @@ amd64)
     ;;
 
 *)
-    printf 'Unsupported architecture: %s\n' "$TARGETARCH"
+    printf 'Unsupported architecture: %s\n' "${TARGETARCH}"
     exit 1
     ;;
 esac

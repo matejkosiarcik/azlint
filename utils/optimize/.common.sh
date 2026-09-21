@@ -190,7 +190,7 @@ minifyJsonFile() {
 # Minify JSONs
 minifyJsonFiles() {
     find "$1" -type f -iname '*.json' | while read -r file; do
-        minifyJsonFile "$file"
+        minifyJsonFile "${file}"
     done
 }
 
@@ -201,6 +201,6 @@ minifyYamlFile() {
 # Minify JSONs
 minifyYamlFiles() {
     find "$1" -type f \( -iname '*.yaml' -or -iname '*.yml' \) | while read -r file; do
-        minifyYamlFile "$file"
+        minifyYamlFile "${file}"
     done
 }

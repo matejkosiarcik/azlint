@@ -70,8 +70,8 @@ jobs:
         env:
           DOCKER_PLATFORM: ${{ matrix.platform }}
         run: |
-          escaped_docker_platform="$(printf '%s' "$DOCKER_PLATFORM" | tr '/' '-')"
-          printf 'DOCKER_PLATFORM=%s\n' "$escaped_docker_platform" >> "$GITHUB_ENV"
+          escaped_docker_platform="$(printf '%s' "${DOCKER_PLATFORM}" | tr '/' '-')"
+          printf 'DOCKER_PLATFORM=%s\n' "${escaped_docker_platform}" >> "${GITHUB_ENV}"
 
       - name: Export digest
         run: |
@@ -134,16 +134,16 @@ jobs:
         run: |
           printf 'Version: %s\n' "${{ steps.meta.outputs.version }}"
           printf 'Tags raw: %s\n' "${{ steps.meta.outputs.tags }}"
-          printf 'Tags json: %s\n' "$DOCKER_METADATA_OUTPUT_JSON"
+          printf 'Tags json: %s\n' "${DOCKER_METADATA_OUTPUT_JSON}"
           printf 'Tags parsed raw: %s\n' "$(printf '%s' ${{ steps.meta.outputs.tags }} | sed -E 's~^[ \n]+~~;s~[ \n]+$~~;s~[\n ]~ -t ~g;s~^~-t ~')"
-          printf 'Tags parsed json: %s\n' "$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")"
+          printf 'Tags parsed json: %s\n' "$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "${DOCKER_METADATA_OUTPUT_JSON}")"
 
       - name: Create manifest list and push
         working-directory: /tmp/digests
         run: |
           # shellcheck disable=SC2046
           docker buildx imagetools create \
-            $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "${DOCKER_METADATA_OUTPUT_JSON}") \
             $(printf '${{ env.DOCKER_IMAGE }}@sha256:%s ' *)
 
       - name: Inspect image

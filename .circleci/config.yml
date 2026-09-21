@@ -111,7 +111,7 @@ jobs:
           name: Install Rust
           command: |
             curl -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y
-            . "$HOME/.cargo/env"
+            . "${HOME}/.cargo/env"
             rustup toolchain install stable
             rustup default stable
       - run:
@@ -121,28 +121,28 @@ jobs:
       - run:
           name: Install rbenv
           command: |
-            export PATH="$PWD/python-vendor/bin:$PATH"
-            export PYTHONPATH="$PWD/python-vendor"
+            export PATH="${PWD}/python-vendor/bin:${PATH}"
+            export PYTHONPATH="${PWD}/python-vendor"
             cd ./linters/gitman-repos/rbenv-install
             gitman install --quiet
             cd -
-            export RBENV_ROOT="$PWD/.rbenv"
+            export RBENV_ROOT="${PWD}/.rbenv"
             bash ./linters/gitman-repos/rbenv-install/gitman/rbenv-installer/bin/rbenv-installer
       - run:
           name: Install ruby
           command: |
-            export RBENV_ROOT="$PWD/.rbenv"
-            export PATH="/root/.rbenv/bin:$PWD/.rbenv/bin:$PWD/.rbenv/shims:$PATH"
+            export RBENV_ROOT="${PWD}/.rbenv"
+            export PATH="/root/.rbenv/bin:${PWD}/.rbenv/bin:${PWD}/.rbenv/shims:${PATH}"
             ruby_version="$(cat .ruby-version)"
             (sh './utils/rbenv-install-logging.sh' &)
-            chronic rbenv install "$ruby_version"
+            chronic rbenv install "${ruby_version}"
             kill "$(cat './logging-pid.txt')"
             rm -f './logging-pid.txt'
-            ln -s "$PWD/.rbenv/versions/$ruby_version" "$PWD/.rbenv/versions/current"
+            ln -s "${PWD}/.rbenv/versions/${ruby_version}" "${PWD}/.rbenv/versions/current"
       - run:
           name: Log compiler versions
           command: |
-            export PATH="$PWD/.rbenv/versions/current/bin:$HOME/.cargo/bin:/usr/local/go/bin:$PATH"
+            export PATH="${PWD}/.rbenv/versions/current/bin:${HOME}/.cargo/bin:/usr/local/go/bin:${PATH}"
             printf 'GCC:\n%s\n\n' "$(gcc --version 2>&1 | sed -E 's~^~  ~')"
             printf 'G++:\n%s\n\n' "$(g++ --version 2>&1 | sed -E 's~^~  ~')"
             printf 'Make:\n%s\n\n' "$(make --version 2>&1 | sed -E 's~^~  ~')"
@@ -166,8 +166,8 @@ jobs:
       - run:
           name: Install project dependencies
           command: |
-            . "$HOME/.cargo/env"
-            export PATH="$PWD/.rbenv/versions/current/bin:$HOME/.cargo/bin:/usr/local/go/bin:$PATH"
+            . "${HOME}/.cargo/env"
+            export PATH="${PWD}/.rbenv/versions/current/bin:${HOME}/.cargo/bin:/usr/local/go/bin:${PATH}"
             make bootstrap
       - run:
           name: Install HomeBrew
@@ -177,13 +177,13 @@ jobs:
       - run:
           name: Build
           command: |
-            . "$HOME/.cargo/env"
-            export PATH="$PWD/.rbenv/versions/current/bin:$HOME/.cargo/bin:/usr/local/go/bin:$PATH"
+            . "${HOME}/.cargo/env"
+            export PATH="${PWD}/.rbenv/versions/current/bin:${HOME}/.cargo/bin:/usr/local/go/bin:${PATH}"
             make build
       # - run:
       #     name: Test
       #     command: |
-      #       export PATH="$PATH:$HOME/.cargo/bin"
+      #       export PATH="${PATH}:${HOME}/.cargo/bin"
       #       make test
       - run:
           name: Sanity check
@@ -191,17 +191,17 @@ jobs:
             export \
               BUNDLE_DISABLE_SHARED_GEMS=true \
               BUNDLE_FROZEN=true \
-              BUNDLE_GEMFILE="$PWD/linters/Gemfile" \
-              BUNDLE_PATH="$PWD/linters/bundle" \
+              BUNDLE_GEMFILE="${PWD}/linters/Gemfile" \
+              BUNDLE_PATH="${PWD}/linters/bundle" \
               BUNDLE_PATH__SYSTEM=false \
-              PATH="$PATH:$PWD/linters/bin:$PWD/linters/python-vendor/bin:$PWD/linters/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/go/bin" \
-              PYTHONPATH="$PWD/linters/python-vendor"
+              PATH="${PATH}:${PWD}/linters/bin:${PWD}/linters/python-vendor/bin:${PWD}/linters/node_modules/.bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/go/bin" \
+              PYTHONPATH="${PWD}/linters/python-vendor"
             # TODO: Run sanity check
             # sh utils/sanity-check/.main.sh
       - azlint-lint:
-          command-base: PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" npm --prefix cli run azlint --
+          command-base: PATH="${PATH}:/home/linuxbrew/.linuxbrew/bin" npm --prefix cli run azlint --
       - azlint-fmt:
-          command-base: PATH="$PATH:/home/linuxbrew/.linuxbrew/bin" npm --prefix cli run azlint --
+          command-base: PATH="${PATH}:/home/linuxbrew/.linuxbrew/bin" npm --prefix cli run azlint --
 
   docker-build:
     docker:
@@ -214,6 +214,6 @@ jobs:
           name: Docker build
           command: docker build . --tag matejkosiarcik/azlint:dev --progress plain
       - azlint-lint:
-          command-base: docker run --rm --volume "$PWD:/project:ro" matejkosiarcik/azlint:dev
+          command-base: docker run --rm --volume "${PWD}:/project:ro" matejkosiarcik/azlint:dev
       - azlint-fmt:
-          command-base: docker run --rm --volume "$PWD:/project" matejkosiarcik/azlint:dev
+          command-base: docker run --rm --volume "${PWD}:/project" matejkosiarcik/azlint:dev

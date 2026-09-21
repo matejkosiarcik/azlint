@@ -21,45 +21,45 @@ bootstrap:
 
 	# Python dependencies
 	printf '%s\n%s\n' build-dependencies/gitman build-dependencies/yq | while read -r dir; do \
-		cd "$(PROJECT_DIR)/$$dir" && \
+		cd "$(PROJECT_DIR)/$${dir}" && \
 		(deactivate >/dev/null 2>&1 || true) && \
 		rm -rf venv && \
 		python3 -m venv venv && \
 		. ./venv/bin/activate && \
-		PATH="$$PWD/venv/bin:$$PATH" \
+		PATH="$${PWD}/venv/bin:$${PATH}" \
 		PIP_DISABLE_PIP_VERSION_CHECK=1 \
 			python3 -m pip install --requirement requirements.txt --quiet --upgrade && \
 		deactivate && \
 	true; done
 
 	find linters/gitman-repos -mindepth 1 -maxdepth 1 -type d -print0 | \
-		PATH="$(PROJECT_DIR)/build-dependencies/gitman/venv/bin:$$PATH" xargs -0 -n1 -P0 gitman install --quiet --force --root
+		PATH="$(PROJECT_DIR)/build-dependencies/gitman/venv/bin:$${PATH}" xargs -0 -n1 -P0 gitman install --quiet --force --root
 	if [ "$(shell uname -s)" != Linux ]; then \
 		sh utils/apply-git-patches.sh linters/git-patches/loksh linters/gitman-repos/shell-loksh/gitman/loksh && \
 	true; fi
 
 	cd linters/gitman-repos/shell-loksh/gitman/loksh && \
-		meson setup --fatal-meson-warnings --prefix="$$PWD/install" build && \
+		meson setup --fatal-meson-warnings --prefix="$${PWD}/install" build && \
 		ninja --quiet -C build install && \
 		cp install/bin/ksh "$(PROJECT_DIR)/linters/bin/loksh"
 
 	cd linters/gitman-repos/shell-oksh/gitman/oksh && \
 		./configure && \
 		make && \
-		DESTDIR="$$PWD/install" make install && \
+		DESTDIR="$${PWD}/install" make install && \
 		cp install/usr/local/bin/oksh "$(PROJECT_DIR)/linters/bin/"
 
-	PATH="$(PROJECT_DIR)/venv/bin:$$PATH" \
+	PATH="$(PROJECT_DIR)/venv/bin:$${PATH}" \
 	PYTHONPATH="$(PROJECT_DIR)/linters/python-vendor" \
 	PIP_DISABLE_PIP_VERSION_CHECK=1 \
 		python3 -m pip install --requirement linters/requirements.txt --target linters/python-vendor --quiet --upgrade
 
 	# Create cache ahead of time, because it can fail when creating during runtime
-	mkdir -p "$$HOME/.cache/proselint"
+	mkdir -p "$${HOME}/.cache/proselint"
 
 	gem install bundler
 	# --install-dir "$(PROJECT_DIR)/linters/ruby"
-	PATH="$(PROJECT_DIR)/linters/ruby/bin:$$PATH" \
+	PATH="$(PROJECT_DIR)/linters/ruby/bin:$${PATH}" \
 	BUNDLE_DISABLE_SHARED_GEMS=true \
 	BUNDLE_FROZEN=true \
 	BUNDLE_GEMFILE="$(PROJECT_DIR)/linters/Gemfile" \
@@ -67,10 +67,10 @@ bootstrap:
 	BUNDLE_PATH__SYSTEM=false \
 		bundle install --quiet
 
-	PATH="$(PROJECT_DIR)/build-dependencies/yq/venv/bin:$$PATH" \
+	PATH="$(PROJECT_DIR)/build-dependencies/yq/venv/bin:$${PATH}" \
 		tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' linters/Cargo.toml | \
 		xargs -n2 -P0 sh -c \
-		'cd "$$PWD" && cargo install "$$0" --quiet --force --root "$(PROJECT_DIR)/linters/cargo" --version "$$1" --profile dev'
+		'cd "$${PWD}" && cargo install "$$0" --quiet --force --root "$(PROJECT_DIR)/linters/cargo" --version "$$1" --profile dev'
 
 	cd linters && \
 		composer install --quiet
@@ -88,7 +88,7 @@ bootstrap:
 
 	cd linters/gitman-repos/circleci-cli/gitman/circleci-cli && \
 		mkdir -p install && \
-		DESTDIR="$$PWD/install/" bash install.sh; \
+		DESTDIR="$${PWD}/install/" bash install.sh; \
 		cp install/circleci "$(PROJECT_DIR)/linters/bin/"
 
 	if command -v brew >/dev/null 2>&1; then \
@@ -113,8 +113,8 @@ docker-build:
 docker-build-multiarch:
 	printf '%s\n%s\n' amd64 arm64/v8 | \
 		while read -r arch; do \
-			printf 'Building for linux/%s:\n' "$$arch" && \
-			time docker build . --tag "matejkosiarcik/azlint:dev-$$(printf '%s' "$$arch" | tr '/' '-')" --platform "linux/$$arch" && \
+			printf 'Building for linux/%s:\n' "$${arch}" && \
+			time docker build . --tag "matejkosiarcik/azlint:dev-$$(printf '%s' "$${arch}" | tr '/' '-')" --platform "linux/$${arch}" && \
 		true; done
 
 .PHONY: docker-run
@@ -125,8 +125,8 @@ docker-run:
 docker-multirun:
 	printf '%s\n%s\n' amd64 arm64/v8 | \
 		while read -r arch; do \
-			printf 'Running on linux/%s:\n' "$$arch" && \
-			time docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project:ro" --platform "linux/$$arch" "matejkosiarcik/azlint:dev-$$(printf '%s' "$$arch" | tr '/' '-')" lint \
+			printf 'Running on linux/%s:\n' "$${arch}" && \
+			time docker run --interactive --tty --rm --volume "$(PROJECT_DIR):/project:ro" --platform "linux/$${arch}" "matejkosiarcik/azlint:dev-$$(printf '%s' "$${arch}" | tr '/' '-')" lint \
 		true; done
 
 .PHONY: clean

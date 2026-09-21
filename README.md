@@ -93,13 +93,13 @@ for all project versions.
 To **lint** files in current directory:
 
 ```sh
-docker run -itv "$PWD:/project:ro" matejkosiarcik/azlint:latest lint
+docker run -itv "${PWD}:/project:ro" matejkosiarcik/azlint:latest lint
 ```
 
 To **format** files in current directory:
 
 ```sh
-docker run -itv "$PWD:/project" matejkosiarcik/azlint:latest fmt
+docker run -itv "${PWD}:/project" matejkosiarcik/azlint:latest fmt
 ```
 
 When in doubt, print help:
@@ -127,7 +127,7 @@ Options:
 
 ### Local - Windows
 
-Refer to _Linux & macOS_ examples above, just swap `$PWD` to `%cd%`, for example:
+Refer to _Linux & macOS_ examples above, just swap `${PWD}` to `%cd%`, for example:
 
 ```bat
 docker run -itv "%cd%:/project:ro" matejkosiarcik/azlint:latest lint

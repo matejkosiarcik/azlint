@@ -9,7 +9,7 @@ ksh93 -c 'true'
 mksh -c 'true'
 posh -c 'true'
 sh -c 'true'
-# yash -c 'true' # TODO: Reenable yash
+# yash -c 'true' # TODO: Re-enable yash
 zsh -c 'true'
 
 # Make
@@ -25,9 +25,9 @@ gmake -n -f /dev/null /dev/null
 # Other
 git --help
 (tmpdir="$(mkdtemp)" &&
-    cd "$tmpdir" &&
+    cd "${tmpdir}" &&
     git init &&
-    rm -rf "$tmpdir")
+    rm -rf "${tmpdir}")
 xmllint --version
 
 # Python - main

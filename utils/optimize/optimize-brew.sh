@@ -6,15 +6,15 @@ set -euf
 
 # Remove all files not found in access log
 accesslist="$(mktemp)"
-sort </app/brew-list.txt | uniq >"$accesslist"
+sort </app/brew-list.txt | uniq >"${accesslist}"
 find /home/linuxbrew -type f | while read -r file; do
     file_found=1
-    grep -- "$file" <"$accesslist" || file_found=0
-    if [ "$file_found" -eq 0 ]; then
-        rm -f "$file"
+    grep -- "${file}" <"${accesslist}" || file_found=0
+    if [ "${file_found}" -eq 0 ]; then
+        rm -f "${file}"
     fi
 done
-rm -f "$accesslist"
+rm -f "${accesslist}"
 
 find /home/linuxbrew -type d \( \
     -name .bundle -or \
