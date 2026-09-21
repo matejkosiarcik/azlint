@@ -38,6 +38,8 @@ jobs:
         uses: Wandalen/wretry.action@v3.8.0
         with:
           action: docker/setup-qemu-action@v4.4.0
+          with: |
+            cache-image: false
           attempt_limit: 3
           attempt_delay: 2500
 
