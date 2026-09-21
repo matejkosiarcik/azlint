@@ -1,3 +1,4 @@
 enable=all
 
 disable=SC2016 # expressions in single quotes
+disable=SC2312 # Just annoying
