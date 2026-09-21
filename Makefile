@@ -16,8 +16,9 @@ all: clean bootstrap test docker-build docker-run docker-build-multiarch
 bootstrap:
 	mkdir -p linters/bin
 
+	# NOTE: Shouldn't run in parallel, because it can collide when creating the same temporary cache directory
 	printf '%s\0%s\0' cli linters | \
-		xargs -0 -P0 -n1 npm ci --no-save --no-progress --no-audit --no-fund --loglevel=error --prefix
+		xargs -0 -n1 npm ci --no-save --no-progress --no-audit --no-fund --loglevel=error --prefix
 
 	# Python dependencies
 	printf '%s\n%s\n' build-dependencies/gitman build-dependencies/yq | while read -r dir; do \
