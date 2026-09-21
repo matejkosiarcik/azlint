@@ -31,6 +31,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup QEMU
         uses: Wandalen/wretry.action@v3.8.0
@@ -157,6 +159,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Update DockerHub description
         uses: peter-evans/dockerhub-description@v5.0.0
