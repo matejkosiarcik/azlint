@@ -31,7 +31,7 @@ RUN apt-get update -qq && \
 COPY utils/validate-executable.sh ./
 
 # Golang builder #
-FROM --platform=$BUILDPLATFORM golang:1.27-bookworm AS go_builder__base
+FROM --platform=$BUILDPLATFORM golang:1.27-trixie AS go_builder__base
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         moreutils >/dev/null && \
@@ -305,7 +305,7 @@ COPY linters/Cargo.toml ./
 RUN tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' Cargo.toml >cargo-dependencies.txt
 
 # Rust #
-FROM --platform=$BUILDPLATFORM rust:1.98.1-slim-bookworm AS linters__rust__build
+FROM --platform=$BUILDPLATFORM rust:1.98.1-slim-trixie AS linters__rust__build
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
