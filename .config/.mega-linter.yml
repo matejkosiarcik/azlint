@@ -7,9 +7,12 @@ DISABLE:
   - TYPESCRIPT
 
 DISABLE_LINTERS:
+  - ANSIBLE_ANSIBLE_LINT # Unable to disable "syntax-check[unknown-module]" errors, even if collections are available
+  - GO_GOLANGCI_LINT
+  - GO_REVIVE
   - JSON_NPM_PACKAGE_JSON_LINT
-  - MARKDOWN_MARKDOWN_LINK_CHECK
   - PYTHON_BANDIT
+  - PYTHON_MYPY
   - REPOSITORY_DEVSKIM
   - REPOSITORY_GRYPE
   - REPOSITORY_KICS
@@ -17,6 +20,9 @@ DISABLE_LINTERS:
   - REPOSITORY_TRIVY
   - RUST_CLIPPY
   - SPELL_CSPELL
+
+# Disable errors
+REPOSITORY_OSV_SCANNER_DISABLE_ERRORS: true
 
 # Override default config files
 DOCKERFILE_HADOLINT_CONFIG_FILE: .hadolint.yaml
@@ -29,4 +35,9 @@ RUBY_RUBOCOP_CONFIG_FILE: .rubocop.yml
 YAML_YAMLLINT_CONFIG_FILE: .yamllint.yml
 
 # Config
-JSON_V8R_FILTER_REGEX_EXCLUDE: (composer.json\|package\.json\|package\-lock\.json)
+JSON_BIOME_FILTER_REGEX_EXCLUDE: '(?:^|/)package-lock\.json$'
+JSON_BIOME_RULES_PATH: .
+JSON_V8R_FILTER_REGEX_EXCLUDE: (?:(?:^|/)composer\.json|(?:^|/)package\.json|(?:^|/)package\-lock\.json)
+
+ACTION_ZIZMOR_UNSECURED_ENV_VARIABLES:
+  - GITHUB_TOKEN
