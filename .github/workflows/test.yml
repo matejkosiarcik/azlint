@@ -24,36 +24,58 @@ jobs:
         uses: actions/checkout@v4.2.2
 
       - name: Setup NodeJS
-        uses: actions/setup-node@v7.0.0
+        uses: Wandalen/wretry.action@v3.8.0
         with:
-          node-version: latest
+          action: actions/setup-node@v7.0.0
+          attempt_limit: 3
+          attempt_delay: 2500
+          with: |
+            node-version: latest
 
       - name: Setup Python
-        uses: actions/setup-python@v5.4.0
+        uses: Wandalen/wretry.action@v3.8.0
         with:
-          python-version: 3.x
+          action: actions/setup-python@v5.4.0
+          attempt_limit: 3
+          attempt_delay: 2500
+          with: |
+            python-version: 3.x
 
+      # NOTE: wretry wrapper not possible because of https://github.com/Wandalen/wretry.action/issues/186
       - name: Setup Rust
         uses: hecrj/setup-rust-action@v2.0.1
         with:
           rust-version: stable
 
       - name: Setup Go
-        uses: actions/setup-go@v5.3.0
+        uses: Wandalen/wretry.action@v3.8.0
         with:
-          go-version: stable
+          action: actions/setup-go@v5.3.0
+          attempt_limit: 3
+          attempt_delay: 2500
+          with: |
+            go-version: stable
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@v1.221.0
+        uses: Wandalen/wretry.action@v3.8.0
         with:
-          ruby-version: ruby # latest
+          action: ruby/setup-ruby@v1.221.0
+          attempt_limit: 3
+          attempt_delay: 2500
+          with: |
+            ruby-version: ruby # latest
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@2.32.0
+        uses: Wandalen/wretry.action@v3.8.0
         with:
-          php-version: latest
-          extensions: mbstring # TODO: consider removing if not necessary
+          action: shivammathur/setup-php@2.32.0
+          attempt_limit: 3
+          attempt_delay: 2500
+          with: |
+            php-version: latest
+            extensions: mbstring # TODO: consider removing if not necessary
 
+      # NOTE: wretry wrapper not possible because of https://github.com/Wandalen/wretry.action/issues/186
       - name: Setup GCC
         if: ${{ matrix.os == 'linux-latest' }}
         uses: egor-tensin/setup-gcc@v1.3
@@ -68,6 +90,7 @@ jobs:
       #     version: latest
       #     platform: x64
 
+      # NOTE: wretry wrapper not possible because of https://github.com/Wandalen/wretry.action/issues/186
       - name: Setup MinGW
         if: ${{ matrix.os == 'windows-latest' }}
         uses: egor-tensin/setup-mingw@v2.2.0
@@ -76,7 +99,11 @@ jobs:
           platform: x64
 
       - name: Setup Ninja
-        uses: seanmiddleditch/gha-setup-ninja@v6
+        uses: Wandalen/wretry.action@v3.8.0
+        with:
+          action: seanmiddleditch/gha-setup-ninja@v6
+          attempt_limit: 3
+          attempt_delay: 2500
 
       - name: Configure system
         run: |
