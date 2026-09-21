@@ -1,3 +1,12 @@
 {
-  "retryOn429": true
+  "retryOn429": true,
+  "aliveStatusCodes": [
+    200,
+    403
+  ],
+  "ignorePatterns": [
+    {
+      "pattern": "^https?://(?:[\\w\\.-]+)?opensecurityarchitecture.org(?:/.*)?"
+    }
+  ]
 }

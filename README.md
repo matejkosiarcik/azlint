@@ -23,30 +23,30 @@ Project links:
 <!-- toc -->
 
 - [About](#about)
-  - [Features](#features)
+    - [Features](#features)
 - [Usage](#usage)
-  - [Local - Linux & macOS](#local---linux--macos)
-  - [Local - Windows](#local---windows)
-  - [GitLabCI](#gitlabci)
-  - [CircleCI](#circleci)
-  - [GitHub Actions](#github-actions)
+    - [Local - Linux & macOS](#local---linux--macos)
+    - [Local - Windows](#local---windows)
+    - [GitLabCI](#gitlabci)
+    - [CircleCI](#circleci)
+    - [GitHub Actions](#github-actions)
 - [Configuration](#configuration)
 - [Included linters](#included-linters)
-  - [All files](#all-files)
-  - [General configs](#general-configs)
-  - [Package manager files](#package-manager-files)
-    - [Dry runners](#dry-runners)
-    - [Validators](#validators)
-  - [CI/CD services](#cicd-services)
-  - [Makefiles](#makefiles)
-  - [Dockerfiles](#dockerfiles)
-  - [XML, HTML, SVG](#xml-html-svg)
-  - [Documentation (Markdown, Plain Text)](#documentation-markdown-plain-text)
-  - [Shell script files](#shell-script-files)
-  - [Python](#python)
+    - [All files](#all-files)
+    - [General configs](#general-configs)
+    - [Package manager files](#package-manager-files)
+        - [Dry runners](#dry-runners)
+        - [Validators](#validators)
+    - [CI/CD services](#cicd-services)
+    - [Makefiles](#makefiles)
+    - [Dockerfiles](#dockerfiles)
+    - [XML, HTML, SVG](#xml-html-svg)
+    - [Documentation (Markdown, Plain Text)](#documentation-markdown-plain-text)
+    - [Shell script files](#shell-script-files)
+    - [Python](#python)
 - [Development](#development)
-  - [Prepare you system](#prepare-you-system)
-  - [Build & Run](#build--run)
+    - [Prepare you system](#prepare-you-system)
+    - [Build & Run](#build--run)
 - [License](#license)
 - [Alternatives](#alternatives)
 
@@ -57,7 +57,7 @@ Project links:
 
 ## About
 
-The main purpose of _AZLint_ is to bundle as many linters as possible into a single docker image
+The main purpose of _AZLint_ is to bundle as many linters as possible into a single Docker image
 and provide convenient CLI interface for calling them in bulk.
 
 I see it as a complement to
@@ -72,7 +72,7 @@ However feel free to use it and report any found issues 😉.
 
 - 📦 Includes 48 linters
 - 🛠️ Supports **autofix** mode (only for 9 linters though)
-- 🐳 Distributed as a docker image (both `x64`/`arm64` available)
+- 🐳 Distributed as a Docker image (both `x64`/`arm64` available)
 - 💯 Reports all found problems
 - 🏎️ Runs linters in parallel
 - 🌈 Clear, colored output
@@ -93,13 +93,13 @@ for all project versions.
 To **lint** files in current directory:
 
 ```sh
-docker run -itv "$PWD:/project:ro" matejkosiarcik/azlint:latest lint
+docker run -itv "${PWD}:/project:ro" matejkosiarcik/azlint:latest lint
 ```
 
 To **format** files in current directory:
 
 ```sh
-docker run -itv "$PWD:/project" matejkosiarcik/azlint:latest fmt
+docker run -itv "${PWD}:/project" matejkosiarcik/azlint:latest fmt
 ```
 
 When in doubt, print help:
@@ -109,8 +109,8 @@ $ docker run matejkosiarcik/azlint:latest --help
 Usage: azlint <command> [options…] [dir]
 
 Commands:
-  azlint lint  Lint project (default)
-  azlint fmt   Format project (autofix)
+  azlint lint  - Lint project (default)
+  azlint fmt   - Format project (autofix)
 
 Positionals:
   dir  Path to project directory  [string] [default: "."]
@@ -127,7 +127,7 @@ Options:
 
 ### Local - Windows
 
-Refer to _Linux & macOS_ examples above, just swap `$PWD` to `%cd%`, for example:
+Refer to _Linux & macOS_ examples above, just swap `${PWD}` to `%cd%`, for example:
 
 ```bat
 docker run -itv "%cd%:/project:ro" matejkosiarcik/azlint:latest lint
@@ -269,11 +269,11 @@ These check additional rules, which are recommended, but not required for the co
 
 ### CI/CD services
 
-| tool               | links                                                                                                          | disable                      | files                  | `fmt` support |
-|--------------------|----------------------------------------------------------------------------------------------------------------|------------------------------|------------------------|---------------|
-| CircleCI CLI lint  | [docs](https://circleci.com/docs/2.0/local-cli) <br> [GitHub](https://github.com/CircleCI-Public/circleci-cli) | `VALIDATE_CIRCLECI_VALIDATE` | `.circleci/config.yml` | ❌             |
-| gitlab-ci-lint     | [GitHub](https://github.com/BuBuaBu/gitlab-ci-lint)                                                            | `VALIDATE_GITLABCI_LINT`     | `.gitlab-ci.yml`       | ❌             |
-| gitlab-ci-validate | [GitHub](https://github.com/pradel/gitlab-ci-validate)                                                         | `VALIDATE_GITLABCI_VALIDATE` | `.gitlab-ci.yml`       | ❌             |
+| tool               | links                                                                                           | disable                      | files                  | `fmt` support |
+|--------------------|-------------------------------------------------------------------------------------------------|------------------------------|------------------------|---------------|
+| CircleCI CLI lint  | [docs](https://cli.circleci.com) <br> [GitHub](https://github.com/CircleCI-Public/circleci-cli) | `VALIDATE_CIRCLECI_VALIDATE` | `.circleci/config.yml` | ❌             |
+| gitlab-ci-lint     | [GitHub](https://github.com/BuBuaBu/gitlab-ci-lint)                                             | `VALIDATE_GITLABCI_LINT`     | `.gitlab-ci.yml`       | ❌             |
+| gitlab-ci-validate | [GitHub](https://github.com/pradel/gitlab-ci-validate)                                          | `VALIDATE_GITLABCI_VALIDATE` | `.gitlab-ci.yml`       | ❌             |
 
 ### Makefiles
 
@@ -297,7 +297,7 @@ These check additional rules, which are recommended, but not required for the co
 | HTMLHint | [GitHub](https://github.com/HTMLHint/HTMLHint)                                                                                                                 | `VALIDATE_HTMLHINT` | `*.{html,htm}` | ❌             |
 | htmllint | [GitHub](https://github.com/htmllint/htmllint)                                                                                                                 | `VALIDATE_HTMLLINT` | `*.{html,htm}` | ❌             |
 | SVGLint  | [GitHub](https://github.com/birjolaxew/svglint)                                                                                                                | `VALIDATE_SVGLINT`  | `*.svg`        | ❌             |
-| xmllint  | [gitlab](https://gitlab.gnome.org/GNOME/libxml2) <br> [docs](http://www.xmlsoft.org) <br> [manpage](https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html) | `VALIDATE_XMLLINT`  | `*.xml`        | ✅             |
+| xmllint  | [GitLab](https://gitlab.gnome.org/GNOME/libxml2) <br> [docs](http://www.xmlsoft.org) <br> [manpage](https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html) | `VALIDATE_XMLLINT`  | `*.xml`        | ✅             |
 
 ### Documentation (Markdown, Plain Text)
 
@@ -365,10 +365,10 @@ Now run `make bootstrap` to install local project dependencies.
 To run project locally:
 
 ```sh
-npm run azlint:fmt && npm run azlint:lint
+npm --prefix cli run azlint:fmt && npm --prefix cli run azlint:lint
 ```
 
-To build and run project in docker:
+To build and run project in Docker:
 
 ```sh
 make build run

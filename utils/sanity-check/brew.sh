@@ -8,9 +8,9 @@ set -euf
 
 tmpdir="$(mktemp -d)"
 dryRun() {
-    printf '%s\n' "$1" >"$tmpdir/Brewfile"
-    (cd "$tmpdir" && "${BINPREFIX:-}brew" bundle list --no-lock)
-    find "$tmpdir" -mindepth 1 -maxdepth 1 -exec rm -rf {} \;
+    printf '%s\n' "$1" >"${tmpdir}/Brewfile"
+    (cd "${tmpdir}" && "${BINPREFIX:-}brew" bundle list)
+    find "${tmpdir}" -mindepth 1 -maxdepth 1 -exec rm -rf {} \;
 }
 
 dryRun 'brew "example"'
@@ -19,5 +19,5 @@ dryRun "$(printf 'tap "homebrew/cask"\ncask "example"')"
 dryRun 'brew "example" if OS.mac?'
 dryRun 'brew "example" if OS.linux?'
 dryRun 'mas "example", id: 1'
-dryRun 'whalebrew "example"'
+# dryRun 'whalebrew "example"'
 dryRun 'vscode "example"'

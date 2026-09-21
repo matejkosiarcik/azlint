@@ -11,7 +11,7 @@ current_arch="$(uname-bak -m)"
 x64_arch='x86_64'
 
 if [ "$#" -eq 0 ]; then
-    uname-bak | sed "s~$current_arch~$x64_arch~g"
+    uname-bak | sed "s~${current_arch}~${x64_arch}~g"
 elif [ "$#" -eq 1 ]; then
-    uname-bak "$1" | sed "s~$current_arch~$x64_arch~g"
+    uname-bak "$1" | sed "s~${current_arch}~${x64_arch}~g"
 fi

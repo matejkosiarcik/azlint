@@ -1,0 +1,12 @@
+{
+  "attr-bans": false,
+  "attr-req-value": false,
+  "class-style": "none",
+  "doctype-html5": true,
+  "html-req-lang": true,
+  "id-class-style": "dash",
+  "indent-width": 2,
+  "spec-char-escape": false,
+  "tag-bans": [],
+  "title-no-dup": false
+}

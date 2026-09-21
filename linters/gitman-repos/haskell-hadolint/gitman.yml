@@ -11,10 +11,12 @@ sources:
       -
     scripts:
       -
+    patches:
+      -
 sources_locked:
   - repo: https://github.com/hadolint/hadolint.git
     name: hadolint
-    rev: 4ab5d7809325c8de23956a44ca5a1f3c25907faf
+    rev: 2bd38b6377d24f3754979e25efc85a6a411da3fb
     type: git
     params:
     sparse_paths:
@@ -22,6 +24,8 @@ sources_locked:
     links:
       -
     scripts:
+      -
+    patches:
       -
 default_group: ""
 groups:

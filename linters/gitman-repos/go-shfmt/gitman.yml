@@ -11,10 +11,12 @@ sources:
       -
     scripts:
       -
+    patches:
+      -
 sources_locked:
   - repo: https://github.com/mvdan/sh.git
     name: shfmt
-    rev: 2884acd7880d18e42021058fac4f30dca2df0f91
+    rev: c6351e95dbeeb2645b68c463ea916eed815bef5e
     type: git
     params:
     sparse_paths:
@@ -22,6 +24,8 @@ sources_locked:
     links:
       -
     scripts:
+      -
+    patches:
       -
 default_group: ""
 groups:

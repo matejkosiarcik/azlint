@@ -1,6 +1,6 @@
-enable=add-default-case
-enable=avoid-nullary-conditions
-enable=deprecate-which
-enable=quote-safe-variables
+enable=all
 
 disable=SC2016 # expressions in single quotes
+disable=SC2154 # False positives, and I use `set -u` always
+disable=SC2310 # False positives
+disable=SC2312 # Just annoying

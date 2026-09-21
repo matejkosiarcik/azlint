@@ -37,7 +37,7 @@ import { Linters } from './linters';
             alias: 'colour', describe: 'Colored output', type: 'string', choices: ['auto', 'never', 'always'], default: 'auto',
         })
         .option('jobs', {
-            alias: 'j', describe: 'No. jobs, when set to 0 will use cpu-threads x10', type: 'number', default: 0,
+            alias: 'j', describe: 'No. parallel jobs, when set to 0 will use cpu-threads x10', type: 'number', default: 0,
         })
         .option('dir', {
             describe: 'Path to project directory', type: 'string', default: '.',
@@ -115,7 +115,7 @@ import { Linters } from './linters';
     process.chdir(directory);
 
     // Setup paths for dependencies
-    const lintersDir = path.resolve(path.join(__dirname, '..', 'linters'));
+    const lintersDir = path.resolve(path.join(__dirname, '..', '..', 'linters'));
     const binPaths = {
         node: path.join(lintersDir, 'node_modules', '.bin'),
         cargo: path.join(lintersDir, 'cargo', 'bin'),
@@ -136,6 +136,8 @@ import { Linters } from './linters';
     process.env['HOMEBREW_NO_ENV_HINTS'] = '1';
 
     process.env['COMPOSER_ALLOW_SUPERUSER'] = '1';
+
+    process.env['MAKEFLAGS'] = '';
 
     logVerbose(`Performing: ${command}`);
     logVerbose(`Project path: ${path.resolve(process.cwd())}`);

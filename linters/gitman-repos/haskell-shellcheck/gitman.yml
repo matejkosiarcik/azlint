@@ -11,10 +11,12 @@ sources:
       -
     scripts:
       -
+    patches:
+      -
 sources_locked:
   - repo: https://github.com/koalaman/shellcheck.git
     name: shellcheck
-    rev: d3001f337aa3f7653a621b302261f4eac01890d0
+    rev: 24d96714d8d8f9e932f22bf182780452718e3139
     type: git
     params:
     sparse_paths:
@@ -22,6 +24,8 @@ sources_locked:
     links:
       -
     scripts:
+      -
+    patches:
       -
 default_group: ""
 groups:

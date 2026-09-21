@@ -18,6 +18,7 @@ disable = [
   "missing-module-docstring",
   "no-else-return",
   "too-few-public-methods",
+  "too-many-statements",
   "unused-wildcard-import",
-  "wildcard-import"
+  "wildcard-import",
 ]

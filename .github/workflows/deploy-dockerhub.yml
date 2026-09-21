@@ -1,6 +1,6 @@
 name: Deploy to DockerHub
 
-permissions: read-all
+permissions: {}
 
 on:
   push:
@@ -8,6 +8,10 @@ on:
       - main
     tags:
       - "v*.*.*"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   DOCKER_IMAGE: matejkosiarcik/azlint
@@ -26,49 +30,73 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup QEMU
-        uses: docker/setup-qemu-action@v3.6.0
+        uses: Wandalen/wretry.action@v3.8.0
+        with:
+          action: docker/setup-qemu-action@v4.4.0
+          with: |
+            cache-image: false
+          attempt_limit: 3
+          attempt_delay: 2500
 
       - name: Setup Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v3.10.0
+        uses: Wandalen/wretry.action@v3.8.0
+        with:
+          action: docker/setup-buildx-action@v4.4.1
+          attempt_limit: 3
+          attempt_delay: 2500
 
       - name: Debug logs
+        env:
+          BUILDX_PLATFORMS: ${{ fromJSON(steps.buildx.outputs.outputs).platforms }}
         run: |
-          printf "Available platforms:\n%s\n" "${{ steps.buildx.outputs.platforms }}"
+          printf 'Available platforms:\n%s\n' "${BUILDX_PLATFORMS}"
 
       - name: Login to DockerHub
-        uses: docker/login-action@v3.3.0
+        uses: docker/login-action@v4.6.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Set build cache key
+        id: build-cache-key
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          set -euf
+          key="$(printf 'azlint-%s-%s' "$GITHUB_WORKFLOW" "$PLATFORM" | tr '[:upper:] ' '[:lower:]-' | sed -E 's~[-]+~-~g')"
+          printf 'key=%s\n' "$key" >>"$GITHUB_OUTPUT"
+
       - name: Build and Publish
         id: build
-        uses: docker/build-push-action@v6.15.0
+        uses: docker/build-push-action@v7.4.0
         with:
           platforms: ${{ matrix.platform }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ steps.build-cache-key.outputs.key }}
+          cache-to: ${{ github.ref == 'refs/heads/main' && format('type=gha,scope={0},mode=max', steps.build-cache-key.outputs.key) || '' }}
           outputs: type=image,name=${{ env.DOCKER_IMAGE }},push-by-digest=true,name-canonical=true,push=true
 
       - name: Export platform
         env:
           DOCKER_PLATFORM: ${{ matrix.platform }}
         run: |
-          escaped_docker_platform="$(printf '%s' "$DOCKER_PLATFORM" | tr '/' '-')"
-          printf 'DOCKER_PLATFORM=%s\n' "$escaped_docker_platform" >> "$GITHUB_ENV"
+          escaped_docker_platform="$(printf '%s' "${DOCKER_PLATFORM}" | tr '/' '-')"
+          printf 'DOCKER_PLATFORM=%s\n' "${escaped_docker_platform}" >> "${GITHUB_ENV}"
 
       - name: Export digest
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
         run: |
           mkdir -p /tmp/digests
-          digest="${{ steps.build.outputs.digest }}"
-          touch "/tmp/digests/${digest#sha256:}"
+          touch "/tmp/digests/${DIGEST#sha256:}"
 
       - name: Upload digest
-        uses: actions/upload-artifact@v4.6.1
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: digest-${{ env.DOCKER_PLATFORM }}
           path: /tmp/digests/*
@@ -82,17 +110,21 @@ jobs:
       - build-images
     steps:
       - name: Download digests
-        uses: actions/download-artifact@v4.1.9
+        uses: actions/download-artifact@v8.0.1
         with:
           pattern: digest-*
           path: /tmp/digests
           merge-multiple: true
 
       - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3.10.0
+        uses: Wandalen/wretry.action@v3.8.0
+        with:
+          action: docker/setup-buildx-action@v4.4.1
+          attempt_limit: 3
+          attempt_delay: 2500
 
       - name: Docker metadata
-        uses: docker/metadata-action@v5.7.0
+        uses: docker/metadata-action@v6.2.0
         id: meta
         with:
           images: ${{ env.DOCKER_IMAGE }}
@@ -104,7 +136,7 @@ jobs:
             type=semver,pattern={{major}}
 
       - name: Login to DockerHub
-        uses: docker/login-action@v3.3.0
+        uses: docker/login-action@v4.6.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -115,24 +147,29 @@ jobs:
           printf 'Digests: %s\n' "$(printf '${{ env.DOCKER_IMAGE }}@sha256:%s ' *)"
 
       - name: Debug metadata
+        env:
+          TAGS: ${{ steps.meta.outputs.tags }}
+          VERSION: ${{ steps.meta.outputs.version }}
         run: |
-          printf 'Version: %s\n' "${{ steps.meta.outputs.version }}"
-          printf 'Tags raw: %s\n' "${{ steps.meta.outputs.tags }}"
-          printf 'Tags json: %s\n' "$DOCKER_METADATA_OUTPUT_JSON"
-          printf 'Tags parsed raw: %s\n' "$(printf '%s' ${{ steps.meta.outputs.tags }} | sed -E 's~^[ \n]+~~;s~[ \n]+$~~;s~[\n ]~ -t ~g;s~^~-t ~')"
-          printf 'Tags parsed json: %s\n' "$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")"
+          printf 'Version: %s\n' "${VERSION}"
+          printf 'Tags raw: %s\n' "${TAGS}"
+          printf 'Tags json: %s\n' "${DOCKER_METADATA_OUTPUT_JSON}"
+          printf 'Tags parsed raw: %s\n' "$(printf '%s' "${TAGS}" | sed -E 's~^[ \n]+~~;s~[ \n]+$~~;s~[\n ]~ -t ~g;s~^~-t ~')"
+          printf 'Tags parsed json: %s\n' "$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "${DOCKER_METADATA_OUTPUT_JSON}")"
 
       - name: Create manifest list and push
         working-directory: /tmp/digests
         run: |
           # shellcheck disable=SC2046
           docker buildx imagetools create \
-            $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "${DOCKER_METADATA_OUTPUT_JSON}") \
             $(printf '${{ env.DOCKER_IMAGE }}@sha256:%s ' *)
 
       - name: Inspect image
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
         run: |
-          docker buildx imagetools inspect "${{ env.DOCKER_IMAGE }}:${{ steps.meta.outputs.version }}"
+          docker buildx imagetools inspect "${DOCKER_IMAGE}:${VERSION}"
 
   deploy-description:
     name: Update dockerhub description
@@ -140,10 +177,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Update DockerHub description
-        uses: peter-evans/dockerhub-description@v4.0.0
+        uses: peter-evans/dockerhub-description@v5.0.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}

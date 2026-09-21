@@ -10,7 +10,7 @@ import { getConfigArgs } from './config-files';
 import { resolveLintArgs, resolveLintOptions, resolveLintSuccessExitCode } from './linter-utils';
 
 // Setup paths for dependencies
-const lintersDir = path.resolve(path.join(__dirname, '..', 'linters'));
+const lintersDir = path.resolve(path.join(__dirname, '..', '..', 'linters'));
 
 function shouldSkipLinter(envName: string, linterName: string): boolean {
     const envEnable = 'VALIDATE_' + envName;
@@ -300,7 +300,7 @@ export class Linters {
             linterName: 'editorconfig-checker',
             envName: 'EDITORCONFIG_CHECKER',
             fileMatch: '*',
-            lintFile: { args: ['ec', '#file#'] },
+            lintFile: { args: ['editorconfig-checker', '#file#'] },
         });
 
         // ECLint
@@ -335,7 +335,7 @@ export class Linters {
             envName: 'BREW_BUNDLE',
             fileMatch: ['Brewfile', '*.Brewfile', 'Brewfile.*'],
             lintFile: {
-                args: ['brew', 'bundle', 'list', '--file', '#file#', '--no-lock'],
+                args: ['brew', 'bundle', 'list', '--all', '--file', '#file#'],
                 options: {
                     env: {
                         PATH: fsSync.existsSync('/.dockerenv') ? `/.rbenv/versions/brew/bin:${process.env['PATH']}` : process.env['PATH'],
@@ -520,7 +520,7 @@ export class Linters {
             linterName: 'proselint',
             envName: 'PROSELINT',
             fileMatch: matchers.docs,
-            lintFile: { args: ['proselint', ...proselintConfigArgs, "#file#"] },
+            lintFile: { args: ['proselint', 'check', ...proselintConfigArgs, "#file#"] },
         });
 
         /* Shell */
@@ -540,7 +540,7 @@ export class Linters {
             envName: 'SHELLHARDEN',
             fileMatch: matchers.shell,
             lintFile: { args: ['shellharden', '--check', '--suggest', '--', '#file#'] },
-            fmtFile: { args: ['shellharden', '--replace', '--', '#file#'] }
+            // fmtFile: { args: ['shellharden', '--replace', '--', '#file#'] } // TODO: Re-enable
         });
 
         // Bashate
@@ -682,7 +682,7 @@ export class Linters {
             lintFile: {
                 args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '--dry-run', '--diff', '#file[abs]#'],
                 options: {
-                    cwd: path.resolve(path.join(__dirname, '..', 'linters')),
+                    cwd: path.resolve(path.join(__dirname, '..', '..', 'linters')),
                 },
             },
             fmtFile: {

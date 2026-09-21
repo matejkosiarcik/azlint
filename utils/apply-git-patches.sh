@@ -14,4 +14,4 @@ export patches_dir
 repo_dir="$2"
 export repo_dir
 
-find "$patches_dir" -name '*.patch' -exec sh -c 'patchfile="$PWD/$0" && cd "$repo_dir" && git apply "$patchfile"' {} \;
+find "${patches_dir}" -name '*.patch' -exec sh -c 'patchfile="${PWD}/$0" && cd "${repo_dir}" && git apply "${patchfile}"' {} \;

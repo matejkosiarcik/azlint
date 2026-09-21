@@ -1,31 +1,33 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    chef-utils (18.6.2)
+    chef-utils (19.3.15)
       concurrent-ruby
-    concurrent-ruby (1.3.5)
-    date (3.4.1)
-    kramdown (2.5.1)
-      rexml (>= 3.3.9)
+    concurrent-ruby (1.3.8)
+    date (3.5.1)
+    kramdown (2.5.2)
+      rexml (>= 3.4.4)
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
-    mdl (0.13.0)
-      kramdown (~> 2.3)
+    mdl (0.18.1)
+      kramdown (~> 2.5)
       kramdown-parser-gfm (~> 1.1)
-      mixlib-cli (~> 2.1, >= 2.1.1)
-      mixlib-config (>= 2.2.1, < 4)
+      mixlib-cli
+      mixlib-config
       mixlib-shellout
+      uri
     mixlib-cli (2.1.8)
     mixlib-config (3.0.27)
       tomlrb
-    mixlib-shellout (3.3.6)
+    mixlib-shellout (3.4.10)
       chef-utils
-    psych (5.2.3)
+    psych (5.5.0)
       date
       stringio
-    rexml (3.4.0)
-    stringio (3.1.2)
-    tomlrb (2.0.3)
+    rexml (3.4.4)
+    stringio (3.2.0)
+    tomlrb (2.0.4)
+    uri (1.1.1)
 
 PLATFORMS
   arm64-darwin
@@ -36,7 +38,7 @@ DEPENDENCIES
   psych (~> 5.2, >= 5.2.3)
 
 RUBY VERSION
-   ruby 3.4.1p0
+  ruby 3.4.1p0
 
 BUNDLED WITH
-   2.6.2
+  4.0.21

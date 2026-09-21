@@ -4,7 +4,7 @@ import { resolvePromiseOrValue } from './utils';
 
 /**
  * Turn arguments into executable command
- * Replace occurences of #file# and similar with actual filepaths
+ * Replace occurrences of #file# and similar with actual filepaths
  */
 export async function resolveLintArgs(args: string[] | ((file: string) => (string[] | Promise<string[]>)), file: string): Promise<string[]> {
     if (Array.isArray(args)) {

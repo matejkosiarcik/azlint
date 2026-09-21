@@ -11,10 +11,12 @@ sources:
       -
     scripts:
       -
+    patches:
+      -
 sources_locked:
   - repo: https://github.com/pelletier/go-toml.git
     name: go-toml
-    rev: 923b2ab4787c6297011a37d73c4e0ca1a051747d
+    rev: 686c980c47581bf19b6119b60e9a59f2aed04170
     type: git
     params:
     sparse_paths:
@@ -22,6 +24,8 @@ sources_locked:
     links:
       -
     scripts:
+      -
+    patches:
       -
 default_group: ""
 groups:

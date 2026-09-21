@@ -1,9 +1,16 @@
 name: Test
 
-permissions: read-all
+permissions: {}
 
 on:
   pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: "true"
 
 jobs:
   test:
@@ -14,42 +21,63 @@ jobs:
     name: Build and Test (${{ matrix.os }})
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup NodeJS
-        uses: actions/setup-node@v4.2.0
+        uses: Wandalen/wretry.action@v3.8.0
         with:
-          node-version: latest
+          action: actions/setup-node@v7.0.0
+          attempt_limit: 3
+          attempt_delay: 2500
+          with: |
+            node-version: latest
 
       - name: Setup Python
-        uses: actions/setup-python@v5.4.0
+        uses: Wandalen/wretry.action@v3.8.0
         with:
-          python-version: 3.x
+          action: actions/setup-python@v7.0.0
+          attempt_limit: 3
+          attempt_delay: 2500
+          with: |
+            python-version: 3.x
 
+      # NOTE: wretry wrapper not possible because of https://github.com/Wandalen/wretry.action/issues/186
       - name: Setup Rust
         uses: hecrj/setup-rust-action@v2.0.1
         with:
           rust-version: stable
 
       - name: Setup Go
-        uses: actions/setup-go@v5.3.0
+        uses: Wandalen/wretry.action@v3.8.0
         with:
-          go-version: stable
+          action: actions/setup-go@v7.0.0
+          attempt_limit: 3
+          attempt_delay: 2500
+          with: |
+            go-version: stable
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@v1.221.0
+        uses: Wandalen/wretry.action@v3.8.0
         with:
-          ruby-version: ruby # latest
+          action: ruby/setup-ruby@v1.324.0
+          attempt_limit: 3
+          attempt_delay: 2500
+          with: |
+            ruby-version: ruby # latest
 
+        # NOTE: Setup-PHP action depends on the runner-provided action environment on macOS which conflicts with wretry action
       - name: Setup PHP
-        uses: shivammathur/setup-php@2.32.0
+        uses: shivammathur/setup-php@2.37.2
         with:
           php-version: latest
           extensions: mbstring # TODO: consider removing if not necessary
 
+      # NOTE: wretry wrapper not possible because of https://github.com/Wandalen/wretry.action/issues/186
       - name: Setup GCC
         if: ${{ matrix.os == 'linux-latest' }}
-        uses: egor-tensin/setup-gcc@v1.3
+        uses: egor-tensin/setup-gcc@v2.0
         with:
           version: latest
           platform: x64
@@ -61,15 +89,20 @@ jobs:
       #     version: latest
       #     platform: x64
 
+      # NOTE: wretry wrapper not possible because of https://github.com/Wandalen/wretry.action/issues/186
       - name: Setup MinGW
         if: ${{ matrix.os == 'windows-latest' }}
-        uses: egor-tensin/setup-mingw@v2.2.0
+        uses: egor-tensin/setup-mingw@v3
         with:
           version: "12.2.0"
           platform: x64
 
       - name: Setup Ninja
-        uses: seanmiddleditch/gha-setup-ninja@v6
+        uses: Wandalen/wretry.action@v3.8.0
+        with:
+          action: seanmiddleditch/gha-setup-ninja@v6
+          attempt_limit: 3
+          attempt_delay: 2500
 
       - name: Configure system
         run: |
@@ -79,6 +112,7 @@ jobs:
 
       - name: Install project dependencies
         run: npm ci --unsafe-perm --no-progress --no-audit --no-fund --loglevel=error
+        working-directory: cli
         # TODO: Add system dependencies and run full bootstrap
         # run: make bootstrap
         shell: bash
@@ -90,3 +124,8 @@ jobs:
       - name: Test
         run: make test
         shell: bash
+
+      # TODO: Re-enable lint
+      # - name: Run
+      #   run: make run
+      #   shell: bash

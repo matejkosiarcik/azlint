@@ -7,7 +7,7 @@ else
     dir="$1"
 fi
 
-cd "$dir"
+cd "${dir}"
 git tag |
     grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+$' |
     sed -E 's~^v~~' |

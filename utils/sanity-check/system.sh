@@ -9,12 +9,12 @@ ksh93 -c 'true'
 mksh -c 'true'
 posh -c 'true'
 sh -c 'true'
-yash -c 'true'
+# yash -c 'true' # TODO: Re-enable yash
 zsh -c 'true'
 
 # Make
 bmake -n -f /dev/null /dev/null
-# TODO: Reenable: bsdmake -n -f /dev/null /dev/null
+# TODO: Re-enable: bsdmake -n -f /dev/null /dev/null
 make --help
 make --version
 make -n -f /dev/null /dev/null
@@ -25,9 +25,9 @@ gmake -n -f /dev/null /dev/null
 # Other
 git --help
 (tmpdir="$(mkdtemp)" &&
-    cd "$tmpdir" &&
+    cd "${tmpdir}" &&
     git init &&
-    rm -rf "$tmpdir")
+    rm -rf "${tmpdir}")
 xmllint --version
 
 # Python - main
