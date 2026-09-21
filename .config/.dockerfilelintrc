@@ -1,2 +1,4 @@
 rules:
-  missing_tag: off # disabled becuase of https://github.com/replicatedhq/dockerfilelint/issues/187
+  missing_tag: off # Disabled becuase of https://github.com/replicatedhq/dockerfilelint/issues/187
+  apt-get-update_require_install: off # Disabled because of false-positives when using playwright install-deps
+  latest_tag: off # Disabled because sometimes it's necessary and handled by hadolint instead
