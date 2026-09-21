@@ -130,6 +130,7 @@ jobs:
             bash ./linters/gitman-repos/rbenv-install/gitman/rbenv-installer/bin/rbenv-installer
       - run:
           name: Install ruby
+          no_output_timeout: 30m
           command: |
             export RBENV_ROOT="${PWD}/.rbenv"
             export PATH="/root/.rbenv/bin:${PWD}/.rbenv/bin:${PWD}/.rbenv/shims:${PATH}"
