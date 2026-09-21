@@ -13,7 +13,7 @@ trim_trailing_whitespace = true
 # max_line_length - probably better to leave to language specific tools
 
 # Ignore binaries
-[*.{3gp,7z,a,apng,avf,avi,bak,bin,bmp,br,bz,DS_Store,cache,dll,dylib,exe,gif,gz,gzip,ico,jpeg,jpg,mkv,mp2,mp3,mp4,ogg,pdb,png,so,tar,wav,webm,webp,xz,zip,zst}]
+[*.{3gp,7z,a,apng,avf,avi,bak,bin,bmp,br,bz,DS_Store,cache,dll,dylib,exe,gif,gz,gzip,ico,jpeg,jpg,mkv,mp2,mp3,mp4,ogg,pdb,png,so,tar,wav,webm,webp,xz,zim,zip,zst}]
 charset = unset
 end_of_line = unset
 indent_size = unset
@@ -21,7 +21,9 @@ indent_style = unset
 insert_final_newline = unset
 trim_trailing_whitespace = unset
 
+# Ignore some things in patch-files
 [*.patch]
+end_of_line = unset
 indent_size = unset
 indent_style = unset
 trim_trailing_whitespace = unset
@@ -32,6 +34,10 @@ insert_final_newline = false
 
 # Makefiles must be indented using tabs
 [*{makefile,Makefile,.make}]
+indent_style = tab
+
+# Golang files must be indented using tabs
+[*.go]
 indent_style = tab
 
 # Trailing whitespace is generally permitted in markdown
@@ -52,7 +58,7 @@ indent_size = unset
 
 ### Documentation, Configuration, Markup # ###
 
-[*.{css,htm,html,j2,jinja,jinja2,json,json5,less,liquid,sass,scss,sdef,svg,toml,xhtml,xlf,xml,yaml,yml}]
+[*.{css,drawio,htm,html,j2,jinja,jinja2,json,json5,less,liquid,sass,scss,sdef,svg,toml,xhtml,xlf,xml,yaml,yml}]
 indent_size = 2
 
 # RC files
@@ -68,6 +74,11 @@ indent_size = 2
 [*.{htm,html}]
 block_comment_end = -->
 block_comment_start = <!--
+
+## JavaScript ###
+
+[*.vue]
+indent_size = 2
 
 ### Apple ecosystem ###
 
