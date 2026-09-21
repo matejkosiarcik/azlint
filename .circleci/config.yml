@@ -203,7 +203,7 @@ jobs:
               PYTHONPATH="${PWD}/linters/python-vendor"
             # TODO: Run sanity check
             # sh utils/sanity-check/.main.sh
-      # TODO: Re-enable linting
+      # TODO: Re-enable azlint linting and formatting
       # - azlint-lint:
       #     command-base: PATH="${PATH}:/home/linuxbrew/.linuxbrew/bin" npm --prefix cli run azlint --
       # - azlint-fmt:
