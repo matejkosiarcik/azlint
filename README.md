@@ -297,7 +297,7 @@ These check additional rules, which are recommended, but not required for the co
 | HTMLHint | [GitHub](https://github.com/HTMLHint/HTMLHint)                                                                                                                 | `VALIDATE_HTMLHINT` | `*.{html,htm}` | ❌             |
 | htmllint | [GitHub](https://github.com/htmllint/htmllint)                                                                                                                 | `VALIDATE_HTMLLINT` | `*.{html,htm}` | ❌             |
 | SVGLint  | [GitHub](https://github.com/birjolaxew/svglint)                                                                                                                | `VALIDATE_SVGLINT`  | `*.svg`        | ❌             |
-| xmllint  | [gitlab](https://gitlab.gnome.org/GNOME/libxml2) <br> [docs](http://www.xmlsoft.org) <br> [manpage](https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html) | `VALIDATE_XMLLINT`  | `*.xml`        | ✅             |
+| xmllint  | [GitLab](https://gitlab.gnome.org/GNOME/libxml2) <br> [docs](http://www.xmlsoft.org) <br> [manpage](https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html) | `VALIDATE_XMLLINT`  | `*.xml`        | ✅             |
 
 ### Documentation (Markdown, Plain Text)
 

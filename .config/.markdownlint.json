@@ -3,7 +3,7 @@
     "style": "fenced"
   },
   "line-length": {
-    "line_length": 180
+    "line_length": 300
   },
   "no-duplicate-heading": {
     "siblings_only": true

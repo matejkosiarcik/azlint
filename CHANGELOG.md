@@ -40,7 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## \[0.6.9\] - 2023-08-09
 
 - Miscellaneous
-  - Maintenance release (Deploy during previous version failed to push to dockerhub)
+  - Maintenance release (Deploy during previous version failed to push to DockerHub)
 
 ## \[0.6.8\] - 2023-08-06
 
@@ -48,7 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - New linters:
     - `actionlint` for GitHub Action workflow files
 - Miscellaneous
-  - Optimize dependencies in published docker image (-> reduces total image size by ~90MB)
+  - Optimize dependencies in published Docker image (-> reduces total image size by ~90MB)
     - Remove unused files from linuxbrew and associated rbenv's ruby
     - Remove unnecessary files from directories (`bundle`, `node_modules`, `python` and `vendor`)
     - Remove unnecessary properties from `package.json`s
@@ -64,7 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - New linters:
     - `npm ci --dry-run` for `package-lock.json` files
 - Miscellaneous
-  - Optimize `node_modules` in published docker image (total improvement ~340 MB-> 310 MB)
+  - Optimize `node_modules` in published Docker image (total improvement ~340 MB-> 310 MB)
 
 ## \[0.6.5\] - 2023-07-18
 
@@ -73,7 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `oksh` for shell files
     - `hush --check` for `*.hush` files
 - Fixed
-  - Formatting for _json_ files with prettier
+  - Formatting for _JSON_ files with prettier
 - Changed
   - Remove jscpd
 
@@ -101,7 +101,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## \[0.6.1\] - 2023-06-30
 
 - Miscellaneous
-  - Publish arm64 docker images (previously only amd64)
+  - Publish arm64 Docker images (previously only amd64)
 
 ## \[0.6.0\] - 2023-06-30
 
@@ -237,7 +237,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## \[0.3.0\] - 2021-04-06
 
 - Changed
-  - Change deployment strategy to only deploy a single docker image with everything included
+  - Change deployment strategy to only deploy a single Docker image with everything included
   - Keep only linters:
     - bashate
     - bats-core
@@ -279,7 +279,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## \[0.2.4\] - 2020-08-08
 
 - Fixed
-  - Fix docker autobuild
+  - Fix Docker autobuild
 
 ## \[0.2.3\] - 2020-08-07
 
@@ -308,7 +308,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Move previous components hadolint and shellcheck into haskell components
   - Remove travislint
   - Update dependencies
-  - Rework dockerhub builds to use hash-based internal images
+  - Rework DockerHub builds to use hash-based internal images
 
 ## \[0.1.2\] - 2020-06-20
 
@@ -320,7 +320,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Zsh
 - Changed
   - Optimize existing components
-    - multi stage docker builds (resulting image should be smaller)
+    - multi stage Docker builds (resulting image should be smaller)
     - compile executables in production mode
     - strip executables from debug symbols
     - pack executables with upx
