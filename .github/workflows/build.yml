@@ -25,12 +25,12 @@ jobs:
     name: Build - ${{ matrix.platform }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v7.0.1
 
       - name: Setup QEMU
         uses: Wandalen/wretry.action@v3.8.0
         with:
-          action: docker/setup-qemu-action@v3.6.0
+          action: docker/setup-qemu-action@v4.4.0
           attempt_limit: 3
           attempt_delay: 2500
 
@@ -38,12 +38,12 @@ jobs:
         id: buildx
         uses: Wandalen/wretry.action@v3.8.0
         with:
-          action: docker/setup-buildx-action@v3.10.0
+          action: docker/setup-buildx-action@v4.4.1
           attempt_limit: 3
           attempt_delay: 2500
 
       - name: Build
-        uses: docker/build-push-action@v6.15.0
+        uses: docker/build-push-action@v7.4.0
         with:
           cache-from: type=gha
           cache-to: type=gha,mode=max

@@ -21,7 +21,7 @@ jobs:
     name: Build and Test (${{ matrix.os }})
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v7.0.1
 
       - name: Setup NodeJS
         uses: Wandalen/wretry.action@v3.8.0
@@ -35,7 +35,7 @@ jobs:
       - name: Setup Python
         uses: Wandalen/wretry.action@v3.8.0
         with:
-          action: actions/setup-python@v5.4.0
+          action: actions/setup-python@v7.0.0
           attempt_limit: 3
           attempt_delay: 2500
           with: |
@@ -50,7 +50,7 @@ jobs:
       - name: Setup Go
         uses: Wandalen/wretry.action@v3.8.0
         with:
-          action: actions/setup-go@v5.3.0
+          action: actions/setup-go@v7.0.0
           attempt_limit: 3
           attempt_delay: 2500
           with: |
@@ -59,7 +59,7 @@ jobs:
       - name: Setup Ruby
         uses: Wandalen/wretry.action@v3.8.0
         with:
-          action: ruby/setup-ruby@v1.221.0
+          action: ruby/setup-ruby@v1.324.0
           attempt_limit: 3
           attempt_delay: 2500
           with: |
@@ -67,7 +67,7 @@ jobs:
 
         # NOTE: Setup-PHP action depends on the runner-provided action environment on macOS which conflicts with wretry action
       - name: Setup PHP
-        uses: shivammathur/setup-php@2.32.0
+        uses: shivammathur/setup-php@2.37.2
         with:
           php-version: latest
           extensions: mbstring # TODO: consider removing if not necessary
@@ -75,7 +75,7 @@ jobs:
       # NOTE: wretry wrapper not possible because of https://github.com/Wandalen/wretry.action/issues/186
       - name: Setup GCC
         if: ${{ matrix.os == 'linux-latest' }}
-        uses: egor-tensin/setup-gcc@v1.3
+        uses: egor-tensin/setup-gcc@v2.0
         with:
           version: latest
           platform: x64
@@ -90,7 +90,7 @@ jobs:
       # NOTE: wretry wrapper not possible because of https://github.com/Wandalen/wretry.action/issues/186
       - name: Setup MinGW
         if: ${{ matrix.os == 'windows-latest' }}
-        uses: egor-tensin/setup-mingw@v2.2.0
+        uses: egor-tensin/setup-mingw@v3
         with:
           version: "12.2.0"
           platform: x64

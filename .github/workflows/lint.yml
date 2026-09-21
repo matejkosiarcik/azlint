@@ -18,12 +18,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0 # Full git history is needed to get a proper list of changed files
 
       - name: Run MegaLinter
-        uses: oxsecurity/megalinter@v8.4.2
+        uses: oxsecurity/megalinter@v10.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
@@ -35,12 +35,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0 # Full git history is needed to get a proper list of changed files
 
       - name: Run SuperLinter
-        uses: super-linter/super-linter@v7.3.0
+        uses: super-linter/super-linter@v8.7.0
         env:
           # global settings
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
