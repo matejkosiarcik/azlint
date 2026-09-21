@@ -1,6 +1,6 @@
 name: Deploy to DockerHub
 
-permissions: read-all
+permissions: {}
 
 on:
   push:
