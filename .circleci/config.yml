@@ -136,7 +136,7 @@ jobs:
             export PATH="/root/.rbenv/bin:${PWD}/.rbenv/bin:${PWD}/.rbenv/shims:${PATH}"
             ruby_version="$(cat .ruby-version)"
             (sh './utils/rbenv-install-logging.sh' &)
-            chronic rbenv install "${ruby_version}"
+            rbenv install "${ruby_version}"
             printf 'Ruby %s installed\n' "${ruby_version}"
             kill "$(cat './logging-pid.txt')"
             rm -f './logging-pid.txt'
