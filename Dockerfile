@@ -49,7 +49,7 @@ COPY build-dependencies/gitman/requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --requirement './requirements.txt' --target './python-vendor' --quiet
 ENV PATH="/app/python-vendor/bin:${PATH}" \
-    PYTHONPATH=/app/python-vendor
+    PYTHONPATH="/app/python-vendor"
 
 # LinuxBrew - rbenv #
 FROM --platform=${BUILDPLATFORM} gitman__base AS rbenv__gitman
@@ -72,7 +72,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 COPY build-dependencies/yaml-minifier/package.json build-dependencies/yaml-minifier/package-lock.json ./yaml-minifier/
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --no-fund --loglevel=error --prefix './yaml-minifier'
 ENV PATH="/optimizations/yq/python-vendor/bin:${PATH}" \
-    PYTHONPATH=/optimizations/yq/python-vendor
+    PYTHONPATH="/optimizations/yq/python-vendor"
 COPY build-dependencies/yaml-minifier/minify-yaml.js ./yaml-minifier/
 COPY utils/optimize/.common.sh ./
 WORKDIR /app
@@ -103,7 +103,7 @@ COPY --from=linters__go__actionlint__optimize /app/bin/actionlint ./
 
 FROM bins_aggregator__base AS linters__go__actionlint__final
 WORKDIR /app/bin
-ENV BINPREFIX=/app/bin/
+ENV BINPREFIX="/app/bin/"
 COPY --from=linters__go__actionlint__upx /app/actionlint ./
 WORKDIR /app
 COPY utils/sanity-check/go-actionlint.sh ./sanity-check.sh
@@ -138,7 +138,7 @@ COPY --from=linters__go__shfmt__optimize /app/bin/shfmt ./
 
 FROM bins_aggregator__base AS linters__go__shfmt__final
 WORKDIR /app/bin
-ENV BINPREFIX=/app/bin/
+ENV BINPREFIX="/app/bin/"
 COPY --from=linters__go__shfmt__upx /app/shfmt ./
 WORKDIR /app
 COPY utils/sanity-check/go-shfmt.sh ./sanity-check.sh
@@ -173,7 +173,7 @@ COPY --from=linters__go__stoml__optimize /app/bin/stoml ./
 
 FROM bins_aggregator__base AS linters__go__stoml__final
 WORKDIR /app/bin
-ENV BINPREFIX=/app/bin/
+ENV BINPREFIX="/app/bin/"
 COPY --from=linters__go__stoml__upx /app/stoml ./
 WORKDIR /app
 COPY utils/sanity-check/go-stoml.sh ./sanity-check.sh
@@ -202,7 +202,7 @@ COPY --from=linters__go__tomljson__optimize /app/bin/tomljson ./
 
 FROM bins_aggregator__base AS linters__go__tomljson__final
 WORKDIR /app/bin
-ENV BINPREFIX=/app/bin/
+ENV BINPREFIX="/app/bin/"
 COPY --from=linters__go__tomljson__upx /app/tomljson ./
 WORKDIR /app
 COPY utils/sanity-check/go-tomljson.sh ./sanity-check.sh
@@ -240,7 +240,7 @@ COPY --from=go_checkmake__optimize /app/bin/checkmake ./
 
 FROM bins_aggregator__base AS linters__go__checkmake__final
 WORKDIR /app/bin
-ENV BINPREFIX=/app/bin/
+ENV BINPREFIX="/app/bin/"
 COPY --from=go_checkmake__upx /app/checkmake ./
 WORKDIR /app
 COPY utils/sanity-check/go-checkmake.sh ./sanity-check.sh
@@ -274,7 +274,7 @@ COPY --from=linters__go__editorconfig_checker__optimize /app/bin/editorconfig-ch
 
 FROM bins_aggregator__base AS linters__go__editorconfig_checker__final
 WORKDIR /app/bin
-ENV BINPREFIX=/app/bin/
+ENV BINPREFIX="/app/bin/"
 COPY --from=linters__go__editorconfig_checker__upx /app/editorconfig-checker ./
 WORKDIR /app
 COPY utils/sanity-check/go-editorconfig-checker.sh ./sanity-check.sh
@@ -300,7 +300,7 @@ COPY build-dependencies/yq/requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --requirement './requirements.txt' --target './python-vendor' --quiet
 ENV PATH="/app/python-vendor/bin:${PATH}" \
-    PYTHONPATH=/app/python-vendor
+    PYTHONPATH="/app/python-vendor"
 COPY linters/Cargo.toml ./
 RUN tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' './Cargo.toml' >'./cargo-dependencies.txt'
 
@@ -323,11 +323,11 @@ COPY utils/rust/get-target-tripple.sh ./
 RUN if [ "${BUILDARCH}" != "${TARGETARCH}" ]; then \
         rustup target add "$(sh './get-target-tripple.sh')" && \
     true; fi
-ENV CARGO_PROFILE_RELEASE_LTO=true \
-    CARGO_PROFILE_RELEASE_PANIC=abort \
-    CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
-    CARGO_PROFILE_RELEASE_OPT_LEVEL=s \
-    RUSTFLAGS='-Cstrip=symbols -Clink-args=-Wl,--build-id=none'
+ENV CARGO_PROFILE_RELEASE_LTO="true" \
+    CARGO_PROFILE_RELEASE_PANIC="abort" \
+    CARGO_PROFILE_RELEASE_CODEGEN_UNITS="1" \
+    CARGO_PROFILE_RELEASE_OPT_LEVEL="s" \
+    RUSTFLAGS="-Cstrip=symbols -Clink-args=-Wl,--build-id=none"
 COPY --from=linters__rust__dependencies /app/cargo-dependencies.txt ./
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     if [ "${BUILDARCH}" != "${TARGETARCH}" ]; then \
@@ -354,7 +354,7 @@ COPY --from=linters__rust__optimize /app/bin ./
 
 FROM bins_aggregator__base AS linters__rust__final
 WORKDIR /app/bin
-ENV BINPREFIX=/app/bin/
+ENV BINPREFIX="/app/bin/"
 COPY --from=rust__upx /app ./
 WORKDIR /app
 COPY utils/sanity-check/rust.sh ./sanity-check.sh
@@ -383,7 +383,7 @@ COPY --from=linters__circleci__base /usr/local/bin/circleci ./
 FROM bins_aggregator__base AS linters__circleci__final
 COPY utils/sanity-check/circleci.sh ./sanity-check.sh
 COPY --from=circleci__upx /app/circleci ./bin/
-ENV BINPREFIX=/app/bin/
+ENV BINPREFIX="/app/bin/"
 RUN sh './sanity-check.sh' && \
     rm -f './sanity-check.sh'
 
@@ -416,7 +416,7 @@ COPY --from=shell_loksh__optimize /app/bin/loksh ./
 FROM bins_aggregator__base AS linters__shell__loksh__final
 COPY --from=linters__shell__loksh__upx /app/loksh ./bin/
 COPY utils/sanity-check/shell-loksh.sh ./sanity-check.sh
-ENV BINPREFIX=/app/bin/
+ENV BINPREFIX="/app/bin/"
 RUN sh './sanity-check.sh' && \
     rm -f './sanity-check.sh'
 
@@ -449,7 +449,7 @@ COPY --from=linters__shell__oksh__optimize /app/bin/oksh ./
 FROM bins_aggregator__base AS linters__shell_oksh__final
 COPY --from=linters__shell__oksh__upx /app/oksh ./bin/
 COPY utils/sanity-check/shell-oksh.sh ./sanity-check.sh
-ENV BINPREFIX=/app/bin/
+ENV BINPREFIX="/app/bin/"
 RUN sh './sanity-check.sh' && \
     rm -f './sanity-check.sh'
 
@@ -462,7 +462,7 @@ COPY --from=linters__shellcheck__base /bin/shellcheck ./
 
 FROM bins_aggregator__base AS linters__shellcheck__final
 WORKDIR /app/bin
-ENV BINPREFIX=/app/bin/
+ENV BINPREFIX="/app/bin/"
 COPY --from=shellcheck__upx /app/shellcheck ./
 WORKDIR /app
 COPY utils/sanity-check/haskell-shellcheck.sh ./sanity-check.sh
@@ -477,7 +477,7 @@ COPY --from=linters__hadolint__base /bin/hadolint ./
 
 FROM bins_aggregator__base AS linters__hadolint__final
 WORKDIR /app/bin
-ENV BINPREFIX=/app/bin/
+ENV BINPREFIX="/app/bin/"
 COPY --from=hadolint__upx /app/hadolint ./
 WORKDIR /app
 COPY utils/sanity-check/haskell-hadolint.sh ./sanity-check.sh
@@ -509,7 +509,7 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/nodejs.sh ./sanity-check.sh
 COPY --from=linters__nodejs__optimize /app/node_modules ./node_modules
-ENV BINPREFIX=/app/node_modules/.bin/
+ENV BINPREFIX="/app/node_modules/.bin/"
 RUN sh './sanity-check.sh'
 
 # Ruby/Gem #
@@ -524,7 +524,7 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=rbenv__gitman /app/gitman/rbenv-installer ./rbenv-installer
 ENV PATH="${PATH}:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims" \
-    RBENV_ROOT=/.rbenv
+    RBENV_ROOT="/.rbenv"
 RUN bash './rbenv-installer/bin/rbenv-installer'
 COPY ./utils/rbenv-install-logging.sh /utils/
 COPY ./.ruby-version ./
@@ -544,11 +544,11 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/Gemfile linters/Gemfile.lock ./
 COPY --from=rbenv__install /.rbenv/versions /.rbenv/versions
-ENV BUNDLE_DISABLE_SHARED_GEMS=true \
-    BUNDLE_FROZEN=true \
-    BUNDLE_GEMFILE=/app/Gemfile \
-    BUNDLE_PATH=/app/bundle \
-    BUNDLE_PATH__SYSTEM=false \
+ENV BUNDLE_DISABLE_SHARED_GEMS="true" \
+    BUNDLE_FROZEN="true" \
+    BUNDLE_GEMFILE="/app/Gemfile" \
+    BUNDLE_PATH="/app/bundle" \
+    BUNDLE_PATH__SYSTEM="false" \
     PATH="${PATH}:/.rbenv/versions/current/bin"
 RUN bundle install --quiet
 
@@ -568,11 +568,11 @@ COPY utils/sanity-check/ruby.sh ./sanity-check.sh
 COPY linters/Gemfile linters/Gemfile.lock ./
 COPY --from=rbenv__install /.rbenv/versions /.rbenv/versions
 COPY --from=linters__ruby__optimize /app/bundle ./bundle
-ENV BUNDLE_DISABLE_SHARED_GEMS=true \
-    BUNDLE_FROZEN=true \
-    BUNDLE_GEMFILE=/app/Gemfile \
-    BUNDLE_PATH__SYSTEM=false \
-    BUNDLE_PATH=/app/bundle \
+ENV BUNDLE_DISABLE_SHARED_GEMS="true" \
+    BUNDLE_FROZEN="true" \
+    BUNDLE_GEMFILE="/app/Gemfile" \
+    BUNDLE_PATH__SYSTEM="false" \
+    BUNDLE_PATH="/app/bundle" \
     PATH="${PATH}:/.rbenv/versions/current/bin"
 RUN sh './sanity-check.sh'
 
@@ -584,9 +584,9 @@ RUN apt-get update -qq && \
         python3 python3-pip >/dev/null && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/requirements.txt ./
-ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PIP_ROOT_USER_ACTION=ignore \
-    PYTHONDONTWRITEBYTECODE=1
+ENV PIP_DISABLE_PIP_VERSION_CHECK="1" \
+    PIP_ROOT_USER_ACTION="ignore" \
+    PYTHONDONTWRITEBYTECODE="1"
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --requirement './requirements.txt' --target './python-vendor' --quiet
 
@@ -604,11 +604,11 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/python.sh ./sanity-check.sh
 COPY --from=linters__python__optimize /app/python-vendor ./python-vendor
-ENV BINPREFIX=/app/python-vendor/bin/ \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PIP_ROOT_USER_ACTION=ignore \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONPATH=/app/python-vendor
+ENV BINPREFIX="/app/python-vendor/bin/" \
+    PIP_DISABLE_PIP_VERSION_CHECK="1" \
+    PIP_ROOT_USER_ACTION="ignore" \
+    PYTHONDONTWRITEBYTECODE="1" \
+    PYTHONPATH="/app/python-vendor"
 RUN sh './sanity-check.sh'
 
 # Composer #
@@ -644,9 +644,9 @@ COPY utils/sanity-check/composer.sh ./sanity-check.sh
 COPY linters/composer.json ./linters/
 COPY --from=composer_vendor__optimize /app/vendor ./linters/vendor
 COPY --from=linters__composer_bin__optimize /app/bin/composer ./bin/
-ENV BINPREFIX=/app/bin/ \
-    VENDORPREFIX=/app/linters/ \
-    COMPOSER_ALLOW_SUPERUSER=1
+ENV BINPREFIX="/app/bin/" \
+    VENDORPREFIX="/app/linters/" \
+    COMPOSER_ALLOW_SUPERUSER="1"
 RUN sh './sanity-check.sh'
 
 # LinuxBrew - gitman #
@@ -679,8 +679,8 @@ RUN if [ "$(uname -m)" != 'amd64' ]; then \
         mv '/usr/bin/uname-x64' '/usr/bin/uname' && \
     true; fi
 COPY --from=linters__brew__gitman /app/gitman/brew-installer ./brew--installer
-ENV HOMEBREW_NO_ANALYTICS=1 \
-    HOMEBREW_NO_AUTO_UPDATE=1
+ENV HOMEBREW_NO_ANALYTICS="1" \
+    HOMEBREW_NO_AUTO_UPDATE="1"
 RUN NONINTERACTIVE=1 chronic bash './brew--installer/install.sh' && \
     eval "$('/home/linuxbrew/.linuxbrew/bin/brew' shellenv)" && \
     chronic brew update --quiet && \
@@ -699,7 +699,7 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=rbenv__gitman /app/gitman/rbenv-installer ./rbenv-installer
 ENV PATH="${PATH}:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims" \
-    RBENV_ROOT=/.rbenv
+    RBENV_ROOT="/.rbenv"
 RUN bash './rbenv-installer/bin/rbenv-installer'
 COPY ./utils/rbenv-install-logging.sh /utils/
 COPY --from=linters__brew__install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
@@ -733,9 +733,9 @@ RUN apt-get update -qq && \
 COPY utils/sanity-check/brew.sh ./sanity-check.sh
 COPY --from=linters__brew__rbenv__link /home/linuxbrew /home/linuxbrew
 COPY --from=linters__brew__rbenv__link /.rbenv/versions /.rbenv/versions
-ENV BINPREFIX=/home/linuxbrew/.linuxbrew/bin/ \
-    HOMEBREW_NO_ANALYTICS=1 \
-    HOMEBREW_NO_AUTO_UPDATE=1
+ENV BINPREFIX="/home/linuxbrew/.linuxbrew/bin/" \
+    HOMEBREW_NO_ANALYTICS="1" \
+    HOMEBREW_NO_AUTO_UPDATE="1"
 ENV PATH="/.rbenv/versions/brew/bin:${PATH}"
 # TODO: Re-enable on all architectures
 # RUN touch /.dockerenv rbenv-list.txt brew-list.txt && \
@@ -769,9 +769,9 @@ RUN apt-get update -qq && \
 COPY utils/sanity-check/brew.sh ./sanity-check.sh
 COPY --from=linters__brew__optimize /home/linuxbrew /home/linuxbrew
 COPY --from=linters__brew__optimize /.rbenv/versions /.rbenv/versions
-ENV BINPREFIX=/home/linuxbrew/.linuxbrew/bin/ \
-    HOMEBREW_NO_ANALYTICS=1 \
-    HOMEBREW_NO_AUTO_UPDATE=1
+ENV BINPREFIX="/home/linuxbrew/.linuxbrew/bin/" \
+    HOMEBREW_NO_ANALYTICS="1" \
+    HOMEBREW_NO_AUTO_UPDATE="1"
 # TODO: Make ruby version dynamic
 ENV PATH="/.rbenv/versions/brew/bin:${PATH}"
 RUN touch '/.dockerenv' && \
@@ -850,12 +850,12 @@ COPY --from=linters__circleci__final /app/bin ./
 COPY --from=linters__shell__loksh__final /app/bin ./
 COPY --from=linters__shell_oksh__final /app/bin ./
 WORKDIR /app-tmp
-ENV COMPOSER_ALLOW_SUPERUSER=1 \
-    HOMEBREW_NO_ANALYTICS=1 \
-    HOMEBREW_NO_AUTO_UPDATE=1 \
+ENV COMPOSER_ALLOW_SUPERUSER="1" \
+    HOMEBREW_NO_ANALYTICS="1" \
+    HOMEBREW_NO_AUTO_UPDATE="1" \
     PATH="${PATH}:/app/linters/bin:/home/linuxbrew/.linuxbrew/bin" \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PIP_ROOT_USER_ACTION=ignore
+    PIP_DISABLE_PIP_VERSION_CHECK="1" \
+    PIP_ROOT_USER_ACTION="ignore"
 COPY utils/sanity-check/system.sh ./sanity-check.sh
 RUN chronic sh './sanity-check.sh'
 
