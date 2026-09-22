@@ -23,7 +23,7 @@ bootstrap:
 	# Python dependencies
 	printf '%s\n%s\n' './build-dependencies/gitman' './build-dependencies/yq' | while read -r dir; do \
 		cd "$(PROJECT_DIR)/$${dir}" && \
-		(deactivate >/dev/null 2>&1 || true) && \
+		(deactivate >'/dev/null' 2>&1 || true) && \
 		rm -rf './venv' && \
 		python3 -m venv './venv' && \
 		. './venv/bin/activate' && \
@@ -35,7 +35,7 @@ bootstrap:
 
 	find './linters/gitman-repos' -mindepth 1 -maxdepth 1 -type d -print0 | \
 		PATH="$(PROJECT_DIR)/build-dependencies/gitman/venv/bin:$${PATH}" xargs -0 -n1 -P0 gitman install --quiet --force --root
-	if [ "$(shell uname -s)" != Linux ]; then \
+	if [ "$$(uname -s)" != Linux ]; then \
 		sh './utils/apply-git-patches.sh' './linters/git-patches/loksh' './linters/gitman-repos/shell-loksh/gitman/loksh' && \
 	true; fi
 
@@ -92,10 +92,10 @@ bootstrap:
 		DESTDIR="$${PWD}/install/" bash './install.sh'; \
 		cp './install/circleci' "$(PROJECT_DIR)/linters/bin/"
 
-	if command -v brew >/dev/null 2>&1; then \
+	if command -v brew >'/dev/null' 2>&1; then \
 		HOMEBREW_NO_ANALYTICS=1 \
 		HOMEBREW_NO_AUTO_UPDATE=1 \
-			brew bundle --help --quiet >/dev/null; \
+			brew bundle --help --quiet >'/dev/null'; \
 	fi
 
 .PHONY: build
@@ -137,7 +137,7 @@ docker-run-multiarch:
 .PHONY: clean
 clean:
 	if [ -e "$(PROJECT_DIR)/linters/go" ]; then \
-		chown -R "$(shell whoami)" "$(PROJECT_DIR)/linters/go" && \
+		chown -R "$$(whoami)" "$(PROJECT_DIR)/linters/go" && \
 		find "$(PROJECT_DIR)/linters/go" -type f -exec chmod 0644 {} \; && \
 		find "$(PROJECT_DIR)/linters/go" -type d -exec chmod 0755 {} \; && \
 	true; fi

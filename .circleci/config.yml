@@ -60,7 +60,7 @@ workflows:
 jobs:
   test:
     docker:
-      - image: node:26.8.2
+      - image: node:26.9.0
     steps:
       - checkout
       - run: |
@@ -85,7 +85,7 @@ jobs:
           command: |
             apt-get update -qq
             DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes \
-              apt-get install -q --yes --no-install-recommends \
+              apt-get install -q --yes --no-install-recommends --no-install-suggests \
               ca-certificates curl git jq libncurses-dev libxml2-utils libyaml-0-2 libyaml-dev moreutils pandoc parallel \
               build-essential meson ninja-build \
               bmake make \
