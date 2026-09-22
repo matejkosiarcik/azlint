@@ -5,7 +5,7 @@ import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { Options as ExecaOptions } from 'execa';
 import pLimit, { LimitFunction } from 'p-limit';
-import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from './log.ts';
+import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess, logLintSkip } from './log.ts';
 import { customExeca, hashFile, isProjectGitRepo, matchFiles, OneOrArray, resolvePromiseOrValue } from './utils.ts';
 import { getConfigArgs } from './config-files.ts';
 import { resolveLintArgs, resolveLintOptions, resolveLintSuccessExitCode } from './linter-utils.ts';
@@ -356,7 +356,7 @@ export class Linters {
             shouldSkipFile(file, toolName) {
                 const skip = !fsSync.existsSync(path.join(path.dirname(file), 'package.json'));
                 if (skip) {
-                    logExtraVerbose(`⏩ Skipping ${toolName} - ${file}, no package.json find`);
+                    logLintSkip(toolName, file, 'no package.json find');
                 }
                 return skip;
             },
@@ -661,7 +661,7 @@ export class Linters {
                 const packageJson = JSON.parse(await fs.readFile(file, 'utf8'));
                 const skip = packageJson['private'] === true;
                 if (skip) {
-                    logExtraVerbose(`⏩ Skipping ${toolName} - ${file}, because it's private`);
+                    logLintSkip(toolName, file, 'it is private');
                 }
                 return skip;
             },

@@ -100,6 +100,10 @@ export function logLintFail(toolName: string, file: string, command?: CustomExec
     }
 }
 
+export function logLintSkip(toolName: string, file: string, reason: string) {
+    logExtraVerbose(`⏩ Skipping ${toolName} - ${file}, because ${reason}`);
+}
+
 export function logFixingUnchanged(toolName: string, file: string, command?: CustomExecaProcessReturn) {
     logVerbose(`💯 Unchanged: ${TerminalColors.green}${toolName} - ${file}${TerminalColors.end}`);
     if (command) {
