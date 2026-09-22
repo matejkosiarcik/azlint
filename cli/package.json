@@ -12,13 +12,13 @@
   "dependencies": {
     "@esm2cjs/execa": "^6.1.1-cjs.1",
     "@esm2cjs/p-limit": "^4.0.0",
-    "dotenv": "^16.6.1",
+    "dotenv": "^18.0.1",
     "yargs": "^17.7.3"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^12.3.0",
     "@tsconfig/strictest": "^2.0.8",
-    "@types/node": "^22.20.4",
+    "@types/node": "^26.6.2",
     "@types/yargs": "^17.0.35",
     "modclean": "^3.0.0-beta.1",
     "node-prune": "^1.0.2",
