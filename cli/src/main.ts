@@ -55,10 +55,10 @@ import { Linters } from './linters';
     const args = await argumentParser.parse();
 
     if (fs.existsSync(path.join('.env'))) {
-        dotenv.config({ path: path.join('.env'), quiet: true });
+        dotenv.config({ path: path.join('.env'), fast: true, quiet: true });
     }
     if (fs.existsSync(path.join('azlint.env'))) {
-        dotenv.config({ path: path.join('azlint.env'), override: true, quiet: true });
+        dotenv.config({ path: path.join('azlint.env'), fast: true, override: true, quiet: true });
     }
 
     // Output `version` if requested
