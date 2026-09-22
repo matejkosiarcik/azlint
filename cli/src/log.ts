@@ -1,4 +1,3 @@
-// import { ExecaReturnValue } from 'execa';
 import { ColorOptions, CustomExecaProcessReturn } from './utils.ts';
 
 export enum LogLevel {
