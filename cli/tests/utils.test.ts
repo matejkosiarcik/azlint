@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 import { test, describe } from 'node:test';
-import { delay, hashFile, isProjectGitRepo, resolvePromiseOrValue, wildcard2regex } from '../src/utils';
+import { delay, hashFile, isProjectGitRepo, resolvePromiseOrValue, wildcard2regex } from '../src/utils.ts';
 
 describe('Utils', () => {
     test('Project is git repo', async function () {

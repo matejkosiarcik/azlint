@@ -1,5 +1,5 @@
-import { ExecaReturnValue } from '@esm2cjs/execa';
-import { ColorOptions } from "./utils";
+// import { ExecaReturnValue } from 'execa';
+import { ColorOptions, CustomExecaProcessReturn } from './utils.ts';
 
 export enum LogLevel {
     QUIET = 0,
@@ -77,7 +77,7 @@ export function logAlways(...args: unknown[]): boolean {
     return true;
 }
 
-export function logLintSuccess(toolName: string, file: string, command?: ExecaReturnValue<string>) {
+export function logLintSuccess(toolName: string, file: string, command?: CustomExecaProcessReturn) {
     logVerbose(`✅ ${TerminalColors.green}${toolName} - ${file}${TerminalColors.end}`);
     if (command) {
         const cmdOutput = command.all ? `:\n${command.all}` : '';
@@ -85,7 +85,7 @@ export function logLintSuccess(toolName: string, file: string, command?: ExecaRe
     }
 }
 
-export function logLintWarning(toolName: string, file: string, command?: ExecaReturnValue<string>) {
+export function logLintWarning(toolName: string, file: string, command?: CustomExecaProcessReturn) {
     logAlways(`⚠️ ${TerminalColors.yellow}${toolName} - ${file}${TerminalColors.end}`);
     if (command) {
         const cmdOutput = command.all ? `:\n${command.all}` : '';
@@ -93,7 +93,7 @@ export function logLintWarning(toolName: string, file: string, command?: ExecaRe
     }
 }
 
-export function logLintFail(toolName: string, file: string, command?: ExecaReturnValue<string>) {
+export function logLintFail(toolName: string, file: string, command?: CustomExecaProcessReturn) {
     logAlways(`❌ ${TerminalColors.red}${toolName} - ${file}${TerminalColors.end}`);
     if (command) {
         const cmdOutput = command.all ? `:\n${command.all}` : '';
@@ -101,7 +101,7 @@ export function logLintFail(toolName: string, file: string, command?: ExecaRetur
     }
 }
 
-export function logFixingUnchanged(toolName: string, file: string, command?: ExecaReturnValue<string>) {
+export function logFixingUnchanged(toolName: string, file: string, command?: CustomExecaProcessReturn) {
     logVerbose(`💯 Unchanged: ${TerminalColors.green}${toolName} - ${file}${TerminalColors.end}`);
     if (command) {
         const cmdOutput = command.all ? `:\n${command.all}` : '';
@@ -109,7 +109,7 @@ export function logFixingUnchanged(toolName: string, file: string, command?: Exe
     }
 }
 
-export function logFixingSuccess(toolName: string, file: string, command?: ExecaReturnValue<string>) {
+export function logFixingSuccess(toolName: string, file: string, command?: CustomExecaProcessReturn) {
     logNormal(`🛠️ Fixed: ${TerminalColors.green}${toolName} - ${file}${TerminalColors.end}`);
     if (command) {
         const cmdOutput = command.all ? `:\n${command.all}` : '';
@@ -117,13 +117,13 @@ export function logFixingSuccess(toolName: string, file: string, command?: Execa
     }
 }
 
-export function logFixingWarning(toolName: string, file: string, command: ExecaReturnValue<string>) {
+export function logFixingWarning(toolName: string, file: string, command: CustomExecaProcessReturn) {
     logAlways(`⚠️ Warning fixing: ${TerminalColors.yellow}${toolName} - ${file}${TerminalColors.end}`);
     const cmdOutput = command.all ? `:\n${command.all}` : '';
     logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`)
 }
 
-export function logFixingError(toolName: string, file: string, command: ExecaReturnValue<string>) {
+export function logFixingError(toolName: string, file: string, command: CustomExecaProcessReturn) {
     logAlways(`❗️ Error fixing: ${TerminalColors.red}${toolName} - ${file}${TerminalColors.end}`);
     const cmdOutput = command.all ? `:\n${command.all}` : '';
     logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`)

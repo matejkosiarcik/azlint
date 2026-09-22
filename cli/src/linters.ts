@@ -2,15 +2,17 @@ import fs from 'node:fs/promises';
 import fsSync from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { Options as ExecaOptions } from '@esm2cjs/execa';
-import pLimit, { LimitFunction } from '@esm2cjs/p-limit';
-import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from './log';
-import { customExeca, hashFile, isProjectGitRepo, matchFiles, OneOrArray, resolvePromiseOrValue } from './utils';
-import { getConfigArgs } from './config-files';
-import { resolveLintArgs, resolveLintOptions, resolveLintSuccessExitCode } from './linter-utils';
+import { fileURLToPath } from 'node:url';
+import { Options as ExecaOptions } from 'execa';
+import pLimit, { LimitFunction } from 'p-limit';
+import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess } from './log.ts';
+import { customExeca, hashFile, isProjectGitRepo, matchFiles, OneOrArray, resolvePromiseOrValue } from './utils.ts';
+import { getConfigArgs } from './config-files.ts';
+import { resolveLintArgs, resolveLintOptions, resolveLintSuccessExitCode } from './linter-utils.ts';
 
 // Setup paths for dependencies
-const lintersDir = path.resolve(path.join(__dirname, '..', '..', 'linters'));
+const moduleDir = path.dirname(fileURLToPath(import.meta.url));
+const lintersDir = path.resolve(path.join(moduleDir, '..', '..', 'linters'));
 
 function shouldSkipLinter(envName: string, linterName: string): boolean {
     const envEnable = 'VALIDATE_' + envName;
@@ -572,7 +574,7 @@ export class Linters {
             linterName: 'shell-dry-run',
             envName: 'SHELL_DRY_RUN',
             fileMatch: matchers.shell,
-            lintFile: { args: ['sh', path.join(__dirname, 'shell-dry-run.sh'), "#file#"] },
+            lintFile: { args: ['sh', path.join(moduleDir, 'shell-dry-run.sh'), "#file#"] },
         });
 
         // Hush
@@ -682,13 +684,13 @@ export class Linters {
             lintFile: {
                 args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '--dry-run', '--diff', '#file[abs]#'],
                 options: {
-                    cwd: path.resolve(path.join(__dirname, '..', '..', 'linters')),
+                    cwd: lintersDir,
                 },
             },
             fmtFile: {
                 args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '#file[abs]#'],
                 options: {
-                    cwd: path.resolve(path.join(__dirname, '..', 'linters')),
+                    cwd: path.resolve(path.join(moduleDir, '..', 'linters')),
                 },
             }
         });

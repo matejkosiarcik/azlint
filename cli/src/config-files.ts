@@ -1,6 +1,6 @@
 import fsSync from 'node:fs';
 import path from 'node:path';
-import { listDirectory, matchFiles } from './utils';
+import { listDirectory, matchFiles } from './utils.ts';
 
 export const configFiles = {
     // https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-via-a-file

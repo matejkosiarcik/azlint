@@ -4,8 +4,8 @@ import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 import { test, describe } from 'node:test';
-import { execa as baseExeca } from '@esm2cjs/execa';
-import { listProjectFiles } from "../src/utils";
+import { execa as baseExeca } from 'execa';
+import { listProjectFiles } from '../src/utils.ts';
 
 async function touch(...files: string[]) {
     await Promise.all(files.map(async (file) => fsx.mkdir(path.dirname(file), { recursive: true })));

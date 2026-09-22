@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { test, describe } from 'node:test';
-import { detectShell } from '../src/utils';
+import { detectShell } from '../src/utils.ts';
 
 describe('Shell detection', function () {
     let tmpDir: string;

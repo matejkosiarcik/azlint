@@ -805,7 +805,7 @@ COPY cli/package.json cli/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --no-fund --loglevel=error && \
     npx modclean --patterns default:safe --run --error-halt && \
     npx node-prune
-COPY cli/tsconfig.json ./
+COPY cli/tsconfig.json cli/rollup.config.js ./
 COPY cli/src/ ./src/
 RUN npm run build && \
     npm prune --production
@@ -886,13 +886,18 @@ RUN find '/' -type f -not -path '/proc/*' -not -path '/sys/*' >'/filelist.txt' 2
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         curl git libxml2-utils libyaml-0-2 \
         bmake make \
-        nodejs npm \
         php php-mbstring \
         python-is-python3 python3 python3-pip \
         bash dash ksh ksh93u+m mksh posh zsh \
         >'/dev/null' && \
-    rm -rf /var/lib/apt/lists/* /var/log/apt /var/log/dpkg* /var/cache/apt /usr/share/zsh/vendor-completions && \
-    find /usr/share/bug /usr/share/doc /var/cache /var/lib/apt /var/log -type f | while read -r file; do \
+    curl -fsSL 'https://deb.nodesource.com/setup_lts.x' -o '/tmp/nodesource_setup.sh' && \
+    bash '/tmp/nodesource_setup.sh' && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
+        nodejs \
+        >'/dev/null' && \
+    rm -f '/tmp/nodesource_setup.sh' && \
+    rm -rf /var/lib/apt/lists/* '/var/log/apt' /var/log/dpkg* '/var/cache/apt' '/usr/share/zsh/vendor-completions' && \
+    find '/usr/share/bug' '/usr/share/doc' '/var/cache' '/var/lib/apt' '/var/log' -type f | while read -r file; do \
         if ! grep -- "${file}" <'/filelist.txt' >'/dev/null'; then \
             rm -f "${file}" && \
         true; fi && \
