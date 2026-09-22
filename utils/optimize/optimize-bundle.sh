@@ -1,7 +1,7 @@
 #!/bin/sh
 set -euf
 
-# shellcheck source=utils/optimize/.common.sh
+# shellcheck source=./utils/optimize/.common.sh
 . "$(dirname "$0")/.common.sh"
 
 # cleanDependencies bundle
@@ -46,9 +46,9 @@ set -euf
 #     -iname '*.yardopts' \
 #     \) -delete
 
-removeEmptyDirectories bundle
+removeEmptyDirectories './bundle'
 
 ### Minify files ###
 
-minifyJsonFiles bundle
-minifyYamlFiles bundle
+minifyJsonFiles './bundle'
+minifyYamlFiles './bundle'

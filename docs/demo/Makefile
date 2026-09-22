@@ -17,15 +17,15 @@ bootstrap:
 	npm ci --no-save --no-progress --no-audit --no-fund --loglevel=error
 
 	# check if virtual environment exists or create it
-	[ -n "$${VIRTUAL_ENV+x}" ] || [ -d venv ] \
-		|| python3 -m venv venv \
-		|| python -m venv venv \
-		|| virtualenv venv \
-		|| mkvirtualenv venv
+	[ -n "$${VIRTUAL_ENV+x}" ] || [ -d './venv' ] \
+		|| python3 -m venv './venv' \
+		|| python -m venv './venv' \
+		|| virtualenv './venv' \
+		|| mkvirtualenv './venv'
 
-	python3 -m pip install --requirement requirements.txt
+	python3 -m pip install --requirement './requirements.txt'
 	gitman install
 
 .PHONY: record
 record:
-	sh main.sh
+	sh './main.sh'

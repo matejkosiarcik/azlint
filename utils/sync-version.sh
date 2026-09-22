@@ -3,7 +3,7 @@ set -euf
 cd "$(git rev-parse --show-toplevel)"
 
 tmpfile="$(mktemp)"
-version="$(cat VERSION.txt)"
+version="$(cat './VERSION.txt')"
 date="$(date +'%Y-%m-%d')"
 
 # package.json
@@ -11,7 +11,7 @@ date="$(date +'%Y-%m-%d')"
 # mv "${tmpfile}" package.json
 
 # CHANGELOG
-sed "s~## \\\\\\[Unreleased\\\\\\]~## \\\\[Unreleased\\\\]\n\n## \\\\[${version}\\\\] - ${date}~g" <CHANGELOG.md >"${tmpfile}"
-mv "${tmpfile}" CHANGELOG.md
+sed "s~## \\\\\\[Unreleased\\\\\\]~## \\\\[Unreleased\\\\]\n\n## \\\\[${version}\\\\] - ${date}~g" <'./CHANGELOG.md' >"${tmpfile}"
+mv "${tmpfile}" './CHANGELOG.md'
 
 rm -f "${tmpfile}"

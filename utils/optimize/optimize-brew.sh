@@ -1,13 +1,13 @@
 #!/bin/sh
 set -euf
 
-# shellcheck source=utils/optimize/.common.sh
+# shellcheck source=./utils/optimize/.common.sh
 . "$(dirname "$0")/.common.sh"
 
 # Remove all files not found in access log
 accesslist="$(mktemp)"
-sort </app/brew-list.txt | uniq >"${accesslist}"
-find /home/linuxbrew -type f | while read -r file; do
+sort <'/app/brew-list.txt' | uniq >"${accesslist}"
+find '/home/linuxbrew' -type f | while read -r file; do
     file_found=1
     grep -- "${file}" <"${accesslist}" || file_found=0
     if [ "${file_found}" -eq 0 ]; then
@@ -16,7 +16,7 @@ find /home/linuxbrew -type f | while read -r file; do
 done
 rm -f "${accesslist}"
 
-find /home/linuxbrew -type d \( \
+find '/home/linuxbrew' -type d \( \
     -name .bundle -or \
     -name .devcontainer -or \
     -name .git -or \
@@ -37,9 +37,9 @@ find /home/linuxbrew -type d \( \
     -name yard \
     \) -prune -exec rm -rf {} \;
 
-removeEmptyDirectories /home/linuxbrew
+removeEmptyDirectories '/home/linuxbrew'
 
 ### Minify files ###
 
-minifyJsonFiles /home/linuxbrew
-minifyYamlFiles /home/linuxbrew
+minifyJsonFiles '/home/linuxbrew'
+minifyYamlFiles '/home/linuxbrew'
