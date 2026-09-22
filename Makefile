@@ -35,7 +35,7 @@ bootstrap:
 
 	find './linters/gitman-repos' -mindepth 1 -maxdepth 1 -type d -print0 | \
 		PATH="$(PROJECT_DIR)/build-dependencies/gitman/venv/bin:$${PATH}" xargs -0 -n1 -P0 gitman install --quiet --force --root
-	if [ "$(shell uname -s)" != Linux ]; then \
+	if [ "$$(uname -s)" != Linux ]; then \
 		sh './utils/apply-git-patches.sh' './linters/git-patches/loksh' './linters/gitman-repos/shell-loksh/gitman/loksh' && \
 	true; fi
 
@@ -137,7 +137,7 @@ docker-run-multiarch:
 .PHONY: clean
 clean:
 	if [ -e "$(PROJECT_DIR)/linters/go" ]; then \
-		chown -R "$(shell whoami)" "$(PROJECT_DIR)/linters/go" && \
+		chown -R "$$(whoami)" "$(PROJECT_DIR)/linters/go" && \
 		find "$(PROJECT_DIR)/linters/go" -type f -exec chmod 0644 {} \; && \
 		find "$(PROJECT_DIR)/linters/go" -type d -exec chmod 0755 {} \; && \
 	true; fi
