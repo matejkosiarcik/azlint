@@ -1,16 +1,16 @@
 #!/bin/sh
 set -euf
 
-# shellcheck source=utils/optimize/.common.sh
+# shellcheck source=./utils/optimize/.common.sh
 . "$(dirname "$0")/.common.sh"
 
-cleanDependencies vendor
+cleanDependencies './vendor'
 
-find vendor -type f -iname '*.lock' -delete
+find './vendor' -type f -iname '*.lock' -delete
 
-removeEmptyDirectories vendor
+removeEmptyDirectories './vendor'
 
 ### Minify files ###
 
-minifyJsonFiles vendor
-minifyYamlFiles vendor
+minifyJsonFiles './vendor'
+minifyYamlFiles './vendor'

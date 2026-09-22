@@ -13,14 +13,14 @@ sh -c 'true'
 zsh -c 'true'
 
 # Make
-bmake -n -f /dev/null /dev/null
-# TODO: Re-enable: bsdmake -n -f /dev/null /dev/null
+bmake -n -f '/dev/null' '/dev/null'
+# TODO: Re-enable: bsdmake -n -f '/dev/null' '/dev/null'
 make --help
 make --version
-make -n -f /dev/null /dev/null
+make -n -f '/dev/null' '/dev/null'
 gmake --help
 gmake --version
-gmake -n -f /dev/null /dev/null
+gmake -n -f '/dev/null' '/dev/null'
 
 # Other
 git --help

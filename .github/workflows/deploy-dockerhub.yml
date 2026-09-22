@@ -92,14 +92,14 @@ jobs:
         env:
           DIGEST: ${{ steps.build.outputs.digest }}
         run: |
-          mkdir -p /tmp/digests
+          mkdir -p '/tmp/digests'
           touch "/tmp/digests/${DIGEST#sha256:}"
 
       - name: Upload digest
         uses: actions/upload-artifact@v7.0.1
         with:
           name: digest-${{ env.DOCKER_PLATFORM }}
-          path: /tmp/digests/*
+          path: "/tmp/digests/*"
           if-no-files-found: error
           retention-days: 1
 
@@ -142,7 +142,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Debug digests
-        working-directory: /tmp/digests
+        working-directory: "/tmp/digests"
         run: |
           printf 'Digests: %s\n' "$(printf '${{ env.DOCKER_IMAGE }}@sha256:%s ' *)"
 
@@ -158,7 +158,7 @@ jobs:
           printf 'Tags parsed json: %s\n' "$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "${DOCKER_METADATA_OUTPUT_JSON}")"
 
       - name: Create manifest list and push
-        working-directory: /tmp/digests
+        working-directory: "/tmp/digests"
         run: |
           # shellcheck disable=SC2046
           docker buildx imagetools create \

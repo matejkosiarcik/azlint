@@ -1,22 +1,22 @@
 #!/bin/sh
 set -euf
 
-# shellcheck source=utils/optimize/.common.sh
+# shellcheck source=./utils/optimize/.common.sh
 . "$(dirname "$0")/.common.sh"
 
-cleanDependencies node_modules
+cleanDependencies './node_modules'
 
 # lockfiles
-find node_modules -type f \( \
+find './node_modules' -type f \( \
     -iname 'package-lock.json' -or \
     -iname '*.lock' \
     \) -delete
 
 # Unused yargs locales
-find node_modules -ipath '*/locale*/*' -iname '*.json' -not -iname 'en*.json' -delete
+find './node_modules' -ipath '*/locale*/*' -iname '*.json' -not -iname 'en*.json' -delete
 
 # JS preprocessors left unprocessed
-find node_modules -type f \( \
+find './node_modules' -type f \( \
     -iname '*.coffee' -or \
     -iname '*.ts' -or \
     -iname '*.flow' -or \
@@ -24,13 +24,13 @@ find node_modules -type f \( \
     \) -delete
 
 # Other languages
-find node_modules -type f \( \
+find './node_modules' -type f \( \
     -iname '*.py' -or \
     -iname '*.py-js' \
     \) -delete
 
 # Misc
-find node_modules -type f \( \
+find './node_modules' -type f \( \
     -iname '*.bnf' -or \
     -iname '*.conf' -or \
     -iname '*.cts' -or \
@@ -55,15 +55,15 @@ find node_modules -type f \( \
     -iname '*.tm_properties' \
     \) -delete
 
-removeEmptyDirectories node_modules
+removeEmptyDirectories './node_modules'
 
 ### Minify files ###
 
-minifyJsonFiles node_modules
+minifyJsonFiles './node_modules'
 
 # Remove extra keys from `package.json`s
-find node_modules -iname 'package.json' | while read -r file; do
+find './node_modules' -iname 'package.json' | while read -r file; do
     jq -c '. | to_entries | map(select(.key | test("^(description|engine|engines|exports|imports|main|module|name|type|version)$"))) | from_entries' <"${file}" | sponge "${file}"
 done
 
-minifyYamlFiles node_modules
+minifyYamlFiles './node_modules'

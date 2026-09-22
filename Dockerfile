@@ -26,7 +26,7 @@ COPY utils/rust/get-target-arch.sh ./
 ARG TARGETARCH
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
-        "binutils-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" file moreutils >/dev/null && \
+        "binutils-$(sh './get-target-arch.sh' | tr '_' '-')-linux-gnu" file moreutils >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/validate-executable.sh ./
 
@@ -47,7 +47,7 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY build-dependencies/gitman/requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install --requirement requirements.txt --target './python-vendor' --quiet
+    python3 -m pip install --requirement './requirements.txt' --target './python-vendor' --quiet
 ENV PATH="/app/python-vendor/bin:${PATH}" \
     PYTHONPATH=/app/python-vendor
 
@@ -55,7 +55,7 @@ ENV PATH="/app/python-vendor/bin:${PATH}" \
 FROM --platform=${BUILDPLATFORM} gitman__base AS rbenv__gitman
 COPY linters/gitman-repos/rbenv-install/gitman.yml ./
 RUN gitman install --quiet && \
-    find . -type d -name .git -prune -exec rm -rf {} \;
+    find '.' -type d -name '.git' -prune -exec rm -rf {} \;
 
 # Dependency optimizer #
 FROM --platform=${BUILDPLATFORM} debian:13.6-slim AS directory_optimizer__base
@@ -64,13 +64,13 @@ COPY utils/rust/get-target-arch.sh ./
 ARG TARGETARCH
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
-        "binutils-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" file jq moreutils nodejs npm python3 python3-pip >/dev/null && \
+        "binutils-$(sh './get-target-arch.sh' | tr '_' '-')-linux-gnu" file jq moreutils nodejs npm python3 python3-pip >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 COPY build-dependencies/yq/requirements.txt ./yq/
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install --requirement yq/requirements.txt --target './yq/python-vendor' --quiet
+    python3 -m pip install --requirement './yq/requirements.txt' --target './yq/python-vendor' --quiet
 COPY build-dependencies/yaml-minifier/package.json build-dependencies/yaml-minifier/package-lock.json ./yaml-minifier/
-RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --no-fund --loglevel=error --prefix yaml-minifier
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --no-fund --loglevel=error --prefix './yaml-minifier'
 ENV PATH="/optimizations/yq/python-vendor/bin:${PATH}" \
     PYTHONPATH=/optimizations/yq/python-vendor
 COPY build-dependencies/yaml-minifier/minify-yaml.js ./yaml-minifier/
@@ -94,8 +94,8 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 FROM --platform=${BUILDPLATFORM} executable_optimizer__base AS linters__go__actionlint__optimize
 COPY --from=linters__go__actionlint__build /app/go/bin/actionlint ./bin/
 ARG TARGETARCH
-RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/actionlint && \
-    sh validate-executable.sh bin/actionlint
+RUN "$(sh './get-target-arch.sh')-linux-gnu-strip" --strip-all './bin/actionlint' && \
+    sh './validate-executable.sh' './bin/actionlint'
 
 FROM --platform=${BUILDPLATFORM} helper__upx__final AS linters__go__actionlint__upx
 COPY --from=linters__go__actionlint__optimize /app/bin/actionlint ./
@@ -107,7 +107,7 @@ ENV BINPREFIX=/app/bin/
 COPY --from=linters__go__actionlint__upx /app/actionlint ./
 WORKDIR /app
 COPY utils/sanity-check/go-actionlint.sh ./sanity-check.sh
-RUN sh sanity-check.sh
+RUN sh './sanity-check.sh'
 
 FROM --platform=${BUILDPLATFORM} gitman__base AS linters__go__shfmt__gitman
 COPY linters/gitman-repos/go-shfmt/gitman.yml ./
@@ -121,7 +121,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     --mount=type=cache,target=/app/go/pkg \
     export GOPATH="${PWD}/go" GOOS="${TARGETOS}" GOARCH="${TARGETARCH}" GO111MODULE=on && \
-    chronic go install -ldflags='-s -w -buildid=' "mvdan.cc/sh/v3/cmd/shfmt@v$(sh git-latest-version.sh shfmt)" && \
+    chronic go install -ldflags='-s -w -buildid=' "mvdan.cc/sh/v3/cmd/shfmt@v$(sh './git-latest-version.sh' './shfmt')" && \
     if [ "${BUILDARCH}" != "${TARGETARCH}" ]; then \
         mv "./go/bin/linux_${TARGETARCH}/shfmt" './go/bin/shfmt' && \
     true; fi
@@ -129,8 +129,8 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 FROM --platform=${BUILDPLATFORM} executable_optimizer__base AS linters__go__shfmt__optimize
 COPY --from=linters__go__shfmt__build /app/go/bin/shfmt ./bin/
 ARG TARGETARCH
-RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/shfmt && \
-    sh validate-executable.sh bin/shfmt
+RUN "$(sh './get-target-arch.sh')-linux-gnu-strip" --strip-all './bin/shfmt' && \
+    sh './validate-executable.sh' './bin/shfmt'
 
 FROM --platform=${BUILDPLATFORM} helper__upx__final AS linters__go__shfmt__upx
 COPY --from=linters__go__shfmt__optimize /app/bin/shfmt ./
@@ -142,7 +142,7 @@ ENV BINPREFIX=/app/bin/
 COPY --from=linters__go__shfmt__upx /app/shfmt ./
 WORKDIR /app
 COPY utils/sanity-check/go-shfmt.sh ./sanity-check.sh
-RUN sh sanity-check.sh
+RUN sh './sanity-check.sh'
 
 FROM --platform=${BUILDPLATFORM} gitman__base AS linters__go__stoml__gitman
 COPY linters/gitman-repos/go-stoml/gitman.yml ./
@@ -156,7 +156,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     --mount=type=cache,target=/app/go/pkg \
     export GOPATH="${PWD}/go" GOOS="${TARGETOS}" GOARCH="${TARGETARCH}" GO111MODULE=on && \
-    chronic go install -ldflags='-s -w -buildid=' "github.com/freshautomations/stoml@v$(sh git-latest-version.sh stoml)" && \
+    chronic go install -ldflags='-s -w -buildid=' "github.com/freshautomations/stoml@v$(sh './git-latest-version.sh' './stoml')" && \
     if [ "${BUILDARCH}" != "${TARGETARCH}" ]; then \
         mv "./go/bin/linux_${TARGETARCH}/stoml" './go/bin/stoml' && \
     true; fi
@@ -164,8 +164,8 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 FROM --platform=${BUILDPLATFORM} executable_optimizer__base AS linters__go__stoml__optimize
 COPY --from=linters__go__stoml__build /app/go/bin/stoml ./bin/
 ARG TARGETARCH
-RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/stoml && \
-    sh validate-executable.sh bin/stoml
+RUN "$(sh './get-target-arch.sh')-linux-gnu-strip" --strip-all './bin/stoml' && \
+    sh './validate-executable.sh' './bin/stoml'
 
 FROM --platform=${BUILDPLATFORM} helper__upx__final AS linters__go__stoml__upx
 COPY --from=linters__go__stoml__optimize /app/bin/stoml ./
@@ -177,7 +177,7 @@ ENV BINPREFIX=/app/bin/
 COPY --from=linters__go__stoml__upx /app/stoml ./
 WORKDIR /app
 COPY utils/sanity-check/go-stoml.sh ./sanity-check.sh
-RUN sh sanity-check.sh
+RUN sh './sanity-check.sh'
 
 FROM --platform=${BUILDPLATFORM} go_builder__base AS linters__go__tomljson__build
 ARG BUILDARCH TARGETARCH TARGETOS
@@ -193,8 +193,8 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 FROM --platform=${BUILDPLATFORM} executable_optimizer__base AS linters__go__tomljson__optimize
 COPY --from=linters__go__tomljson__build /app/go/bin/tomljson ./bin/
 ARG TARGETARCH
-RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/tomljson && \
-    sh validate-executable.sh bin/tomljson
+RUN "$(sh './get-target-arch.sh')-linux-gnu-strip" --strip-all './bin/tomljson' && \
+    sh './validate-executable.sh' './bin/tomljson'
 
 FROM --platform=${BUILDPLATFORM} helper__upx__final AS linters__go__tomljson__upx
 COPY --from=linters__go__tomljson__optimize /app/bin/tomljson ./
@@ -206,15 +206,15 @@ ENV BINPREFIX=/app/bin/
 COPY --from=linters__go__tomljson__upx /app/tomljson ./
 WORKDIR /app
 COPY utils/sanity-check/go-tomljson.sh ./sanity-check.sh
-RUN sh sanity-check.sh
+RUN sh './sanity-check.sh'
 
 FROM --platform=${BUILDPLATFORM} gitman__base AS linters__go__checkmake__gitman
 COPY linters/gitman-repos/go-checkmake/gitman.yml ./
 RUN gitman install --quiet && \
-    find . -type d -name .git -prune -exec rm -rf {} \;
+    find '.' -type d -name '.git' -prune -exec rm -rf {} \;
 COPY utils/apply-git-patches.sh ./
 COPY linters/git-patches/checkmake ./git-patches
-RUN sh apply-git-patches.sh git-patches gitman/checkmake
+RUN sh './apply-git-patches.sh' './git-patches' './gitman/checkmake'
 
 FROM --platform=${BUILDPLATFORM} go_builder__base AS linters__go__checkmake__build
 RUN apt-get update -qq && \
@@ -231,8 +231,8 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 FROM --platform=${BUILDPLATFORM} executable_optimizer__base AS go_checkmake__optimize
 COPY --from=linters__go__checkmake__build /app/checkmake/checkmake ./bin/
 ARG TARGETARCH
-RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/checkmake && \
-    sh validate-executable.sh bin/checkmake
+RUN "$(sh './get-target-arch.sh')-linux-gnu-strip" --strip-all './bin/checkmake' && \
+    sh './validate-executable.sh' './bin/checkmake'
 
 FROM --platform=${BUILDPLATFORM} helper__upx__final AS go_checkmake__upx
 COPY --from=go_checkmake__optimize /app/bin/checkmake ./
@@ -244,15 +244,15 @@ ENV BINPREFIX=/app/bin/
 COPY --from=go_checkmake__upx /app/checkmake ./
 WORKDIR /app
 COPY utils/sanity-check/go-checkmake.sh ./sanity-check.sh
-RUN sh sanity-check.sh
+RUN sh './sanity-check.sh'
 
 FROM --platform=${BUILDPLATFORM} gitman__base AS linters__go__editorconfig_checker__gitman
 COPY linters/gitman-repos/go-editorconfig-checker/gitman.yml ./
 RUN gitman install --quiet && \
-    find . -type d -name .git -prune -exec rm -rf {} \;
+    find '.' -type d -name '.git' -prune -exec rm -rf {} \;
 COPY utils/apply-git-patches.sh ./
 COPY linters/git-patches/editorconfig-checker ./git-patches
-RUN sh apply-git-patches.sh git-patches gitman/editorconfig-checker
+RUN sh './apply-git-patches.sh' './git-patches' './gitman/editorconfig-checker'
 
 FROM --platform=${BUILDPLATFORM} go_builder__base AS linters__go__editorconfig_checker__build
 COPY --from=linters__go__editorconfig_checker__gitman /app/gitman/editorconfig-checker /app/editorconfig-checker
@@ -265,8 +265,8 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 FROM --platform=${BUILDPLATFORM} executable_optimizer__base AS linters__go__editorconfig_checker__optimize
 COPY --from=linters__go__editorconfig_checker__build /app/editorconfig-checker/bin/editorconfig-checker ./bin/
 ARG TARGETARCH
-RUN "$(sh get-target-arch.sh)-linux-gnu-strip" --strip-all bin/editorconfig-checker && \
-    sh validate-executable.sh bin/editorconfig-checker
+RUN "$(sh './get-target-arch.sh')-linux-gnu-strip" --strip-all './bin/editorconfig-checker' && \
+    sh './validate-executable.sh' './bin/editorconfig-checker'
 
 FROM --platform=${BUILDPLATFORM} helper__upx__final AS linters__go__editorconfig_checker__upx
 COPY --from=linters__go__editorconfig_checker__optimize /app/bin/editorconfig-checker ./
@@ -278,7 +278,7 @@ ENV BINPREFIX=/app/bin/
 COPY --from=linters__go__editorconfig_checker__upx /app/editorconfig-checker ./
 WORKDIR /app
 COPY utils/sanity-check/go-editorconfig-checker.sh ./sanity-check.sh
-RUN sh sanity-check.sh
+RUN sh './sanity-check.sh'
 
 FROM bins_aggregator__base AS linters__go__final
 WORKDIR /app/bin
@@ -298,11 +298,11 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY build-dependencies/yq/requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install --requirement requirements.txt --target './python-vendor' --quiet
+    python3 -m pip install --requirement './requirements.txt' --target './python-vendor' --quiet
 ENV PATH="/app/python-vendor/bin:${PATH}" \
     PYTHONPATH=/app/python-vendor
 COPY linters/Cargo.toml ./
-RUN tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' Cargo.toml >cargo-dependencies.txt
+RUN tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' './Cargo.toml' >'./cargo-dependencies.txt'
 
 # Rust #
 FROM --platform=${BUILDPLATFORM} rust:1.98.1-slim-trixie AS linters__rust__build
@@ -316,12 +316,12 @@ COPY utils/rust/get-target-arch.sh ./
 RUN if [ "${BUILDARCH}" != "${TARGETARCH}" ]; then \
         apt-get update -qq && \
         DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
-            "gcc-$(sh get-target-arch.sh | tr '_' '-')-linux-gnu" "libc6-dev-${TARGETARCH}-cross" >/dev/null && \
+            "gcc-$(sh './get-target-arch.sh' | tr '_' '-')-linux-gnu" "libc6-dev-${TARGETARCH}-cross" >'/dev/null' && \
         rm -rf /var/lib/apt/lists/* && \
     true; fi
 COPY utils/rust/get-target-tripple.sh ./
 RUN if [ "${BUILDARCH}" != "${TARGETARCH}" ]; then \
-        rustup target add "$(sh get-target-tripple.sh)" && \
+        rustup target add "$(sh './get-target-tripple.sh')" && \
     true; fi
 ENV CARGO_PROFILE_RELEASE_LTO=true \
     CARGO_PROFILE_RELEASE_PANIC=abort \
@@ -334,19 +334,19 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
         export \
             HOST_CC=gcc \
             HOST_CXX=g++ \
-            "AR_$(sh get-target-arch.sh)_unknown_linux_gnu=/usr/bin/$(sh get-target-arch.sh)-linux-gnu-ar" \
-            "CC_$(sh get-target-arch.sh)_unknown_linux_gnu=/usr/bin/$(sh get-target-arch.sh)-linux-gnu-gcc" \
-            "CARGO_TARGET_$(sh get-target-arch.sh | tr '[:lower:]' '[:upper:]')_UNKNOWN_LINUX_GNU_LINKER=/usr/bin/$(sh get-target-arch.sh)-linux-gnu-gcc" \
+            "AR_$(sh './get-target-arch.sh')_unknown_linux_gnu=/usr/bin/$(sh './get-target-arch.sh')-linux-gnu-ar" \
+            "CC_$(sh './get-target-arch.sh')_unknown_linux_gnu=/usr/bin/$(sh './get-target-arch.sh')-linux-gnu-gcc" \
+            "CARGO_TARGET_$(sh './get-target-arch.sh' | tr '[:lower:]' '[:upper:]')_UNKNOWN_LINUX_GNU_LINKER=/usr/bin/$(sh './get-target-arch.sh')-linux-gnu-gcc" \
         && \
     true; fi && \
     while read -r package version; do \
-        cargo install "${package}" --quiet --force --version "${version}" --root "${PWD}/cargo" --target "$(sh get-target-tripple.sh)" && \
-    true; done <cargo-dependencies.txt
+        cargo install "${package}" --quiet --force --version "${version}" --root "${PWD}/cargo" --target "$(sh './get-target-tripple.sh')" && \
+    true; done <'./cargo-dependencies.txt'
 
 FROM --platform=${BUILDPLATFORM} executable_optimizer__base AS linters__rust__optimize
 COPY --from=linters__rust__build /app/cargo/bin ./bin/
 # NOTE: `strip` is skipped, because it has no effect here
-RUN find bin -type f -exec sh validate-executable.sh {} \;
+RUN find './bin' -type f -exec sh './validate-executable.sh' {} \;
 
 FROM --platform=${BUILDPLATFORM} helper__upx__final AS rust__upx
 COPY --from=linters__rust__optimize /app/bin ./
@@ -358,13 +358,13 @@ ENV BINPREFIX=/app/bin/
 COPY --from=rust__upx /app ./
 WORKDIR /app
 COPY utils/sanity-check/rust.sh ./sanity-check.sh
-RUN sh sanity-check.sh
+RUN sh './sanity-check.sh'
 
 # CircleCI CLI #
 FROM --platform=${BUILDPLATFORM} gitman__base AS linters__circleci__gitman
 COPY linters/gitman-repos/circleci-cli/gitman.yml ./
 RUN gitman install --quiet && \
-    find . -type d -name .git -prune -exec rm -rf {} \;
+    find '.' -type d -name '.git' -prune -exec rm -rf {} \;
 
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
 FROM debian:13.6-slim AS linters__circleci__base
@@ -374,7 +374,7 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=linters__circleci__gitman /app/gitman/circleci-cli /app/circleci-cli
 WORKDIR /app/circleci-cli
-RUN bash install.sh
+RUN bash './install.sh'
 
 FROM --platform=${BUILDPLATFORM} helper__upx__final AS circleci__upx
 COPY --from=linters__circleci__base /usr/local/bin/circleci ./
@@ -384,8 +384,8 @@ FROM bins_aggregator__base AS linters__circleci__final
 COPY utils/sanity-check/circleci.sh ./sanity-check.sh
 COPY --from=circleci__upx /app/circleci ./bin/
 ENV BINPREFIX=/app/bin/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+RUN sh './sanity-check.sh' && \
+    rm -f './sanity-check.sh'
 
 # Shell - loksh #
 FROM --platform=${BUILDPLATFORM} gitman__base AS linters__shell__loksh__gitman
@@ -400,14 +400,14 @@ RUN apt-get update -qq && \
 COPY --from=linters__shell__loksh__gitman /app/gitman/loksh /app/loksh
 WORKDIR /app/loksh
 RUN CC="gcc -flto -fuse-linker-plugin -Wl,--build-id=none" \
-    meson setup --fatal-meson-warnings --buildtype release --optimization s --strip --prefix="${PWD}/install" build && \
-    ninja --quiet -C build install && \
-    mv /app/loksh/install/bin/ksh /app/loksh/install/bin/loksh
+    meson setup --fatal-meson-warnings --buildtype release --optimization s --strip --prefix="${PWD}/install" './build' && \
+    ninja --quiet -C './build' install && \
+    mv '/app/loksh/install/bin/ksh' '/app/loksh/install/bin/loksh'
 
 FROM --platform=${BUILDPLATFORM} executable_optimizer__base AS shell_loksh__optimize
 COPY --from=linters__shell__loksh__base /app/loksh/install/bin/loksh ./bin/
 # NOTE: `strip` is skipped, because it has no effect here
-RUN sh validate-executable.sh bin/loksh
+RUN sh './validate-executable.sh' './bin/loksh'
 
 FROM --platform=${BUILDPLATFORM} helper__upx__final AS linters__shell__loksh__upx
 COPY --from=shell_loksh__optimize /app/bin/loksh ./
@@ -417,14 +417,14 @@ FROM bins_aggregator__base AS linters__shell__loksh__final
 COPY --from=linters__shell__loksh__upx /app/loksh ./bin/
 COPY utils/sanity-check/shell-loksh.sh ./sanity-check.sh
 ENV BINPREFIX=/app/bin/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+RUN sh './sanity-check.sh' && \
+    rm -f './sanity-check.sh'
 
 # Shell - oksh #
 FROM --platform=${BUILDPLATFORM} gitman__base AS linters__shell__oksh__gitman
 COPY linters/gitman-repos/shell-oksh/gitman.yml ./
 RUN gitman install --quiet && \
-    find . -type d -name .git -prune -exec rm -rf {} \;
+    find '.' -type d -name '.git' -prune -exec rm -rf {} \;
 
 FROM debian:13.6-slim AS linters__shell__oksh__base
 RUN apt-get update -qq && \
@@ -433,14 +433,14 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=linters__shell__oksh__gitman /app/gitman/oksh /app/oksh
 WORKDIR /app/oksh
-RUN ./configure --enable-small --enable-lto --cc='gcc -Os -Wl,--build-id=none' && \
+RUN './configure' --enable-small --enable-lto --cc='gcc -Os -Wl,--build-id=none' && \
     make --silent && \
     DESTDIR="${PWD}/install" make install --silent
 
 FROM --platform=${BUILDPLATFORM} executable_optimizer__base AS linters__shell__oksh__optimize
 COPY --from=linters__shell__oksh__base /app/oksh/install/usr/local/bin/oksh ./bin/
 # NOTE: `strip` is skipped, because it has no effect here
-RUN sh validate-executable.sh bin/oksh
+RUN sh './validate-executable.sh' './bin/oksh'
 
 FROM --platform=${BUILDPLATFORM} helper__upx__final AS linters__shell__oksh__upx
 COPY --from=linters__shell__oksh__optimize /app/bin/oksh ./
@@ -450,8 +450,8 @@ FROM bins_aggregator__base AS linters__shell_oksh__final
 COPY --from=linters__shell__oksh__upx /app/oksh ./bin/
 COPY utils/sanity-check/shell-oksh.sh ./sanity-check.sh
 ENV BINPREFIX=/app/bin/
-RUN sh sanity-check.sh && \
-    rm -f sanity-check.sh
+RUN sh './sanity-check.sh' && \
+    rm -f './sanity-check.sh'
 
 # ShellCheck #
 FROM koalaman/shellcheck:v0.10.0 AS linters__shellcheck__base
@@ -466,7 +466,7 @@ ENV BINPREFIX=/app/bin/
 COPY --from=shellcheck__upx /app/shellcheck ./
 WORKDIR /app
 COPY utils/sanity-check/haskell-shellcheck.sh ./sanity-check.sh
-RUN sh sanity-check.sh
+RUN sh './sanity-check.sh'
 
 # Hadolint #
 FROM hadolint/hadolint:v2.12.0 AS linters__hadolint__base
@@ -481,7 +481,7 @@ ENV BINPREFIX=/app/bin/
 COPY --from=hadolint__upx /app/hadolint ./
 WORKDIR /app
 COPY utils/sanity-check/haskell-hadolint.sh ./sanity-check.sh
-RUN sh sanity-check.sh
+RUN sh './sanity-check.sh'
 
 FROM bins_aggregator__base AS linters__haskell__final
 WORKDIR /app/bin
@@ -499,7 +499,7 @@ RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress
 FROM --platform=${BUILDPLATFORM} directory_optimizer__base AS linters__nodejs__optimize
 COPY utils/optimize/optimize-nodejs.sh /optimizations/
 COPY --from=linters__nodejs__base /app/node_modules ./node_modules
-RUN sh /optimizations/optimize-nodejs.sh
+RUN sh '/optimizations/optimize-nodejs.sh'
 
 FROM debian:13.6-slim AS linters__nodejs__final
 WORKDIR /app
@@ -510,7 +510,7 @@ RUN apt-get update -qq && \
 COPY utils/sanity-check/nodejs.sh ./sanity-check.sh
 COPY --from=linters__nodejs__optimize /app/node_modules ./node_modules
 ENV BINPREFIX=/app/node_modules/.bin/
-RUN sh sanity-check.sh
+RUN sh './sanity-check.sh'
 
 # Ruby/Gem #
 
@@ -525,16 +525,16 @@ RUN apt-get update -qq && \
 COPY --from=rbenv__gitman /app/gitman/rbenv-installer ./rbenv-installer
 ENV PATH="${PATH}:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims" \
     RBENV_ROOT=/.rbenv
-RUN bash rbenv-installer/bin/rbenv-installer
+RUN bash './rbenv-installer/bin/rbenv-installer'
 COPY ./utils/rbenv-install-logging.sh /utils/
 COPY ./.ruby-version ./
 # hadolint ignore=DL3001
 RUN --mount=type=cache,target=/.rbenv/cache \
-    ruby_version="$(cat .ruby-version)" && \
+    ruby_version="$(cat './.ruby-version')" && \
     (sh '/utils/rbenv-install-logging.sh' &) && \
     chronic rbenv install "${ruby_version}" && \
     kill "$(cat './logging-pid.txt')" && \
-    ln -s "/.rbenv/versions/${ruby_version}" /.rbenv/versions/current
+    ln -s "/.rbenv/versions/${ruby_version}" '/.rbenv/versions/current'
 
 FROM debian:13.6-slim AS linters__ruby__base
 WORKDIR /app
@@ -556,7 +556,7 @@ FROM --platform=${BUILDPLATFORM} directory_optimizer__base AS linters__ruby__opt
 COPY utils/optimize/optimize-bundle.sh /optimizations/
 COPY --from=rbenv__install /.rbenv/versions /.rbenv/versions
 COPY --from=linters__ruby__base /app/bundle ./bundle
-RUN sh /optimizations/optimize-bundle.sh
+RUN sh '/optimizations/optimize-bundle.sh'
 
 FROM debian:13.6-slim AS linters__ruby__final
 WORKDIR /app
@@ -574,7 +574,7 @@ ENV BUNDLE_DISABLE_SHARED_GEMS=true \
     BUNDLE_PATH__SYSTEM=false \
     BUNDLE_PATH=/app/bundle \
     PATH="${PATH}:/.rbenv/versions/current/bin"
-RUN sh sanity-check.sh
+RUN sh './sanity-check.sh'
 
 # Python/Pip #
 FROM debian:13.6-slim AS linters__python__base
@@ -588,7 +588,7 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_ROOT_USER_ACTION=ignore \
     PYTHONDONTWRITEBYTECODE=1
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install --requirement requirements.txt --target './python-vendor' --quiet
+    python3 -m pip install --requirement './requirements.txt' --target './python-vendor' --quiet
 
 FROM --platform=${BUILDPLATFORM} directory_optimizer__base AS linters__python__optimize
 COPY utils/optimize/optimize-python.sh /optimizations/
@@ -609,7 +609,7 @@ ENV BINPREFIX=/app/python-vendor/bin/ \
     PIP_ROOT_USER_ACTION=ignore \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app/python-vendor
-RUN sh sanity-check.sh
+RUN sh './sanity-check.sh'
 
 # Composer #
 FROM composer:2.8.6 AS linters__composer_bin__base
@@ -632,7 +632,7 @@ RUN composer install --no-cache --quiet
 FROM --platform=${BUILDPLATFORM} directory_optimizer__base AS composer_vendor__optimize
 COPY utils/optimize/optimize-composer.sh /optimizations/
 COPY --from=linters__composer_vendor__base /app/vendor ./vendor
-RUN sh /optimizations/optimize-composer.sh
+RUN sh '/optimizations/optimize-composer.sh'
 
 FROM debian:13.6-slim AS linters__composer__final
 WORKDIR /app
@@ -647,13 +647,13 @@ COPY --from=linters__composer_bin__optimize /app/bin/composer ./bin/
 ENV BINPREFIX=/app/bin/ \
     VENDORPREFIX=/app/linters/ \
     COMPOSER_ALLOW_SUPERUSER=1
-RUN sh sanity-check.sh
+RUN sh './sanity-check.sh'
 
 # LinuxBrew - gitman #
 FROM --platform=${BUILDPLATFORM} gitman__base AS linters__brew__gitman
 COPY linters/gitman-repos/brew-install/gitman.yml ./
 RUN gitman install --quiet && \
-    find . -type d -name .git -prune -exec rm -rf {} \;
+    find '.' -type d -name '.git' -prune -exec rm -rf {} \;
 
 # LinuxBrew - install #
 # This is first part of HomeBrew, here we just install it
@@ -671,18 +671,18 @@ RUN apt-get update -qq && \
             libc6:amd64 >/dev/null && \
     true; fi && \
     rm -rf /var/lib/apt/lists/* && \
-    touch /.dockerenv
+    touch '/.dockerenv'
 COPY utils/uname-x64.sh /usr/bin/uname-x64
 RUN if [ "$(uname -m)" != 'amd64' ]; then \
-        chmod a+x /usr/bin/uname-x64 && \
-        mv /usr/bin/uname /usr/bin/uname-bak && \
-        mv /usr/bin/uname-x64 /usr/bin/uname && \
+        chmod a+x '/usr/bin/uname-x64' && \
+        mv '/usr/bin/uname' '/usr/bin/uname-bak' && \
+        mv '/usr/bin/uname-x64' '/usr/bin/uname' && \
     true; fi
 COPY --from=linters__brew__gitman /app/gitman/brew-installer ./brew--installer
 ENV HOMEBREW_NO_ANALYTICS=1 \
     HOMEBREW_NO_AUTO_UPDATE=1
-RUN NONINTERACTIVE=1 chronic bash brew--installer/install.sh && \
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && \
+RUN NONINTERACTIVE=1 chronic bash './brew--installer/install.sh' && \
+    eval "$('/home/linuxbrew/.linuxbrew/bin/brew' shellenv)" && \
     chronic brew update --quiet && \
     chronic brew bundle --help --quiet
     # TODO: Re-enable?
@@ -700,16 +700,16 @@ RUN apt-get update -qq && \
 COPY --from=rbenv__gitman /app/gitman/rbenv-installer ./rbenv-installer
 ENV PATH="${PATH}:/root/.rbenv/bin:/.rbenv/bin:/.rbenv/shims" \
     RBENV_ROOT=/.rbenv
-RUN bash rbenv-installer/bin/rbenv-installer
+RUN bash './rbenv-installer/bin/rbenv-installer'
 COPY ./utils/rbenv-install-logging.sh /utils/
 COPY --from=linters__brew__install /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/portable-ruby-version ./
 # hadolint ignore=DL3001
 RUN --mount=type=cache,target=/.rbenv/cache \
-    ruby_version_short="$(sed -E 's~_.*$~~' <portable-ruby-version)" && \
+    ruby_version_short="$(sed -E 's~_.*$~~' <'./portable-ruby-version')" && \
     (sh '/utils/rbenv-install-logging.sh' &) && \
     chronic rbenv install "${ruby_version_short}" && \
     kill "$(cat './logging-pid.txt')" && \
-    ln -s "/.rbenv/versions/${ruby_version_short}" /.rbenv/versions/brew
+    ln -s "/.rbenv/versions/${ruby_version_short}" '/.rbenv/versions/brew'
 
 # TODO: Re-enable --platform=${BUILDPLATFORM}
 FROM debian:13.6-slim AS linters__brew__rbenv__link
@@ -774,9 +774,9 @@ ENV BINPREFIX=/home/linuxbrew/.linuxbrew/bin/ \
     HOMEBREW_NO_AUTO_UPDATE=1
 # TODO: Make ruby version dynamic
 ENV PATH="/.rbenv/versions/brew/bin:${PATH}"
-RUN touch /.dockerenv && \
+RUN touch '/.dockerenv' && \
     if [ "$(uname -m)" = x86_64  ]; then \
-        sh sanity-check.sh && \
+        sh './sanity-check.sh' && \
     true; fi
 
 ### Helpers ###
@@ -797,7 +797,7 @@ FROM --platform=${BUILDPLATFORM} directory_optimizer__base AS cli__optimize
 WORKDIR /app/cli
 COPY utils/optimize/optimize-nodejs.sh /optimizations/
 COPY --from=cli__base /app/cli/node_modules ./node_modules
-RUN sh /optimizations/optimize-nodejs.sh
+RUN sh '/optimizations/optimize-nodejs.sh'
 
 FROM --platform=${BUILDPLATFORM} debian:13.6-slim AS cli__final
 WORKDIR /app/cli
@@ -807,10 +807,10 @@ COPY --from=cli__optimize /app/cli/node_modules ./node_modules
 # AZLint binaries #
 FROM --platform=${BUILDPLATFORM} debian:13.6-slim AS azlint__bin
 WORKDIR /app
-RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'exec node /app/cli/dist/main.js $@' >azlint && \
-    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'exec azlint fmt $@' >fmt && \
-    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'exec azlint lint $@' >lint && \
-    chmod a+x azlint fmt lint
+RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'exec node '\''/app/cli/dist/main.js'\'' "$@"' >'./azlint' && \
+    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'exec azlint fmt "$@"' >'./fmt' && \
+    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'exec azlint lint "$@"' >'./lint' && \
+    chmod a+x './azlint' './fmt' './lint'
 
 # prefinal #
 FROM debian:13.6-slim AS prefinal
@@ -857,14 +857,14 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_ROOT_USER_ACTION=ignore
 COPY utils/sanity-check/system.sh ./sanity-check.sh
-RUN chronic sh sanity-check.sh
+RUN chronic sh './sanity-check.sh'
 
 ### Final stage ###
 
 FROM debian:13.6-slim
 ARG UID="1000"
 ARG GID="1000"
-RUN find / -type f -not -path '/proc/*' -not -path '/sys/*' >/filelist.txt 2>/dev/null && \
+RUN find '/' -type f -not -path '/proc/*' -not -path '/sys/*' >'/filelist.txt' 2>'/dev/null' && \
     apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
         curl git libxml2-utils libyaml-0-2 \
@@ -876,11 +876,11 @@ RUN find / -type f -not -path '/proc/*' -not -path '/sys/*' >/filelist.txt 2>/de
         >/dev/null && \
     rm -rf /var/lib/apt/lists/* /var/log/apt /var/log/dpkg* /var/cache/apt /usr/share/zsh/vendor-completions && \
     find /usr/share/bug /usr/share/doc /var/cache /var/lib/apt /var/log -type f | while read -r file; do \
-        if ! grep -- "${file}" </filelist.txt >/dev/null; then \
+        if ! grep -- "${file}" <'/filelist.txt' >'/dev/null'; then \
             rm -f "${file}" && \
         true; fi && \
     true; done && \
-    rm -f /filelist.txt && \
+    rm -f '/filelist.txt' && \
     git config --system --add safe.directory '*' && \
     git config --global --add safe.directory '*' && \
     mkdir -p '/root/.cache/Homebrew' '/root/.cache/proselint' '/root/.npm' && \
