@@ -114,7 +114,7 @@ export async function listProjectFiles(onlyChanged: boolean): Promise<string[]> 
         let divergentFiles: string[] = [];
         if (divergentCommit !== '') {
             // Modified files between divergent-commit and HEAD
-            divergentFiles = (await customExeca(["git", "whatchanged", "--name-only", "--pretty=", `${divergentCommit}..HEAD`, "-z"])).stdout.split('\0').filter((file) => !!file);
+            divergentFiles = (await customExeca(["git", "diff", "--name-only", "-z", `${divergentCommit}..HEAD`])).stdout.split('\0').filter((file) => !!file);
         }
 
         outputFiles = [...untrackedFiles, ...stagedFiles, ...dirtyFiles, ...divergentFiles];
