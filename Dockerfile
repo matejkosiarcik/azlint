@@ -82,6 +82,7 @@ WORKDIR /app
 ### Components/Linters ###
 
 ### GoLang - Actionlint ###
+
 FROM --platform=${BUILDPLATFORM} go_builder__base AS linters__go__actionlint__build
 ARG BUILDARCH TARGETARCH TARGETOS
 RUN --mount=type=cache,target=/root/.cache/go-build \
@@ -185,7 +186,7 @@ WORKDIR /app
 COPY utils/sanity-check/go-stoml.sh ./sanity-check.sh
 RUN sh './sanity-check.sh'
 
-### GoLang - Tomljson ###
+### GoLang - TomlJSON ###
 
 FROM --platform=${BUILDPLATFORM} go_builder__base AS linters__go__tomljson__build
 ARG BUILDARCH TARGETARCH TARGETOS
@@ -302,7 +303,7 @@ COPY --from=linters__go__stoml__final /app/bin/stoml ./
 COPY --from=linters__go__tomljson__final /app/bin/tomljson ./
 
 ### Rust ###
-FROM --platform=${BUILDPLATFORM} debian:13.6-slim AS linters__rust__dependencies
+FROM --platform=${BUILDPLATFORM} debian:13.6-slim AS linters__rust__all__dependencies
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
@@ -316,7 +317,7 @@ ENV PATH="/app/python-vendor/bin:${PATH}" \
 COPY linters/Cargo.toml ./
 RUN tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' './Cargo.toml' >'./cargo-dependencies.txt'
 
-FROM --platform=${BUILDPLATFORM} rust:1.98.1-slim-trixie AS linters__rust__build
+FROM --platform=${BUILDPLATFORM} rust:1.98.1-slim-trixie AS linters__rust__all__build
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
@@ -339,7 +340,7 @@ ENV CARGO_PROFILE_RELEASE_LTO="true" \
     CARGO_PROFILE_RELEASE_CODEGEN_UNITS="1" \
     CARGO_PROFILE_RELEASE_OPT_LEVEL="s" \
     RUSTFLAGS="-Cstrip=symbols -Clink-args=-Wl,--build-id=none"
-COPY --from=linters__rust__dependencies /app/cargo-dependencies.txt ./
+COPY --from=linters__rust__all__dependencies /app/cargo-dependencies.txt ./
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     if [ "${BUILDARCH}" != "${TARGETARCH}" ]; then \
         export \
@@ -354,51 +355,53 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
         cargo install "${package}" --quiet --force --version "${version}" --root "${PWD}/cargo" --target "$(sh './get-target-tripple.sh')" && \
     true; done <'./cargo-dependencies.txt'
 
-FROM --platform=${BUILDPLATFORM} executable_optimizer__base AS linters__rust__optimize
-COPY --from=linters__rust__build /app/cargo/bin ./bin/
+FROM --platform=${BUILDPLATFORM} executable_optimizer__base AS linters__rust__all__optimize
+COPY --from=linters__rust__all__build /app/cargo/bin ./bin/
 # NOTE: `strip` is skipped, because it has no effect here
 RUN find './bin' -type f -exec sh './validate-executable.sh' {} \;
 
-FROM --platform=${BUILDPLATFORM} helper__upx__final AS linters__rust__upx
-COPY --from=linters__rust__optimize /app/bin ./
+FROM --platform=${BUILDPLATFORM} helper__upx__final AS linters__rust__all__upx
+COPY --from=linters__rust__all__optimize /app/bin ./
 # RUN parallel upx --best ::: /app/*
 
-FROM bins_aggregator__base AS linters__rust__final
+FROM bins_aggregator__base AS linters__rust__all__final
 WORKDIR /app/bin
 ENV BINPREFIX="/app/bin/"
-COPY --from=linters__rust__upx /app ./
+COPY --from=linters__rust__all__upx /app ./
 WORKDIR /app
 COPY utils/sanity-check/rust.sh ./sanity-check.sh
 RUN sh './sanity-check.sh'
 
-### CircleCI CLI ###
-FROM --platform=${BUILDPLATFORM} gitman__base AS linters__circleci__gitman
+### Custom - CircleCI CLI ###
+
+FROM --platform=${BUILDPLATFORM} gitman__base AS linters__custom__circleci__gitman
 COPY linters/gitman-repos/circleci-cli/gitman.yml ./
 RUN gitman install --quiet && \
     find '.' -type d -name '.git' -prune -exec rm -rf {} \;
 
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
-FROM debian:13.6-slim AS linters__circleci__base
+FROM debian:13.6-slim AS linters__custom__circleci__base
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         ca-certificates curl >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
-COPY --from=linters__circleci__gitman /app/gitman/circleci-cli /app/circleci-cli
+COPY --from=linters__custom__circleci__gitman /app/gitman/circleci-cli /app/circleci-cli
 WORKDIR /app/circleci-cli
 RUN bash './install.sh'
 
-FROM --platform=${BUILDPLATFORM} helper__upx__final AS linters__circleci__upx
-COPY --from=linters__circleci__base /usr/local/bin/circleci ./
+FROM --platform=${BUILDPLATFORM} helper__upx__final AS linters__custom__circleci__upx
+COPY --from=linters__custom__circleci__base /usr/local/bin/circleci ./
 # RUN upx --best /app/circleci
 
-FROM bins_aggregator__base AS linters__circleci__final
+FROM bins_aggregator__base AS linters__custom__circleci__final
 COPY utils/sanity-check/circleci.sh ./sanity-check.sh
-COPY --from=linters__circleci__upx /app/circleci ./bin/
+COPY --from=linters__custom__circleci__upx /app/circleci ./bin/
 ENV BINPREFIX="/app/bin/"
 RUN sh './sanity-check.sh' && \
     rm -f './sanity-check.sh'
 
-### Shell - Loksh ###
+### Custom - Loksh ###
+
 FROM --platform=${BUILDPLATFORM} gitman__base AS linters__shell__loksh__gitman
 COPY linters/gitman-repos/shell-loksh/gitman.yml ./
 RUN gitman install --quiet
@@ -431,7 +434,7 @@ ENV BINPREFIX="/app/bin/"
 RUN sh './sanity-check.sh' && \
     rm -f './sanity-check.sh'
 
-### Shell - Oksh ###
+### Custom - Oksh ###
 FROM --platform=${BUILDPLATFORM} gitman__base AS linters__shell__oksh__gitman
 COPY linters/gitman-repos/shell-oksh/gitman.yml ./
 RUN gitman install --quiet && \
@@ -464,7 +467,8 @@ ENV BINPREFIX="/app/bin/"
 RUN sh './sanity-check.sh' && \
     rm -f './sanity-check.sh'
 
-### ShellCheck ###
+### Haskell - ShellCheck ###
+
 FROM koalaman/shellcheck:v0.10.0 AS linters__haskell__shellcheck__base
 
 FROM --platform=${BUILDPLATFORM} helper__upx__final AS linters__haskell__shellcheck__upx
@@ -479,7 +483,8 @@ WORKDIR /app
 COPY utils/sanity-check/haskell-shellcheck.sh ./sanity-check.sh
 RUN sh './sanity-check.sh'
 
-### Hadolint ###
+### Haskell - Hadolint ###
+
 FROM hadolint/hadolint:v2.12.0 AS linters__haskell__hadolint__base
 
 FROM --platform=${BUILDPLATFORM} helper__upx__final AS linters__haskell__hadolint__upx
@@ -499,7 +504,8 @@ WORKDIR /app/bin
 COPY --from=linters__haskell__hadolint__final /app/bin/hadolint ./
 COPY --from=linters__haskell__shellcheck__final /app/bin/shellcheck ./
 
-### NodeJS/NPM ###
+### NodeJS/NPM - All ###
+
 FROM --platform=${BUILDPLATFORM} node:26.9.0-slim AS linters__nodejs__base
 WORKDIR /app
 COPY linters/package.json linters/package-lock.json ./
@@ -523,7 +529,7 @@ COPY --from=linters__nodejs__optimize /app/node_modules ./node_modules
 ENV BINPREFIX="/app/node_modules/.bin/"
 RUN sh './sanity-check.sh'
 
-### Ruby/Gem ###
+### Ruby/Gem Runtime ###
 
 # Install ruby with rbenv
 FROM debian:13.6-slim AS linters__ruby__rbenv__install
@@ -587,7 +593,8 @@ ENV BUNDLE_DISABLE_SHARED_GEMS="true" \
     PATH="${PATH}:/.rbenv/versions/current/bin"
 RUN sh './sanity-check.sh'
 
-### Python/Pip ###
+### Python/Pip - All ###
+
 FROM debian:13.6-slim AS linters__python__base
 WORKDIR /app
 RUN apt-get update -qq && \
@@ -622,7 +629,8 @@ ENV BINPREFIX="/app/python-vendor/bin/" \
     PYTHONPATH="/app/python-vendor"
 RUN sh './sanity-check.sh'
 
-### Composer ###
+### PHP - Composer ###
+
 FROM composer:2.8.6 AS linters__php__composer__bin__base
 
 FROM --platform=${BUILDPLATFORM} debian:13.6-slim AS linters__php__composer__bin__optimize
@@ -630,7 +638,6 @@ WORKDIR /app
 COPY --from=linters__php__composer__bin__base /usr/bin/composer ./bin/
 # TODO: optimize `composer` script
 
-### PHP/Composer ###
 FROM debian:13.6-slim AS linters__php__composer__vendor__base
 WORKDIR /app
 RUN apt-get update -qq && \
@@ -660,13 +667,13 @@ ENV BINPREFIX="/app/bin/" \
     COMPOSER_ALLOW_SUPERUSER="1"
 RUN sh './sanity-check.sh'
 
-### LinuxBrew - Gitman ###
+### Custom - LinuxBrew ###
+
 FROM --platform=${BUILDPLATFORM} gitman__base AS linters__brew__gitman
 COPY linters/gitman-repos/brew-install/gitman.yml ./
 RUN gitman install --quiet && \
     find '.' -type d -name '.git' -prune -exec rm -rf {} \;
 
-### LinuxBrew - Install ###
 # This is first part of HomeBrew, here we just install it
 # We have to provide our custom `uname`, because HomeBrew prohibits installation on non-x64 Linux systems
 # TODO: Re-enable --platform=${BUILDPLATFORM}
@@ -798,7 +805,7 @@ COPY cli/package.json cli/package-lock.json ./
 RUN NODE_OPTIONS=--dns-result-order=ipv4first npm ci --unsafe-perm --no-progress --no-audit --no-fund --loglevel=error && \
     npx modclean --patterns default:safe --run --error-halt && \
     npx node-prune
-COPY cli/tsconfig.json ./
+COPY cli/tsconfig.json cli/rollup.config.js ./
 COPY cli/src/ ./src/
 RUN npm run build && \
     npm prune --production
@@ -855,8 +862,8 @@ WORKDIR /app/linters/bin
 COPY --from=linters__php__composer__final /app/bin ./
 COPY --from=linters__haskell__final /app/bin ./
 COPY --from=linters__go__final /app/bin ./
-COPY --from=linters__rust__final /app/bin ./
-COPY --from=linters__circleci__final /app/bin ./
+COPY --from=linters__rust__all__final /app/bin ./
+COPY --from=linters__custom__circleci__final /app/bin ./
 COPY --from=linters__shell__loksh__final /app/bin ./
 COPY --from=linters__shell__oksh__final /app/bin ./
 WORKDIR /app-tmp
@@ -879,13 +886,18 @@ RUN find '/' -type f -not -path '/proc/*' -not -path '/sys/*' >'/filelist.txt' 2
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         curl git libxml2-utils libyaml-0-2 \
         bmake make \
-        nodejs npm \
         php php-mbstring \
         python-is-python3 python3 python3-pip \
         bash dash ksh ksh93u+m mksh posh zsh \
         >'/dev/null' && \
-    rm -rf /var/lib/apt/lists/* /var/log/apt /var/log/dpkg* /var/cache/apt /usr/share/zsh/vendor-completions && \
-    find /usr/share/bug /usr/share/doc /var/cache /var/lib/apt /var/log -type f | while read -r file; do \
+    curl -fsSL 'https://deb.nodesource.com/setup_lts.x' -o '/tmp/nodesource_setup.sh' && \
+    bash '/tmp/nodesource_setup.sh' && \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
+        nodejs \
+        >'/dev/null' && \
+    rm -f '/tmp/nodesource_setup.sh' && \
+    rm -rf /var/lib/apt/lists/* '/var/log/apt' /var/log/dpkg* '/var/cache/apt' '/usr/share/zsh/vendor-completions' && \
+    find '/usr/share/bug' '/usr/share/doc' '/var/cache' '/var/lib/apt' '/var/log' -type f | while read -r file; do \
         if ! grep -- "${file}" <'/filelist.txt' >'/dev/null'; then \
             rm -f "${file}" && \
         true; fi && \

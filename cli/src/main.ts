@@ -1,12 +1,15 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import dotenv from 'dotenv';
-import { ColorOptions, listProjectFiles } from './utils';
-import { LogLevel, logExtraExtraVerbose, logVerbose, setLogSettings } from './log';
-import { Linters } from './linters';
+import { ColorOptions, listProjectFiles } from './utils.ts';
+import { LogLevel, logExtraExtraVerbose, logVerbose, setLogSettings } from './log.ts';
+import { Linters } from './linters.ts';
+
+const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 
 (async () => {
     let argumentParser = yargs(hideBin(process.argv))
@@ -63,7 +66,7 @@ import { Linters } from './linters';
 
     // Output `version` if requested
     if (args.version) {
-        const version = fs.readFileSync(path.join(__dirname, '..', 'VERSION.txt'), 'utf8').trim();
+        const version = fs.readFileSync(path.join(moduleDir, '..', '..', 'VERSION.txt'), 'utf8').trim();
         console.log(`${args.$0} ${version}`);
         process.exit(0);
     }
@@ -115,7 +118,7 @@ import { Linters } from './linters';
     process.chdir(directory);
 
     // Setup paths for dependencies
-    const lintersDir = path.resolve(path.join(__dirname, '..', '..', 'linters'));
+    const lintersDir = path.resolve(path.join(moduleDir, '..', '..', 'linters'));
     const binPaths = {
         node: path.join(lintersDir, 'node_modules', '.bin'),
         cargo: path.join(lintersDir, 'cargo', 'bin'),

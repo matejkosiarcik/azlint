@@ -2,8 +2,8 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import fsSync from 'node:fs';
 import crypto from 'crypto';
-import { execa, ExecaError, Options as ExecaOptions, ExecaReturnValue } from '@esm2cjs/execa';
-import { logAlways, logVerbose } from './log';
+import { execa, ExecaError, Options as ExecaOptions } from 'execa';
+import { logAlways, logVerbose } from './log.ts';
 
 export type OneOrArray<T> = T | T[];
 export type ColorOptions = 'auto' | 'never' | 'always';
@@ -151,10 +151,19 @@ export function wildcard2regex(wildcard: string): RegExp {
     return new RegExp(`^(.*/)?${regex}$`, 'i');
 }
 
+export type CustomExecaProcessReturn = {
+    all: string,
+    command: string,
+    error: string,
+    exitCode: number,
+    stdout: string,
+    stderr: string,
+}
+
 /**
  * Custom `execa` wrapper with useful default options
  */
-export async function customExeca(command: string[], options?: ExecaOptions<string>): Promise<ExecaReturnValue<string>> {
+export async function customExeca(command: string[], options?: ExecaOptions): Promise<CustomExecaProcessReturn> {
     options = {
         timeout: 300_000, // 5 minutes
         stdio: 'pipe', // Capture output
@@ -162,11 +171,53 @@ export async function customExeca(command: string[], options?: ExecaOptions<stri
         ...options ?? {},
     };
 
+    function stringifyOutput(output: string | string[] | unknown[] | Uint8Array<ArrayBufferLike> | null | undefined): string {
+        if (typeof output === 'string') {
+            return output;
+        } else if (typeof output === 'undefined') {
+            return '';
+        } else if (typeof output === 'object' && output === null) {
+            return '';
+        } else if (Array.isArray(output)) {
+            return output.map((el) => `${el}`).join('\n');
+        } else if (output instanceof Uint8Array) {
+            return Buffer.from(output).toString('utf-8');
+        }
+
+        return '';
+    }
+
     try {
         const program = await execa(command[0], command.slice(1), options);
-        return program;
-    } catch (error) {
-        return error as ExecaError;
+        return {
+            all: stringifyOutput(program.all),
+            command: command.join(' '),
+            error: '',
+            exitCode: program.exitCode ?? -1,
+            stdout: stringifyOutput(program.stdout),
+            stderr: stringifyOutput(program.stderr),
+        };
+    } catch (_error) {
+        if (!(_error instanceof ExecaError)) {
+            return {
+                all: '',
+                command: command.join(' '),
+                error: `${_error}`,
+                exitCode: -1,
+                stdout: '',
+                stderr: '',
+            };
+        }
+
+        const error = _error as ExecaError;
+        return {
+            all: stringifyOutput(error.all),
+            command: command.join(' '),
+            error: '',
+            exitCode: error.exitCode ?? -1,
+            stdout: stringifyOutput(error.stdout),
+            stderr: stringifyOutput(error.stderr),
+        };
     }
 }
 

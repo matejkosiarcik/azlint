@@ -1,6 +1,6 @@
 import path from 'node:path';
-import { Options as ExecaOptions } from '@esm2cjs/execa';
-import { resolvePromiseOrValue } from './utils';
+import { Options as ExecaOptions } from 'execa';
+import { resolvePromiseOrValue } from './utils.ts';
 
 /**
  * Turn arguments into executable command
