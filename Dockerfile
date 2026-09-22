@@ -8,14 +8,14 @@
 FROM --platform=${BUILDPLATFORM} debian:13.6 AS helper__upx__final
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         parallel upx-ucl >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 
 FROM debian:13.6-slim AS bins_aggregator__base
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         file >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 
@@ -25,7 +25,7 @@ WORKDIR /app
 COPY utils/rust/get-target-arch.sh ./
 ARG TARGETARCH
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         "binutils-$(sh './get-target-arch.sh' | tr '_' '-')-linux-gnu" file moreutils >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/validate-executable.sh ./
@@ -33,7 +33,7 @@ COPY utils/validate-executable.sh ./
 # Golang builder #
 FROM --platform=${BUILDPLATFORM} golang:1.27-trixie AS go_builder__base
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         moreutils >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 WORKDIR /app
@@ -42,7 +42,7 @@ WORKDIR /app
 FROM --platform=${BUILDPLATFORM} debian:13.6-slim AS gitman__base
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         python3 python3-pip git >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 COPY build-dependencies/gitman/requirements.txt ./
@@ -63,7 +63,7 @@ WORKDIR /optimizations
 COPY utils/rust/get-target-arch.sh ./
 ARG TARGETARCH
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         "binutils-$(sh './get-target-arch.sh' | tr '_' '-')-linux-gnu" file jq moreutils nodejs npm python3 python3-pip >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 COPY build-dependencies/yq/requirements.txt ./yq/
@@ -218,7 +218,7 @@ RUN sh './apply-git-patches.sh' './git-patches' './gitman/checkmake'
 
 FROM --platform=${BUILDPLATFORM} go_builder__base AS linters__go__checkmake__build
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         pandoc >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=linters__go__checkmake__gitman /app/gitman/checkmake /app/checkmake
@@ -293,7 +293,7 @@ COPY --from=linters__go__tomljson__final /app/bin/tomljson ./
 FROM --platform=${BUILDPLATFORM} debian:13.6-slim AS linters__rust__dependencies
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         jq python3 python3-pip >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 COPY build-dependencies/yq/requirements.txt ./
@@ -308,14 +308,14 @@ RUN tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' './
 FROM --platform=${BUILDPLATFORM} rust:1.98.1-slim-trixie AS linters__rust__build
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         file >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 ARG BUILDARCH BUILDOS TARGETARCH TARGETOS
 COPY utils/rust/get-target-arch.sh ./
 RUN if [ "${BUILDARCH}" != "${TARGETARCH}" ]; then \
         apt-get update -qq && \
-        DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
             "gcc-$(sh './get-target-arch.sh' | tr '_' '-')-linux-gnu" "libc6-dev-${TARGETARCH}-cross" >'/dev/null' && \
         rm -rf /var/lib/apt/lists/* && \
     true; fi
@@ -369,7 +369,7 @@ RUN gitman install --quiet && \
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
 FROM debian:13.6-slim AS linters__circleci__base
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         ca-certificates curl >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=linters__circleci__gitman /app/gitman/circleci-cli /app/circleci-cli
@@ -394,7 +394,7 @@ RUN gitman install --quiet
 
 FROM debian:13.6-slim AS linters__shell__loksh__base
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         build-essential ca-certificates git meson >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=linters__shell__loksh__gitman /app/gitman/loksh /app/loksh
@@ -428,7 +428,7 @@ RUN gitman install --quiet && \
 
 FROM debian:13.6-slim AS linters__shell__oksh__base
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         build-essential >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=linters__shell__oksh__gitman /app/gitman/oksh /app/oksh
@@ -504,7 +504,7 @@ RUN sh '/optimizations/optimize-nodejs.sh'
 FROM debian:13.6-slim AS linters__nodejs__final
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         nodejs npm >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/nodejs.sh ./sanity-check.sh
@@ -518,7 +518,7 @@ RUN sh './sanity-check.sh'
 FROM debian:13.6-slim AS rbenv__install
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         autoconf bison build-essential ca-certificates curl git moreutils \
         libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
@@ -539,7 +539,7 @@ RUN --mount=type=cache,target=/.rbenv/cache \
 FROM debian:13.6-slim AS linters__ruby__base
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         libyaml-0-2 libyaml-dev build-essential >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/Gemfile linters/Gemfile.lock ./
@@ -561,7 +561,7 @@ RUN sh '/optimizations/optimize-bundle.sh'
 FROM debian:13.6-slim AS linters__ruby__final
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         libyaml-0-2 libyaml-dev build-essential >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/ruby.sh ./sanity-check.sh
@@ -580,7 +580,7 @@ RUN sh './sanity-check.sh'
 FROM debian:13.6-slim AS linters__python__base
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         python3 python3-pip >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/requirements.txt ./
@@ -599,7 +599,7 @@ COPY --from=linters__python__base /app/python-vendor ./python-vendor
 FROM debian:13.6-slim AS linters__python__final
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         python-is-python3 python3 python3-pip >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/python.sh ./sanity-check.sh
@@ -623,7 +623,7 @@ COPY --from=linters__composer_bin__base /usr/bin/composer ./bin/
 FROM debian:13.6-slim AS linters__composer_vendor__base
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         ca-certificates composer php php-mbstring php-zip >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 COPY linters/composer.json linters/composer.lock ./
@@ -637,7 +637,7 @@ RUN sh '/optimizations/optimize-composer.sh'
 FROM debian:13.6-slim AS linters__composer__final
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         ca-certificates php >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/composer.sh ./sanity-check.sh
@@ -662,12 +662,12 @@ RUN gitman install --quiet && \
 FROM debian:13.6-slim AS linters__brew__install
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         ca-certificates curl git moreutils procps ruby >'/dev/null' && \
     if [ "$(uname -m)" != 'amd64' ]; then \
         dpkg --add-architecture amd64 && \
         apt-get update -qq && \
-        DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+        DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
             libc6:amd64 >'/dev/null' && \
     true; fi && \
     rm -rf /var/lib/apt/lists/* && \
@@ -693,7 +693,7 @@ RUN NONINTERACTIVE=1 chronic bash './brew--installer/install.sh' && \
 FROM debian:13.6-slim AS linters__brew__rbenv__install
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         autoconf bison build-essential ca-certificates curl git moreutils \
         libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
@@ -727,7 +727,7 @@ COPY --from=linters__brew__rbenv__install /.rbenv/versions /.rbenv/versions
 FROM debian:13.6-slim AS brew__trace
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         curl git inotify-tools psmisc >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/brew.sh ./sanity-check.sh
@@ -763,7 +763,7 @@ COPY --from=brew__trace /.rbenv/versions /.rbenv/versions
 FROM debian:13.6-slim AS linters__brew__final
 WORKDIR /app
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         ca-certificates curl git >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/brew.sh ./sanity-check.sh
@@ -815,7 +815,7 @@ RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'exec node '\''/app/cli/dist/ma
 # prefinal #
 FROM debian:13.6-slim AS prefinal
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         moreutils curl git libxml2-utils \
         bmake make \
         nodejs npm \
@@ -866,7 +866,7 @@ ARG UID="1000"
 ARG GID="1000"
 RUN find '/' -type f -not -path '/proc/*' -not -path '/sys/*' >'/filelist.txt' 2>'/dev/null' && \
     apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         curl git libxml2-utils libyaml-0-2 \
         bmake make \
         nodejs npm \
