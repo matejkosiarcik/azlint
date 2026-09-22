@@ -1,7 +1,7 @@
 {
   "private": true,
   "dependencies": {
-    "@prantlf/jsonlint": "^16.1.0",
+    "@prantlf/jsonlint": "^17.0.1",
     "@secretlint/secretlint-rule-preset-recommend": "^9.3.4",
     "bats": "^1.13.0",
     "dockerfilelint": "^1.8.0",
@@ -20,7 +20,7 @@
     "prettier": "^3.9.8",
     "secretlint": "^9.3.4",
     "sql-lint": "^1.0.2",
-    "svglint": "^3.1.0",
+    "svglint": "^4.2.1",
     "textlint": "^14.8.4",
     "textlint-rule-no-todo": "^2.0.1"
   },
