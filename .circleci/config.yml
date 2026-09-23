@@ -211,7 +211,7 @@ jobs:
 
   docker-build:
     docker:
-      - image: docker:28.5.2
+      - image: docker:29.8.1
     steps:
       - checkout
       - setup_remote_docker:
