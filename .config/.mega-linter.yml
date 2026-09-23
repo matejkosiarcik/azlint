@@ -24,6 +24,9 @@ DISABLE_LINTERS:
 # Disable errors
 REPOSITORY_OSV_SCANNER_DISABLE_ERRORS: true
 
+# The requirements.txt files use intentional public PyPI packages, so retain findings as audit output without failing the lint job
+REPOSITORY_DUSTILOCK_ARGUMENTS: --audit
+
 # Override default config files
 DOCKERFILE_HADOLINT_CONFIG_FILE: .hadolint.yaml
 MAKEFILE_CHECKMAKE_CONFIG_FILE: checkmake.ini
