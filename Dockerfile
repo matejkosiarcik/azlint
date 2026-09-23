@@ -506,7 +506,8 @@ COPY --from=linters__haskell__shellcheck__final /app/bin/shellcheck ./
 
 ### NodeJS/NPM - All ###
 
-FROM --platform=${BUILDPLATFORM} node:26.9.0-slim AS linters__nodejs__base
+# TODO: Installing most NodeJS dependencies could run with "--platform=${BUILDPLATFORM}", but JSCPD currently fails
+FROM node:26.9.0-slim AS linters__nodejs__base
 WORKDIR /app
 COPY linters/package.json linters/package-lock.json ./
 COPY linters/npm-patches/ ./npm-patches/
