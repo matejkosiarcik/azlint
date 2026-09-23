@@ -1,8 +1,8 @@
 {
   "private": true,
   "dependencies": {
-    "@prantlf/jsonlint": "^16.1.0",
-    "@secretlint/secretlint-rule-preset-recommend": "^11.7.1",
+    "@prantlf/jsonlint": "^17.0.1",
+    "@secretlint/secretlint-rule-preset-recommend": "^13.0.5",
     "bats": "^1.13.0",
     "dockerfilelint": "^1.8.0",
     "eclint": "^2.8.1",
@@ -11,17 +11,17 @@
     "gitlab-ci-validate": "^0.5.0",
     "htmlhint": "^1.9.2",
     "htmllint-cli": "^0.0.7",
-    "jscpd": "^4.3.0",
+    "jscpd": "^5.3.1",
     "json5": "^2.2.3",
     "markdown-link-check": "~3.15.0",
     "markdown-table-formatter": "^1.7.0",
     "markdownlint-cli": "^0.49.1",
-    "package-json-validator": "^0.60.0",
+    "package-json-validator-cli": "^0.1.11",
     "prettier": "^3.9.8",
-    "secretlint": "^11.7.1",
+    "secretlint": "^13.0.5",
     "sql-lint": "^1.0.2",
-    "svglint": "^3.1.0",
-    "textlint": "^14.8.4",
+    "svglint": "^4.2.1",
+    "textlint": "^15.8.0",
     "textlint-rule-no-todo": "^2.0.1"
   },
   "scripts": {
@@ -29,7 +29,7 @@
     "postinstall:patch": "patch-package --patch-dir npm-patches"
   },
   "devDependencies": {
-    "npm-run-all2": "^7.0.2",
+    "npm-run-all2": "^9.0.3",
     "patch-package": "^8.0.1"
   }
 }

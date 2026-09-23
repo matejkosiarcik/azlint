@@ -1,4 +1,3 @@
-// import { ExecaReturnValue } from 'execa';
 import { ColorOptions, CustomExecaProcessReturn } from './utils.ts';
 
 export enum LogLevel {
@@ -99,6 +98,10 @@ export function logLintFail(toolName: string, file: string, command?: CustomExec
         const cmdOutput = command.all ? `:\n${command.all}` : '';
         logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`);
     }
+}
+
+export function logLintSkip(toolName: string, file: string, reason: string) {
+    logExtraVerbose(`⏩ Skipping ${toolName} - ${file}, because ${reason}`);
 }
 
 export function logFixingUnchanged(toolName: string, file: string, command?: CustomExecaProcessReturn) {
