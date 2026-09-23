@@ -48,6 +48,11 @@ jobs:
           action: docker/setup-buildx-action@v4.4.1
           attempt_limit: 3
           attempt_delay: 2500
+          # TODO: Enable if cross-compilation builds still cause issues:
+          # with: |
+          #   buildkitd-config-inline: |
+          #     [worker.oci]
+          #       max-parallelism = 4
 
       - name: Set build cache key
         id: build-cache-key
