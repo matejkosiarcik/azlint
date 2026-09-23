@@ -11,7 +11,7 @@
     "gitlab-ci-validate": "^0.5.0",
     "htmlhint": "^1.9.2",
     "htmllint-cli": "^0.0.7",
-    "jscpd": "^5.3.1",
+    "jscpd": "^5.3.2",
     "json5": "^2.2.3",
     "markdown-link-check": "~3.15.0",
     "markdown-table-formatter": "^1.7.0",
