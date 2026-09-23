@@ -2,7 +2,7 @@
   "type": "metapackage",
   "require": {
     "php": "^8",
-    "ergebnis/composer-normalize": "^2.52.0",
+    "ergebnis/composer-normalize": "^2.53.0",
     "ergebnis/json-normalizer": "^4.10",
     "ergebnis/json-printer": "^3.7.0"
   },
