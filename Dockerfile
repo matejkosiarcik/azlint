@@ -485,7 +485,7 @@ RUN sh './sanity-check.sh'
 
 ### Haskell - Hadolint ###
 
-FROM hadolint/hadolint:v2.15.0 AS linters__haskell__hadolint__base
+FROM hadolint/hadolint:v2.15.1 AS linters__haskell__hadolint__base
 
 FROM --platform=${BUILDPLATFORM} helper__upx__final AS linters__haskell__hadolint__upx
 COPY --from=linters__haskell__hadolint__base /bin/hadolint ./
