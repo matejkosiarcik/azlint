@@ -1,3 +1,3 @@
 [codespell]
 ignore-words-list = aNULL,browseable,runN
-skip = */package-lock.json,*/*.enc.*
+skip = */package-lock.json,*/*.enc.*,*/composer.lock
