@@ -7,14 +7,14 @@
 ### Build dependencies ###
 
 # Upx #
-FROM --platform=${BUILDPLATFORM} debian:13.6 AS helper__upx__final
+FROM --platform=${BUILDPLATFORM} debian:13.7 AS helper__upx__final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         parallel upx-ucl >'/dev/null' && \
     rm -rf /var/lib/apt/lists/*
 
-FROM debian:13.6-slim AS bins_aggregator__base
+FROM debian:13.7-slim AS bins_aggregator__base
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
@@ -22,7 +22,7 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 
 # Executable optimizer #
-FROM --platform=${BUILDPLATFORM} debian:13.6-slim AS executable_optimizer__base
+FROM --platform=${BUILDPLATFORM} debian:13.7-slim AS executable_optimizer__base
 WORKDIR /app
 COPY utils/rust/get-target-arch.sh ./
 ARG TARGETARCH
@@ -33,7 +33,7 @@ RUN apt-get update -qq && \
 COPY utils/validate-executable.sh ./
 
 # Golang builder #
-FROM --platform=${BUILDPLATFORM} golang:1.27-trixie AS go_builder__base
+FROM --platform=${BUILDPLATFORM} golang:1.27.1-trixie AS go_builder__base
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         moreutils >'/dev/null' && \
@@ -41,7 +41,7 @@ RUN apt-get update -qq && \
 WORKDIR /app
 
 # Gitman #
-FROM --platform=${BUILDPLATFORM} debian:13.6-slim AS gitman__base
+FROM --platform=${BUILDPLATFORM} debian:13.7-slim AS gitman__base
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
@@ -60,7 +60,7 @@ RUN gitman install --quiet && \
     find '.' -type d -name '.git' -prune -exec rm -rf {} \;
 
 # Dependency optimizer #
-FROM --platform=${BUILDPLATFORM} debian:13.6-slim AS directory_optimizer__base
+FROM --platform=${BUILDPLATFORM} debian:13.7-slim AS directory_optimizer__base
 WORKDIR /optimizations
 COPY utils/rust/get-target-arch.sh ./
 ARG TARGETARCH
@@ -303,7 +303,7 @@ COPY --from=linters__go__stoml__final /app/bin/stoml ./
 COPY --from=linters__go__tomljson__final /app/bin/tomljson ./
 
 ### Rust ###
-FROM --platform=${BUILDPLATFORM} debian:13.6-slim AS linters__rust__all__dependencies
+FROM --platform=${BUILDPLATFORM} debian:13.7-slim AS linters__rust__all__dependencies
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
@@ -380,7 +380,7 @@ RUN gitman install --quiet && \
     find '.' -type d -name '.git' -prune -exec rm -rf {} \;
 
 # It has custom install script that has to run https://circleci.com/docs/2.0/local-cli/#alternative-installation-method
-FROM debian:13.6-slim AS linters__custom__circleci__base
+FROM debian:13.7-slim AS linters__custom__circleci__base
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         ca-certificates curl >'/dev/null' && \
@@ -406,7 +406,7 @@ FROM --platform=${BUILDPLATFORM} gitman__base AS linters__shell__loksh__gitman
 COPY linters/gitman-repos/shell-loksh/gitman.yml ./
 RUN gitman install --quiet
 
-FROM debian:13.6-slim AS linters__shell__loksh__base
+FROM debian:13.7-slim AS linters__shell__loksh__base
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         build-essential ca-certificates git meson >'/dev/null' && \
@@ -440,7 +440,7 @@ COPY linters/gitman-repos/shell-oksh/gitman.yml ./
 RUN gitman install --quiet && \
     find '.' -type d -name '.git' -prune -exec rm -rf {} \;
 
-FROM debian:13.6-slim AS linters__shell__oksh__base
+FROM debian:13.7-slim AS linters__shell__oksh__base
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         build-essential >'/dev/null' && \
@@ -469,7 +469,7 @@ RUN sh './sanity-check.sh' && \
 
 ### Haskell - ShellCheck ###
 
-FROM koalaman/shellcheck:v0.10.0 AS linters__haskell__shellcheck__base
+FROM koalaman/shellcheck:v0.11.0 AS linters__haskell__shellcheck__base
 
 FROM --platform=${BUILDPLATFORM} helper__upx__final AS linters__haskell__shellcheck__upx
 COPY --from=linters__haskell__shellcheck__base /bin/shellcheck ./
@@ -485,7 +485,7 @@ RUN sh './sanity-check.sh'
 
 ### Haskell - Hadolint ###
 
-FROM hadolint/hadolint:v2.12.0 AS linters__haskell__hadolint__base
+FROM hadolint/hadolint:v2.15.0 AS linters__haskell__hadolint__base
 
 FROM --platform=${BUILDPLATFORM} helper__upx__final AS linters__haskell__hadolint__upx
 COPY --from=linters__haskell__hadolint__base /bin/hadolint ./
@@ -519,7 +519,7 @@ COPY utils/optimize/optimize-nodejs.sh /optimizations/
 COPY --from=linters__nodejs__base /app/node_modules ./node_modules
 RUN sh '/optimizations/optimize-nodejs.sh'
 
-FROM debian:13.6-slim AS linters__nodejs__final
+FROM debian:13.7-slim AS linters__nodejs__final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
@@ -533,7 +533,7 @@ RUN sh './sanity-check.sh'
 ### Ruby/Gem Runtime ###
 
 # Install ruby with rbenv
-FROM debian:13.6-slim AS linters__ruby__rbenv__install
+FROM debian:13.7-slim AS linters__ruby__rbenv__install
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
@@ -554,7 +554,7 @@ RUN --mount=type=cache,target=/.rbenv/cache \
     kill "$(cat './logging-pid.txt')" && \
     ln -s "/.rbenv/versions/${ruby_version}" '/.rbenv/versions/current'
 
-FROM debian:13.6-slim AS linters__ruby__base
+FROM debian:13.7-slim AS linters__ruby__base
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
@@ -576,7 +576,7 @@ COPY --from=linters__ruby__rbenv__install /.rbenv/versions /.rbenv/versions
 COPY --from=linters__ruby__base /app/bundle ./bundle
 RUN sh '/optimizations/optimize-bundle.sh'
 
-FROM debian:13.6-slim AS linters__ruby__final
+FROM debian:13.7-slim AS linters__ruby__final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
@@ -596,7 +596,7 @@ RUN sh './sanity-check.sh'
 
 ### Python/Pip - All ###
 
-FROM debian:13.6-slim AS linters__python__base
+FROM debian:13.7-slim AS linters__python__base
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
@@ -615,7 +615,7 @@ COPY --from=linters__python__base /app/python-vendor ./python-vendor
 # TODO: Re-enable
 # RUN sh /optimizations/optimize-python.sh
 
-FROM debian:13.6-slim AS linters__python__final
+FROM debian:13.7-slim AS linters__python__final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
@@ -632,14 +632,14 @@ RUN sh './sanity-check.sh'
 
 ### PHP - Composer ###
 
-FROM composer:2.8.6 AS linters__php__composer__bin__base
+FROM composer:2.10.3 AS linters__php__composer__bin__base
 
-FROM --platform=${BUILDPLATFORM} debian:13.6-slim AS linters__php__composer__bin__optimize
+FROM --platform=${BUILDPLATFORM} debian:13.7-slim AS linters__php__composer__bin__optimize
 WORKDIR /app
 COPY --from=linters__php__composer__bin__base /usr/bin/composer ./bin/
 # TODO: optimize `composer` script
 
-FROM debian:13.6-slim AS linters__php__composer__vendor__base
+FROM debian:13.7-slim AS linters__php__composer__vendor__base
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
@@ -653,7 +653,7 @@ COPY utils/optimize/optimize-composer.sh /optimizations/
 COPY --from=linters__php__composer__vendor__base /app/vendor ./vendor
 RUN sh '/optimizations/optimize-composer.sh'
 
-FROM debian:13.6-slim AS linters__php__composer__final
+FROM debian:13.7-slim AS linters__php__composer__final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
@@ -678,7 +678,7 @@ RUN gitman install --quiet && \
 # This is first part of HomeBrew, here we just install it
 # We have to provide our custom `uname`, because HomeBrew prohibits installation on non-x64 Linux systems
 # TODO: Re-enable --platform=${BUILDPLATFORM}
-FROM debian:13.6-slim AS linters__brew__install
+FROM debian:13.7-slim AS linters__brew__install
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
@@ -709,7 +709,7 @@ RUN NONINTERACTIVE=1 chronic bash './brew--installer/install.sh' && \
 
 # We need to replace ruby bundled with HomeBrew, because it is only a x64 version
 # Instead we install the same ruby version via rbenv and replace it in HomeBrew
-FROM debian:13.6-slim AS linters__brew__rbenv__install
+FROM debian:13.7-slim AS linters__brew__rbenv__install
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
@@ -731,7 +731,7 @@ RUN --mount=type=cache,target=/.rbenv/cache \
     ln -s "/.rbenv/versions/${ruby_version_short}" '/.rbenv/versions/brew'
 
 # TODO: Re-enable --platform=${BUILDPLATFORM}
-FROM debian:13.6-slim AS linters__brew__rbenv__link
+FROM debian:13.7-slim AS linters__brew__rbenv__link
 WORKDIR /app
 COPY --from=linters__brew__install /home/linuxbrew /home/linuxbrew
 COPY --from=linters__brew__rbenv__install /.rbenv/versions /.rbenv/versions
@@ -743,7 +743,7 @@ COPY --from=linters__brew__rbenv__install /.rbenv/versions /.rbenv/versions
 #     find /.rbenv/versions -mindepth 1 -maxdepth 1 -type d -not -name "${ruby_version_short}" -exec rm -rf {} \;
 
 # In this stage we collect trace information about which files from linuxbrew and rbenv's ruby are actually needed
-FROM debian:13.6-slim AS linters__brew__trace
+FROM debian:13.7-slim AS linters__brew__trace
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
@@ -779,7 +779,7 @@ COPY --from=linters__brew__trace /.rbenv/versions /.rbenv/versions
 #     true; fi
 
 # Aggregate everything brew here and do one more sanity-check
-FROM debian:13.6-slim AS linters__brew__final
+FROM debian:13.7-slim AS linters__brew__final
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
@@ -817,13 +817,13 @@ COPY utils/optimize/optimize-nodejs.sh /optimizations/
 COPY --from=cli__base /app/cli/node_modules ./node_modules
 RUN sh '/optimizations/optimize-nodejs.sh'
 
-FROM --platform=${BUILDPLATFORM} debian:13.6-slim AS cli__final
+FROM --platform=${BUILDPLATFORM} debian:13.7-slim AS cli__final
 WORKDIR /app/cli
 COPY --from=cli__base /app/cli/dist ./dist
 COPY --from=cli__optimize /app/cli/node_modules ./node_modules
 
 ### AZLint binaries ###
-FROM --platform=${BUILDPLATFORM} debian:13.6-slim AS azlint__bin
+FROM --platform=${BUILDPLATFORM} debian:13.7-slim AS azlint__bin
 WORKDIR /app
 RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'exec node '\''/app/cli/dist/main.js'\'' "$@"' >'./azlint' && \
     printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'exec azlint fmt "$@"' >'./fmt' && \
@@ -831,7 +831,7 @@ RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'exec node '\''/app/cli/dist/ma
     chmod a+x './azlint' './fmt' './lint'
 
 # prefinal #
-FROM debian:13.6-slim AS prefinal
+FROM debian:13.7-slim AS prefinal
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
         moreutils curl git libxml2-utils \
@@ -879,7 +879,7 @@ RUN chronic sh './sanity-check.sh'
 
 ### Final stage ###
 
-FROM debian:13.6-slim
+FROM debian:13.7-slim
 ARG UID="1000"
 ARG GID="1000"
 RUN find '/' -type f -not -path '/proc/*' -not -path '/sys/*' >'/filelist.txt' 2>'/dev/null' && \

@@ -71,7 +71,7 @@ jobs:
 
   native-build:
     docker:
-      - image: debian:13.6
+      - image: debian:13.7
     environment:
       VALIDATE_HADOLINT: "false" # TODO: Enable hadolint validation
       HOMEBREW_NO_ANALYTICS: 1
@@ -211,7 +211,7 @@ jobs:
 
   docker-build:
     docker:
-      - image: docker:27.5.1
+      - image: docker:28.5.2
     steps:
       - checkout
       - setup_remote_docker:
