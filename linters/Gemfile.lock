@@ -34,7 +34,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  mdl (~> 0.13)
+  mdl (~> 0.18, >= 0.18.1)
   psych (~> 5.2, >= 5.2.3)
 
 RUBY VERSION
