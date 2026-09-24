@@ -5,8 +5,24 @@
     "config:recommended"
   ],
   "lockFileMaintenance": {
-    "enabled": true
+    "automerge": true,
+    "enabled": true,
+    "rebaseWhen": "auto"
   },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update GitHub Actions passed to custom retry action",
+      "managerFilePatterns": [
+        "/^\\.github\\/workflows\\/.*\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "(?:^|\\n)[\\t ]*action:[\\t ]*(?<depName>[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*)@(?<currentValue>v?\\d+(?:\\.\\d+){0,2})[\\t ]*(?:#.*)?(?:\\n|$)"
+      ],
+      "datasourceTemplate": "github-tags",
+      "versioningTemplate": "github-actions"
+    }
+  ],
   "packageRules": [
     {
       "automerge": true,
@@ -15,7 +31,27 @@
       "matchUpdateTypes": [
         "minor",
         "patch"
-      ]
+      ],
+      "rebaseWhen": "auto"
+    },
+    {
+      "matchDatasources": [
+        "npm"
+      ],
+      "minimumReleaseAge": "2 days"
+    },
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchPackageNames": [
+        "coollabsio/minio",
+        "minio/minio"
+      ],
+      "versioning": "regex:^RELEASE\\.(?<major>\\d{4})-(?<minor>\\d{2})-(?<patch>\\d{2})T(?:\\d{2})-(?:\\d{2})-(?:\\d{2})Z$"
     }
   ],
   "prConcurrentLimit": 20,
