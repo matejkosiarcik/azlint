@@ -4,7 +4,7 @@
     "php": "^8",
     "ergebnis/composer-normalize": "^2.53.0",
     "ergebnis/json-normalizer": "^4.10",
-    "ergebnis/json-printer": "^3.7.0"
+    "ergebnis/json-printer": "^3.8.1"
   },
   "config": {
     "allow-plugins": {
