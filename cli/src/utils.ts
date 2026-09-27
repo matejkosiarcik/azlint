@@ -160,15 +160,19 @@ export type CustomExecaProcessReturn = {
     stderr: string,
 }
 
+// type RecursivePartial<T> = T | Partial<T> | {
+//     [K in keyof T]?: RecursivePartial<T[K]>;
+// };
+
 /**
  * Custom `execa` wrapper with useful default options
  */
-export async function customExeca(command: string[], options?: ExecaOptions): Promise<CustomExecaProcessReturn> {
-    options = {
-        timeout: 300_000, // 5 minutes
+export async function customExeca(command: string[], _options?: Partial<ExecaOptions>): Promise<CustomExecaProcessReturn> {
+    const options: ExecaOptions = {
+        timeout: _options?.timeout ?? 300_000, // Default 5 minutes
         stdio: 'pipe', // Capture output
         all: true, // Merge stdout and stderr
-        ...options ?? {},
+        ..._options ?? {},
     };
 
     function stringifyOutput(output: string | string[] | unknown[] | Uint8Array<ArrayBufferLike> | null | undefined): string {
