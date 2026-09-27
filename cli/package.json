@@ -11,7 +11,7 @@
     "test:only": "tsx --test --test-only tests/*.test.ts"
   },
   "dependencies": {
-    "dotenv": "^18.0.3",
+    "dotenv": "^18.0.4",
     "execa": "^10.0.1",
     "p-limit": "^7.3.3",
     "yargs": "^18.2.0"
@@ -19,7 +19,7 @@
   "devDependencies": {
     "@rollup/plugin-typescript": "^12.3.0",
     "@tsconfig/strictest": "^2.0.8",
-    "@types/node": "^26.6.2",
+    "@types/node": "^26.6.3",
     "@types/yargs": "^17.0.35",
     "modclean": "^3.0.0-beta.1",
     "node-prune": "^1.0.2",
