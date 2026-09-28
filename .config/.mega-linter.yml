@@ -38,6 +38,7 @@ RUBY_RUBOCOP_CONFIG_FILE: .rubocop.yml
 YAML_YAMLLINT_CONFIG_FILE: .yamllint.yml
 
 # Config
+ENV_DOTENV_LINTER_ARGUMENTS: --ignore-checks QuoteCharacter
 JSON_BIOME_FILTER_REGEX_EXCLUDE: '(?:^|/)package-lock\.json$'
 JSON_BIOME_RULES_PATH: .
 JSON_V8R_FILTER_REGEX_EXCLUDE: (?:(?:^|/)composer\.json|(?:^|/)package\.json|(?:^|/)package\-lock\.json)
