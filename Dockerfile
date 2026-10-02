@@ -317,7 +317,7 @@ ENV PATH="/app/python-vendor/bin:${PATH}" \
 COPY linters/Cargo.toml ./
 RUN tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' './Cargo.toml' >'./cargo-dependencies.txt'
 
-FROM --platform=${BUILDPLATFORM} rust:1.98.1-slim-trixie AS linters__rust__all__build
+FROM --platform=${BUILDPLATFORM} rust:1.99.0-slim-trixie AS linters__rust__all__build
 WORKDIR /app
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
