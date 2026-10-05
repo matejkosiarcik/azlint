@@ -3,7 +3,7 @@ set -euf
 
 cleanDependencies() {
     # Test directories
-    find "$1" -type d \( \
+    find "${1}" -type d \( \
         -iname 'test' -or \
         -iname 'tests' -or \
         -iname '__test__' -or \
@@ -15,26 +15,26 @@ cleanDependencies() {
         \) -prune -exec rm -rf {} \;
 
     # VCS directories
-    find "$1" -type d \( \
+    find "${1}" -type d \( \
         -iname '.git' -or \
         -iname '.hg' \
         \) -prune -exec rm -rf {} \;
 
     # CI/CD and Git-hosts directories
-    find "$1" -type d \( \
+    find "${1}" -type d \( \
         -iname '.github' \
         \) -prune -exec rm -rf {} \;
 
     # Documentation directories
-    find "$1" -type d \( \
+    find "${1}" -type d \( \
         -iname 'html' -or \
         -iname 'man' \
         \) -prune -exec rm -rf {} \;
-    find "$1" -type d -not -path '*/markdown-table-prettify/*' -iname 'doc' -prune -exec rm -rf {} \;
-    find "$1" -type d -not -path '*/botocore/*' -not -path '*/boto3/*' -iname 'docs' -prune -exec rm -rf {} \;
+    find "${1}" -type d -not -path '*/markdown-table-prettify/*' -iname 'doc' -prune -exec rm -rf {} \;
+    find "${1}" -type d -not -path '*/botocore/*' -not -path '*/boto3/*' -iname 'docs' -prune -exec rm -rf {} \;
 
     # OS specific directories (non-Linux)
-    find "$1" -type d \( \
+    find "${1}" -type d \( \
         -iname 'mac' -or \
         -iname 'macos' -or \
         -iname 'win' -or \
@@ -42,7 +42,7 @@ cleanDependencies() {
         \) -prune -exec rm -rf {} \;
 
     # System files
-    find "$1" -type f \( \
+    find "${1}" -type f \( \
         -iname '*~' -or \
         -iname '.DS_Store' \
         \) -delete
@@ -52,7 +52,7 @@ cleanDependencies() {
     # - .prettierrc, .eslintrc, ...
     # - .prettierrc.json, .prettierrc.yml, ...
     # - .gitconfig, .gitattributes, .gitmodules, .gitkeep, ...
-    find "$1" -type f \( \
+    find "${1}" -type f \( \
         -iname '*.*ignore' -or \
         -iname '*.*rc' -or \
         -iname '*.*rc.*' -or \
@@ -60,7 +60,7 @@ cleanDependencies() {
         \) -delete
 
     # HTML, XML
-    find "$1" -type f \( \
+    find "${1}" -type f \( \
         -iname '*.htm' -or \
         -iname '*.html' -or \
         -iname '*.html5' -or \
@@ -71,7 +71,7 @@ cleanDependencies() {
         \) -delete
 
     # CSS
-    find "$1" -type f \( \
+    find "${1}" -type f \( \
         -iname '*.css' -or \
         -iname '*.less' -or \
         -iname '*.sass' -or \
@@ -79,7 +79,7 @@ cleanDependencies() {
         \) -delete
 
     # Images
-    find "$1" -type f \( \
+    find "${1}" -type f \( \
         -iname '*.apng' -or \
         -iname '*.gif' -or \
         -iname '*.ico' -or \
@@ -93,7 +93,7 @@ cleanDependencies() {
         \) -delete
 
     # C/Cpp files
-    find "$1" -type f \( \
+    find "${1}" -type f \( \
         -iname '*.c' -or \
         -iname '*.cc' -or \
         -iname '*.cpp' -or \
@@ -107,7 +107,7 @@ cleanDependencies() {
         \) -delete
 
     # Shell files
-    find "$1" -type f \( \
+    find "${1}" -type f \( \
         -iname '*.bat' -or \
         -iname '*.hush' -or \
         -iname '*.ksh' -or \
@@ -120,13 +120,13 @@ cleanDependencies() {
         -iname '*.yash' -or \
         -iname '*.zsh' \
         \) -delete
-    find "$1" -type f -not -path '*/bats/*' -not -path '*/bats-core/*' \( \
+    find "${1}" -type f -not -path '*/bats/*' -not -path '*/bats-core/*' \( \
         -iname '*.bash' -or \
         -iname '*.sh' \
         \) -delete
 
     # Markdown & Text
-    find "$1" -type f \( \
+    find "${1}" -type f \( \
         -name 'CHANGELOG' -or \
         -name 'CHANGELOG.*' -or \
         -name 'HISTORY' -or \
@@ -150,13 +150,13 @@ cleanDependencies() {
         -iname '*.tex' -or \
         -iname '*.text' \
         \) -delete
-    find "$1" -type f -iname '*.txt' -not \( \
+    find "${1}" -type f -iname '*.txt' -not \( \
         -path '*/blib2to3/*' -or \
         -name 'entry_points.txt' \
         \) -delete
 
     # YAML
-    find "$1" -type f \
+    find "${1}" -type f \
         -not -path '*/yamllint/*' \
         -not -path '*/cloudsplaining/*' \
         \( \
@@ -166,7 +166,7 @@ cleanDependencies() {
         -delete
 
     # Build files
-    find "$1" -type f \( \
+    find "${1}" -type f \( \
         -iname 'Dockerfile' -or \
         -iname 'Jenkinsfile' -or \
         -iname 'Makefile' -or \
@@ -176,31 +176,31 @@ cleanDependencies() {
 
 # Remove leftover empty directories
 removeEmptyDirectories() {
-    while [ "$(find "$1" -type d -empty | wc -l)" -ne 0 ]; do
-        find "$1" -type d -empty -prune -exec rm -rf {} \;
+    while [ "$(find "${1}" -type d -empty | wc -l)" -ne 0 ]; do
+        find "${1}" -type d -empty -prune -exec rm -rf {} \;
     done
 }
 
 ### Minification ###
 
 minifyJsonFile() {
-    jq -c '.' <"$1" | sponge "$1"
+    jq -c '.' <"${1}" | sponge "${1}"
 }
 
 # Minify JSONs
 minifyJsonFiles() {
-    find "$1" -type f -iname '*.json' | while read -r file; do
+    find "${1}" -type f -iname '*.json' | while read -r file; do
         minifyJsonFile "${file}"
     done
 }
 
 minifyYamlFile() {
-    node /optimizations/yaml-minifier/minify-yaml.js "$1"
+    node /optimizations/yaml-minifier/minify-yaml.js "${1}"
 }
 
 # Minify JSONs
 minifyYamlFiles() {
-    find "$1" -type f \( -iname '*.yaml' -or -iname '*.yml' \) | while read -r file; do
+    find "${1}" -type f \( -iname '*.yaml' -or -iname '*.yml' \) | while read -r file; do
         minifyYamlFile "${file}"
     done
 }
