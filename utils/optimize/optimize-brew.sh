@@ -2,7 +2,7 @@
 set -euf
 
 # shellcheck source=./utils/optimize/.common.sh
-. "$(dirname "$0")/.common.sh"
+. "$(dirname "${0}")/.common.sh"
 
 # Remove all files not found in access log
 accesslist="$(mktemp)"

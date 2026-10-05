@@ -1,6 +1,6 @@
 #!/bin/sh
 set -euf
-cd "$(dirname "$0")"
+cd "$(dirname "${0}")"
 
 castfile="$(mktemp)"
 asciinema rec "${castfile}" --title 'azlint' --command "bash './demo.sh'" --idle-time-limit 1.5

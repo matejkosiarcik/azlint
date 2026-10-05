@@ -2,7 +2,7 @@
 set -euf
 
 # shellcheck source=./utils/optimize/.common.sh
-. "$(dirname "$0")/.common.sh"
+. "$(dirname "${0}")/.common.sh"
 
 cleanDependencies './vendor'
 

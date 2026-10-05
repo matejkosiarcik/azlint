@@ -1,10 +1,10 @@
 #!/bin/sh
 set -euf
 
-if [ "$#" -lt 1 ]; then
+if [ "${#}" -lt 1 ]; then
     dir='.'
 else
-    dir="$1"
+    dir="${1}"
 fi
 
 cd "${dir}"

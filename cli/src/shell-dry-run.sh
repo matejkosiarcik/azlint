@@ -1,14 +1,14 @@
 #!/bin/sh
 set -euf
 
-if [ "$#" -lt 1 ]; then
+if [ "${#}" -lt 1 ]; then
     printf 'Not enough arguments. Expected file.\n' >&2
     exit 1
 fi
-file="$1"
+file="${1}"
 
 # shellcheck source=cli/src/shell-dry-run-utils.sh
-. "$(dirname "$0")/shell-dry-run-utils.sh"
+. "$(dirname "${0}")/shell-dry-run-utils.sh"
 
 check_sh() {
     sh -n "${file}"
