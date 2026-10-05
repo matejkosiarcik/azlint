@@ -825,9 +825,9 @@ COPY --from=cli__optimize /app/cli/node_modules ./node_modules
 ### AZLint binaries ###
 FROM --platform=${BUILDPLATFORM} debian:13.7-slim AS azlint__bin
 WORKDIR /app
-RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'exec node '\''/app/cli/dist/main.js'\'' "$@"' >'./azlint' && \
-    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'exec azlint fmt "$@"' >'./fmt' && \
-    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'exec azlint lint "$@"' >'./lint' && \
+RUN printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'exec node '\''/app/cli/dist/main.js'\'' "${@}"' >'./azlint' && \
+    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'exec azlint fmt "${@}"' >'./fmt' && \
+    printf '%s\n%s\n%s\n' '#!/bin/sh' 'set -euf' 'exec azlint lint "${@}"' >'./lint' && \
     chmod a+x './azlint' './fmt' './lint'
 
 # prefinal #

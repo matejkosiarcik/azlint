@@ -71,7 +71,7 @@ bootstrap:
 	PATH="$(PROJECT_DIR)/build-dependencies/yq/venv/bin:$${PATH}" \
 		tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' './linters/Cargo.toml' | \
 		xargs -n2 -P0 sh -c \
-		'cd "$${PWD}" && cargo install "$$0" --quiet --force --root "$(PROJECT_DIR)/linters/cargo" --version "$$1" --profile dev'
+		'cd "$${PWD}" && cargo install "$${0}" --quiet --force --root "$(PROJECT_DIR)/linters/cargo" --version "$${1}" --profile dev'
 
 	cd './linters' && \
 		composer install --quiet

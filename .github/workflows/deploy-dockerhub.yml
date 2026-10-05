@@ -69,8 +69,8 @@ jobs:
           PLATFORM: ${{ matrix.platform }}
         run: |
           set -euf
-          key="$(printf 'azlint-%s-%s' "$GITHUB_WORKFLOW" "$PLATFORM" | tr '[:upper:] ' '[:lower:]-' | sed -E 's~[-]+~-~g')"
-          printf 'key=%s\n' "$key" >>"$GITHUB_OUTPUT"
+          key="$(printf 'azlint-%s-%s' "${GITHUB_WORKFLOW}" "${PLATFORM}" | tr '[:upper:] ' '[:lower:]-' | sed -E 's~[-]+~-~g')"
+          printf 'key=%s\n' "${key}" >>"${GITHUB_OUTPUT}"
 
       - name: Build and Publish
         id: build
