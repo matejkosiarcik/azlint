@@ -71,7 +71,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@2.37.2
         with:
-          php-version: latest
+          php-version: "8.4"
           extensions: mbstring # TODO: consider removing if not necessary
 
       # NOTE: wretry wrapper not possible because of https://github.com/Wandalen/wretry.action/issues/186
