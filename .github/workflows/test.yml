@@ -69,7 +69,7 @@ jobs:
 
         # NOTE: Setup-PHP action depends on the runner-provided action environment on macOS which conflicts with wretry action
       - name: Setup PHP
-        uses: shivammathur/setup-php@2.37.2
+        uses: shivammathur/setup-php@2.40.0
         with:
           php-version: "8.4"
           extensions: mbstring # TODO: consider removing if not necessary
