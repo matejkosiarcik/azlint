@@ -1,3 +1,19 @@
-# This is just a placeholder file, as most updates were moved to renovatebot
 version: 2
-updates: []
+
+updates:
+  # GitHub Actions
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+      time: "01:00"
+      timezone: Europe/Bratislava
+    assignees:
+      - matejkosiarcik
+    open-pull-requests-limit: 1
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    cooldown:
+      default-days: 1
