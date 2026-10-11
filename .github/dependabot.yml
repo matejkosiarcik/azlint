@@ -6,7 +6,7 @@ updates:
     directory: /
     schedule:
       interval: daily
-      time: "01:00"
+      time: "00:15"
       timezone: Europe/Bratislava
     assignees:
       - matejkosiarcik
