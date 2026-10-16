@@ -60,7 +60,7 @@ workflows:
 jobs:
   test:
     docker:
-      - image: node:26.11.1
+      - image: node:26.12.0
     steps:
       - checkout
       - run: |
