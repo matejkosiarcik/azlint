@@ -37,7 +37,7 @@ jobs:
       - name: Setup Python
         uses: Wandalen/wretry.action@v3.8.0
         with:
-          action: actions/setup-python@v7.0.0
+          action: actions/setup-python@v7.1.0
           attempt_limit: 3
           attempt_delay: 2500
           with: |
