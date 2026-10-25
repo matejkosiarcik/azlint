@@ -17,7 +17,7 @@
     "yargs": "^18.2.0"
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "^12.3.0",
+    "@rollup/plugin-typescript": "^12.3.1",
     "@tsconfig/strictest": "^2.0.8",
     "@types/node": "^26.6.5",
     "@types/yargs": "^17.0.35",
