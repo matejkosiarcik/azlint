@@ -912,9 +912,9 @@ RUN find '/' -type f -not -path '/proc/*' -not -path '/sys/*' >'/filelist.txt' 2
     useradd --no-log-init --create-home --home '/home/azlint' --uid "${UID}" --gid "${GID}" --shell '/bin/sh' azlint && \
     su - azlint -c "git config --global --add safe.directory '*'" && \
     su - azlint -c "mkdir -p '/home/azlint/.cache/Homebrew' '/home/azlint/.cache/proselint' '/home/azlint/.npm'"
-COPY --from=prefinal /home/linuxbrew /home/linuxbrew
-COPY --from=prefinal /.rbenv/versions /.rbenv/versions
-COPY --from=prefinal /app/ /app/
+COPY --from=prefinal --chown=azlint:azlint /home/linuxbrew /home/linuxbrew
+COPY --from=prefinal --chown=azlint:azlint /.rbenv/versions /.rbenv/versions
+COPY --from=prefinal --chown=azlint:azlint /app/ /app/
 ENV NODE_OPTIONS="--dns-result-order=ipv4first" \
     PATH="${PATH}:/app/bin:/usr/local/go/bin:/home/linuxbrew/.linuxbrew/bin" \
     PIP_DISABLE_PIP_VERSION_CHECK="1" \
