@@ -29,7 +29,7 @@
     "postinstall:patch": "patch-package --patch-dir npm-patches"
   },
   "devDependencies": {
-    "npm-run-all2": "^9.0.3",
+    "npm-run-all2": "^9.0.4",
     "patch-package": "^8.0.1"
   }
 }
