@@ -28,7 +28,7 @@ jobs:
       - name: Setup NodeJS
         uses: Wandalen/wretry.action@v3.8.0
         with:
-          action: actions/setup-node@v7.0.0
+          action: actions/setup-node@v7.1.0
           attempt_limit: 3
           attempt_delay: 2500
           with: |
