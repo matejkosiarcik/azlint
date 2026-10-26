@@ -1,8 +1,8 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    chef-utils (19.3.15)
-      concurrent-ruby
+    chef-utils (19.4.46)
+      concurrent-ruby (>= 1.3.7)
     concurrent-ruby (1.3.8)
     date (3.6.0)
     kramdown (2.5.2)
@@ -26,7 +26,7 @@ GEM
       stringio
     rexml (3.4.4)
     stringio (3.2.0)
-    tomlrb (2.0.4)
+    tomlrb (3.0.0)
     uri (1.1.2)
 
 PLATFORMS
@@ -41,4 +41,4 @@ RUBY VERSION
   ruby 3.4.1p0
 
 BUNDLED WITH
-  4.0.22
+  4.0.23
