@@ -16,7 +16,7 @@ sources:
 sources_locked:
   - repo: https://github.com/Homebrew/install.git
     name: brew-installer
-    rev: 85d1a3fc80d8a63932f632aca8f787de11d14a64
+    rev: 9a3ae62bfbde3396b41d6476a70ecd343e6506de
     type: git
     params:
     sparse_paths:
