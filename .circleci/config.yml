@@ -66,7 +66,7 @@ jobs:
       - run: |
           git config --global user.email nobody@example.com
           git config --global user.name Nobody
-      - run: npm ci --prefix './cli' --unsafe-perm --no-progress --no-audit --no-fund --loglevel=error
+      - run: npm ci --prefix './cli' --no-progress --no-audit --no-fund --loglevel=error
       - run: npm --prefix './cli' test
 
   native-build:
