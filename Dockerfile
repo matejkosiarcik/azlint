@@ -632,7 +632,7 @@ RUN sh './sanity-check.sh'
 
 ### PHP - Composer ###
 
-FROM composer:2.10.3 AS linters__php__composer__bin__base
+FROM composer:2.11.0 AS linters__php__composer__bin__base
 
 FROM --platform=${BUILDPLATFORM} debian:13.7-slim AS linters__php__composer__bin__optimize
 WORKDIR /app
