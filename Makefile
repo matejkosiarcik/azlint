@@ -50,6 +50,8 @@ bootstrap:
 		DESTDIR="$${PWD}/install" make install && \
 		cp './install/usr/local/bin/oksh' "$(PROJECT_DIR)/linters/bin/"
 
+	rm -rf "$(PROJECT_DIR)/venv"
+	python3 -m venv "$(PROJECT_DIR)/venv"
 	PATH="$(PROJECT_DIR)/venv/bin:$${PATH}" \
 	PYTHONPATH="$(PROJECT_DIR)/linters/python-vendor" \
 	PIP_DISABLE_PIP_VERSION_CHECK=1 \
