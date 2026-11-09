@@ -5,6 +5,9 @@ SHELL := /bin/sh
 .SHELLFLAGS := -ec
 PROJECT_DIR := $(abspath $(dir $(MAKEFILE_LIST)))
 
+# TODO: Remove workaround with python3.14 after version compatibility - https://github.com/google/re2/issues/647
+PYTHON ?= $(shell command -v python3.14 2>/dev/null || command -v python3)
+
 .POSIX:
 .SILENT:
 
@@ -25,11 +28,11 @@ bootstrap:
 		cd "$(PROJECT_DIR)/$${dir}" && \
 		(deactivate >'/dev/null' 2>&1 || true) && \
 		rm -rf './venv' && \
-		python3 -m venv './venv' && \
+		$(PYTHON) -m venv './venv' && \
 		. './venv/bin/activate' && \
 		PATH="$${PWD}/venv/bin:$${PATH}" \
 		PIP_DISABLE_PIP_VERSION_CHECK=1 \
-			python3 -m pip install --requirement './requirements.txt' --quiet --upgrade && \
+			python -m pip install --requirement './requirements.txt' --quiet --upgrade && \
 		deactivate && \
 	true; done
 
@@ -50,10 +53,12 @@ bootstrap:
 		DESTDIR="$${PWD}/install" make install && \
 		cp './install/usr/local/bin/oksh' "$(PROJECT_DIR)/linters/bin/"
 
+	rm -rf "$(PROJECT_DIR)/venv"
+	$(PYTHON) -m venv "$(PROJECT_DIR)/venv"
 	PATH="$(PROJECT_DIR)/venv/bin:$${PATH}" \
 	PYTHONPATH="$(PROJECT_DIR)/linters/python-vendor" \
 	PIP_DISABLE_PIP_VERSION_CHECK=1 \
-		python3 -m pip install --requirement './linters/requirements.txt' --target './linters/python-vendor' --quiet --upgrade
+		python -m pip install --requirement './linters/requirements.txt' --target './linters/python-vendor' --quiet --upgrade
 
 	# Create cache ahead of time, because it can fail when creating during runtime
 	mkdir -p "$${HOME}/.cache/proselint"
