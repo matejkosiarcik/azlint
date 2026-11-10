@@ -23,9 +23,6 @@ index f463625..d787a52 100644
 
  PACKAGES := $(shell find ./* -type d | grep -v vendor)
  TEST_PKG ?= $(shell go list ./... | grep -v /vendor/)
-@@ -280,5 +277,3 @@ image-build:
- .PHONY: image-push
- image-push:
- 	$(CONTAINER_CMD) push $(IMG)
--
--
+@@ -141 +141,2 @@
++.PHONY: $(GOLANGCI_LINT_BIN)
+ $(GOLANGCI_LINT_BIN):
