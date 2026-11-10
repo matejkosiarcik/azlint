@@ -1,11 +1,20 @@
 diff --git a/Makefile b/Makefile
-index e792990..732d1eb 100644
+index f463625..517b8e2 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -37,10 +37,7 @@ BUILDER := $(shell echo "${BUILDER_NAME} <${EMAIL}>")
+@@ -18,7 +18,7 @@ BUILD_GOOS ?= $(shell go env GOOS)
+ BUILD_GOARCH ?= $(shell go env GOARCH)
+ BUILD_GOPATH :=$(shell go env GOPATH)
+
+-GOLANGCI_LINT_VERSION := v2.13.0 # pinned
++GOLANGCI_LINT_VERSION := v2.15.0 # pinned
+ GOLANGCI_LINT_MAJOR_VER := v2
+ GOLANGCI_LINT_BIN := $(BUILD_GOPATH)/bin/golangci-lint
+
+@@ -73,10 +73,7 @@ BUILDER := $(shell echo "${BUILDER_NAME} <${EMAIL}>")
 
  PKG_RELEASE ?= 1
- PROJECT_URL := "https://github.com/mrtazz/$(NAME)"
+ PROJECT_URL := "https://github.com/checkmake/$(NAME)"
 -LDFLAGS := -X 'main.version=$(VERSION)' \
 -           -X 'main.buildTime=$(BUILDTIME)' \
 -           -X 'main.builder=$(BUILDER)' \
@@ -14,3 +23,10 @@ index e792990..732d1eb 100644
 
  PACKAGES := $(shell find ./* -type d | grep -v vendor)
  TEST_PKG ?= $(shell go list ./... | grep -v /vendor/)
+@@ -138,6 +135,7 @@ lint.workflows: $(ACTIONLINT_BIN) ## lint github workflow files
+ $(ACTIONLINT_BIN):
+ 	@go install github.com/rhysd/actionlint/cmd/actionlint@$(ACTIONLINT_VERSION)
+
++.PHONY: $(GOLANGCI_LINT_BIN)
+ $(GOLANGCI_LINT_BIN):
+ 	@go install github.com/golangci/golangci-lint/$(GOLANGCI_LINT_MAJOR_VER)/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION)
