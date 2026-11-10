@@ -4,6 +4,11 @@ MAKEFLAGS += --warn-undefined-variables
 SHELL := /bin/sh
 .SHELLFLAGS := -ec
 PROJECT_DIR := $(abspath $(dir $(MAKEFILE_LIST)))
+DOCKER_ARCHS := amd64 arm64/v8
+DOCKER_IMAGE := matejkosiarcik/azlint:dev
+
+# Define portable datetime format
+define_log_function := log_timestamp() { date_supports_milliseconds="$$(date '+%3N')"; case "$${date_supports_milliseconds}" in [0-9][0-9][0-9]) milliseconds_format='%3N' ;; *) milliseconds_format='000' ;; esac; date "+%Y-%m-%dT%H:%M:%S.$${milliseconds_format}Z"; }; log() { log_level="$$1"; shift; log_timestamp="$$(log_timestamp)"; printf '%s\n' "$${*}" | while IFS= read -r log_message || [ -n "$${log_message}" ]; do printf '%s [%s]: %s\n' "$${log_timestamp}" "$$log_level" "$${log_message}"; done >&2; }
 
 # TODO: Remove workaround with python3.14 after version compatibility - https://github.com/google/re2/issues/647
 PYTHON ?= $(shell command -v python3.14 2>/dev/null || command -v python3)
@@ -13,10 +18,17 @@ PYTHON ?= $(shell command -v python3.14 2>/dev/null || command -v python3)
 
 .DEFAULT: all
 .PHONY: all
-all: clean bootstrap test docker-build docker-run docker-build-multiarch
+all: clean bootstrap build test docker-build docker-run docker-build-multiarch
 
 .PHONY: bootstrap
 bootstrap:
+	# Check if there is an active virtualenv and abort
+	$(define_log_function); \
+	if [ -n "$${VIRTUAL_ENV+x}" ]; then \
+		log ERROR 'There is an active Python virtualenv. Run "deactivate" and try again.'; \
+		exit 1; \
+	fi
+
 	mkdir -p './linters/bin'
 
 	# NOTE: Shouldn't run in parallel, because it can collide when creating the same temporary cache directory
@@ -26,14 +38,12 @@ bootstrap:
 	# Python dependencies
 	printf '%s\n%s\n' './build-dependencies/gitman' './build-dependencies/yq' | while read -r dir; do \
 		cd "$(PROJECT_DIR)/$${dir}" && \
-		(deactivate >'/dev/null' 2>&1 || true) && \
 		rm -rf './venv' && \
 		$(PYTHON) -m venv './venv' && \
-		. './venv/bin/activate' && \
 		PATH="$${PWD}/venv/bin:$${PATH}" \
-		PIP_DISABLE_PIP_VERSION_CHECK=1 \
+		PIP_DISABLE_PIP_VERSION_CHECK='1' \
+		PYTHONDONTWRITEBYTECODE='1' \
 			python -m pip install --requirement './requirements.txt' --quiet --upgrade && \
-		deactivate && \
 	true; done
 
 	find './linters/gitman-repos' -mindepth 1 -maxdepth 1 -type d -print0 | \
@@ -58,7 +68,8 @@ bootstrap:
 	$(PYTHON) -m venv "$(PROJECT_DIR)/venv"
 	PATH="$(PROJECT_DIR)/venv/bin:$${PATH}" \
 	PYTHONPATH="$(PROJECT_DIR)/linters/python-vendor" \
-	PIP_DISABLE_PIP_VERSION_CHECK=1 \
+	PIP_DISABLE_PIP_VERSION_CHECK='1' \
+	PYTHONDONTWRITEBYTECODE='1' \
 		python -m pip install --requirement './linters/requirements.txt' --target './linters/python-vendor' --quiet --upgrade
 
 	# Create cache ahead of time, because it can fail when creating during runtime
@@ -106,42 +117,56 @@ bootstrap:
 
 .PHONY: build
 build:
+	$(define_log_function); log INFO 'Building CLI'
 	npm --prefix './cli' run build
 
 .PHONY: test
 test:
+	$(define_log_function); log INFO 'Testing CLI'
 	npm --prefix './cli' test
 
 .PHONY: run
 run:
+	$(define_log_function); log INFO 'Running azlint'
 	npm --prefix './cli' run azlint:lint
 
 .PHONY: docker-build
 docker-build:
-	time docker build '.' --tag matejkosiarcik/azlint:dev
+	$(define_log_function); log INFO 'Building Docker image'
+	time docker build "$(PROJECT_DIR)" --tag "$(DOCKER_IMAGE)"
 
 .PHONY: docker-build-multiarch
 docker-build-multiarch:
-	printf '%s\n%s\n' amd64 arm64/v8 | \
+	$(define_log_function); \
+	printf '%s\n' $(DOCKER_ARCHS) | \
 		while read -r arch; do \
-			printf 'Building for linux/%s:\n' "$${arch}" && \
-			time docker build '.' --tag "matejkosiarcik/azlint:dev-$$(printf '%s' "$${arch}" | tr '/' '-')" --platform "linux/$${arch}" && \
+			log INFO "Building Docker image for linux/$${arch}" && \
+			time docker build "$(PROJECT_DIR)" --tag "$(DOCKER_IMAGE)-$$(printf '%s' "$${arch}" | tr '/' '-')" --platform "linux/$${arch}" && \
 		true; done
 
 .PHONY: docker-run
 docker-run:
-	time docker run --interactive --tty --rm --tmpfs '/tmp:rw,exec,nodev,noatime,nodiratime,uid=1000,gid=1000' --volume "$(PROJECT_DIR):/project:ro" matejkosiarcik/azlint:dev lint
+	$(define_log_function); log INFO 'Running azlint in Docker'
+	time docker run --interactive --tty --rm --tmpfs '/tmp:rw,exec,nodev,noatime,nodiratime,uid=1000,gid=1000' --volume "$(PROJECT_DIR):/project:ro" "$(DOCKER_IMAGE)" lint
 
 .PHONY: docker-run-multiarch
 docker-run-multiarch:
-	printf '%s\n%s\n' amd64 arm64/v8 | \
+	$(define_log_function); \
+	printf '%s\n' $(DOCKER_ARCHS) | \
 		while read -r arch; do \
-			printf 'Running on linux/%s:\n' "$${arch}" && \
-			time docker run --interactive --tty --rm --tmpfs '/tmp:rw,exec,nodev,noatime,nodiratime,uid=1000,gid=1000' --volume "$(PROJECT_DIR):/project:ro" --platform "linux/$${arch}" "matejkosiarcik/azlint:dev-$$(printf '%s' "$${arch}" | tr '/' '-')" lint \
+			log INFO "Running azlint in Docker on linux/$${arch}" && \
+			time docker run --interactive --tty --rm --tmpfs '/tmp:rw,exec,nodev,noatime,nodiratime,uid=1000,gid=1000' --volume "$(PROJECT_DIR):/project:ro" --platform "linux/$${arch}" "$(DOCKER_IMAGE)-$$(printf '%s' "$${arch}" | tr '/' '-')" lint \
 		true; done
 
 .PHONY: clean
 clean:
+	# Check if there is an active virtualenv and abort
+	$(define_log_function); \
+	if [ -n "$${VIRTUAL_ENV+x}" ]; then \
+		log ERROR 'There is an active Python virtualenv. Run "deactivate" and try again.'; \
+		exit 1; \
+	fi
+
 	if [ -e "$(PROJECT_DIR)/linters/go" ]; then \
 		chown -R "$$(whoami)" "$(PROJECT_DIR)/linters/go" && \
 		find "$(PROJECT_DIR)/linters/go" -type f -exec chmod 0644 {} \; && \
@@ -149,7 +174,7 @@ clean:
 	true; fi
 
 	find './linters/gitman-repos' -name gitman -type d -prune -exec rm -rf {} \;
-	rm -rf "$(PROJECT_DIR)/build-dependencies/python-gitman/venv" \
+	rm -rf "$(PROJECT_DIR)/build-dependencies/gitman/venv" \
 		"$(PROJECT_DIR)/build-dependencies/yq/venv" \
 		"$(PROJECT_DIR)/cli/dist" \
 		"$(PROJECT_DIR)/docs/demo/gitman" \
