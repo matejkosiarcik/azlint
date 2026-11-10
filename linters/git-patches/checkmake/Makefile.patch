@@ -1,5 +1,5 @@
 diff --git a/Makefile b/Makefile
-index f463625..d787a52 100644
+index f463625..517b8e2 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -18,7 +18,7 @@ BUILD_GOOS ?= $(shell go env GOOS)
@@ -23,6 +23,10 @@ index f463625..d787a52 100644
 
  PACKAGES := $(shell find ./* -type d | grep -v vendor)
  TEST_PKG ?= $(shell go list ./... | grep -v /vendor/)
-@@ -141 +141,2 @@
+@@ -138,6 +135,7 @@ lint.workflows: $(ACTIONLINT_BIN) ## lint github workflow files
+ $(ACTIONLINT_BIN):
+ 	@go install github.com/rhysd/actionlint/cmd/actionlint@$(ACTIONLINT_VERSION)
+
 +.PHONY: $(GOLANGCI_LINT_BIN)
  $(GOLANGCI_LINT_BIN):
+ 	@go install github.com/golangci/golangci-lint/$(GOLANGCI_LINT_MAJOR_VER)/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION)
