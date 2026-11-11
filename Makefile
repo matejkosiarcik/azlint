@@ -6,6 +6,8 @@ SHELL := /bin/sh
 PROJECT_DIR := $(abspath $(dir $(MAKEFILE_LIST)))
 DOCKER_ARCHS := amd64 arm64/v8
 DOCKER_IMAGE := matejkosiarcik/azlint:dev
+NPM_COMPONENTS := $(shell find '.' -type f -name 'package-lock.json' -not \( -path '*/bundle/*' -or -path '*/cargo/*' -or -path '*/gitman-repos/*' -or -path '*/go/*' -or -path '*/node_modules/*' -or -path '*/python-vendor/*' -or -path '*/target/*' -or -path '*/vendor/*' -or -path '*/venv/*' \) -exec dirname {} \; | LC_ALL=C sort -u | base64)
+PYTHON_COMPONENTS := $(shell find '.' -type f -name 'requirements.txt' -not \( -path '*/bundle/*' -or -path '*/cargo/*' -or -path '*/gitman-repos/*' -or -path '*/go/*' -or -path '*/node_modules/*' -or -path '*/python-vendor/*' -or -path '*/target/*' -or -path '*/vendor/*' -or -path '*/venv/*' \) -exec dirname {} \; | LC_ALL=C sort -u | base64)
 
 # Define portable datetime format
 define_log_function := log_timestamp() { date_supports_milliseconds="$$(date '+%3N')"; case "$${date_supports_milliseconds}" in [0-9][0-9][0-9]) milliseconds_format='%3N' ;; *) milliseconds_format='000' ;; esac; date "+%Y-%m-%dT%H:%M:%S.$${milliseconds_format}Z"; }; log() { log_level="$$1"; shift; log_timestamp="$$(log_timestamp)"; printf '%s\n' "$${*}" | while IFS= read -r log_message || [ -n "$${log_message}" ]; do printf '%s [%s]: %s\n' "$${log_timestamp}" "$$log_level" "$${log_message}"; done >&2; }
@@ -32,12 +34,13 @@ bootstrap:
 	mkdir -p './linters/bin'
 
 	# NOTE: Shouldn't run in parallel, because it can collide when creating the same temporary cache directory
-	printf '%s\0%s\0' './cli' './linters' | \
-		xargs -0 -n1 npm ci --no-save --no-progress --no-audit --no-fund --loglevel=error --prefix
+	printf '%s' "$(NPM_COMPONENTS)" | tr -d ' ' | base64 -d | while IFS= read -r component; do \
+		npm ci --prefix "$(PROJECT_DIR)/$${component}" --no-save --no-progress --no-audit --no-fund --loglevel=error && \
+	true; done
 
 	# Python dependencies
-	printf '%s\n%s\n' './build-dependencies/gitman' './build-dependencies/yq' | while read -r dir; do \
-		cd "$(PROJECT_DIR)/$${dir}" && \
+	printf '%s' "$(PYTHON_COMPONENTS)" | tr -d ' ' | base64 -d | while IFS= read -r component; do \
+		cd "$(PROJECT_DIR)/$${component}" && \
 		rm -rf './venv' && \
 		$(PYTHON) -m venv './venv' && \
 		PATH="$${PWD}/venv/bin:$${PATH}" \
@@ -45,6 +48,14 @@ bootstrap:
 		PYTHONDONTWRITEBYTECODE='1' \
 			python -m pip install --requirement './requirements.txt' --quiet --upgrade && \
 	true; done
+
+	rm -rf "$(PROJECT_DIR)/venv"
+	$(PYTHON) -m venv "$(PROJECT_DIR)/venv"
+	PATH="$(PROJECT_DIR)/venv/bin:$${PATH}" \
+	PYTHONPATH="$(PROJECT_DIR)/linters/python-vendor" \
+	PIP_DISABLE_PIP_VERSION_CHECK='1' \
+	PYTHONDONTWRITEBYTECODE='1' \
+		python -m pip install --requirement './linters/requirements.txt' --target './linters/python-vendor' --quiet --upgrade
 
 	find './linters/gitman-repos' -mindepth 1 -maxdepth 1 -type d -print0 | \
 		PATH="$(PROJECT_DIR)/build-dependencies/gitman/venv/bin:$${PATH}" xargs -0 -n1 -P0 gitman install --quiet --force --root
@@ -63,14 +74,6 @@ bootstrap:
 		make && \
 		DESTDIR="$${PWD}/install" make install && \
 		cp './install/usr/local/bin/oksh' "$(PROJECT_DIR)/linters/bin/"
-
-	rm -rf "$(PROJECT_DIR)/venv"
-	$(PYTHON) -m venv "$(PROJECT_DIR)/venv"
-	PATH="$(PROJECT_DIR)/venv/bin:$${PATH}" \
-	PYTHONPATH="$(PROJECT_DIR)/linters/python-vendor" \
-	PIP_DISABLE_PIP_VERSION_CHECK='1' \
-	PYTHONDONTWRITEBYTECODE='1' \
-		python -m pip install --requirement './linters/requirements.txt' --target './linters/python-vendor' --quiet --upgrade
 
 	# Create cache ahead of time, because it can fail when creating during runtime
 	mkdir -p "$${HOME}/.cache/proselint"
@@ -173,22 +176,25 @@ clean:
 		find "$(PROJECT_DIR)/linters/go" -type d -exec chmod 0755 {} \; && \
 	true; fi
 
+	find "$(PROJECT_DIR)" -type d \( \
+		-name '.mypy_cache' -or \
+		-name '.bundle' -or \
+		-name 'build' -or \
+		-name 'dist' -or \
+		-name 'node_modules' -or \
+		-name 'python-vendor' -or \
+		-name 'target' -or \
+		-name 'test-report' -or \
+		-name 'vendor' -or \
+		-name 'venv' \
+	\) -prune -exec rm -rf {} \;
+
 	find './linters/gitman-repos' -name gitman -type d -prune -exec rm -rf {} \;
-	rm -rf "$(PROJECT_DIR)/build-dependencies/gitman/venv" \
-		"$(PROJECT_DIR)/build-dependencies/yq/venv" \
-		"$(PROJECT_DIR)/cli/dist" \
-		"$(PROJECT_DIR)/docs/demo/gitman" \
+	rm -rf "$(PROJECT_DIR)/docs/demo/gitman" \
 		"$(PROJECT_DIR)/linters/bin" \
 		"$(PROJECT_DIR)/linters/bundle" \
-		"$(PROJECT_DIR)/linters/.bundle" \
 		"$(PROJECT_DIR)/linters/cargo" \
-		"$(PROJECT_DIR)/linters/go" \
-		"$(PROJECT_DIR)/linters/node_modules" \
-		"$(PROJECT_DIR)/linters/python-vendor" \
-		"$(PROJECT_DIR)/linters/target" \
-		"$(PROJECT_DIR)/linters/vendor" \
-		"$(PROJECT_DIR)/cli/node_modules" \
-		"$(PROJECT_DIR)/venv"
+		"$(PROJECT_DIR)/linters/go"
 
 .PHONY: demo
 demo:
