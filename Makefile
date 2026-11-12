@@ -166,7 +166,7 @@ clean:
 	# Check if there is an active virtualenv and abort
 	$(define_log_function); \
 	if [ -n "$${VIRTUAL_ENV+x}" ]; then \
-		log ERROR 'There is an active Python virtualenv. Run "deactivate" and try again.'; \
+		log ERROR 'There is an active python virtualenv. Run "deactivate" and try again.'; \
 		exit 1; \
 	fi
 
@@ -177,10 +177,11 @@ clean:
 	true; fi
 
 	find "$(PROJECT_DIR)" -type d \( \
-		-name '.mypy_cache' -or \
 		-name '.bundle' -or \
+		-name '.mypy_cache' -or \
 		-name 'build' -or \
 		-name 'dist' -or \
+		-name 'gitman-repositories' -or \
 		-name 'node_modules' -or \
 		-name 'python-vendor' -or \
 		-name 'target' -or \
