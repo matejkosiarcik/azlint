@@ -42,6 +42,7 @@ ENV_DOTENV_LINTER_ARGUMENTS: --ignore-checks QuoteCharacter
 JSON_BIOME_FILTER_REGEX_EXCLUDE: '(?:^|/)package-lock\.json$'
 JSON_BIOME_RULES_PATH: .
 JSON_V8R_FILTER_REGEX_EXCLUDE: (?:(?:^|/)composer\.json|(?:^|/)package\.json|(?:^|/)package\-lock\.json)
+YAML_V8R_FILTER_REGEX_EXCLUDE: (?:^|/)docker\-images/homepage/app/config/services\.ya?ml$
 
 ACTION_ZIZMOR_UNSECURED_ENV_VARIABLES:
   - GITHUB_TOKEN
