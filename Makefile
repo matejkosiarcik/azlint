@@ -46,7 +46,7 @@ bootstrap:
 		PATH="$${PWD}/venv/bin:$${PATH}" \
 		PIP_DISABLE_PIP_VERSION_CHECK='1' \
 		PYTHONDONTWRITEBYTECODE='1' \
-			python3 -m pip install --no-compile --require-hashes --requirement './requirements.txt' --quiet && \
+			python3 -m pip install --quiet --no-compile --require-hashes --requirement './requirements.txt' && \
 	true; done
 
 	rm -rf "$(PROJECT_DIR)/venv"
@@ -55,7 +55,7 @@ bootstrap:
 	PYTHONPATH="$(PROJECT_DIR)/linters/python-vendor" \
 	PIP_DISABLE_PIP_VERSION_CHECK='1' \
 	PYTHONDONTWRITEBYTECODE='1' \
-		python3 -m pip install --no-compile --require-hashes --requirement './linters/requirements.txt' --target './linters/python-vendor' --quiet
+		python3 -m pip install --quiet --no-compile --require-hashes --requirement './linters/requirements.txt' --target './linters/python-vendor'
 
 	find './linters/gitman-repos' -mindepth 1 -maxdepth 1 -type d -print0 | \
 		PATH="$(PROJECT_DIR)/build-dependencies/gitman/venv/bin:$${PATH}" xargs -0 -n1 -P0 gitman install --quiet --force --root
