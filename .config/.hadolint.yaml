@@ -2,6 +2,7 @@ ignored:
   - DL3002 # "root" as last user
   - DL3008 # apt-get exact versions
   - DL3013 # pip exact versions
+  - DL3016 # npm exact versions
   - DL3018 # apk exact versions
   - DL3028 # gem exact versions
   - DL3042 # pip cache dir - False positives when mounting cache directory - Also see https://github.com/hadolint/hadolint/issues/497
