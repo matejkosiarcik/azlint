@@ -1,0 +1,2 @@
+[tool.pip-tools.compile]
+allow-unsafe = true

@@ -46,7 +46,7 @@ bootstrap:
 		PATH="$${PWD}/venv/bin:$${PATH}" \
 		PIP_DISABLE_PIP_VERSION_CHECK='1' \
 		PYTHONDONTWRITEBYTECODE='1' \
-			python -m pip install --requirement './requirements.txt' --quiet --upgrade && \
+			python3 -m pip install --quiet --no-compile --require-hashes --requirement './requirements.txt' && \
 	true; done
 
 	rm -rf "$(PROJECT_DIR)/venv"
@@ -55,7 +55,7 @@ bootstrap:
 	PYTHONPATH="$(PROJECT_DIR)/linters/python-vendor" \
 	PIP_DISABLE_PIP_VERSION_CHECK='1' \
 	PYTHONDONTWRITEBYTECODE='1' \
-		python -m pip install --requirement './linters/requirements.txt' --target './linters/python-vendor' --quiet --upgrade
+		python3 -m pip install --quiet --no-compile --require-hashes --requirement './linters/requirements.txt' --target './linters/python-vendor'
 
 	find './linters/gitman-repos' -mindepth 1 -maxdepth 1 -type d -print0 | \
 		PATH="$(PROJECT_DIR)/build-dependencies/gitman/venv/bin:$${PATH}" xargs -0 -n1 -P0 gitman install --quiet --force --root
@@ -166,7 +166,7 @@ clean:
 	# Check if there is an active virtualenv and abort
 	$(define_log_function); \
 	if [ -n "$${VIRTUAL_ENV+x}" ]; then \
-		log ERROR 'There is an active Python virtualenv. Run "deactivate" and try again.'; \
+		log ERROR 'There is an active python virtualenv. Run "deactivate" and try again.'; \
 		exit 1; \
 	fi
 
@@ -177,10 +177,11 @@ clean:
 	true; fi
 
 	find "$(PROJECT_DIR)" -type d \( \
-		-name '.mypy_cache' -or \
 		-name '.bundle' -or \
+		-name '.mypy_cache' -or \
 		-name 'build' -or \
 		-name 'dist' -or \
+		-name 'gitman-repositories' -or \
 		-name 'node_modules' -or \
 		-name 'python-vendor' -or \
 		-name 'target' -or \

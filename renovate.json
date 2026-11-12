@@ -9,6 +9,21 @@
     "enabled": true,
     "rebaseWhen": "auto"
   },
+  "pip-compile": {
+    "enabled": true,
+    "managerFilePatterns": [
+      "/(^|/)requirements(?:[.-]\\w+)?\\.txt$/"
+    ],
+    "lockFileMaintenance": {
+      "enabled": true
+    }
+  },
+  "pip_requirements": {
+    "enabled": false
+  },
+  "pip_setup": {
+    "enabled": false
+  },
   "customManagers": [
     {
       "customType": "regex",
@@ -24,6 +39,24 @@
     }
   ],
   "packageRules": [
+    {
+      "description": "Keep mutable upstream image tags reproducible while Renovate tracks new manifests",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchPackageNames": [
+        "gcr.io/distroless/static-debian13",
+        "gcr.io/distroless/base-debian13",
+        "gcr.io/distroless/nodejs22-debian13",
+        "gcr.io/distroless/nodejs24-debian13",
+        "gcr.io/distroless/nodejs26-debian13",
+        "linuxserver/tvheadend"
+      ],
+      "pinDigests": true
+    },
     {
       "automerge": true,
       "automergeStrategy": "squash",
