@@ -20,7 +20,7 @@ PYTHON ?= $(shell command -v python3.14 2>/dev/null || command -v python3)
 
 .DEFAULT: all
 .PHONY: all
-all: clean bootstrap build test docker-build docker-lint docker-fmt docker-build-multiarch docker-lint-multiarch
+all: clean bootstrap build test run-lint run-fmt docker-build docker-lint docker-fmt docker-build-multiarch docker-lint-multiarch
 
 .PHONY: bootstrap
 bootstrap:
@@ -137,11 +137,18 @@ test:
 	$(define_log_function); log INFO 'Tests were successful'
 	printf '\n'
 
-.PHONY: run
-run:
+.PHONY: run-lint
+run-lint:
 	$(define_log_function); log INFO 'Running "azlint lint" (native)'
 	npm --prefix './cli' run azlint:lint
 	$(define_log_function); log INFO 'Command "azlint lint" finished successfully'
+	printf '\n'
+
+.PHONY: run-fnt
+run-fmt:
+	$(define_log_function); log INFO 'Running "azlint fmt" (native)'
+	npm --prefix './cli' run azlint:fmt
+	$(define_log_function); log INFO 'Command "azlint fmt" finished successfully'
 	printf '\n'
 
 .PHONY: docker-build
