@@ -5,7 +5,6 @@ import crypto from 'crypto';
 import { execa, ExecaError, Options as ExecaOptions } from 'execa';
 import { logAlways, logVerbose } from './log.ts';
 
-export type OneOrArray<T> = T | T[];
 export type ColorOptions = 'auto' | 'never' | 'always';
 export type ProgressOptions = 'no' | 'yes';
 
@@ -33,7 +32,7 @@ export async function delay(timeout: number) {
 /**
  * Turn sync value into async value
  */
-export async function resolvePromiseOrValue<T>(value: T | Promise<T>): Promise<T> {
+export async function resolvePromiseOrValue<T>(value: MaybePromise<T>): Promise<T> {
     if (value && typeof value === 'object') {
         return 'then' in value ? await value : value;
     }
@@ -283,7 +282,7 @@ export async function customExeca(command: string[], _options?: Partial<ExecaOpt
 /**
  * Match list of files given wildcards or predicates
  */
-export function matchFiles(allFiles: string[], fileMatch: OneOrArray<string | RegExp | ((file: string) => boolean)>): string[] {
+export function matchFiles(allFiles: string[], fileMatch: MaybeArray<string | RegExp | ((file: string) => boolean)>): string[] {
     fileMatch = Array.isArray(fileMatch) ? fileMatch : [fileMatch];
 
     const predicates = fileMatch.map((fileMatchEntry) => {

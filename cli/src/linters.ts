@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { Options as ExecaOptions } from 'execa';
 import pLimit, { LimitFunction } from 'p-limit';
 import { logExtraVerbose, logNormal, logVerbose, logFixingError, logFixingSuccess, logFixingUnchanged, logLintFail, logLintSuccess, logLintSkip } from './log.ts';
-import { customExeca, hashFile, isProjectGitRepo, matchFiles, OneOrArray, resolvePromiseOrValue } from './utils.ts';
+import { customExeca, hashFile, isProjectGitRepo, matchFiles, resolvePromiseOrValue } from './utils.ts';
 import { getConfigArgs } from './config-files.ts';
 import { resolveLintArgs, resolveLintOptions, resolveLintSuccessExitCode } from './linter-utils.ts';
 
@@ -51,7 +51,7 @@ export class Linters {
 
     private async runLinter(
         options: {
-            fileMatch: OneOrArray<string | RegExp | ((file: string) => boolean)>,
+            fileMatch: MaybeArray<string | RegExp | ((file: string) => boolean)>,
             linterName: string,
             envName: string,
             beforeAllFiles?: (toolName: string) => (void | Promise<void>),
