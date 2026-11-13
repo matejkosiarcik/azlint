@@ -206,7 +206,7 @@ If you want to specify a custom config file for a specific linter, set `AZLINT_F
 (note 1: replace `FOO` with specific linter's name;
 note 2: file path is relative to specified config directory).
 
-You can turn of linters/formatters by specifying environment variable `AZLINT_FOO=false`
+You can turn off linters/formatters by specifying environment variable `VALIDATE_FOO=false`
 (note: replace `FOO` with specific linter's name).
 
 A note about linter names, if a linter is named `foo-bar`,

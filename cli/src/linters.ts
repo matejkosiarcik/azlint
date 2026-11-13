@@ -70,7 +70,6 @@ export class Linters {
                 options?: ExecaOptions | ((file: string) => (ExecaOptions | Promise<ExecaOptions>)) | undefined,
                 successExitCode?: number | number[] | ((status: number) => boolean) | undefined,
             } | ((file: string, toolName: string) => Promise<void>),
-            jobs?: number | undefined,
         }
     ): Promise<void> {
         if (shouldSkipLinter(options.envName, options.linterName)) {
@@ -90,14 +89,14 @@ export class Linters {
         }
 
         const files = matchFiles(this.files, options.fileMatch);
-        await Promise.all(files.map(async (file) => {
-            await this.runLinterFile({
-                file: file,
-                ...options,
-            });
-        }));
+        const jobs = files.map((file) => this.limit(() => this.runLinterFile({
+            file: file,
+            ...options,
+        })));
+        this.savedJobs.push(...jobs);
 
         if (options.afterAllFiles) {
+            await Promise.all(jobs);
             await resolvePromiseOrValue(options.afterAllFiles(options.linterName));
         }
     }
@@ -131,7 +130,7 @@ export class Linters {
         }
 
         if (options.beforeFile) {
-            options.beforeFile(options.file, options.linterName);
+            await resolvePromiseOrValue(options.beforeFile(options.file, options.linterName));
         }
 
         if (this.mode === 'lint') {
@@ -156,8 +155,7 @@ export class Linters {
                 lintCallback = options.lintFile;
             }
 
-            const lintJob = this.limit(async () => lintCallback(options.file, options.linterName));
-            this.savedJobs.push(lintJob);
+            await lintCallback(options.file, options.linterName);
         } else if (this.mode === 'fmt' && options.fmtFile) {
             if (typeof options.fmtFile === 'object') {
                 const execaConfig = options.fmtFile;
@@ -178,6 +176,7 @@ export class Linters {
                             logFixingUnchanged(toolName, file, cmd);
                         }
                     } else {
+                        this.foundProblems += 1;
                         logFixingError(toolName, file, cmd);
                     }
                 };
@@ -186,11 +185,12 @@ export class Linters {
         }
 
         if (options.afterFile) {
-            options.afterFile(options.file, options.linterName);
+            await resolvePromiseOrValue(options.afterFile(options.file, options.linterName));
         }
     }
 
     async run(): Promise<boolean> {
+        try {
         const matchers = {
             json: '*.{json,json5,jsonl,geojson,babelrc,ecrc,eslintrc,htmlhintrc,htmllintrc,jscsrc,jshintrc,jslintrc,prettierrc,remarkrc}',
             yaml: '*.{yml,yaml}',
@@ -274,7 +274,7 @@ export class Linters {
                 if (!isGit) {
                     logVerbose(`⏩ Skipping ${toolName}, not a git repository`);
                 }
-                return isGit;
+                return !isGit;
             },
             lintFile: {
                 args: ['git', 'check-ignore', '--no-index', '#file#'],
@@ -817,12 +817,13 @@ export class Linters {
         logNormal(`Found ${this.foundProblems} problems`);
         if (this.mode === 'lint') {
             return this.foundProblems === 0;
-        } else if (this.mode === 'fmt') {
-            logNormal(`Fixed ${this.fixedProblems} problems`);
-            return this.foundProblems === this.fixedProblems;
         }
 
-        await fs.rm(this._randomDir, { force: true, recursive: true });
-        return true;
+        logNormal(`Fixed ${this.fixedProblems} problems`);
+        return this.foundProblems === this.fixedProblems;
+        } finally {
+            await Promise.allSettled(this.savedJobs);
+            await fs.rm(this._randomDir, { force: true, recursive: true });
+        }
     }
 }
