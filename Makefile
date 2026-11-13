@@ -183,7 +183,7 @@ docker-lint-multiarch:
 .PHONY: docker-fmt
 docker-fmt:
 	$(define_log_function); log INFO 'Running "azlint fmt" in docker'
-	time docker run --interactive --tty --rm --tmpfs '/tmp:rw,exec,nodev,noatime,nodiratime,uid=1000,gid=1000' --volume "$(PROJECT_DIR):/project:ro" "$(DOCKER_IMAGE)" fmt
+	time docker run --interactive --tty --rm --tmpfs '/tmp:rw,exec,nodev,noatime,nodiratime,uid=1000,gid=1000' --volume "$(PROJECT_DIR):/project:rw" "$(DOCKER_IMAGE)" fmt
 	$(define_log_function); log INFO 'Command "azlint fmt" in docker finished successfully'
 	printf '\n'
 
