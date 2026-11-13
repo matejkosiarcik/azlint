@@ -125,7 +125,6 @@ jobs:
         run: make test
         shell: bash
 
-      # TODO: Re-enable lint
-      # - name: Run
-      #   run: make run
-      #   shell: bash
+      - name: Run
+        run: make lint
+        shell: bash
