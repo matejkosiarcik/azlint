@@ -129,6 +129,7 @@ jobs:
         run: make test
         shell: bash
 
-      - name: Run
-        run: make run-lint
-        shell: bash
+      # TODO: Run this step after running full project bootstrap
+      # - name: Run
+      #   run: make run-lint
+      #   shell: bash
