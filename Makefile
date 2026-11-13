@@ -21,6 +21,8 @@ PYTHON ?= $(shell command -v python3.14 2>/dev/null || command -v python3)
 .DEFAULT: all
 .PHONY: all
 all: clean bootstrap build test run-lint run-fmt docker-build docker-lint docker-fmt docker-build-multiarch docker-lint-multiarch
+	$(define_log_function); log INFO 'All development tasks completed successfully'
+	printf '\n'
 
 .PHONY: bootstrap
 bootstrap:
