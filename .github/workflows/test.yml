@@ -110,12 +110,16 @@ jobs:
           git config --global user.name Nobody
         shell: bash
 
+      # TODO: Remove this step and enable step below
       - name: Install project dependencies
         run: npm ci --no-progress --no-audit --no-fund --loglevel=error
         working-directory: "./cli"
-        # TODO: Add system dependencies and run full bootstrap
-        # run: make bootstrap
         shell: bash
+
+      # TODO: Replace the previous step with this step
+      # - name: Install project dependencies
+      #   run: make bootstrap
+      #   shell: bash
 
       - name: Build
         run: make build
