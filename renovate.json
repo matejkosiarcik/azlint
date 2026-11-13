@@ -58,16 +58,16 @@
       "automergeStrategy": "squash",
       "description": "Automerge non-major updates",
       "matchUpdateTypes": [
+        "bump",
+        "digest",
+        "lockFileMaintenance",
+        "lockfileUpdate",
         "minor",
         "patch",
         "pin",
         "pinDigest",
-        "digest",
-        "lockFileMaintenance",
-        "lockfileUpdate",
-        "rollback",
-        "bump",
-        "replacement"
+        "replacement",
+        "rollback"
       ],
       "rebaseWhen": "auto"
     },
