@@ -39,7 +39,7 @@ bootstrap:
 
 	# NOTE: Shouldn't run in parallel, because it can collide when creating the same temporary cache directory
 	printf '%s' "$(NPM_COMPONENTS)" | tr -d ' ' | base64 -d | while IFS= read -r component; do \
-		npm ci --prefix "$(PROJECT_DIR)/$${component}" --no-audit --no-fund --no-progress --no-save --loglevel=error && \
+		npm ci --prefix "$(PROJECT_DIR)/$${component}" --no-audit --no-fund --no-progress --no-save --loglevel=error <'/dev/null' && \
 	true; done
 
 	# Python dependencies
@@ -50,7 +50,7 @@ bootstrap:
 		PATH="$${PWD}/venv/bin:$${PATH}" \
 		PIP_DISABLE_PIP_VERSION_CHECK='1' \
 		PYTHONDONTWRITEBYTECODE='1' \
-			python3 -m pip install --quiet --no-compile --require-hashes --requirement './requirements.txt' && \
+			python3 -m pip install --quiet --no-compile --require-hashes --requirement './requirements.txt' <'/dev/null' && \
 	true; done
 
 	rm -rf "$(PROJECT_DIR)/venv"
@@ -59,24 +59,24 @@ bootstrap:
 	PYTHONPATH="$(PROJECT_DIR)/linters/python-vendor" \
 	PIP_DISABLE_PIP_VERSION_CHECK='1' \
 	PYTHONDONTWRITEBYTECODE='1' \
-		python3 -m pip install --quiet --no-compile --require-hashes --requirement './linters/requirements.txt' --target './linters/python-vendor'
+		python3 -m pip install --quiet --no-compile --require-hashes --requirement './linters/requirements.txt' --target './linters/python-vendor' <'/dev/null'
 
 	find './linters/gitman-repos' -mindepth 1 -maxdepth 1 -type d -print0 | \
 		PATH="$(PROJECT_DIR)/build-dependencies/gitman/venv/bin:$${PATH}" xargs -0 -n1 -P0 gitman install --quiet --force --root
 	sh './utils/apply-git-patches.sh' './linters/git-patches/checkmake' './linters/gitman-repos/go-checkmake/gitman/checkmake'
 	if [ "$$(uname -s)" != Linux ]; then \
-		sh './utils/apply-git-patches.sh' './linters/git-patches/loksh' './linters/gitman-repos/shell-loksh/gitman/loksh' && \
+		sh './utils/apply-git-patches.sh' './linters/git-patches/loksh' './linters/gitman-repos/shell-loksh/gitman/loksh' <'/dev/null' && \
 	true; fi
 
 	cd './linters/gitman-repos/shell-loksh/gitman/loksh' && \
-		meson setup --fatal-meson-warnings --prefix="$${PWD}/install" './build' && \
-		ninja --quiet -C './build' install && \
+		meson setup --fatal-meson-warnings --prefix="$${PWD}/install" './build' <'/dev/null' && \
+		ninja --quiet -C './build' install <'/dev/null' && \
 		cp './install/bin/ksh' "$(PROJECT_DIR)/linters/bin/loksh"
 
 	cd './linters/gitman-repos/shell-oksh/gitman/oksh' && \
-		'./configure' && \
-		make && \
-		DESTDIR="$${PWD}/install" make install && \
+		'./configure' <'/dev/null' && \
+		make <'/dev/null' && \
+		DESTDIR="$${PWD}/install" make install <'/dev/null' && \
 		cp './install/usr/local/bin/oksh' "$(PROJECT_DIR)/linters/bin/"
 
 	# Create cache ahead of time, because it can fail when creating during runtime
@@ -90,7 +90,7 @@ bootstrap:
 	BUNDLE_GEMFILE="$(PROJECT_DIR)/linters/Gemfile" \
 	BUNDLE_PATH="$(PROJECT_DIR)/linters/bundle" \
 	BUNDLE_PATH__SYSTEM=false \
-		bundle install --quiet
+		bundle install --quiet <'/dev/null'
 
 	PATH="$(PROJECT_DIR)/build-dependencies/yq/venv/bin:$${PATH}" \
 		tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' './linters/Cargo.toml' | \
@@ -101,25 +101,25 @@ bootstrap:
 		composer install --quiet
 
 	cd './linters/gitman-repos/go-checkmake/gitman/checkmake' && \
-		BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make && \
+		BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make <'/dev/null' && \
 		cp './checkmake' "$(PROJECT_DIR)/linters/bin/"
 
 	cd './linters/gitman-repos/go-editorconfig-checker/gitman/editorconfig-checker' && \
-		make build && \
+		make build <'/dev/null' && \
 		cp './bin/editorconfig-checker' "$(PROJECT_DIR)/linters/bin/"
 
 	printf '%s\n%s\n%s\n%s\n' mvdan.cc/sh/v3/cmd/shfmt@latest github.com/freshautomations/stoml@latest github.com/pelletier/go-toml/cmd/tomljson@latest github.com/rhysd/actionlint/cmd/actionlint@latest | \
-		GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on xargs -P0 -n1 go install -modcacherw
+		GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on xargs -P0 -n1 go install -modcacherw <'/dev/null'
 
 	cd './linters/gitman-repos/circleci-cli/gitman/circleci-cli' && \
 		mkdir -p './install' && \
-		DESTDIR="$${PWD}/install/" bash './install.sh'; \
+		DESTDIR="$${PWD}/install/" bash './install.sh' <'/dev/null' && \
 		cp './install/circleci' "$(PROJECT_DIR)/linters/bin/"
 
 	if command -v brew >'/dev/null' 2>&1; then \
 		HOMEBREW_NO_ANALYTICS=1 \
 		HOMEBREW_NO_AUTO_UPDATE=1 \
-			brew bundle --help --quiet >'/dev/null'; \
+			brew bundle --help --quiet >'/dev/null' <'/dev/null'; \
 	fi
 
 	$(define_log_function); log INFO 'Dependencies installed successfully'
