@@ -130,5 +130,5 @@ jobs:
         shell: bash
 
       - name: Run
-        run: make lint
+        run: make run-lint
         shell: bash
