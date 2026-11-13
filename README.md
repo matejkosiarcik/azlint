@@ -213,9 +213,9 @@ A note about linter names, if a linter is named `foo-bar`,
 then you need to specify environment variable named `FOO_BAR`
 (so capitalized and underscores instead of dashes).
 
-When using `--only-changed`, AZLint compares current `HEAD` with the project's default git branch (usually `master` or `main`).
+When using `--only-changed`, AZLint compares current `HEAD` with the project's default Git branch (usually `master` or `main`).
 You may set `AZLINT_DEFAULT_BASE_BRANCH` to set a different comparison base.
-If the git base or comparison cannot be determined, then AZLint falls back to linting all files, rather than risk skipping committed changes.
+If the Git base or comparison cannot be determined, then AZLint falls back to linting all files, rather than risk skipping committed changes.
 
 ## Included linters
 
