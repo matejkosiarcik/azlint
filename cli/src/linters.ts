@@ -690,7 +690,7 @@ export class Linters {
             fmtFile: {
                 args: ['composer', 'normalize', '--no-interaction', '--no-cache', '--ansi', '#file[abs]#'],
                 options: {
-                    cwd: path.resolve(path.join(moduleDir, '..', 'linters')),
+                    cwd: lintersDir,
                 },
             }
         });

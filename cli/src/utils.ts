@@ -272,7 +272,7 @@ export async function customExeca(command: string[], _options?: Partial<ExecaOpt
         return {
             all: stringifyOutput(error.all),
             command: command.join(' '),
-            error: '',
+            error: error.shortMessage,
             exitCode: error.exitCode ?? -1,
             stdout: stringifyOutput(error.stdout),
             stderr: stringifyOutput(error.stderr),
