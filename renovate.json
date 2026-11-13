@@ -48,11 +48,7 @@
         "dockerfile"
       ],
       "matchPackageNames": [
-        "gcr.io/distroless/static-debian13",
-        "gcr.io/distroless/base-debian13",
-        "gcr.io/distroless/nodejs22-debian13",
-        "gcr.io/distroless/nodejs24-debian13",
-        "gcr.io/distroless/nodejs26-debian13",
+        "gcr.io/distroless/**",
         "linuxserver/tvheadend"
       ],
       "pinDigests": true
@@ -63,7 +59,15 @@
       "description": "Automerge non-major updates",
       "matchUpdateTypes": [
         "minor",
-        "patch"
+        "patch",
+        "pin",
+        "pinDigest",
+        "digest",
+        "lockFileMaintenance",
+        "lockfileUpdate",
+        "rollback",
+        "bump",
+        "replacement"
       ],
       "rebaseWhen": "auto"
     },
