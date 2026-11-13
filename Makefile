@@ -20,7 +20,7 @@ PYTHON ?= $(shell command -v python3.14 2>/dev/null || command -v python3)
 
 .DEFAULT: all
 .PHONY: all
-all: clean bootstrap build test docker-build docker-run docker-build-multiarch
+all: clean bootstrap build test docker-build docker-lint docker-fmt docker-build-multiarch docker-lint-multiarch
 
 .PHONY: bootstrap
 bootstrap:
@@ -30,6 +30,8 @@ bootstrap:
 		log ERROR 'There is an active Python virtualenv. Run "deactivate" and try again.'; \
 		exit 1; \
 	fi
+
+	$(define_log_function); log INFO 'Installing dependencies (native)'
 
 	mkdir -p './linters/bin'
 
@@ -118,48 +120,72 @@ bootstrap:
 			brew bundle --help --quiet >'/dev/null'; \
 	fi
 
+	$(define_log_function); log INFO 'Dependencies installed successfully'
+	printf '\n'
+
 .PHONY: build
 build:
-	$(define_log_function); log INFO 'Building CLI'
+	$(define_log_function); log INFO 'Building CLI (native)'
 	npm --prefix './cli' run build
+	$(define_log_function); log INFO 'Build was successful'
+	printf '\n'
 
 .PHONY: test
 test:
-	$(define_log_function); log INFO 'Testing CLI'
+	$(define_log_function); log INFO 'Testing CLI (native)'
 	npm --prefix './cli' test
+	$(define_log_function); log INFO 'Tests were successful'
+	printf '\n'
 
 .PHONY: run
 run:
-	$(define_log_function); log INFO 'Running azlint'
+	$(define_log_function); log INFO 'Running "azlint lint" (native)'
 	npm --prefix './cli' run azlint:lint
+	$(define_log_function); log INFO 'Command "azlint lint" finished successfully'
+	printf '\n'
 
 .PHONY: docker-build
 docker-build:
-	$(define_log_function); log INFO 'Building Docker image'
+	$(define_log_function); log INFO 'Building docker image'
 	time docker build "$(PROJECT_DIR)" --tag "$(DOCKER_IMAGE)"
+	$(define_log_function); log INFO 'Docker image built successfully'
+	printf '\n'
 
 .PHONY: docker-build-multiarch
 docker-build-multiarch:
 	$(define_log_function); \
 	printf '%s\n' $(DOCKER_ARCHS) | \
 		while read -r arch; do \
-			log INFO "Building Docker image for linux/$${arch}" && \
+			log INFO "Building docker image for \"linux/$${arch}\"" && \
 			time docker build "$(PROJECT_DIR)" --tag "$(DOCKER_IMAGE)-$$(printf '%s' "$${arch}" | tr '/' '-')" --platform "linux/$${arch}" && \
+			log INFO 'Docker image for \"linux/$${arch}\" built successfully' && \
 		true; done
+	printf '\n'
 
-.PHONY: docker-run
-docker-run:
-	$(define_log_function); log INFO 'Running azlint in Docker'
+.PHONY: docker-lint
+docker-lint:
+	$(define_log_function); log INFO 'Running "azlint lint" in docker'
 	time docker run --interactive --tty --rm --tmpfs '/tmp:rw,exec,nodev,noatime,nodiratime,uid=1000,gid=1000' --volume "$(PROJECT_DIR):/project:ro" "$(DOCKER_IMAGE)" lint
+	$(define_log_function); log INFO 'Command "azlint lint" in docker finished successfully'
+	printf '\n'
 
-.PHONY: docker-run-multiarch
-docker-run-multiarch:
+.PHONY: docker-lint-multiarch
+docker-lint-multiarch:
 	$(define_log_function); \
 	printf '%s\n' $(DOCKER_ARCHS) | \
 		while read -r arch; do \
-			log INFO "Running azlint in Docker on linux/$${arch}" && \
+			log INFO "Running \"azlint lint\" in docker on \"linux/$${arch}\"" && \
 			time docker run --interactive --tty --rm --tmpfs '/tmp:rw,exec,nodev,noatime,nodiratime,uid=1000,gid=1000' --volume "$(PROJECT_DIR):/project:ro" --platform "linux/$${arch}" "$(DOCKER_IMAGE)-$$(printf '%s' "$${arch}" | tr '/' '-')" lint \
+			log INFO 'Command \"azlint lint\" in docker on \"linux/$${arch}\" finished successfully' && \
 		true; done
+	printf '\n'
+
+.PHONY: docker-fmt
+docker-fmt:
+	$(define_log_function); log INFO 'Running "azlint fmt" in docker'
+	time docker run --interactive --tty --rm --tmpfs '/tmp:rw,exec,nodev,noatime,nodiratime,uid=1000,gid=1000' --volume "$(PROJECT_DIR):/project:ro" "$(DOCKER_IMAGE)" fmt
+	$(define_log_function); log INFO 'Command "azlint fmt" in docker finished successfully'
+	printf '\n'
 
 .PHONY: clean
 clean:
@@ -169,6 +195,8 @@ clean:
 		log ERROR 'There is an active python virtualenv. Run "deactivate" and try again.'; \
 		exit 1; \
 	fi
+
+	$(define_log_function); log INFO 'Cleaning repository'
 
 	if [ -e "$(PROJECT_DIR)/linters/go" ]; then \
 		chown -R "$$(whoami)" "$(PROJECT_DIR)/linters/go" && \
@@ -196,6 +224,9 @@ clean:
 		"$(PROJECT_DIR)/linters/bundle" \
 		"$(PROJECT_DIR)/linters/cargo" \
 		"$(PROJECT_DIR)/linters/go"
+
+	$(define_log_function); log INFO 'Repository cleaned'
+	printf '\n'
 
 .PHONY: demo
 demo:
