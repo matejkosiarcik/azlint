@@ -39,7 +39,7 @@ bootstrap:
 
 	# NOTE: Shouldn't run in parallel, because it can collide when creating the same temporary cache directory
 	printf '%s' "$(NPM_COMPONENTS)" | tr -d ' ' | base64 -d | while IFS= read -r component; do \
-		npm ci --prefix "$(PROJECT_DIR)/$${component}" --no-save --no-progress --no-audit --no-fund --loglevel=error && \
+		npm ci --prefix "$(PROJECT_DIR)/$${component}" --no-audit --no-fund --no-progress --no-save --loglevel=error && \
 	true; done
 
 	# Python dependencies

@@ -112,7 +112,7 @@ jobs:
 
       # TODO: Remove this step and enable step below
       - name: Install project dependencies
-        run: npm ci --no-progress --no-audit --no-fund --loglevel=error
+        run: npm ci --no-audit --no-fund --no-progress --no-save --loglevel=error
         working-directory: "./cli"
         shell: bash
 
