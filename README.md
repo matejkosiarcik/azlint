@@ -206,12 +206,16 @@ If you want to specify a custom config file for a specific linter, set `AZLINT_F
 (note 1: replace `FOO` with specific linter's name;
 note 2: file path is relative to specified config directory).
 
-You can turn of linters/formatters by specifying environment variable `AZLINT_FOO=false`
+You can turn off linters/formatters by specifying environment variable `VALIDATE_FOO=false`
 (note: replace `FOO` with specific linter's name).
 
 A note about linter names, if a linter is named `foo-bar`,
 then you need to specify environment variable named `FOO_BAR`
 (so capitalized and underscores instead of dashes).
+
+When using `--only-changed`, AZLint compares current `HEAD` with the project's default Git branch (usually `master` or `main`).
+You may set `AZLINT_DEFAULT_BASE_BRANCH` to set a different comparison base.
+If the Git base or comparison cannot be determined, then AZLint falls back to linting all files, rather than risk skipping committed changes.
 
 ## Included linters
 

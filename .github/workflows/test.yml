@@ -72,7 +72,7 @@ jobs:
         uses: shivammathur/setup-php@2.40.0
         with:
           php-version: latest
-          extensions: mbstring # TODO: consider removing if not necessary
+          extensions: mbstring
 
       # NOTE: wretry wrapper not possible because of https://github.com/Wandalen/wretry.action/issues/186
       - name: Setup GCC
@@ -110,12 +110,16 @@ jobs:
           git config --global user.name Nobody
         shell: bash
 
+      # TODO: Remove this step and enable step below
       - name: Install project dependencies
-        run: npm ci --no-progress --no-audit --no-fund --loglevel=error
+        run: npm ci --no-audit --no-fund --no-progress --no-save --loglevel=error
         working-directory: "./cli"
-        # TODO: Add system dependencies and run full bootstrap
-        # run: make bootstrap
         shell: bash
+
+      # TODO: Replace the previous step with this step
+      # - name: Install project dependencies
+      #   run: make bootstrap
+      #   shell: bash
 
       - name: Build
         run: make build
@@ -125,7 +129,7 @@ jobs:
         run: make test
         shell: bash
 
-      # TODO: Re-enable lint
+      # TODO: Run this step after running full project bootstrap
       # - name: Run
-      #   run: make run
+      #   run: make run-lint
       #   shell: bash

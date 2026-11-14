@@ -20,7 +20,9 @@ PYTHON ?= $(shell command -v python3.14 2>/dev/null || command -v python3)
 
 .DEFAULT: all
 .PHONY: all
-all: clean bootstrap build test docker-build docker-run docker-build-multiarch
+all: clean bootstrap build test run-lint run-fmt docker-build docker-lint docker-fmt docker-build-multiarch docker-lint-multiarch
+	$(define_log_function); log INFO 'All development tasks completed successfully'
+	printf '\n'
 
 .PHONY: bootstrap
 bootstrap:
@@ -31,11 +33,13 @@ bootstrap:
 		exit 1; \
 	fi
 
+	$(define_log_function); log INFO 'Installing dependencies (native)'
+
 	mkdir -p './linters/bin'
 
 	# NOTE: Shouldn't run in parallel, because it can collide when creating the same temporary cache directory
 	printf '%s' "$(NPM_COMPONENTS)" | tr -d ' ' | base64 -d | while IFS= read -r component; do \
-		npm ci --prefix "$(PROJECT_DIR)/$${component}" --no-save --no-progress --no-audit --no-fund --loglevel=error && \
+		npm ci --prefix "$(PROJECT_DIR)/$${component}" --no-audit --no-fund --no-progress --no-save --loglevel=error <'/dev/null' && \
 	true; done
 
 	# Python dependencies
@@ -46,7 +50,7 @@ bootstrap:
 		PATH="$${PWD}/venv/bin:$${PATH}" \
 		PIP_DISABLE_PIP_VERSION_CHECK='1' \
 		PYTHONDONTWRITEBYTECODE='1' \
-			python3 -m pip install --quiet --no-compile --require-hashes --requirement './requirements.txt' && \
+			python3 -m pip install --quiet --no-compile --require-hashes --requirement './requirements.txt' <'/dev/null' && \
 	true; done
 
 	rm -rf "$(PROJECT_DIR)/venv"
@@ -55,24 +59,24 @@ bootstrap:
 	PYTHONPATH="$(PROJECT_DIR)/linters/python-vendor" \
 	PIP_DISABLE_PIP_VERSION_CHECK='1' \
 	PYTHONDONTWRITEBYTECODE='1' \
-		python3 -m pip install --quiet --no-compile --require-hashes --requirement './linters/requirements.txt' --target './linters/python-vendor'
+		python3 -m pip install --quiet --no-compile --require-hashes --requirement './linters/requirements.txt' --target './linters/python-vendor' <'/dev/null'
 
 	find './linters/gitman-repos' -mindepth 1 -maxdepth 1 -type d -print0 | \
 		PATH="$(PROJECT_DIR)/build-dependencies/gitman/venv/bin:$${PATH}" xargs -0 -n1 -P0 gitman install --quiet --force --root
 	sh './utils/apply-git-patches.sh' './linters/git-patches/checkmake' './linters/gitman-repos/go-checkmake/gitman/checkmake'
 	if [ "$$(uname -s)" != Linux ]; then \
-		sh './utils/apply-git-patches.sh' './linters/git-patches/loksh' './linters/gitman-repos/shell-loksh/gitman/loksh' && \
+		sh './utils/apply-git-patches.sh' './linters/git-patches/loksh' './linters/gitman-repos/shell-loksh/gitman/loksh' <'/dev/null' && \
 	true; fi
 
 	cd './linters/gitman-repos/shell-loksh/gitman/loksh' && \
-		meson setup --fatal-meson-warnings --prefix="$${PWD}/install" './build' && \
-		ninja --quiet -C './build' install && \
+		meson setup --fatal-meson-warnings --prefix="$${PWD}/install" './build' <'/dev/null' && \
+		ninja --quiet -C './build' install <'/dev/null' && \
 		cp './install/bin/ksh' "$(PROJECT_DIR)/linters/bin/loksh"
 
 	cd './linters/gitman-repos/shell-oksh/gitman/oksh' && \
-		'./configure' && \
-		make && \
-		DESTDIR="$${PWD}/install" make install && \
+		'./configure' <'/dev/null' && \
+		make <'/dev/null' && \
+		DESTDIR="$${PWD}/install" make install <'/dev/null' && \
 		cp './install/usr/local/bin/oksh' "$(PROJECT_DIR)/linters/bin/"
 
 	# Create cache ahead of time, because it can fail when creating during runtime
@@ -86,7 +90,7 @@ bootstrap:
 	BUNDLE_GEMFILE="$(PROJECT_DIR)/linters/Gemfile" \
 	BUNDLE_PATH="$(PROJECT_DIR)/linters/bundle" \
 	BUNDLE_PATH__SYSTEM=false \
-		bundle install --quiet
+		bundle install --quiet <'/dev/null'
 
 	PATH="$(PROJECT_DIR)/build-dependencies/yq/venv/bin:$${PATH}" \
 		tomlq -r '."dev-dependencies" | to_entries | map("\(.key) \(.value)")[]' './linters/Cargo.toml' | \
@@ -97,69 +101,100 @@ bootstrap:
 		composer install --quiet
 
 	cd './linters/gitman-repos/go-checkmake/gitman/checkmake' && \
-		BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make && \
+		BUILDER_NAME=nobody BUILDER_EMAIL=nobody@example.com make <'/dev/null' && \
 		cp './checkmake' "$(PROJECT_DIR)/linters/bin/"
 
 	cd './linters/gitman-repos/go-editorconfig-checker/gitman/editorconfig-checker' && \
-		make build && \
+		make build <'/dev/null' && \
 		cp './bin/editorconfig-checker' "$(PROJECT_DIR)/linters/bin/"
 
-	printf '%s\n%s\n%s\n%s\n' mvdan.cc/sh/v3/cmd/shfmt@latest github.com/freshautomations/stoml@latest github.com/pelletier/go-toml/cmd/tomljson@latest github.com/rhysd/actionlint/cmd/actionlint@latest | \
+	printf '%s\n' 'mvdan.cc/sh/v3/cmd/shfmt@latest' 'github.com/freshautomations/stoml@latest' 'github.com/pelletier/go-toml/cmd/tomljson@latest' 'github.com/rhysd/actionlint/cmd/actionlint@latest' | \
 		GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on xargs -P0 -n1 go install -modcacherw
 
 	cd './linters/gitman-repos/circleci-cli/gitman/circleci-cli' && \
 		mkdir -p './install' && \
-		DESTDIR="$${PWD}/install/" bash './install.sh'; \
+		DESTDIR="$${PWD}/install/" bash './install.sh' <'/dev/null' && \
 		cp './install/circleci' "$(PROJECT_DIR)/linters/bin/"
 
 	if command -v brew >'/dev/null' 2>&1; then \
 		HOMEBREW_NO_ANALYTICS=1 \
 		HOMEBREW_NO_AUTO_UPDATE=1 \
-			brew bundle --help --quiet >'/dev/null'; \
+			brew bundle --help --quiet >'/dev/null' <'/dev/null'; \
 	fi
+
+	$(define_log_function); log INFO 'Dependencies installed successfully'
+	printf '\n'
 
 .PHONY: build
 build:
-	$(define_log_function); log INFO 'Building CLI'
+	$(define_log_function); log INFO 'Building CLI (native)'
 	npm --prefix './cli' run build
+	$(define_log_function); log INFO 'Build was successful'
+	printf '\n'
 
 .PHONY: test
 test:
-	$(define_log_function); log INFO 'Testing CLI'
+	$(define_log_function); log INFO 'Testing CLI (native)'
 	npm --prefix './cli' test
+	$(define_log_function); log INFO 'Tests were successful'
+	printf '\n'
 
-.PHONY: run
-run:
-	$(define_log_function); log INFO 'Running azlint'
+.PHONY: run-lint
+run-lint:
+	$(define_log_function); log INFO 'Running "azlint lint" (native)'
 	npm --prefix './cli' run azlint:lint
+	$(define_log_function); log INFO 'Command "azlint lint" finished successfully'
+	printf '\n'
+
+.PHONY: run-fnt
+run-fmt:
+	$(define_log_function); log INFO 'Running "azlint fmt" (native)'
+	npm --prefix './cli' run azlint:fmt
+	$(define_log_function); log INFO 'Command "azlint fmt" finished successfully'
+	printf '\n'
 
 .PHONY: docker-build
 docker-build:
-	$(define_log_function); log INFO 'Building Docker image'
+	$(define_log_function); log INFO 'Building docker image'
 	time docker build "$(PROJECT_DIR)" --tag "$(DOCKER_IMAGE)"
+	$(define_log_function); log INFO 'Docker image built successfully'
+	printf '\n'
 
 .PHONY: docker-build-multiarch
 docker-build-multiarch:
 	$(define_log_function); \
 	printf '%s\n' $(DOCKER_ARCHS) | \
 		while read -r arch; do \
-			log INFO "Building Docker image for linux/$${arch}" && \
+			log INFO "Building docker image for \"linux/$${arch}\"" && \
 			time docker build "$(PROJECT_DIR)" --tag "$(DOCKER_IMAGE)-$$(printf '%s' "$${arch}" | tr '/' '-')" --platform "linux/$${arch}" && \
+			log INFO 'Docker image for \"linux/$${arch}\" built successfully' && \
 		true; done
+	printf '\n'
 
-.PHONY: docker-run
-docker-run:
-	$(define_log_function); log INFO 'Running azlint in Docker'
+.PHONY: docker-lint
+docker-lint:
+	$(define_log_function); log INFO 'Running "azlint lint" in docker'
 	time docker run --interactive --tty --rm --tmpfs '/tmp:rw,exec,nodev,noatime,nodiratime,uid=1000,gid=1000' --volume "$(PROJECT_DIR):/project:ro" "$(DOCKER_IMAGE)" lint
+	$(define_log_function); log INFO 'Command "azlint lint" in docker finished successfully'
+	printf '\n'
 
-.PHONY: docker-run-multiarch
-docker-run-multiarch:
+.PHONY: docker-lint-multiarch
+docker-lint-multiarch:
 	$(define_log_function); \
 	printf '%s\n' $(DOCKER_ARCHS) | \
 		while read -r arch; do \
-			log INFO "Running azlint in Docker on linux/$${arch}" && \
+			log INFO "Running \"azlint lint\" in docker on \"linux/$${arch}\"" && \
 			time docker run --interactive --tty --rm --tmpfs '/tmp:rw,exec,nodev,noatime,nodiratime,uid=1000,gid=1000' --volume "$(PROJECT_DIR):/project:ro" --platform "linux/$${arch}" "$(DOCKER_IMAGE)-$$(printf '%s' "$${arch}" | tr '/' '-')" lint \
+			log INFO 'Command \"azlint lint\" in docker on \"linux/$${arch}\" finished successfully' && \
 		true; done
+	printf '\n'
+
+.PHONY: docker-fmt
+docker-fmt:
+	$(define_log_function); log INFO 'Running "azlint fmt" in docker'
+	time docker run --interactive --tty --rm --tmpfs '/tmp:rw,exec,nodev,noatime,nodiratime,uid=1000,gid=1000' --volume "$(PROJECT_DIR):/project:rw" "$(DOCKER_IMAGE)" fmt
+	$(define_log_function); log INFO 'Command "azlint fmt" in docker finished successfully'
+	printf '\n'
 
 .PHONY: clean
 clean:
@@ -169,6 +204,8 @@ clean:
 		log ERROR 'There is an active python virtualenv. Run "deactivate" and try again.'; \
 		exit 1; \
 	fi
+
+	$(define_log_function); log INFO 'Cleaning repository'
 
 	if [ -e "$(PROJECT_DIR)/linters/go" ]; then \
 		chown -R "$$(whoami)" "$(PROJECT_DIR)/linters/go" && \
@@ -196,6 +233,9 @@ clean:
 		"$(PROJECT_DIR)/linters/bundle" \
 		"$(PROJECT_DIR)/linters/cargo" \
 		"$(PROJECT_DIR)/linters/go"
+
+	$(define_log_function); log INFO 'Repository cleaned'
+	printf '\n'
 
 .PHONY: demo
 demo:

@@ -70,6 +70,10 @@ describe('Find files in git repository', function () {
         assert.deepStrictEqual(await listProjectFiles(false), []);
     });
 
+    test('Only-changed in an empty repo', async () => {
+        assert.deepStrictEqual(await listProjectFiles(true), []);
+    });
+
     test('Single dirty file', async () => {
         await touch('foo.txt');
         assert.deepStrictEqual(await listProjectFiles(false), ['foo.txt']);
@@ -146,5 +150,19 @@ describe('Find files in git repository', function () {
         assert.deepStrictEqual(await listProjectFiles(true), ['2.txt']);
     });
 
-    // TODO: Add test for --only-changed with commits in a feature branch
+    test('Only-changed includes every commit since the merge base', async () => {
+        await touch('1.txt');
+        await execa('git', 'add', '1.txt');
+        await execa('git', 'commit', '-m', 'base');
+        await execa('git', 'checkout', '-b', 'branch');
+
+        await touch('2.txt');
+        await execa('git', 'add', '2.txt');
+        await execa('git', 'commit', '-m', 'first feature commit');
+        await touch('3.txt');
+        await execa('git', 'add', '3.txt');
+        await execa('git', 'commit', '-m', 'second feature commit');
+
+        assert.deepStrictEqual(await listProjectFiles(true), ['2.txt', '3.txt']);
+    });
 });
