@@ -80,6 +80,7 @@ jobs:
             --volume "${PWD}:/project:ro" \
             --platform "${{ matrix.platform }}" \
             --user "$(id -u):$(id -g)" \
+            --env HOME=/tmp/home \
             matejkosiarcik/azlint:dev lint
 
       - name: Check git status - before formatting
@@ -98,6 +99,7 @@ jobs:
             --volume "${PWD}:/project:rw" \
             --platform "${{ matrix.platform }}" \
             --user "$(id -u):$(id -g)" \
+            --env HOME=/tmp/home \
             matejkosiarcik/azlint:dev fmt
 
       - name: Check git status - after formatting
