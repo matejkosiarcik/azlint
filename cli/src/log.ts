@@ -129,5 +129,6 @@ export function logFixingWarning(toolName: string, file: string, command: Custom
 export function logFixingError(toolName: string, file: string, command: CustomExecaProcessReturn) {
     logAlways(`❗️ Error fixing: ${TerminalColors.red}${toolName} - ${file}${TerminalColors.end}`);
     const cmdOutput = command.all ? `:\n${command.all}` : '';
-    logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}`)
+    const commandError = command.error ? `\n${command.error}` : '';
+    logNormal(`"${command.command}" -> ${command.exitCode}${cmdOutput}${commandError}`)
 }

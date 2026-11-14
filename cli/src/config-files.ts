@@ -1,6 +1,9 @@
 import fsSync from 'node:fs';
+import fsx from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { listDirectory, matchFiles } from './utils.ts';
+import Async from 'async';
 
 export const configFiles = {
     // https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-via-a-file
@@ -196,17 +199,31 @@ async function findConfigFile(options: {
     const envName = options.linter.replace(/\-/g, '_').toUpperCase();
     const customConfigFilePath = process.env[`AZLINT_${envName}_CONFIG_FILE`];
     const linterType = options.linterType ?? 'generic';
+    const concurrency = os.availableParallelism();
 
-    const configDirectories = getConfigDirs(envName);
+    const configDirectories = await Async.filterLimit(getConfigDirs(envName), concurrency, async (dir: string) => {
+        try {
+            if (!(await fsx.stat(dir)).isDirectory()) {
+                return false;
+            }
+            await fsx.access(dir, fsSync.constants.R_OK);
+            return true;
+        } catch {
+            return false;
+        }
+    }, );
 
     if (customConfigFilePath) {
-        const foundConfigFile = configDirectories
-            .map((configDir) => {
-                const overrideConfigFile = path.join(configDir, customConfigFilePath);
-                return fsSync.existsSync(overrideConfigFile) ? overrideConfigFile : undefined;
-            })
-            .filter((el) => el)
-            .at(0);
+        const configFiles = await Async.mapLimit(configDirectories, concurrency, async (dir: string) => {
+            const overrideConfigFile = path.join(dir, customConfigFilePath);
+            try {
+                await fsx.access(overrideConfigFile, fsSync.constants.R_OK);
+                return overrideConfigFile;
+            } catch {
+                return undefined;
+            }
+        });
+        const foundConfigFile = configFiles.find((file) => file !== undefined);
         if (foundConfigFile) {
             return foundConfigFile;
         }
@@ -221,21 +238,23 @@ async function findConfigFile(options: {
             return Array.isArray(files) ? files : [files];
         })();
 
-        const pythonConfigFile = (await Promise.all(configDirectories
-            .map(async (configDir) => {
-                const allFilesInConfigDirectory = await listDirectory(configDir, { recursive: false });
-                return (await Promise.all(pythonConfigFiles.map(async (configEntry) => {
-                    const existingConfigFiles = matchFiles(allFilesInConfigDirectory, configEntry.file);
-                    return existingConfigFiles.filter((existingConfigFile) => {
-                        const configContent = fsSync.readFileSync(existingConfigFile, 'utf8');
-                        return configContent.split('\n').some((line) => line.includes(configEntry.content))
-                    }).at(0);
-                })))
-                    .filter((file) => file)
-                    .at(0);
-            })))
-            .filter((file) => file)
-            .at(0);
+        const pythonConfigFilesByDirectory = await Async.mapLimit(configDirectories, concurrency, async (dir: string) => {
+            const allFilesInConfigDirectory = await listDirectory(dir, { recursive: false });
+            const matchesByConfigFile = await Async.mapLimit(pythonConfigFiles, concurrency, async (entry: typeof pythonConfigFiles[number]) => {
+                const existingConfigFiles = matchFiles(allFilesInConfigDirectory, entry.file);
+                const matchingFiles = await Async.mapLimit(existingConfigFiles, concurrency, async (file: typeof existingConfigFiles[number]) => {
+                    try {
+                        const configContent = await fsx.readFile(file, 'utf8');
+                        return configContent.split('\n').some((line) => line.includes(entry.content)) ? file : undefined;
+                    } catch {
+                        return undefined;
+                    }
+                });
+                return matchingFiles.find((file) => file !== undefined);
+            });
+            return matchesByConfigFile.find((file) => file !== undefined);
+        });
+        const pythonConfigFile = pythonConfigFilesByDirectory.find((file) => file !== undefined);
 
         if (pythonConfigFile) {
             return pythonConfigFile;
@@ -247,14 +266,12 @@ async function findConfigFile(options: {
         return Array.isArray(files) ? files : [files];
     })();
 
-    const foundConfigFile = (await Promise.all(configDirectories
-        .map(async (configDir) => {
-            const filesInConfig = await listDirectory(configDir, { recursive: false });
-            const configFiles = matchFiles(filesInConfig, defaultConfigFiles);
-            return configFiles.at(0);
-        })))
-        .filter((file) => file)
-        .at(0);
+    const configFilesByDirectory = await Async.mapLimit(configDirectories, concurrency, async (dir: string) => {
+        const filesInConfig = await listDirectory(dir, { recursive: false });
+        const configFiles = matchFiles(filesInConfig, defaultConfigFiles);
+        return configFiles.at(0);
+    });
+    const foundConfigFile = configFilesByDirectory.find((file) => file !== undefined);
     if (foundConfigFile) {
         return foundConfigFile;
     }

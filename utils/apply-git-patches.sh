@@ -14,4 +14,7 @@ export patches_dir
 repo_dir="${2}"
 export repo_dir
 
-find "${patches_dir}" -name '*.patch' -exec sh -c 'patchfile="${PWD}/${0}" && cd "${repo_dir}" && git apply "${patchfile}"' {} \;
+find "${patches_dir}" -type f -name '*.patch' -print | while IFS= read -r patchfile; do
+    patchfile_abspath="$(cd "$(dirname "${patchfile}")" && pwd -P)/$(basename "${patchfile}")"
+    git -C "${repo_dir}" apply "${patchfile_abspath}"
+done

@@ -5,7 +5,6 @@ import crypto from 'crypto';
 import { execa, ExecaError, Options as ExecaOptions } from 'execa';
 import { logAlways, logVerbose } from './log.ts';
 
-export type OneOrArray<T> = T | T[];
 export type ColorOptions = 'auto' | 'never' | 'always';
 export type ProgressOptions = 'no' | 'yes';
 
@@ -33,7 +32,7 @@ export async function delay(timeout: number) {
 /**
  * Turn sync value into async value
  */
-export async function resolvePromiseOrValue<T>(value: T | Promise<T>): Promise<T> {
+export async function resolvePromiseOrValue<T>(value: MaybePromise<T>): Promise<T> {
     if (value && typeof value === 'object') {
         return 'then' in value ? await value : value;
     }
@@ -92,32 +91,87 @@ export async function listProjectFiles(onlyChanged: boolean): Promise<string[]> 
     let outputFiles = [...trackedFiles, ...untrackedFiles, ...stagedFiles, ...dirtyFiles];
 
     if (onlyChanged) {
-        // Get all branches which are associated with current HEAD
-        const allCurrentBranches = (await customExeca(["git", "branch", "--contains", 'HEAD', "--format=%(refname:short)"])).stdout.split("\n").filter((file) => !!file);
-
-        // Get commit which is the point of divergence from parent branch
-        let divergentCommit = '';
-        for (let i = 1; true; i += 1) {
-            divergentCommit = `HEAD~${i}`;
-            try {
-                const commitBranches = (await customExeca(["git", "branch", "--contains", divergentCommit, "--format=%(refname:short)"])).stdout.split("\n").filter((branch) => !!branch).filter((branch) => allCurrentBranches.includes(branch));
-                if (commitBranches.length > 0) {
-                    break;
+        const baseCommit = await (async () => {
+            if (process.env['AZLINT_DEFAULT_BASE_BRANCH']) {
+                const customBaseRef = process.env['AZLINT_DEFAULT_BASE_BRANCH'];
+                const resolvedBaseProcess = await customExeca(['git', 'rev-parse', '--verify', `${customBaseRef}^{commit}`]);
+                if (resolvedBaseProcess.exitCode === 0 && resolvedBaseProcess.stdout.trim()) {
+                    return resolvedBaseProcess.stdout.trim();
                 }
-            } catch {
-                logAlways("Could not find parent branch for list of only-changed files - azlint may skip some files because of this");
-                divergentCommit = '';
-                break;
+            }
+
+            let remotes: string[] = [];
+            const remoteNameProcess = await customExeca(['git', 'remote']);
+            if (remoteNameProcess.exitCode === 0) {
+                remotes = remoteNameProcess.stdout.split('\n').map((line) => line.trim()).filter((line) => !!line);
+            }
+
+            if (remotes.includes('origin')) {
+                const remoteHead = await customExeca(['git', 'symbolic-ref', '--quiet', '--short', 'refs/remotes/origin/HEAD']);
+                if (remoteHead.exitCode === 0 && remoteHead.stdout.trim()) {
+                    return remoteHead.stdout.trim();
+                }
+            }
+
+            for (const remote of remotes) {
+                const remoteHead = await customExeca(['git', 'symbolic-ref', '--quiet', '--short', `refs/remotes/${remote}/HEAD`]);
+                if (remoteHead.exitCode === 0 && remoteHead.stdout.trim()) {
+                    return remoteHead.stdout.trim();
+                }
+            }
+
+            const defaultBranches = ['main', 'master'];
+            if (remotes.includes('origin')) {
+                defaultBranches.push(...defaultBranches.map((branch) => `origin/${branch}`));
+            } else {
+                remotes.forEach((remote) => {
+                    defaultBranches.push(...defaultBranches.map((branch) => `${remote}/${branch}`));
+                })
+            }
+
+            for (const branch of defaultBranches) {
+                const branchHeadProcess = await customExeca(['git', 'rev-parse', '--verify', `${branch}^{commit}`]);
+                if (branchHeadProcess.exitCode === 0 && branchHeadProcess.stdout.trim()) {
+                    return branchHeadProcess.stdout.trim();
+                }
+            }
+
+            let currentBranch = '';
+            const currentBranchProcess = await customExeca(['git', 'branch', '--show-current']);
+            if (currentBranchProcess.exitCode === 0 && currentBranchProcess.stdout.trim()) {
+                currentBranch = currentBranchProcess.stdout.trim()
+            }
+
+            if (currentBranch) {
+                const commits = (await customExeca(['git', 'rev-list', '--first-parent', currentBranch])).stdout
+                    .split('\n')
+                    .filter(Boolean);
+
+                for (const commit of commits) {
+                    const candidatesProcess = (await customExeca(['git', 'for-each-ref', `--contains=${commit}`, '--format=%(refname:short)', 'refs/heads']));
+                    if (candidatesProcess.exitCode === 0 && candidatesProcess.stdout.trim()) {
+                        const candidatesBranches = candidatesProcess.stdout.split('\n').filter((branch) => !!branch && branch !== currentBranch).length;
+                        if (candidatesBranches > 0) {
+                            return commit;
+                        }
+                    }
+                }
+            }
+
+            return '';
+        })();
+
+        if (!baseCommit) {
+            logAlways('Could not find a comparison base for only-changed files; linting all files instead');
+        } else {
+            const changedFilesProcess = await customExeca(['git', 'diff', '--name-only', '-z', `${baseCommit}..HEAD`]);
+            if (changedFilesProcess.exitCode === 0) {
+                const changedFiles = changedFilesProcess.stdout.split('\0').filter((file) => !!file);
+                outputFiles = [...untrackedFiles, ...stagedFiles, ...dirtyFiles, ...changedFiles];
+            } else {
+                logAlways('Could not list only-changed files; linting all files instead');
             }
         }
-
-        let divergentFiles: string[] = [];
-        if (divergentCommit !== '') {
-            // Modified files between divergent-commit and HEAD
-            divergentFiles = (await customExeca(["git", "diff", "--name-only", "-z", `${divergentCommit}..HEAD`])).stdout.split('\0').filter((file) => !!file);
-        }
-
-        outputFiles = [...untrackedFiles, ...stagedFiles, ...dirtyFiles, ...divergentFiles];
     }
 
     return Array.from(new Set(outputFiles)).map((file) => file.replaceAll('\\', '/')).sort().filter((file) => !deletedFiles.includes(file)).filter((file) => fsSync.existsSync(file));
@@ -217,7 +271,7 @@ export async function customExeca(command: string[], _options?: Partial<ExecaOpt
         return {
             all: stringifyOutput(error.all),
             command: command.join(' '),
-            error: '',
+            error: error.shortMessage,
             exitCode: error.exitCode ?? -1,
             stdout: stringifyOutput(error.stdout),
             stderr: stringifyOutput(error.stderr),
@@ -228,7 +282,7 @@ export async function customExeca(command: string[], _options?: Partial<ExecaOpt
 /**
  * Match list of files given wildcards or predicates
  */
-export function matchFiles(allFiles: string[], fileMatch: OneOrArray<string | RegExp | ((file: string) => boolean)>): string[] {
+export function matchFiles(allFiles: string[], fileMatch: MaybeArray<string | RegExp | ((file: string) => boolean)>): string[] {
     fileMatch = Array.isArray(fileMatch) ? fileMatch : [fileMatch];
 
     const predicates = fileMatch.map((fileMatchEntry) => {
