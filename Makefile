@@ -108,8 +108,8 @@ bootstrap:
 		make build <'/dev/null' && \
 		cp './bin/editorconfig-checker' "$(PROJECT_DIR)/linters/bin/"
 
-	printf '%s\n%s\n%s\n%s\n' mvdan.cc/sh/v3/cmd/shfmt@latest github.com/freshautomations/stoml@latest github.com/pelletier/go-toml/cmd/tomljson@latest github.com/rhysd/actionlint/cmd/actionlint@latest | \
-		GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on xargs -P0 -n1 go install -modcacherw <'/dev/null'
+	printf '%s\n' 'mvdan.cc/sh/v3/cmd/shfmt@latest' 'github.com/freshautomations/stoml@latest' 'github.com/pelletier/go-toml/cmd/tomljson@latest' 'github.com/rhysd/actionlint/cmd/actionlint@latest' | \
+		GOPATH="$(PROJECT_DIR)/linters/go" GO111MODULE=on xargs -P0 -n1 go install -modcacherw
 
 	cd './linters/gitman-repos/circleci-cli/gitman/circleci-cli' && \
 		mkdir -p './install' && \
