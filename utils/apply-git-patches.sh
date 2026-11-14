@@ -15,6 +15,6 @@ repo_dir="${2}"
 export repo_dir
 
 find "${patches_dir}" -type f -name '*.patch' -print | while IFS= read -r patchfile; do
-    patchfile_abspath="$(cd "$(dirname ${patchfile}")" && pwd -P)"
+    patchfile_abspath="$(cd "$(dirname "${patchfile}")" && pwd -P)"
     git -C "${repo_dir}" apply "${patchfile_abspath}"
 done
