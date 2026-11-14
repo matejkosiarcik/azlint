@@ -794,10 +794,11 @@ ENV BINPREFIX="/home/linuxbrew/.linuxbrew/bin/" \
 # TODO: Make ruby version dynamic
 ENV PATH="/.rbenv/versions/brew/bin:${PATH}"
 RUN touch '/.dockerenv' && \
-    chmod 1777 '/home/linuxbrew/.linuxbrew/var/homebrew/locks' && \
     if [ "$(uname -m)" = x86_64  ]; then \
         sh './sanity-check.sh' && \
-    true; fi
+    true; fi && \
+    find '/home/linuxbrew/.linuxbrew/var/homebrew/locks' -mindepth 1 -maxdepth 1 -delete && \
+    chmod 1777 '/home/linuxbrew/.linuxbrew/var/homebrew/locks'
 
 ### CLI ###
 
