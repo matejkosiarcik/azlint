@@ -759,17 +759,18 @@ export class Linters {
         /* CI/CD Services */
 
         // CircleCI validate
-        await this.runLinter({
-            linterName: 'circleci-validate',
-            envName: 'CIRCLECI_VALIDATE',
-            fileMatch: '.circleci/config.yml',
-            lintFile: {
-                args: ['circleci', '--skip-update-check', 'config', 'validate'],
-                options: (file: string) => {
-                    return { cwd: path.dirname(path.dirname(file)) };
-                },
-            },
-        });
+        // TODO: Setup CIRCLE_TOKEN And run this step
+        // await this.runLinter({
+        //     linterName: 'circleci-validate',
+        //     envName: 'CIRCLECI_VALIDATE',
+        //     fileMatch: '.circleci/config.yml',
+        //     lintFile: {
+        //         args: ['circleci', '--skip-update-check', 'config', 'validate'],
+        //         options: (file: string) => {
+        //             return { cwd: path.dirname(path.dirname(file)) };
+        //         },
+        //     },
+        // });
 
         // GitLabCI Lint
         await this.runLinter({
