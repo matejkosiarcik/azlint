@@ -18,7 +18,7 @@
     "markdownlint-cli": "^0.50.0",
     "package-json-validator-cli": "^0.1.11",
     "prettier": "^3.10.1",
-    "secretlint": "^13.1.0",
+    "secretlint": "^14.0.1",
     "sql-lint": "^1.0.2",
     "svglint": "^4.2.1",
     "textlint": "^15.8.0",
