@@ -21,7 +21,7 @@
     "secretlint": "^13.1.0",
     "sql-lint": "^1.0.2",
     "svglint": "^4.2.1",
-    "textlint": "^15.8.0",
+    "textlint": "^16.1.1",
     "textlint-rule-no-todo": "^2.0.1"
   },
   "scripts": {
