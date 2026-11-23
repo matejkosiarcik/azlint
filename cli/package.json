@@ -26,7 +26,7 @@
     "modclean": "^3.0.0-beta.1",
     "node-prune": "^1.0.2",
     "rollup": "^4.68.7",
-    "terser": "^5.51.2",
+    "terser": "^5.51.4",
     "tslib": "^2.9.1",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
