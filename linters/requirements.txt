@@ -683,9 +683,9 @@ charset-normalizer==3.5.2 \
     # via
     #   checkov
     #   requests
-checkov==3.4.6 \
-    --hash=sha256:22c5a5bb41477e251f4ba19a2a7a412f472e6d86e76ecb1cdec94eea267259e1 \
-    --hash=sha256:bbc2a90f803ec38ecfd8ed41a12388a5ec4a9ca992e925b7bddfcbc5a0530a5e
+checkov==3.4.7 \
+    --hash=sha256:89397fbdffd2243d83b455f17dc5d974a40f2f4b0da4de77d6669d4294a15b4d \
+    --hash=sha256:c63c6180e6fce7ecaec9cad92f6234ae0f6224d8d4ebae798c0d531dde41ea9b
     # via -r requirements.in
 click==8.5.1 \
     --hash=sha256:8bb5376d2006950386f8c6427613334a2acadc5f559cb80e638d00b4df957e37 \
@@ -720,9 +720,9 @@ contextlib2==21.6.0 \
     --hash=sha256:3fbdb64466afd23abaf6c977627b75b6139a5a3e8ce38405c5b413aed7a0471f \
     --hash=sha256:ab1e2bfe1d01d968e1b7e8d9023bc51ef3509bba217bb730cee3827e1ee82869
     # via schema
-cyclonedx-python-lib==7.6.2 \
-    --hash=sha256:31186c5725ac0cfcca433759a407b1424686cdc867b47cc86e6cf83691310903 \
-    --hash=sha256:c42fab352cc0f7418d1b30def6751d9067ebcf0e8e4be210fc14d6e742a9edcc
+cyclonedx-python-lib==8.9.0 \
+    --hash=sha256:017b95b334aa83b2d0db8af9764e13a46f0e903bd30a57d93d08dcd302c84032 \
+    --hash=sha256:112c6e6e5290420e32026c49b8391645bf3e646c7602f7bdb5d02c6febbaa073
     # via checkov
 decorator==5.3.2 \
     --hash=sha256:d3fb2a434ac31e231d14175ecbda823d83f26b7e45270cd7cd4d0350264b79e2 \
