@@ -3,7 +3,7 @@
   "require": {
     "php": "^8",
     "ergebnis/composer-normalize": "^2.59.0",
-    "ergebnis/json-normalizer": "^4.13.0",
+    "ergebnis/json-normalizer": "^4.14.0",
     "ergebnis/json-printer": "^3.10.0"
   },
   "config": {
