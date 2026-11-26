@@ -38,7 +38,7 @@ DEPENDENCIES
   psych (~> 5.5)
 
 RUBY VERSION
-  ruby 3.4.1p0
+  ruby 4.0.10
 
 BUNDLED WITH
-  4.1.0
+  4.1.1
