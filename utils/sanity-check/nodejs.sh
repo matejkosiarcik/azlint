@@ -35,7 +35,7 @@ npm ci --help
 "${BINPREFIX:-}markdown-table-formatter" --version
 "${BINPREFIX:-}markdownlint" --help
 "${BINPREFIX:-}markdownlint" --version
-"${BINPREFIX:-}pjv" --help
+"${BINPREFIX:-}package-json-validator-cli" --help
 "${BINPREFIX:-}prettier" --help
 "${BINPREFIX:-}prettier" --version
 "${BINPREFIX:-}secretlint" --help

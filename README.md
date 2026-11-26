@@ -269,7 +269,7 @@ These check additional rules, which are recommended, but not required for the co
 |------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------|-----------------|---------------|
 | composer-normalize     | [GitHub](https://github.com/ergebnis/composer-normalize) <br> [blogpost](https://localheinz.com/articles/2018/01/15/normalizing-composer.json) | `VALIDATE_COMPOSER_NORMALIZE` | `composer.json` | ✅            |
 | composer-validate      | [docs](https://getcomposer.org/doc/03-cli.md#validate)                                                                                         | `VALIDATE_COMPOSER_VALIDATE`  | `composer.json` | ❌            |
-| package-json-validator | [GitHub](https://github.com/gorillamania/package.json-validator)                                                                               | `VALIDATE_PACKAGE_JSON`       | `package.json`  | ❌            |
+| package-json-validator | [GitHub](https://github.com/JoshuaKGoldberg/package-json-validator-cli)                                                                         | `VALIDATE_PACKAGE_JSON`       | `package.json`  | ❌            |
 
 ### CI/CD services
 

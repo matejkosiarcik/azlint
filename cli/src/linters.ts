@@ -665,7 +665,7 @@ export class Linters {
                 }
                 return skip;
             },
-            lintFile: { args: ['pjv', '--warnings', '--recommendations', '--filename', '#file#'] },
+            lintFile: { args: ['package-json-validator-cli', '--warnings', '--recommendations', '--filename', '#file#'] },
         });
 
         // Composer validate
