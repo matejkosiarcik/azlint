@@ -46,3 +46,12 @@ npm ci --help
 "${BINPREFIX:-}svglint" --version
 "${BINPREFIX:-}textlint" --help
 "${BINPREFIX:-}textlint" --version
+
+printf 'A clean document.\n' | "${BINPREFIX:-}textlint" --no-textlintrc --stdin --stdin-filename 'sample.txt' --rule no-todo
+if textlint_output=$(printf 'TODO: fix this\n' | "${BINPREFIX:-}textlint" --no-textlintrc --stdin --stdin-filename 'sample.md' --rule no-todo --format compact 2>&1); then
+    printf '%s\n' 'textlint did not detect the TODO' >&2
+    exit 1
+else
+    textlint_status=$?
+    [ "${textlint_status}" -eq 1 ] && printf '%s\n' "${textlint_output}" | grep -F 'Found TODO:'
+fi

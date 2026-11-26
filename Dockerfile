@@ -519,12 +519,8 @@ COPY utils/optimize/optimize-nodejs.sh /optimizations/
 COPY --from=linters__nodejs__base /app/node_modules ./node_modules
 RUN sh '/optimizations/optimize-nodejs.sh'
 
-FROM debian:13.8-slim AS linters__nodejs__final
+FROM node:26.13.1-slim AS linters__nodejs__final
 WORKDIR /app
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_TERSE=yes DEBCONF_NOWARNINGS=yes apt-get install -qq --yes --no-install-recommends --no-install-suggests \
-        nodejs npm >'/dev/null' && \
-    rm -rf /var/lib/apt/lists/*
 COPY utils/sanity-check/nodejs.sh ./sanity-check.sh
 COPY --from=linters__nodejs__optimize /app/node_modules ./node_modules
 ENV BINPREFIX="/app/node_modules/.bin/"
